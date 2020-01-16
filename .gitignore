@@ -2,6 +2,5 @@
 node_modules/
 src/node_modules/
 yarn-error.log
+svelte.config.js
 __sapper__/
-
-src/configs/

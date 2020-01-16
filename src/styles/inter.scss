@@ -1,0 +1,136 @@
+@import "./global.scss";
+
+:global(body) {
+  background-color: $Dark_Gray;
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  padding: 0;
+  margin: 0;
+}
+
+.register-block {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 334px;
+
+  & > a{
+    color: white;
+    text-align: center;
+    display: block;
+    font-weight: bold;
+    font-size: $LowMedium_Font_Size;
+    margin-top: 13px;
+  }
+}
+
+.in-block{
+  background: white;
+  border-radius: 5px;
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+  padding: 25px 27px;
+  width: 334px;
+  box-sizing: border-box;
+}
+
+h1 {
+  font-size: $LowBig_Font_Size;
+  line-height: 19px;
+  padding-bottom: 17px;
+  font-weight: bold;
+}
+
+.input-block {
+  margin-top: 19px;
+}
+
+.success-block {
+  display: flex;
+  align-items: center;
+  margin-top: 19px;
+  font-size: $Mini_Font_Size;
+}
+
+label {
+  font-size: $LowMedium_Font_Size;
+}
+
+input {
+  &[type="text"], &[type="password"] {
+    width: 100%;
+    border: 0.3px solid #00000055;
+    background: white;
+    font-size: $LowMedium_Font_Size;
+    padding: 5px;
+    box-sizing: border-box;
+    margin-top: 9px;
+  }
+
+  &[type="checkbox"] {
+    position: absolute;
+    top: 0;
+    left: 0;
+    opacity: 0;
+    z-index: 1;
+
+    &:checked ~ div {
+      opacity: 1;
+    }
+  }
+}
+
+.checkbox-block {
+  position: relative;
+  width: 13px;
+  height: 13px;
+  background: #ffffff;
+  border: 0.3px solid #000000;
+  box-sizing: border-box;
+  box-shadow: inset 0px 0px 3px rgba(0, 0, 0, 0.25);
+  border-radius: 3px;
+
+  & > div {
+    transition: 0.3s;
+    opacity: 0;
+    position: absolute;
+    top: -3px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: $LowMedium_Font_Size;
+  }
+}
+
+.success-text {
+  margin-left: 6px;
+  line-height: 12px;
+}
+
+.blue-button {
+  margin-top: 19px;
+  padding: 10px;
+  width: 100%;
+  font-size: $Medium_Font_Size;
+  color: white;
+  background: $Pale_Blue;
+  border-radius: 5px;
+  transition: 0.3s;
+
+  &:disabled{
+    opacity: 0.5;
+  }
+}
+
+.inter {
+  font-size: $Mini_Font_Size;
+  text-align: center;
+  margin-top: 19px;
+}
+
+.forgot-password{
+  width: 100%;
+  margin-top: 11px;
+  font-size: $Mini_Font_Size;
+}

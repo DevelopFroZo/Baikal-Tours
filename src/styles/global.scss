@@ -1,0 +1,15 @@
+@import "./fonts.scss", "./colors.scss";
+
+:global(*){
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    border: none;
+    font-family: $Regular_Font;
+    text-decoration: none;
+    color: black;
+}
+
+.blue-text{
+    color: $Pale_Blue;
+}
