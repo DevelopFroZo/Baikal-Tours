@@ -62,6 +62,10 @@
           font-size: $Micro_Font_Size;
       }
   }
+
+  .category{
+      text-transform: uppercase;
+  }
 </style>
 
 <div class="card">
@@ -76,7 +80,7 @@
         </div>
         <div class = "price">{price}</div>
     </div>
-    <div class="line">
+    <div class="line category">
         <img src = "img/category.png" alt = "category">
         <div>{category}</div>
     </div>
