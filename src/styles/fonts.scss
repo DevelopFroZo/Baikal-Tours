@@ -1,4 +1,4 @@
-$Regular_Font: "Roboto Regular";
+$Default_Font: "Roboto";
 
 $Micro_Font_Size: 8px;
 $Mini_Font_Size: 10px;
@@ -9,12 +9,12 @@ $LowBig_Font_Size: 16px;
 $Big_Font_Size: 18px;
 
 @font-face {
-    font-family: "Roboto Regular";
-    src: url(./fonts/Roboto-Regular.ttf);
+    font-family: "Roboto";
+    src: url(../fonts/Roboto-Regular.ttf);
 }
 
 @font-face {
-    font-family: "Roboto Regular";
-    src: url(./fonts/Roboto-Bold.ttf);
+    font-family: "Roboto";
+    src: url(../fonts/Roboto-Bold.ttf);
     font-weight: bold;
 }

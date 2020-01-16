@@ -9,8 +9,15 @@
   <title>Регистрация</title>
 </svelte:head>
 
-{#if registerStatus}
-  <StartRegister on:register={() => registerStatus = false}/>
-{:else}
-  <ConfirmPassword />
-{/if}
+<style lang="scss">
+  @import "./styles/inter.scss";
+
+</style>
+
+<div class="body">
+  {#if registerStatus}
+    <StartRegister on:register={() => (registerStatus = false)} />
+  {:else}
+    <ConfirmPassword />
+  {/if}
+</div>

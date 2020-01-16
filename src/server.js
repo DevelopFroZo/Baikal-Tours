@@ -41,10 +41,10 @@ server.use(
     secret: !dev ? process.env.SESSION_SECRET : "secret",
     store: new pgStore( {
       pool: database.pool,
-      tableName: process.env.SESSION_TABLE_NAME
+      tableName: process.env.SESSION_NAME
     } )
   } ),
-	compression( {
+  compression( {
     threshold: 0
   } )
 );
