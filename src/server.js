@@ -44,7 +44,7 @@ server.use(
       tableName: process.env.SESSION_TABLE_NAME
     } )
   } ),
-	compression( {
+  compression( {
     threshold: 0
   } )
 );
