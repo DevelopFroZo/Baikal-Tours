@@ -96,14 +96,14 @@
       </div>
       <a href="./" class="underline">Пользовательское соглашение</a>
     </div>
-    <div class="center">
+    <!-- <div class="center">
       <div class="hrefs">
         <a href="./">Главная</a>
         <a href="./">Каталог событий</a>
         <a href="./">Личный кабинет</a>
       </div>
       <a href="./" class="underline">Политика конфиденциальности</a>
-    </div>
+    </div> -->
     <div class = "right-side">
         <h1>Контакты</h1>
         <div class="mail">events@calendar.com</div>

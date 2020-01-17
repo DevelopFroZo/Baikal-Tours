@@ -10,9 +10,12 @@ import bodyParser from "body-parser";
 import session from "express-session";
 import pgStoreConnect from "connect-pg-simple";
 
-// Configs
+// Config, database
 import "./configs/env";
 import database from "./database";
+
+// Helpers
+import mail from "./helpers/mail";
 
 // Consts
 const { PORT, NODE_ENV } = process.env;
@@ -55,6 +58,11 @@ server.use( ( req, res, next ) => {
   res.success = ( code, data ) => res.json( database.success( code, data ) );
   res.error = code => res.json( database.error( code ) );
 
+  // #fix поменять на !dev
+  if( dev ) req.mail = mail;
+
+  if( !req.session.isLogged ) req.session.isLogged = false;
+
   next();
 } );
 
@@ -64,7 +72,11 @@ server
     sirv( "static", {
       dev
     } ),
-    sapper.middleware()
+    sapper.middleware( {
+      session: ( req, res ) => ( {
+        isLogged: req.session.isLogged
+      } )
+    } )
   )
   .listen( PORT, err => {
   	if( err ) console.log( "error", err );

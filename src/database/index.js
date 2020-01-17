@@ -7,11 +7,15 @@ import codes from "./codes";
 const dev = process.env.NODE_ENV === "development";
 const modules = {};
 
+import Auth from "./auth";
+
 // Main pool
 modules.pool = new pg.Pool( !dev ? config.production : config.development );
 
 // Controllers
+modules.auth = new Auth( modules );
 
+// #fix вынести на глобальный уровень
 // Success & error functions
 modules.success = ( code, data ) => {
   if( data === undefined ) data = null;
