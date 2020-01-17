@@ -44,7 +44,7 @@ server.use(
     secret: !dev ? process.env.SESSION_SECRET : "secret",
     store: new pgStore( {
       pool: database.pool,
-      tableName: process.env.SESSION_NAME
+      tableName: process.env.SESSION_TABLE_NAME
     } )
   } ),
   compression( {
@@ -78,6 +78,6 @@ server
       } )
     } )
   )
-  .listen( PORT, err => {
+  .listen( dev ? PORT : process.env.PRODUCTION_PORT, err => {
   	if( err ) console.log( "error", err );
   } );
