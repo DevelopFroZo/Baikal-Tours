@@ -26,6 +26,7 @@ export async function post( req, res ){
   }
   else if( req.query.action === "confirm" ){
     // #fix проверки на корректность данных
+    // #fix redirect на /api/signin
     result = await req.database.auth.signin(
       req.body.phoneOrEmail,
       req.body.password
