@@ -1,12 +1,27 @@
 <script>
   import { createEventDispatcher } from "svelte";
 
-  let email, password;
+  let email = "",
+    password = "",
+    disabledLogin = "disabled";
   const dispatch = createEventDispatcher();
 
   function forgotPassword() {
     dispatch("forgotPassword");
   }
+
+  function login() {
+    dispatch("login", {
+      phoneOrEmail: email,
+      password: password
+    });
+  }
+
+  $: if (email !== "" && password !== ""){
+    disabledLogin = "";
+    console.log(email, password)
+  } 
+  else disabledLogin = "disabled";
 </script>
 
 <style lang="scss">
@@ -33,9 +48,13 @@
         bind:value={password} />
     </div>
 
-    <button id="login" class="blue-button">Войти</button>
+    <button id="login" class="blue-button" on:click={login} disabled={disabledLogin}>
+      Войти
+    </button>
 
-    <button class="blue-text forgot-password" on:click = {forgotPassword}>Забыли пароль?</button>
+    <button class="blue-text forgot-password" on:click={forgotPassword}>
+      Забыли пароль?
+    </button>
 
     <div class="inter">
       Еще не зарегистрированны?

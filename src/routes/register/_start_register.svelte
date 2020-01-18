@@ -15,7 +15,12 @@
   } else disableRegister = "disabled";
 
   function register() {
-    dispatch("register");
+    dispatch("register", {
+      name: name,
+      surname: surname,
+      phone: phone,
+      email: email
+    });
   }
   
 </script>
