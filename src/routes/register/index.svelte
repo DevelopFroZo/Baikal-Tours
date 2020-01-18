@@ -1,38 +1,32 @@
 <script>
   import StartRegister from "./_start_register.svelte";
-  import ConfirmPassword from "./_confirm_password.svelte";
-  import {response} from "../../helpers/response.js";
+  import { response } from "../../helpers/response.js";
 
-  let registerStatus = true;
-
-  async function register(e){
+  async function register(e) {
     let data = e.detail;
 
-    let register_response = await response('/api/signup?action=start', data);
+    let register_response = await response("/api/signup?action=start", data);
     let result = await register_response.json();
-    
-    if(result.ok){
+
+    if (result.ok) {
+      // localStorage.setItem('email', data.email)
+      // document.location.href = "./register/confirm_password";
+
       document.location.href = "./login";
-    }
-    else{
-      alert(result.message)
+    } else {
+      alert(result.message);
     }
   }
 </script>
+
+<style lang="scss">
+  @import "./styles/inter.scss";
+</style>
 
 <svelte:head>
   <title>Регистрация</title>
 </svelte:head>
 
-<style lang="scss">
-  @import "./styles/inter.scss";
-
-</style>
-
 <div class="body">
-  {#if registerStatus}
-    <StartRegister on:register={register} />
-  {:else}
-    <ConfirmPassword />
-  {/if}
+  <StartRegister on:register={register} />
 </div>

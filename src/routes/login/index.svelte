@@ -32,6 +32,6 @@
   {#if !forgot}
     <StartLogin on:forgotPassword={() => (forgot = true)} on:login={login} />
   {:else}
-    <ForgotPassword />
+    <ForgotPassword on:login={() => {forgot = false}}/>
   {/if}
 </div>

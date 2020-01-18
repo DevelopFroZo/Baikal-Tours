@@ -1,5 +1,7 @@
 <script>
+  import { stores } from "@sapper/app";
 
+  const { session } = stores();
 </script>
 
 <style lang="scss">
@@ -71,12 +73,16 @@
       margin-left: 23px;
     }
 
-    &[href="./register"] {
+    &[href="./register"], &.my-page {
       margin-left: 15px;
       padding: 5px 8px;
       border-radius: 5px;
       background: white;
     }
+  }
+
+  .logout{
+    margin-left: 23px;
   }
 </style>
 
@@ -96,7 +102,12 @@
       ru
       <img src="img/language.png" alt="language" />
     </button>
-    <a href="./login" id="login">Войти</a>
-    <a href="./register" id="register">Регистрация</a>
+    {#if !$session.isLogged}
+      <a href="./login" id="login">Войти</a>
+      <a href="./register" id="register">Регистрация</a>
+    {:else}
+      <a href="./" class = "my-page">*твоя почта*</a>
+      <button class = "logout">Выход</button>
+    {/if}
   </div>
 </header>

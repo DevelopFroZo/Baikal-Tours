@@ -19,7 +19,6 @@
 
   $: if (email !== "" && password !== ""){
     disabledLogin = "";
-    console.log(email, password)
   } 
   else disabledLogin = "disabled";
 </script>

@@ -5,9 +5,9 @@
 
   let date = "",
     price = "",
-	showFilter = false,
-	priceStart = "",
-	priceEnd = "";
+    showFilter = false,
+    priceStart = "",
+    priceEnd = "";
 
   let cards = [
     {
@@ -166,20 +166,18 @@
       filter[4][0].value > filter[4][1].value &&
       filter[4][0].value !== "" &&
       filter[4][1].value !== ""
-    ){
-		priceStart = filter[4][1].value;
-		filter[4][0].value = filter[4][1].value;
-	}
+    ) {
+      priceStart = filter[4][1].value;
+      filter[4][0].value = filter[4][1].value;
+    }
 
-	if(filter[4][0].value === "" || filter[4][0].value === undefined)
-		filter[4][0].active = false;
-	else
-		filter[4][0].active = true;
+    if (filter[4][0].value === "" || filter[4][0].value === undefined)
+      filter[4][0].active = false;
+    else filter[4][0].active = true;
 
-	if(filter[4][1].value === "" || filter[4][1].value === undefined)
-		filter[4][1].active = false;
-	else
-		filter[4][1].active = true;
+    if (filter[4][1].value === "" || filter[4][1].value === undefined)
+      filter[4][1].active = false;
+    else filter[4][1].active = true;
 
     if (filter[4][0].active && filter[4][1].active)
       price = "от " + filter[4][0].value + "р до " + filter[4][1].value + "р";
@@ -187,7 +185,7 @@
     else if (filter[4][1].active) price = "до" + filter[4][1].value + "р";
     else price = "";
 
-	//show active filters
+    //show active filters
     showFilter = false;
     for (let i = 0; i < filter.length; i++) {
       for (let j = 0; j < filter[i].length; j++) {
@@ -199,9 +197,9 @@
     }
   }
 
-  function setPrice(){
-	  filter[4][0].value = priceStart;
-	  filter[4][1].value = priceEnd;
+  function setPrice() {
+    filter[4][0].value = priceStart;
+    filter[4][1].value = priceEnd;
   }
 </script>
 
@@ -279,8 +277,8 @@
     width: 140px;
     height: 25px;
     text-align: left;
-	position: relative;
-	color: #00000099;
+    position: relative;
+    color: #00000099;
 
     &::before {
       position: absolute;
@@ -454,13 +452,13 @@
         placeholder="цена от"
         id="price-start"
         bind:value={priceStart}
-		on:blur={setPrice} />
+        on:blur={setPrice} />
       <input
         type="number"
         placeholder="до"
         id="price-end"
         bind:value={priceEnd}
-		on:blur={setPrice} />
+        on:blur={setPrice} />
     </div>
   </div>
   {#if showFilter}
@@ -503,9 +501,9 @@
           <button
             class="delete-filter"
             on:click={() => {
-              priceStart = "";
-			  priceEnd = "";
-			  setPrice();
+              priceStart = '';
+              priceEnd = '';
+              setPrice();
             }}>
             <img src="img/clear.png" />
           </button>
