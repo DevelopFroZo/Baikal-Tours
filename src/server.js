@@ -78,6 +78,6 @@ server
       } )
     } )
   )
-  .listen( PORT, err => {
+  .listen( dev ? PORT : process.env.PRODUCTION_PORT, err => {
   	if( err ) console.log( "error", err );
   } );
