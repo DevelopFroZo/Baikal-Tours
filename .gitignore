@@ -4,5 +4,5 @@ src/node_modules/
 yarn-error.log
 __sapper__/
 
-
+src/configs/
 svelte.config.js
