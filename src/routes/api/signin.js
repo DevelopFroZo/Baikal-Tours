@@ -1,3 +1,4 @@
+// Errors: 3, 4
 export async function post( req, res ){
   // #fix проверки на корректность данных
   const result = await req.database.auth.signin(
