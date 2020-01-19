@@ -5,7 +5,7 @@
   async function register(e) {
     let data = e.detail;
 
-    let register_response = await response("/api/signup?action=start", data);
+    let register_response = await response("post", "/api/signup?action=start", data);
     let result = await register_response.json();
 
     if (result.ok) {

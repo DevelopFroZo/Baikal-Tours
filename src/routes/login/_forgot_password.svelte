@@ -8,7 +8,6 @@
     dispatch("login");
   }
 
-  $: console.log(email === "");
 </script>
 
 <style lang="scss">

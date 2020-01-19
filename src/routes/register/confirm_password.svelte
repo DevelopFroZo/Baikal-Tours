@@ -11,7 +11,7 @@
       password: password
     };
 
-    let confirm_response = await response("/api/signup?action=confirm", data);
+    let confirm_response = await response("POST", "/api/signup?action=confirm", data);
     let result = await confirm_response.json();
 
     if (result.ok) {

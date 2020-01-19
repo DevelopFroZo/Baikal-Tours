@@ -2,9 +2,10 @@ export {
     response
 }
 
-async function response(url, obj){
+// #fix add automaticly redirect and functions
+async function response(method, url, obj){
     return await fetch(url, {
-        method: "POST",
+        method: method,
         headers: {
             'Content-Type': 'application/json'
         },

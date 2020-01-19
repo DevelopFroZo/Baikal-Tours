@@ -6,3 +6,4 @@ __sapper__/
 
 src/configs/
 svelte.config.js
+__safety/

@@ -2,51 +2,15 @@
   import Header from "../components/header.svelte";
   import Footer from "../components/footer.svelte";
   import Card from "../components/card_of_event.svelte";
+  import { onMount } from "svelte";
+  import { response } from "../helpers/response.js";
 
   let date = "",
     price = "",
     showFilter = false,
     priceStart = "",
-    priceEnd = "";
-
-  let cards = [
-    {
-      id: 1,
-      name: "О, да! Еда!",
-      date: "20 июля - 2 августа",
-      img: "img/test.png",
-      price: "250p",
-      category: "фестивали и праздники",
-      place: "Иркутск, о. Конный"
-    },
-    {
-      id: 2,
-      name: "О, да! Еда!",
-      date: "20 июля - 2 августа",
-      img: "img/test.png",
-      price: "250p",
-      category: "фестивали и праздники",
-      place: "Иркутск, о. Конный"
-    },
-    {
-      id: 3,
-      name: "О, да! Еда!",
-      date: "20 июля - 2 августа",
-      img: "img/test.png",
-      price: "250p",
-      category: "фестивали и праздники",
-      place: "Иркутск, о. Конный"
-    },
-    {
-      id: 4,
-      name: "О, да! Еда!",
-      date: "20 июля - 2 августа",
-      img: "img/test.png",
-      price: "250p",
-      category: "фестивали и праздники",
-      place: "Иркутск, о. Конный"
-    }
-  ];
+	priceEnd = "",
+	cards_response, cards = [];
 
   let options = [
     {
@@ -201,6 +165,14 @@
     filter[4][0].value = priceStart;
     filter[4][1].value = priceEnd;
   }
+
+  onMount(async () => {
+	  cards_response = await response("GET", "/api/actions");
+	  let result = await cards_response.json();
+
+	  cards = result.data;
+  })
+
 </script>
 
 <style lang="scss">
