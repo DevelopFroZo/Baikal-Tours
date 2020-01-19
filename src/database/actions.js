@@ -9,12 +9,12 @@ export default class extends Foundation{
     const limit = count ? `limit ${count}` : "";
     const rows = ( await super.query(
       `select
-         a.name,
-         array_agg( distinct ad.date_start ),
-         array_agg( distinct ad.date_end ),
+         a.id, a.name,
+         array_agg( distinct ad.date_start ) as date_starts,
+         array_agg( distinct ad.date_end ) as date_ends,
          ai.image_url, a.price,
-         array_agg( distinct s.name ),
-         array_agg( distinct l.name )
+         array_agg( distinct s.name ) as subjects,
+         array_agg( distinct l.name ) as locations
        from
          actions as a
          left join action_dates as ad
@@ -29,9 +29,11 @@ export default class extends Foundation{
          on a.id = al.action_id
          left join locations as l
          on al.location_id = l.id
-       group by a.name, ai.image_url, a.price
+       group by a.id, a.name, ai.image_url, a.price
        ${limit}`
     ) ).rows;
+
+    console.log( rows );
 
     return super.success( 0, rows );
   }
