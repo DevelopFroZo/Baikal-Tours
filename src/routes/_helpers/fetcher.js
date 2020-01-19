@@ -70,7 +70,6 @@ export default class{
       options.body = JSON.stringify( body );
     }
 
-    console.log( url + params );
     const response = await fetch( url + params, options );
 
     if( !response.ok ) return response;
