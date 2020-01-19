@@ -8,12 +8,17 @@ const dev = process.env.NODE_ENV === "development";
 const modules = {};
 
 import Auth from "./auth";
+import Actions from "./actions";
+
+// #fix добавить колонки "жирный текст" (???), краткое описание в таблицу actions
 
 // Main pool
 modules.pool = new pg.Pool( !dev ? config.production : config.development );
 
 // Controllers
 modules.auth = new Auth( modules );
+modules.actions = new Actions( modules );
+// #fix Добавить получение данных для фильтров
 
 // #fix вынести на глобальный уровень
 // Success & error functions

@@ -9,7 +9,8 @@ export async function post( req, res ){
   if( !result.ok ) return res.json( result );
 
   // #fix добавить роль
-  req.session.userId = result.data;
+  req.session.userId = result.data.id;
+  req.session.email = result.data.email;
   req.session.isLogged = true;
 
   res.success();
