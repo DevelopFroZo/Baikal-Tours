@@ -33,8 +33,6 @@ export default class extends Foundation{
        ${limit}`
     ) ).rows;
 
-    console.log( rows );
-
     return super.success( 0, rows );
   }
 
@@ -83,6 +81,7 @@ export default class extends Foundation{
     if( filters.length === 0 ) filters = "";
     else filters = `where ${filters.join( " and\n" )}`;
 
+    // #fix поменять на новую версию
     const rows = ( await super.query(
       `select id, name, date_starts, date_ends, image_url, price, subjects, locations from (
       	select
