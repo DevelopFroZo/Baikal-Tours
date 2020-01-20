@@ -9,6 +9,7 @@ const modules = {};
 
 import Auth from "./auth";
 import Actions from "./actions";
+import DataForFilters from "./dataForFilters";
 
 // #fix добавить колонки "жирный текст" (???), краткое описание в таблицу actions
 
@@ -18,7 +19,7 @@ modules.pool = new pg.Pool( !dev ? config.production : config.development );
 // Controllers
 modules.auth = new Auth( modules );
 modules.actions = new Actions( modules );
-// #fix Добавить получение данных для фильтров
+modules.dataForFilters = new DataForFilters( modules );
 
 // #fix вынести на глобальный уровень
 // Success & error functions
