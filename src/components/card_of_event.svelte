@@ -6,7 +6,8 @@
     image_url = "",
     price = "",
     subjects = "",
-    locations = "";
+    locations = "",
+    id = "";
 
   let dates = [];
 
@@ -94,7 +95,7 @@
   }
 </style>
 
-<div class="card">
+<div class="card" on:click={() => {document.location.href = "./action?id=" + id;}}>
   <h1>{name}</h1>
   <div class="line">
     <img src="img/date.png" alt="date" />

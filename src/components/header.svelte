@@ -95,7 +95,7 @@
         <img src="img/logo.png" alt="logo" />
       </div>
     </div>
-    <div class="page-name">Каталог событий</div>
+    <a href="./" class="page-name">Каталог событий</a>
   </div>
   <div class="right-side">
     <button id="language">

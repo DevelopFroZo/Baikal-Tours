@@ -368,10 +368,10 @@
         class="option"
         class:option-visible={options[0].isVisible}
         bind:this={options[0].option}>
-        {#each filter[1] as city}
-          <div>
+        {#each filter[1] as city, i}
+          <div on:click={() => city.active = !city.active}>
             <label>{city.value}</label>
-            <input type="checkbox" bind:checked={city.active} />
+            <input type="checkbox" bind:checked={city.active}/>
           </div>
         {/each}
       </div>
@@ -390,7 +390,7 @@
         class:option-visible={options[1].isVisible}
         bind:this={options[1].option}>
         {#each filter[2] as companios}
-          <div>
+          <div on:click={() => companios.active = !companios.active}>
             <label>{companios.value}</label>
             <input type="checkbox" bind:checked={companios.active} />
           </div>
@@ -411,7 +411,7 @@
         class:option-visible={options[2].isVisible}
         bind:this={options[2].option}>
         {#each filter[3] as subjects}
-          <div>
+          <div on:click={() => subjects.active = !subjects.active}>
             <label>{subjects.value}</label>
             <input type="checkbox" bind:checked={subjects.active} />
           </div>

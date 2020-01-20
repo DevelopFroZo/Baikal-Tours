@@ -1,6 +1,21 @@
 <script>
   import Header from "../components/header.svelte";
   import Footer from "../components/footer.svelte";
+  import Fetcher from "./_helpers/fetcher.js";
+  import { onMount } from "svelte";
+
+  const fetch = new Fetcher();
+  let response;
+
+  onMount(async () => {
+    getActionInfo();
+  });
+
+  async function getActionInfo() {
+    var actionId = window.location.toString().split("id=")[1];
+    response = await fetch.get("/api/actions/" + actionId);
+    console.log(response);
+  }
 </script>
 
 <style lang="scss">
@@ -110,99 +125,105 @@
 </svelte:head>
 
 <Header />
-<div class="form-width">
-  <h1>О, да! Еда!</h1>
-  <p class="italic-bold">
-    24-25 августа остров Конный вновь станет гастрономическим центром Иркутска.
-  </p>
-  <p class="italic">
-    В последний уикенд лета на «О, да! Еда!» будут будут представлены самые
-    актуальные направления современной культуры: музыка, спорт, стрит-арт, а
-    главное – гастрономия.
-  </p>
-
-  <div class="info-block">
-    <div class="left-side">
-      <div class="line">
-        <div>
-          <img src="img/date.png" alt="date" />
-        </div>
-        <span>20 июля - 2 августа</span>
-      </div>
-      <div class="line">
-        <div>
-          <img src="img/place.png" alt="date" />
-        </div>
-        <span>г. Иркутск, о. Конный</span>
-      </div>
-      <div class="line">
-        <div>
-          <img src="img/org.png" alt="date" />
-        </div>
-        <span>
-          Организатор фестиваля в Иркутске: Елена Кухта odaedairk@ya.ru
-        </span>
-      </div>
-      <div class="line">
-        <div>
-          <img src="img/price.png" alt="date" />
-        </div>
-        <span>Стоимость: бесплатно</span>
-      </div>
-      <div class="line">
-        <div>
-          <img src="img/pages.png" alt="date" />
-        </div>
-        <span>Официальный сайт Группа “ВКонтакте” Инстаграм Фейсбук</span>
-      </div>
-      <div class="line">
-        <div>
-          <img src="img/transfer.png" alt="date" />
-        </div>
-        <span>Трансфер: самостоятельно</span>
-      </div>
-      <div class="line">
-        <div>
-          <img src="img/birk.png" alt="date" />
-        </div>
-        <span>ГАСТРОНОМИЯ</span>
-      </div>
-    </div>
-    <div class="right-side">
+{#await response}
+  Загрузка
+{:then}
+  <div class="form-width">
+    <h1>О, да! Еда!</h1>
+    <p class="italic-bold">
+      24-25 августа остров Конный вновь станет гастрономическим центром
+      Иркутска.
+    </p>
+    <p class="italic">
       В последний уикенд лета на «О, да! Еда!» будут будут представлены самые
       актуальные направления современной культуры: музыка, спорт, стрит-арт, а
-      главное – гастрономия. Тема фестиваля в 2019 году – кругосветное
-      путешествие. Ожидаемое количество гостей фестиваля в 2019 году более 40
-      тыс. человек. Участники фестиваля в Иркутске представят оригинальные
-      ресторанные концепции – национальные кухни, монопродукты, стритфуд,
-      стартапы. «О, да! Еда!» 2019 в Иркутске – это гастрономическая панорама
-      мира, пять мини-фестивалей от Азии до Америки, пять культур с раменными,
-      гавайскими коктейлями, азиатским базаром, барбекю на заднем дворе,
-      сиестой, шведской фикой и новой русской кухней. Это гастроперфомансы,
-      pop-up пространства и летние активности, новые технологии и интерактивные
-      площадки на каждом «континенте». Приглашаем к участию гастрономические
-      проекты, шеф-поваров и стартапы. Фестиваль "О, да! Еда!" - это самый
-      узнаваемый и ожидаемый гастрономический фестиваль в России.
-    </div>
-  </div>
+      главное – гастрономия.
+    </p>
 
-  <div class="register-form">
-    <div class="input-block">
-      <label for="name">Имя и фамилия</label>
-      <br />
-      <input type="text" name="name" />
+    <div class="info-block">
+      <div class="left-side">
+        <div class="line">
+          <div>
+            <img src="img/date.png" alt="date" />
+          </div>
+          <span>20 июля - 2 августа</span>
+        </div>
+        <div class="line">
+          <div>
+            <img src="img/place.png" alt="date" />
+          </div>
+          <span>г. Иркутск, о. Конный</span>
+        </div>
+        <div class="line">
+          <div>
+            <img src="img/org.png" alt="date" />
+          </div>
+          <span>
+            Организатор фестиваля в Иркутске: Елена Кухта odaedairk@ya.ru
+          </span>
+        </div>
+        <div class="line">
+          <div>
+            <img src="img/price.png" alt="date" />
+          </div>
+          <span>Стоимость: бесплатно</span>
+        </div>
+        <div class="line">
+          <div>
+            <img src="img/pages.png" alt="date" />
+          </div>
+          <span>Официальный сайт Группа “ВКонтакте” Инстаграм Фейсбук</span>
+        </div>
+        <div class="line">
+          <div>
+            <img src="img/transfer.png" alt="date" />
+          </div>
+          <span>Трансфер: самостоятельно</span>
+        </div>
+        <div class="line">
+          <div>
+            <img src="img/birk.png" alt="date" />
+          </div>
+          <span>ГАСТРОНОМИЯ</span>
+        </div>
+      </div>
+      <div class="right-side">
+        В последний уикенд лета на «О, да! Еда!» будут будут представлены самые
+        актуальные направления современной культуры: музыка, спорт, стрит-арт, а
+        главное – гастрономия. Тема фестиваля в 2019 году – кругосветное
+        путешествие. Ожидаемое количество гостей фестиваля в 2019 году более 40
+        тыс. человек. Участники фестиваля в Иркутске представят оригинальные
+        ресторанные концепции – национальные кухни, монопродукты, стритфуд,
+        стартапы. «О, да! Еда!» 2019 в Иркутске – это гастрономическая панорама
+        мира, пять мини-фестивалей от Азии до Америки, пять культур с раменными,
+        гавайскими коктейлями, азиатским базаром, барбекю на заднем дворе,
+        сиестой, шведской фикой и новой русской кухней. Это гастроперфомансы,
+        pop-up пространства и летние активности, новые технологии и
+        интерактивные площадки на каждом «континенте». Приглашаем к участию
+        гастрономические проекты, шеф-поваров и стартапы. Фестиваль "О, да!
+        Еда!" - это самый узнаваемый и ожидаемый гастрономический фестиваль в
+        России.
+      </div>
     </div>
-    <div class="input-block">
-      <label for="phone">Телефон</label>
-      <br />
-      <input type="text" name="phone" />
+
+    <div class="register-form">
+      <div class="input-block">
+        <label for="name">Имя и фамилия</label>
+        <br />
+        <input type="text" name="name" />
+      </div>
+      <div class="input-block">
+        <label for="phone">Телефон</label>
+        <br />
+        <input type="text" name="phone" />
+      </div>
+      <div class="input-block">
+        <label for="email">Email</label>
+        <br />
+        <input type="text" name="email" />
+      </div>
+      <button class="register-button">Зарегистрироваться</button>
     </div>
-    <div class="input-block">
-      <label for="email">Email</label>
-      <br />
-      <input type="text" name="email" />
-    </div>
-    <button class="register-button">Зарегистрироваться</button>
   </div>
-</div>
+{/await}
 <Footer />
