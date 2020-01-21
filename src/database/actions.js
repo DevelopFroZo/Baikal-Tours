@@ -7,6 +7,7 @@ export default class extends Foundation{
 
   async getAll( count ){
     const limit = count ? `limit ${count}` : "";
+    // #fix поменять на корректную версию
     const rows = ( await super.query(
       `select
          a.id, a.name,
@@ -41,23 +42,8 @@ export default class extends Foundation{
     let filters = [];
     const params = [];
     let i = 1;
-    let locations_filter = "";
+    let datesFilter = [];
 
-    if( dateStart ){
-      filters.push( `( ad.date_start is null or ad.date_start >= $${i} )` );
-      params.push( dateStart );
-      i++;
-    }
-    if( dateEnd ){
-      filters.push( `( ad.date_end is null or ad.date_end <= $${i} )` );
-      params.push( dateEnd );
-      i++;
-    }
-    if( locations ){
-      locations_filter = `where tmp.location_ids @> $${i}::int[]`;
-      params.push( locations );
-      i++;
-    }
     if( price_min ){
       filters.push( `a.price >= $${i}` );
       params.push( price_min );
@@ -68,49 +54,85 @@ export default class extends Foundation{
       params.push( price_max );
       i++;
     }
+    if( locations ){
+      filters.push( `la.ids @> $${i}::int[]` );
+      params.push( locations );
+      i++;
+    }
     if( companions ){
-      filters.push( `( ac.companion_id is null or ac.companion_id = any( $${i}::int[] ) )` );
+      filters.push( `c.id = any( $${i}::int[] )` );
       params.push( companions );
       i++;
     }
     if( subjects ){
-      filters.push( `( acsu.subject_id is null or acsu.subject_id = any( $${i}::int[] ) )` );
+      filters.push( `s.id = any( $${i}::int[] )` );
       params.push( subjects );
+      i++
+    }
+    if( dateStart ){
+      datesFilter.push( `( ad.date_start is null or ad.date_start >= $${i} )` );
+      params.push( dateStart );
+      i++;
+    }
+    if( dateEnd ){
+      datesFilter.push( `( ad.date_end is null or ad.date_end <= $${i} )` );
+      params.push( dateEnd );
     }
 
     if( filters.length === 0 ) filters = "";
-    else filters = `where ${filters.join( " and\n" )}`;
+    else filters = `${filters.join( " and " )} and`;
 
-    // #fix поменять на новую версию
+    if( datesFilter.length === 0 ) datesFilter = "";
+    else datesFilter = `where ${datesFilter.join( " and " )}`;
+
+    console.log( filters );
+    console.log( datesFilter );
+
+    // #fix переделать на хранимку
     const rows = ( await super.query(
-      `select id, name, date_starts, date_ends, image_url, price, subjects, locations from (
+      `with locations_arrays as (
       	select
-      		a.id, a.name,
-      		array_agg( distinct ad.date_start ) as date_starts,
-      		array_agg( distinct ad.date_end ) as date_ends,
-      		ai.image_url, a.price,
-      		array_agg( distinct al.location_id ) as location_ids,
-      		array_agg( distinct s.name ) as subjects,
-      		array_agg( distinct l.name ) as locations
+      		a.id,
+      		array_agg( l.id ) as ids,
+      		array_agg( l.name ) as names
       	from
-      		actions as a
-      		left join action_dates as ad
-      		on a.id = ad.action_id
-      		left join action_images as ai
-      		on a.id = ai.action_id
-      		left join actions_locations as al
-      		on a.id = al.action_id
-      		left join locations as l
-      		on al.location_id = l.id
-      		left join actions_companions as ac
-      		on a.id = ac.action_id
-      		left join actions_subjects as acsu
-      		on a.id = acsu.action_id
-      		left join subjects as s
-      		on acsu.subject_id = s.id
-      	${filters}
-        group by a.id, a.name, a.price, ai.image_url ) as tmp
-      ${locations_filter}
+      		actions as a,
+      		actions_locations as al,
+      		locations as l
+      	where
+      		a.id = al.action_id and
+      		al.location_id = l.id
+      	group by a.id
+      )
+      select
+      	tmp.*,
+      	array_agg( ad.date_start ) as date_starts,
+      	array_agg( ad.date_end ) as date_ends
+      from (
+      	select
+      		a.id, a.name, a.price,
+      		la.names as locations,
+      		array_agg( distinct c.name ) as companions,
+      		array_agg( distinct s.name ) as subjects
+      	from
+      		actions as a,
+      		locations_arrays as la,
+      		actions_companions as ac,
+      		companions as c,
+      		actions_subjects as acsu,
+      		subjects as s
+      	where
+      		${filters}
+      		a.id = la.id and
+      		ac.companion_id = c.id and
+      		ac.action_id = a.id and
+      		acsu.subject_id = s.id and
+      		acsu.action_id = a.id
+      	group by a.id, a.name, a.price, la.names ) as tmp
+      	left join action_dates as ad
+      	on ad.action_id = tmp.id
+      ${datesFilter}
+      group by tmp.id, tmp.name, tmp.price, tmp.locations, tmp.companions, tmp.subjects
       ${limit}`,
       params
     ) ).rows;

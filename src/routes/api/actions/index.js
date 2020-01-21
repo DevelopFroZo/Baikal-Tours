@@ -14,13 +14,13 @@ export async function get( req, res ){
 
   // filter is sended
   // Errors: 7, 8
-  const dateStart = req.query.dateStart;
-  const dateEnd = req.query.dateEnd;
+  let dateStart = req.query.dateStart;
+  let dateEnd = req.query.dateEnd;
   let locations = toIntArray( req.query.locations );
   let companions = toIntArray( req.query.companions );
   let subjects = toIntArray( req.query.subjects );
-  const price_min = toInt( req.query.price_min );
-  const price_max = toInt( req.query.price_max );
+  const price_min = toInt( req.query.priceMin );
+  const price_max = toInt( req.query.priceMax );
 
   if( dateStart === undefined ) dateStart = null;
   else if( dateStart === "" )
