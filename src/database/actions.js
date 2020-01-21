@@ -118,17 +118,67 @@ export default class extends Foundation{
     return super.success( 0, rows );
   }
 
-  // #fix передать нужные значения
   async getOne( id ){
-    const row = ( await super.query(
-      `select *
-      from actions
-      where id = $1`,
+    const transaction = await super.transaction();
+    const main = ( await transaction.query(
+      `select a.*, u.email
+      from
+        actions as a
+        left join users as u
+        on a.organizer_id = u.id
+      where a.id = $1`,
       [ id ]
     ) ).rows[0];
 
-    if( row === undefined ) return super.error( 10 );
+    if( main === undefined ){
+      await transaction.end();
 
-    return super.success( 0, row );
+      return super.error( 10 );
+    }
+
+    main.images = ( await transaction.query(
+      `select image_url, is_main
+      from action_images
+      where action_id = $1`,
+      [ id ]
+    ) ).rows;
+    main.dates = ( await transaction.query(
+      `select date_start, date_end, time_start, time_end, days
+      from action_dates
+      where action_id = $1`,
+      [ id ]
+    ) ).rows;
+    main.locations = ( await transaction.query(
+      `select l.name
+      from
+        actions_locations as al,
+        locations as l
+      where
+        al.action_id = $1 and
+        l.id = al.location_id`,
+      [ id ]
+    ) ).rows;
+    main.transfers = ( await transaction.query(
+      `select t.name
+      from
+        actions_transfers as at,
+        transfers as t
+      where
+        at.action_id = $1 and
+        t.id = at.transfer_id`,
+      [ id ]
+    ) ).rows;
+    main.subjects = ( await transaction.query(
+      `select s.name
+      from
+        actions_subjects as acsu,
+        subjects as s
+      where
+        acsu.action_id = $1 and
+        s.id = acsu.subject_id`,
+      [ id ]
+    ) ).rows;
+
+    return super.success( 0, main );
   }
 }

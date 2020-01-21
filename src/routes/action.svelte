@@ -4,7 +4,7 @@
   import Fetcher from "./_helpers/fetcher.js";
   import { onMount } from "svelte";
 
-  const fetch = new Fetcher();
+  const fetcher = new Fetcher();
   let response;
 
   onMount(async () => {
@@ -13,7 +13,7 @@
 
   async function getActionInfo() {
     var actionId = window.location.toString().split("id=")[1];
-    response = await fetch.get("/api/actions/" + actionId);
+    response = await fetcher.get("/api/actions/" + actionId);
     console.log(response);
   }
 </script>

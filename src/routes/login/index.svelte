@@ -1,4 +1,4 @@
-<script>
+<script context = "module">
   import StartLogin from "./_start_login.svelte";
   import ForgotPassword from "./_forgot_password.svelte";
   import {response} from "../../helpers/response.js";

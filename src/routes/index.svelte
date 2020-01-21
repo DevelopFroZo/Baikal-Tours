@@ -1,16 +1,34 @@
+<script context = "module">
+  export async function preload(page, session) {
+    let response = await this.fetch("/api/actions");
+    let result_cards = await response.json();
+
+    response = await this.fetch("/api/dataForFilters");
+    let result_filters = await response.json();
+    return { result_cards, result_filters };
+  }
+</script>
+
 <script>
   import Header from "../components/header.svelte";
   import Footer from "../components/footer.svelte";
   import Card from "../components/card_of_event.svelte";
   import { onMount } from "svelte";
-  import { response } from "../helpers/response.js";
+  import Fetcher from "./_helpers/fetcher.js";
+  import { parseDate } from "../helpers/parsers.js";
+
+  export let result_cards, result_filters;
+  const fetcher = new Fetcher();
 
   let date = "",
     price = "",
     showFilter = false,
     priceStart = "",
-	priceEnd = "",
-	cards_response, cards = [];
+    priceEnd = "",
+    resp,
+    cards = [],
+	start,
+	arrData, dateStart, dateEnd;
 
   let options = [
     {
@@ -41,48 +59,9 @@
         active: false
       }
     ],
-    [
-      {
-        value: "Иркутск",
-        active: false
-      },
-      {
-        value: "Ангарск",
-        active: false
-      },
-      {
-        value: "Шелехов",
-        active: false
-      }
-    ],
-    [
-      {
-        value: "С семьей",
-        active: false
-      },
-      {
-        value: "Одному",
-        active: false
-      },
-      {
-        value: "С друзьями",
-        active: false
-      }
-    ],
-    [
-      {
-        value: "фестивали и праздники",
-        active: false
-      },
-      {
-        value: "отдых",
-        active: false
-      },
-      {
-        value: "форум",
-        active: false
-      }
-    ],
+    [],
+    [],
+    [],
     [
       {
         value: "",
@@ -107,58 +86,109 @@
   }
 
   $: {
-    //change date status and her correct view
-    if (
-      new Date(filter[0][0].value) > new Date(filter[0][1].value) &&
-      filter[0][0].value !== "" &&
-      filter[0][1].value !== ""
-    )
-      filter[0][0].value = filter[0][1].value;
+    if (start) {
+      //change date status and her correct view
+      if (
+        new Date(filter[0][0].value) > new Date(filter[0][1].value) &&
+        filter[0][0].value !== "" &&
+        filter[0][1].value !== ""
+      )
+        filter[0][0].value = filter[0][1].value;
 
-    filter[0][0].active = filter[0][0].value === "" ? false : true;
-    filter[0][1].active = filter[0][1].value === "" ? false : true;
+      filter[0][0].active = filter[0][0].value === "" ? false : true;
+      filter[0][1].active = filter[0][1].value === "" ? false : true;
 
-    if (filter[0][0].active && filter[0][1].active)
-      date = filter[0][0].value + " - " + filter[0][1].value;
-    else if (filter[0][0].active) date = filter[0][0].value;
-    else if (filter[0][1].active) date = filter[0][1].value;
-    else date = "";
+      if (filter[0][0].active && filter[0][1].active)
+        date = filter[0][0].value + " - " + filter[0][1].value;
+      else if (filter[0][0].active) date = filter[0][0].value;
+      else if (filter[0][1].active) date = filter[0][1].value;
+      else date = "";
 
-    //change price status and her correct
+      //change price status and her correct
 
-    if (
-      filter[4][0].value > filter[4][1].value &&
-      filter[4][0].value !== "" &&
-      filter[4][1].value !== ""
-    ) {
-      priceStart = filter[4][1].value;
-      filter[4][0].value = filter[4][1].value;
-    }
+      if (
+        filter[4][0].value > filter[4][1].value &&
+        filter[4][0].value !== "" &&
+        filter[4][1].value !== ""
+      ) {
+        priceStart = filter[4][1].value;
+        filter[4][0].value = filter[4][1].value;
+      }
 
-    if (filter[4][0].value === "" || filter[4][0].value === undefined)
-      filter[4][0].active = false;
-    else filter[4][0].active = true;
+      if (filter[4][0].value === "" || filter[4][0].value === undefined)
+        filter[4][0].active = false;
+      else filter[4][0].active = true;
 
-    if (filter[4][1].value === "" || filter[4][1].value === undefined)
-      filter[4][1].active = false;
-    else filter[4][1].active = true;
+      if (filter[4][1].value === "" || filter[4][1].value === undefined)
+        filter[4][1].active = false;
+      else filter[4][1].active = true;
 
-    if (filter[4][0].active && filter[4][1].active)
-      price = "от " + filter[4][0].value + "р до " + filter[4][1].value + "р";
-    else if (filter[4][0].active) price = "от " + filter[4][0].value + "р";
-    else if (filter[4][1].active) price = "до" + filter[4][1].value + "р";
-    else price = "";
+      if (filter[4][0].active && filter[4][1].active)
+        price = "от " + filter[4][0].value + "р до " + filter[4][1].value + "р";
+      else if (filter[4][0].active) price = "от " + filter[4][0].value + "р";
+      else if (filter[4][1].active) price = "до" + filter[4][1].value + "р";
+      else price = "";
 
-    //show active filters
-    showFilter = false;
-    for (let i = 0; i < filter.length; i++) {
-      for (let j = 0; j < filter[i].length; j++) {
-        if (filter[i][j].active) {
-          showFilter = true;
-          break;
+      //show active filters
+
+      let params = {
+        filter: ""
+	  };
+
+      if (filter[0][0].active) {
+        dateStart = new Date(filter[0][0].value).toISOString();
+        params.dateStart = parseDate(dateStart);
+      }
+
+      if (filter[0][1].active) {
+        dateEnd = new Date(filter[0][1].value).toISOString();
+        params.dateEnd = parseDate(dateEnd);
+      }
+
+      arrData = getActiveOption(1);
+      if (arrData.length !== 0) params.locations = arrData;
+
+      arrData = getActiveOption(2);
+      if (arrData.length !== 0) params.companions = arrData;
+
+      arrData = getActiveOption(3);
+      if (arrData.length !== 0) params.subjects = arrData;
+
+      if (filter[4][0].active) params.priceMin = parseInt(filter[4][0].value);
+
+      if (filter[4][1].active) params.priceMax = parseInt(filter[4][1].value);
+
+      showFilter = false;
+      for (let i = 0; i < filter.length; i++) {
+        for (let j = 0; j < filter[i].length; j++) {
+          if (filter[i][j].active) {
+            showFilter = true;
+            break;
+          }
         }
       }
+
+      getFilterData(params);
     }
+  }
+
+  async function getFilterData(params) {
+
+	console.log(params)
+
+	let filterStatus = await fetcher.get("api/actions", { params });
+	
+	console.log(filterStatus)
+
+    if (filterStatus.ok) cards = filterStatus.data;
+  }
+
+  function getActiveOption(category) {
+    var data = [];
+    for (var i = 0; i < filter[category].length; i++) {
+      if (filter[category][i].active) data.push(filter[category][i].id);
+    }
+    return data;
   }
 
   function setPrice() {
@@ -166,13 +196,28 @@
     filter[4][1].value = priceEnd;
   }
 
-  onMount(async () => {
-	  cards_response = await response("GET", "/api/actions");
-	  let result = await cards_response.json();
+  onMount(() => {
+    setFilterData(1, result_filters.data.locations);
+    setFilterData(2, result_filters.data.companions);
+    setFilterData(3, result_filters.data.subjects);
 
-	  cards = result.data;
-  })
+    cards = result_cards.data;
 
+    start = true;
+  });
+
+  function setFilterData(category, res) {
+    for (let i = 0; i < res.length; i++) {
+      filter[category] = [
+        ...filter[category],
+        {
+          id: res[i].id,
+          value: res[i].name,
+          active: false
+        }
+      ];
+    }
+  }
 </script>
 
 <style lang="scss">
@@ -275,7 +320,7 @@
     left: 0;
     background: white;
     border: 1px solid #7b7b7b;
-    width: 100%;
+    min-width: 100%;
     box-sizing: border-box;
     visibility: hidden;
 
@@ -285,6 +330,10 @@
       justify-content: space-between;
       font-size: 13px;
       padding: 0 5px;
+
+      & > input {
+        margin-left: 5px;
+      }
     }
   }
 
@@ -369,9 +418,9 @@
         class:option-visible={options[0].isVisible}
         bind:this={options[0].option}>
         {#each filter[1] as city, i}
-          <div on:click={() => city.active = !city.active}>
+          <div on:click={() => (city.active = !city.active)}>
             <label>{city.value}</label>
-            <input type="checkbox" bind:checked={city.active}/>
+            <input type="checkbox" bind:checked={city.active} />
           </div>
         {/each}
       </div>
@@ -390,7 +439,7 @@
         class:option-visible={options[1].isVisible}
         bind:this={options[1].option}>
         {#each filter[2] as companios}
-          <div on:click={() => companios.active = !companios.active}>
+          <div on:click={() => (companios.active = !companios.active)}>
             <label>{companios.value}</label>
             <input type="checkbox" bind:checked={companios.active} />
           </div>
@@ -411,7 +460,7 @@
         class:option-visible={options[2].isVisible}
         bind:this={options[2].option}>
         {#each filter[3] as subjects}
-          <div on:click={() => subjects.active = !subjects.active}>
+          <div on:click={() => (subjects.active = !subjects.active)}>
             <label>{subjects.value}</label>
             <input type="checkbox" bind:checked={subjects.active} />
           </div>

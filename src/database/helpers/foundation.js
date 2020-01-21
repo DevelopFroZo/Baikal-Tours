@@ -1,5 +1,7 @@
 "use strict";
 
+import Transaction from "./transaction";
+
 class Foundation{
   constructor( modules, className ){
     this.modules = modules;
@@ -7,25 +9,14 @@ class Foundation{
   }
 
   async query( sql, data ){
-    // #fix
-    const method = ".";
+    const result = await this.modules.pool.query( sql, data );
 
-    try{
-      const queryData = await this.modules.pool.query( sql, data );
-
-      return queryData;
-    }
-    catch( error ){
-      error.trace = `${this.className}/${method}`;
-      error.context = "Query error";
-
-      throw error;
-    }
+    return result;
   }
 
-  // transaction( path ){
-  //   return new Transaction( this.modules.db, `${this.path}.${path}` );
-  // }
+  transaction(){
+    return new Transaction( this.modules.pool );
+  }
 
   success( code, data ){
     return this.modules.success( code, data );

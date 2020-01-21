@@ -9,8 +9,10 @@ const modules = {};
 
 import Auth from "./auth";
 import Actions from "./actions";
-
-// #fix добавить колонки "жирный текст" (???), краткое описание в таблицу actions
+import Locations from "./locations";
+import Companions from "./companions";
+import Subjects from "./subjects";
+import DataForFilters from "./dataForFilters";
 
 // Main pool
 modules.pool = new pg.Pool( !dev ? config.production : config.development );
@@ -18,7 +20,10 @@ modules.pool = new pg.Pool( !dev ? config.production : config.development );
 // Controllers
 modules.auth = new Auth( modules );
 modules.actions = new Actions( modules );
-// #fix Добавить получение данных для фильтров
+modules.locations = new Locations( modules );
+modules.companions = new Companions( modules );
+modules.subjects = new Subjects( modules );
+modules.dataForFilters = new DataForFilters( modules );
 
 // #fix вынести на глобальный уровень
 // Success & error functions
