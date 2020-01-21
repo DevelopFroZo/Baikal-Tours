@@ -137,12 +137,12 @@
 
       if (filter[0][0].active) {
         dateStart = new Date(filter[0][0].value).toISOString();
-        params.dateStart = parseDate(dateStart);
+        params.dateStart = parseDate(new Date(dateStart));
       }
 
       if (filter[0][1].active) {
         dateEnd = new Date(filter[0][1].value).toISOString();
-        params.dateEnd = parseDate(dateEnd);
+        params.dateEnd = parseDate(new Date(dateEnd));
       }
 
       arrData = getActiveOption(1);
@@ -174,12 +174,8 @@
 
   async function getFilterData(params) {
 
-	console.log(params)
-
 	let filterStatus = await fetcher.get("api/actions", { params });
 	
-	console.log(filterStatus)
-
     if (filterStatus.ok) cards = filterStatus.data;
   }
 
@@ -230,8 +226,8 @@
 
   .cards-block {
     display: grid;
-    grid-template-columns: repeat(3, auto);
-    justify-content: space-between;
+    grid-template-columns: repeat(3, 235px);
+	justify-content: space-between;
     grid-row-gap: 41px;
   }
 
