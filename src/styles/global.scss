@@ -1,0 +1,28 @@
+@import "./fonts.scss", "./colors.scss";
+
+$form-width: 840px;
+
+:global(body){
+    width: 100%;
+    overflow-x: hidden;
+}
+
+:global(*){
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    border: none;
+    font-family: $Default_Font;
+    text-decoration: none;
+    color: black;
+    outline: none;
+}
+
+.blue-text{
+    color: $Pale_Blue;
+}
+
+.form-width{
+    width: $form-width;
+    margin: auto;
+}
