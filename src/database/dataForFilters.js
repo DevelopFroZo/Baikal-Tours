@@ -20,8 +20,14 @@ export default class extends Foundation{
       `select *
       from subjects`
     ) ).rows;
+    const prices = ( await transaction.query(
+      `select
+         min( price ) as min,
+         max( price ) as max
+       from actions`
+    ) ).rows;
     await transaction.end();
 
-    return super.success( 0, { locations, companions, subjects } );
+    return super.success( 0, { locations, companions, subjects, prices } );
   }
 }
