@@ -8,8 +8,9 @@ export default class extends Foundation{
   async get(){
     const transaction = await super.transaction();
 
+    // #fix позже ПОМЕНЯТЬ
     const locations = ( await transaction.query(
-      `select *
+      `select id, name
       from locations`
     ) ).rows;
     const companions = ( await transaction.query(
@@ -22,8 +23,8 @@ export default class extends Foundation{
     ) ).rows;
     const prices = ( await transaction.query(
       `select
-         min( price ) as min,
-         max( price ) as max
+         min( price_min ) as min,
+         max( price_max ) as max
        from actions`
     ) ).rows;
     await transaction.end();

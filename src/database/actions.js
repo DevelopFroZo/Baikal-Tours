@@ -7,13 +7,12 @@ export default class extends Foundation{
 
   async getAll( count ){
     const limit = count ? `limit ${count}` : "";
-    // #fix поменять на корректную версию
     const rows = ( await super.query(
       `select
          a.id, a.name,
          array_agg( distinct ad.date_start ) as date_starts,
          array_agg( distinct ad.date_end ) as date_ends,
-         ai.image_url, a.price,
+         ai.image_url, a.price_min, a.price_max,
          array_agg( distinct s.name ) as subjects,
          array_agg( distinct l.name ) as locations
        from
@@ -30,7 +29,7 @@ export default class extends Foundation{
          on a.id = al.action_id
          left join locations as l
          on al.location_id = l.id
-       group by a.id, a.name, ai.image_url, a.price
+       group by a.id, a.name, ai.image_url, a.price_min, a.price_max
        ${limit}`
     ) ).rows;
 
@@ -44,16 +43,17 @@ export default class extends Foundation{
     let i = 1;
     let datesFilter = [];
 
-    if( price_min ){
-      filters.push( `a.price >= $${i}` );
-      params.push( price_min );
-      i++;
-    }
-    if( price_max ){
-      filters.push( `a.price <= $${i}` );
-      params.push( price_max );
-      i++;
-    }
+    // #fix добавить фильтр на цену
+    // if( price_min ){
+    //   filters.push( `a.price >= $${i}` );
+    //   params.push( price_min );
+    //   i++;
+    // }
+    // if( price_max ){
+    //   filters.push( `a.price <= $${i}` );
+    //   params.push( price_max );
+    //   i++;
+    // }
     if( locations ){
       filters.push( `la.ids @> $${i}::int[]` );
       params.push( locations );
@@ -85,9 +85,6 @@ export default class extends Foundation{
     if( datesFilter.length === 0 ) datesFilter = "";
     else datesFilter = `where ${datesFilter.join( " and " )}`;
 
-    console.log( filters );
-    console.log( datesFilter );
-
     // #fix переделать на хранимку
     const rows = ( await super.query(
       `with locations_arrays as (
@@ -110,7 +107,7 @@ export default class extends Foundation{
       	array_agg( ad.date_end ) as date_ends
       from (
       	select
-      		a.id, a.name, a.price,
+      		a.id, a.name, a.price_min, a.price_max,
       		la.names as locations,
       		array_agg( distinct c.name ) as companions,
       		array_agg( distinct s.name ) as subjects
@@ -128,11 +125,11 @@ export default class extends Foundation{
       		ac.action_id = a.id and
       		acsu.subject_id = s.id and
       		acsu.action_id = a.id
-      	group by a.id, a.name, a.price, la.names ) as tmp
+      	group by a.id, a.name, a.price_min, a.price_max, la.names ) as tmp
       	left join action_dates as ad
       	on ad.action_id = tmp.id
       ${datesFilter}
-      group by tmp.id, tmp.name, tmp.price, tmp.locations, tmp.companions, tmp.subjects
+      group by tmp.id, tmp.name, tmp.price_min, tmp.price_max, tmp.locations, tmp.companions, tmp.subjects
       ${limit}`,
       params
     ) ).rows;
@@ -143,7 +140,7 @@ export default class extends Foundation{
   async getOne( id ){
     const transaction = await super.transaction();
     const main = ( await transaction.query(
-      `select a.*, u.email
+      `select a.*, u.email as organizer_email, u.phone as organizer_phone
       from
         actions as a
         left join users as u
