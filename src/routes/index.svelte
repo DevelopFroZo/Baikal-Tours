@@ -20,6 +20,8 @@
   export let result_cards, result_filters;
   const fetcher = new Fetcher();
 
+  console.log(result_filters);
+
   let date = "",
     price = "",
     showFilter = false,
@@ -27,10 +29,24 @@
     priceEnd = "",
     resp,
     cards = [],
-	start,
-	arrData, dateStart, dateEnd;
+    start,
+    arrData,
+    dateStart,
+    dateEnd,
+    leftRange = true,
+    rightRange = true;
 
   let options = [
+    {
+      isVisible: false,
+      option: null,
+      btn: null
+    },
+    {
+      isVisible: false,
+      option: null,
+      btn: null
+    },
     {
       isVisible: false,
       option: null,
@@ -82,6 +98,7 @@
         target == options[i].option || options[i].option.contains(target);
       const its_btnMenu = target == options[i].btn;
       if (!its_menu && !its_btnMenu) options[i].isVisible = false;
+      console.log(options[i].isVisible);
     }
   }
 
@@ -126,14 +143,14 @@
       if (filter[4][0].active && filter[4][1].active)
         price = "от " + filter[4][0].value + "р до " + filter[4][1].value + "р";
       else if (filter[4][0].active) price = "от " + filter[4][0].value + "р";
-      else if (filter[4][1].active) price = "до" + filter[4][1].value + "р";
+      else if (filter[4][1].active) price = "до " + filter[4][1].value + "р";
       else price = "";
 
       //show active filters
 
       let params = {
         filter: ""
-	  };
+      };
 
       if (filter[0][0].active) {
         dateStart = new Date(filter[0][0].value).toISOString();
@@ -173,9 +190,8 @@
   }
 
   async function getFilterData(params) {
+    let filterStatus = await fetcher.get("api/actions", { params });
 
-	let filterStatus = await fetcher.get("api/actions", { params });
-	
     if (filterStatus.ok) cards = filterStatus.data;
   }
 
@@ -227,7 +243,7 @@
   .cards-block {
     display: grid;
     grid-template-columns: repeat(3, 235px);
-	justify-content: space-between;
+    justify-content: space-between;
     grid-row-gap: 41px;
   }
 
@@ -363,6 +379,29 @@
       margin-left: 7px;
     }
   }
+
+  .price-filter {
+    position: relative;
+
+    & > div {
+      position: absolute;
+      top: 20px;
+      left: 0;
+      width: calc(100% - 10px);
+
+      & > input {
+        width: 100%;
+      }
+    }
+  }
+
+  .prices {
+    display: flex;
+  }
+
+  .hide-range {
+    visibility: hidden;
+  }
 </style>
 
 <svelte:head>
@@ -463,19 +502,51 @@
         {/each}
       </div>
     </div>
-    <div>
-      <input
-        type="number"
-        placeholder="цена от"
-        id="price-start"
-        bind:value={priceStart}
-        on:blur={setPrice} />
-      <input
-        type="number"
-        placeholder="до"
-        id="price-end"
-        bind:value={priceEnd}
-        on:blur={setPrice} />
+    <div class="prices">
+      <div class="price-filter">
+        <input
+          type="number"
+          placeholder="цена от"
+          id="price-start"
+          bind:value={priceStart}
+          on:blur={setPrice}
+          bind:this={options[3].btn}
+          on:click={() => {
+            options[3].isVisible = true;
+          }} />
+        <div
+          class:hide-range={!options[3].isVisible}
+          bind:this={options[3].option}>
+          <input
+            type="range"
+            min={result_filters.data.prices[0].min}
+            max={priceEnd === '' ? result_filters.data.prices[0].max - 1 : priceEnd}
+            bind:value={priceStart}
+            on:change={setPrice} />
+        </div>
+      </div>
+      <div class="price-filter">
+        <input
+          type="number"
+          placeholder="до"
+          id="price-end"
+          bind:value={priceEnd}
+          on:blur={setPrice}
+          bind:this={options[4].btn}
+          on:click={() => {
+            options[4].isVisible = true;
+          }} />
+        <div
+          class:hide-range={!options[4].isVisible}
+          bind:this={options[4].option}>
+          <input
+            type="range"
+            min={priceStart}
+            max={result_filters.data.prices[0].max}
+            bind:value={priceEnd}
+            on:change={setPrice} />
+        </div>
+      </div>
     </div>
   </div>
   {#if showFilter}
@@ -494,6 +565,7 @@
           </button>
         </div>
       {/if}
+
       {#each filter as filt, i}
         {#if i > 0 && i < 4}
           {#each filt as fl, j}
@@ -512,6 +584,7 @@
           {/each}
         {/if}
       {/each}
+
       {#if price !== ''}
         <div class="active-filter">
           {price}
