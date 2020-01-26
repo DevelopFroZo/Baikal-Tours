@@ -36,6 +36,10 @@
     padding: 16px 12px 10px;
     box-sizing: border-box;
     background-color: $Light_Gray;
+
+    &:hover{
+      cursor: pointer;
+    }
   }
 
   h1 {
