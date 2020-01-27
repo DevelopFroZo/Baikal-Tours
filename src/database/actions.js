@@ -30,6 +30,7 @@ export default class extends Foundation{
          left join locations as l
          on al.location_id = l.id
        group by a.id, a.name, ai.image_url, a.price_min, a.price_max
+       order by a.id
        ${limit}`
     ) ).rows;
 
@@ -104,7 +105,8 @@ export default class extends Foundation{
       select
       	tmp.*,
       	array_agg( ad.date_start ) as date_starts,
-      	array_agg( ad.date_end ) as date_ends
+      	array_agg( ad.date_end ) as date_ends,
+        ai.image_url
       from (
       	select
       		a.id, a.name, a.price_min, a.price_max,
@@ -128,8 +130,11 @@ export default class extends Foundation{
       	group by a.id, a.name, a.price_min, a.price_max, la.names ) as tmp
       	left join action_dates as ad
       	on ad.action_id = tmp.id
+        left join action_images as ai
+      	on ai.action_id = tmp.id and ai.is_main = true
       ${datesFilter}
-      group by tmp.id, tmp.name, tmp.price_min, tmp.price_max, tmp.locations, tmp.companions, tmp.subjects
+      group by tmp.id, tmp.name, tmp.price_min, tmp.price_max, tmp.locations, tmp.companions, tmp.subjects, ai.image_url
+      order by tmp.id
       ${limit}`,
       params
     ) ).rows;
