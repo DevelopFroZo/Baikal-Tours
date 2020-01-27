@@ -173,7 +173,7 @@ export default class extends Foundation{
       [ id ]
     ) ).rows;
     main.locations = ( await transaction.query(
-      `select l.name
+      `select l.name, al.address
       from
         actions_locations as al,
         locations as l
