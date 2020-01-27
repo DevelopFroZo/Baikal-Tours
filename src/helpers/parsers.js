@@ -1,7 +1,8 @@
 export {
     parseDate,
     dateOptions,
-    parseDateToDateAndDay
+    parseDateToDateAndDay,
+    parsePrice
 }
 
 var dateOptions = {
@@ -29,4 +30,13 @@ function parseDateToDateAndDay(date) {
     date = date.toLocaleString("ru", dateOptions).split(", ")[1].split(" ");
     date = date[0] + " " + date[1];
     return date;
+}
+
+function parsePrice(price_min, price_max) {
+    var second_price;
+    if (price_min === 0 && price_max === 0) second_price = "Бесплатно";
+    else if (price_min === 0 && price_max !== 0)
+        second_price = "Бесплатно - " + price_max;
+    else second_price = price_min + " - " + price_max;
+    return second_price;
 }

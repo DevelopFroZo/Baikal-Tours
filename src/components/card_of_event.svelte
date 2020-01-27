@@ -1,29 +1,40 @@
 <script>
-  import { parseDate } from "../helpers/parsers.js";
+  import { parseDate, parsePrice } from "../helpers/parsers.js";
+  
   export let name = "",
     date_ends = "",
     date_starts = "",
     image_url = "",
-    price = "",
+    price_min = "",
+    price_max = "",
     subjects = "",
     locations = "",
     id = "";
 
-  let dates = [];
+  let dates = [],
+    second_price;
 
   for (let i = 0; i < date_starts.length; i++) {
-    if (date_starts[i] === null) {
-      let end = parseDate(new Date(date_ends[i]));
-      dates.push("по " + end);
-    } else if (date_ends[i] === null) {
-      let start = parseDate(new Date(date_starts[i]));
-      dates.push("с " + start);
-    } else {
-      let start = parseDate(new Date(date_starts[i]));
-      let end = parseDate(new Date(date_ends[i]));
-      dates.push("с " + start + " по " + end);
+    if (date_starts[i] !== date_ends[i]) {
+      if (date_starts[i] === null) {
+        let end = parseDate(new Date(date_ends[i]));
+        dates.push("по " + end);
+      } else if (date_ends[i] === null) {
+        let start = parseDate(new Date(date_starts[i]));
+        dates.push("с " + start);
+      } else {
+        let start = parseDate(new Date(date_starts[i]));
+        let end = parseDate(new Date(date_ends[i]));
+        dates.push("с " + start + " по " + end);
+      }
+    }
+    else{
+      dates.push(parseDate(new Date(date_starts[i])))
     }
   }
+
+  second_price = parsePrice(price_min, price_max);
+
 </script>
 
 <style lang="scss">
@@ -37,7 +48,7 @@
     box-sizing: border-box;
     background-color: $Light_Gray;
 
-    &:hover{
+    &:hover {
       cursor: pointer;
     }
   }
@@ -57,9 +68,9 @@
     & > div {
       margin-left: 7px;
       font-size: $Mini_Font_Size;
-    //   text-overflow: ellipsis;
-    //   white-space: nowrap;
-    //   overflow: hidden;
+      //   text-overflow: ellipsis;
+      //   white-space: nowrap;
+      //   overflow: hidden;
     }
   }
 
@@ -99,7 +110,11 @@
   }
 </style>
 
-<div class="card" on:click={() => {document.location.href = "./action?id=" + id;}}>
+<div
+  class="card"
+  on:click={() => {
+    document.location.href = './action?id=' + id;
+  }}>
   <h1>{name}</h1>
   <div class="line">
     <img src="img/date.png" alt="date" />
@@ -107,9 +122,9 @@
   </div>
   <div class="image-and-price">
     <div class="image">
-      <img src={image_url} alt="image of event" />
+      <img src={image_url === null ? "img/logo.png" : image_url} alt="image of event" />
     </div>
-    <div class="price">{price === 0 ? 'Бестплатно' : price}</div>
+    <div class="price">{second_price}</div>
   </div>
   <div class="line category">
     <img src="img/category.png" alt="category" />

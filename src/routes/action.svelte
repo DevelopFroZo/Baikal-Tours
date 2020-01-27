@@ -13,7 +13,7 @@
   import Footer from "../components/footer.svelte";
   import Fetcher from "./_helpers/fetcher.js";
   import { onMount } from "svelte";
-  import { parseDateToDateAndDay } from "../helpers/parsers.js";
+  import { parseDateToDateAndDay, parsePrice } from "../helpers/parsers.js";
 
   export let result_action;
 
@@ -22,9 +22,10 @@
     data = result_action.data,
     resp,
     galaryReady = false,
-    mounted = false;
+    mounted = false,
+    second_price;
 
-  console.log(data);
+  console.log(result_action);
 
   let dates = [];
 
@@ -50,6 +51,8 @@
       });
     }
   });
+
+  second_price = parsePrice(data.price_min, data.price_max);
 </script>
 
 <style lang="scss">
@@ -98,10 +101,6 @@
   .line {
     display: flex;
     align-items: flex-start;
-
-    & > .info {
-      white-space: pre-wrap;
-    }
 
     & > .info-image {
       margin-right: 15px;
@@ -157,14 +156,28 @@
     list-style-type: none;
   }
 
+  .main-carousel {
+    margin-top: 20px;
+  }
+
   .carousel-cell {
     & > img {
       height: 250px;
+      max-width: 840px;
     }
   }
 
   .flickity-button {
     height: 20px;
+  }
+
+  .organisators {
+    margin-top: 10px;
+
+    & > ul {
+      margin-left: 10px;
+      display: block;
+    }
   }
 </style>
 
@@ -188,7 +201,7 @@
     <div class="main-carousel">
       {#each data.images as img}
         <div class="carousel-cell">
-          <img src={img} alt="img" />
+          <img src={img.image_url} alt="img" />
         </div>
       {/each}
     </div>
@@ -215,7 +228,7 @@
         <div class="info">
           <ul>
             {#each data.locations as location}
-              <li>{location.name}</li>
+              <li>{location.name + (location.address === null ? "" : (", " + location.address))}</li>
             {/each}
           </ul>
         </div>
@@ -226,43 +239,63 @@
         </div>
         <div class="info">
           {data.organizer_name}
-          <br />
-          {data.email}
+          {#if data.contact_faces !== null && data.contact_faces.length > 0}
+            {#each data.contact_faces as contact, i}
+              <div class="organisators">
+                {contact}
+                <ul>
+                  {#if data.phones !== null}
+                    {#if i < data.phones.length}
+                      <li>{data.phones[i]}</li>
+                    {/if}
+                  {/if}
+                  {#if data.emails !== null}
+                    {#if i < data.emails.length}
+                      <li>{data.emails[i]}</li>
+                    {/if}
+                  {/if}
+                </ul>
+              </div>
+            {/each}
+          {/if}
         </div>
       </div>
       <div class="line">
         <div class="info-image">
           <img src="img/price.png" alt="price" />
         </div>
-        <div class="info">
-          Цена: {data.price === 0 ? 'бесплатно' : data.price}
-        </div>
+        <div class="info">Цена: {second_price}</div>
       </div>
-      {#if data.vk_link !== null || data.instagram_link !== null || data.facebook_link !== null || data.twitter_link !== null}
+      {#if data.vk_link !== null || data.instagram_link !== null || data.facebook_link !== null || data.twitter_link !== null || data.websites !== null}
         <div class="line">
           <div class="info-image">
             <img src="img/pages.png" alt="pages" />
           </div>
           <div class="info">
             <ul>
+              {#if data.websites !== null}
+                <li>
+                  <a href={data.websites[0]} target="_blank">Официальный сайт</a>
+                </li>
+              {/if}
               {#if data.vk_link !== null}
                 <li>
-                  <a href={data.vk_link}>Группа "ВКонтакте"</a>
+                  <a href={data.vk_link} target="_blank">Группа "ВКонтакте"</a>
                 </li>
               {/if}
               {#if data.instagram_link !== null}
                 <li>
-                  <a href={data.instagram_link}>Инстаграм</a>
+                  <a href={data.instagram_link} target="_blank">Инстаграм</a>
                 </li>
               {/if}
               {#if data.facebook_link !== null}
                 <li>
-                  <a href={data.facebook_link}>Фейсбук</a>
+                  <a href={data.facebook_link} target="_blank">Фейсбук</a>
                 </li>
               {/if}
               {#if data.twitter_link !== null}
                 <li>
-                  <a href={data.twitter_link}>Твиттер</a>
+                  <a href={data.twitter_link} target="_blank">Твиттер</a>
                 </li>
               {/if}
             </ul>

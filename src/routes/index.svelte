@@ -20,7 +20,7 @@
   export let result_cards, result_filters;
   const fetcher = new Fetcher();
 
-  console.log(result_filters);
+  //console.log(result_cards);
 
   let date = "",
     price = "",
@@ -28,7 +28,7 @@
     priceStart = "",
     priceEnd = "",
     resp,
-    cards = [],
+    cards = result_cards.data,
     start,
     arrData,
     dateStart,
@@ -98,7 +98,6 @@
         target == options[i].option || options[i].option.contains(target);
       const its_btnMenu = target == options[i].btn;
       if (!its_menu && !its_btnMenu) options[i].isVisible = false;
-      console.log(options[i].isVisible);
     }
   }
 
@@ -192,6 +191,8 @@
   async function getFilterData(params) {
     let filterStatus = await fetcher.get("api/actions", { params });
 
+    console.log(filterStatus.data)
+
     if (filterStatus.ok) cards = filterStatus.data;
   }
 
@@ -208,16 +209,6 @@
     filter[4][1].value = priceEnd;
   }
 
-  onMount(() => {
-    setFilterData(1, result_filters.data.locations);
-    setFilterData(2, result_filters.data.companions);
-    setFilterData(3, result_filters.data.subjects);
-
-    cards = result_cards.data;
-
-    start = true;
-  });
-
   function setFilterData(category, res) {
     for (let i = 0; i < res.length; i++) {
       filter[category] = [
@@ -230,6 +221,15 @@
       ];
     }
   }
+
+  setFilterData(1, result_filters.data.locations);
+  setFilterData(2, result_filters.data.companions);
+  setFilterData(3, result_filters.data.subjects);
+
+  onMount(() => {
+    
+    start = true;
+  });
 </script>
 
 <style lang="scss">
@@ -335,6 +335,9 @@
     min-width: 100%;
     box-sizing: border-box;
     visibility: hidden;
+    z-index: 2;
+    max-height: 300px;
+    overflow: auto;
 
     & > div {
       display: flex;
