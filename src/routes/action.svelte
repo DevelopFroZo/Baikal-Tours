@@ -1,10 +1,10 @@
 <script context = "module">
   export async function preload(page, session) {
-    var actionId = page.query.id;
+    let actionId = page.query.id;
     let response = await this.fetch("/api/actions/" + actionId);
     let result_action = await response.json();
 
-    return { result_action };
+    return { result_action, actionId };
   }
 </script>
 
@@ -14,8 +14,9 @@
   import Fetcher from "./_helpers/fetcher.js";
   import { onMount } from "svelte";
   import { parseDateToDateAndDay, parsePrice } from "../helpers/parsers.js";
+  import { validateMail, validatePhone } from "../helpers/validators.js";
 
-  export let result_action;
+  export let result_action, actionId;
 
   const fetcher = new Fetcher();
   let response,
@@ -23,7 +24,11 @@
     resp,
     galaryReady = false,
     mounted = false,
-    second_price;
+    second_price,
+    userName = "",
+    userPhone = "",
+    userMail = "",
+    disabled = "disabled";
 
   console.log(result_action);
 
@@ -52,7 +57,21 @@
     }
   });
 
+  $: if (userName !== "" && userPhone !== "" && validateMail(userMail))
+    disabled = "";
+  else disabled = "disabled";
+
   second_price = parsePrice(data.price_min, data.price_max);
+
+  async function subscribeUser(){
+    let subscribeStatus = await fetcher.post("/api/actions/subscribe/" + actionId, {
+      name: userName,
+      phone: userPhone,
+      email: userMail
+    });
+
+    if (subscribeStatus.ok) alert("Вы успешно подписались на событие");
+  }
 </script>
 
 <style lang="scss">
@@ -150,6 +169,11 @@
     padding: 15px 9px;
     color: white;
     font-size: $Big_Font_Size;
+    transition: 0.3s;
+
+    &:disabled{
+      opacity: 0.3;
+    }
   }
 
   ul {
@@ -228,7 +252,9 @@
         <div class="info">
           <ul>
             {#each data.locations as location}
-              <li>{location.name + (location.address === null ? "" : (", " + location.address))}</li>
+              <li>
+                {location.name + (location.address === null ? '' : ', ' + location.address)}
+              </li>
             {/each}
           </ul>
         </div>
@@ -275,7 +301,9 @@
             <ul>
               {#if data.websites !== null}
                 <li>
-                  <a href={data.websites[0]} target="_blank">Официальный сайт</a>
+                  <a href={data.websites[0]} target="_blank">
+                    Официальный сайт
+                  </a>
                 </li>
               {/if}
               {#if data.vk_link !== null}
@@ -335,19 +363,23 @@
     <div class="input-block">
       <label for="name">Имя и фамилия</label>
       <br />
-      <input type="text" name="name" />
+      <input type="text" name="name" bind:value={userName} />
     </div>
     <div class="input-block">
       <label for="phone">Телефон</label>
       <br />
-      <input type="text" name="phone" />
+      <input
+        type="text"
+        name="phone"
+        bind:value={userPhone}
+        on:keydown={validatePhone} />
     </div>
     <div class="input-block">
       <label for="email">Email</label>
       <br />
-      <input type="text" name="email" />
+      <input type="text" name="email" bind:value={userMail} />
     </div>
-    <button class="register-button">Зарегистрироваться</button>
+    <button class="register-button" {disabled} on:click={subscribeUser}>Зарегистрироваться</button>
   </div>
 </div>
 <Footer />
