@@ -1,27 +1,13 @@
+// #fix придумать что-то с путём
+import { contactsToString } from "../../../../helpers/converters";
+
 export async function post( req, res ){
   const result = await req.database.actions.getOneForEmail( req.params.id );
 
   if( result === null ) return res.error( 9 );
 
-  const contact_faces = result.contact_faces ? result.contact_faces : [];
-  const emails = result.emails ? result.emails : [];
-  const phones = result.phones ? result.phones : [];
-  const maxCount = Math.max( Math.max( contact_faces.length, emails.length ), phones.length );
-  let contacts = [];
+  let contacts = contactsToString( result.contact_faces, result.emails, result.phones );
   let price;
-
-  for( let i = 0; i < maxCount; i++ ){
-    contacts[i] = [];
-
-    if( contact_faces[i] !== undefined )
-      contacts[i].push( contact_faces[i] );
-    if( emails[i] !== undefined )
-      contacts[i].push( emails[i] );
-    if( phones[i] !== undefined )
-      contacts[i].push( phones[i] );
-
-    contacts[i] = contacts[i].join( ", " );
-  }
 
   contacts = contacts.join( "\n" );
 
