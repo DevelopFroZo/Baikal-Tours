@@ -205,4 +205,15 @@ export default class extends Foundation{
 
     return super.success( 0, main );
   }
+
+  async getOneForEmail( id ){
+    const result = ( await super.query(
+      `select name, short_description, price_min, price_max, contact_faces, emails, phones
+      from actions
+      where id = $1`,
+      [ id ]
+    ) ).rows[0];
+
+    return result !== undefined ? result : null;
+  }
 }
