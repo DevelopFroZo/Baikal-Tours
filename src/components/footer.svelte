@@ -36,10 +36,10 @@
         margin-left: 125px;
       }
 
-      & > .right-side{
-          font-size: $LowMedium_Font_Size;
-          width: 300px;
-          margin-left: 100px;
+      & > .right-side {
+        font-size: $LowMedium_Font_Size;
+        width: 300px;
+        margin-left: 100px;
       }
     }
   }
@@ -55,32 +55,47 @@
     font-size: $Mini_Font_Size;
   }
 
-  .hrefs > a:not(:first-child){
-      display: block;
-      margin-top: 10px;
+  .hrefs > a:not(:first-child) {
+    display: block;
+    margin-top: 10px;
   }
 
-  h1{
-      font-size: $LowMedium_Font_Size;
+  h1 {
+    font-size: $LowMedium_Font_Size;
+    font-weight: bold;
+  }
+
+  .mail {
+    margin-top: 10px;
+  }
+
+  .info {
+    margin-top: 15px;
+
+    & > a {
+      display: inline-block;
+      padding: 5px;
+      border-radius: 5px;
+      background: $Light_Gray;
       font-weight: bold;
+      text-decoration: underline;
+      margin-top: 5px;
+    }
   }
 
-  .mail{
-      margin-top: 10px;
-  }
+  @media only screen and (max-width: 768px) {
+    .form-width{
+      padding: 0 10px !important;
+      justify-content: space-between !important;
+    }
 
-  .info{
-      margin-top: 15px;
+    .right-side{
+      margin-left: 0 !important;
+    }
 
-      & > a{
-          display: inline-block;
-          padding: 5px;
-          border-radius: 5px;
-          background: $Light_Gray;
-          font-weight: bold;
-          text-decoration: underline;
-          margin-top: 5px;
-      }
+    .right-side, .left-side{
+      width: 130px !important;
+    }
   }
 </style>
 
@@ -104,13 +119,14 @@
       </div>
       <a href="./" class="underline">Политика конфиденциальности</a>
     </div> -->
-    <div class = "right-side">
-        <h1>Контакты</h1>
-        <div class="mail">events@calendar.com</div>
-        <div class = "info">
-            Туристическая справочная информация<br>
-            <a href = "./">скачать pdf</a>
-        </div>
+    <div class="right-side">
+      <h1>Контакты</h1>
+      <div class="mail">events@calendar.com</div>
+      <div class="info">
+        Туристическая справочная информация
+        <br />
+        <a href="./">скачать pdf</a>
+      </div>
     </div>
   </div>
 </footer>

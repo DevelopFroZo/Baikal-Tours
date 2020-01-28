@@ -108,6 +108,16 @@
   .category {
     text-transform: uppercase;
   }
+
+  @media only screen and (max-width: 768px) {
+    .card{
+      width: 100%;
+    }
+
+    .image{
+      height: 200px;
+    }
+  }
 </style>
 
 <div

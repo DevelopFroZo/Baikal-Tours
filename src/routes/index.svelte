@@ -20,8 +20,6 @@
   export let result_cards, result_filters;
   const fetcher = new Fetcher();
 
-  //console.log(result_cards);
-
   let date = "",
     price = "",
     showFilter = false,
@@ -190,8 +188,6 @@
 
   async function getFilterData(params) {
     let filterStatus = await fetcher.get("api/actions", { params });
-
-    console.log(filterStatus.data)
 
     if (filterStatus.ok) cards = filterStatus.data;
   }
@@ -405,6 +401,53 @@
   .hide-range {
     visibility: hidden;
   }
+
+  @media only screen and (max-width: 768px) {
+    
+    .filters{
+      flex-direction: column;
+
+      & > div{
+        margin: 5px auto 0;
+        width: 200px;
+
+        & > input, & > button{
+          width: 100%;
+        }
+      }
+    }
+
+    .two-input{
+      display: flex;
+
+      & > input{
+        width: 50%;
+        padding: 0 3px;
+        box-sizing: border-box;
+      }
+
+      & > div{
+        width: 50%;
+        box-sizing: border-box;
+
+        & > input{
+          width: 100%;
+          padding: 0 3px;
+          box-sizing: border-box;
+        }
+      }
+    }
+
+    #price-end, #date-end{
+      margin-left: -1px;
+      width: calc(100% + 1px);
+    }
+
+    .cards-block{
+      grid-template-columns: repeat(1, 100%);
+    }
+
+  }
 </style>
 
 <svelte:head>
@@ -417,7 +460,7 @@
 <div class="form-width">
   <h1>Каталог событий</h1>
   <div class="filters">
-    <div>
+    <div class = "two-input">
       <input
         placeholder="Дата с"
         class="date"
@@ -505,7 +548,7 @@
         {/each}
       </div>
     </div>
-    <div class="prices">
+    <div class="prices two-input">
       <div class="price-filter">
         <input
           type="number"

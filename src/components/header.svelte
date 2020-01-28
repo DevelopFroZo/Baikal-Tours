@@ -84,6 +84,20 @@
   .logout{
     margin-left: 23px;
   }
+
+  @media only screen and (max-width: 768px) {
+    .right-side{
+      display: none;
+    }
+
+    .page-name{
+      margin-left: 0;
+    }
+
+    .line{
+      justify-content: space-between;
+    }
+  }
 </style>
 
 <header>
