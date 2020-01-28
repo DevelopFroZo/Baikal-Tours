@@ -132,7 +132,7 @@
   .register-form {
     margin: 68px auto 42px;
     width: 500px;
-    padding: 54px 95px 30px;
+    padding: 54px 47px 30px;
     background: #f1f1f1;
     box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.25);
     border-radius: 20px;

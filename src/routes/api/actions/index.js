@@ -14,6 +14,7 @@ export async function get( req, res ){
 
   // filter is sended
   // Errors: 7, 8
+  // #fix сохранять фильтры в URL
   let dateStart = req.query.dateStart;
   let dateEnd = req.query.dateEnd;
   let locations = toIntArray( req.query.locations );

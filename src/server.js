@@ -24,6 +24,7 @@ const dev = NODE_ENV === "development";
 const pgStore = pgStoreConnect( session );
 const server = express();
 
+// #fix добавить логгер
 // Settings
 server.use(
   helmet(),
