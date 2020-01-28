@@ -43,7 +43,7 @@
   .card {
     box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.25);
     border-radius: 5px;
-    width: 235px;
+    width: 300px;
     padding: 16px 12px 10px;
     box-sizing: border-box;
     background-color: $Light_Gray;
@@ -75,7 +75,7 @@
   }
 
   .image {
-    height: 120px;
+    height: 160px;
     overflow: hidden;
     position: relative;
     border-radius: 5px;
