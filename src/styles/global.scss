@@ -26,3 +26,14 @@ $form-width: 840px;
     width: $form-width;
     margin: auto;
 }
+
+@media only screen and (max-width: 768px) {
+    
+    .form-width{
+        width: 100%;
+        padding: 0 10px;
+        margin: 0;
+        box-sizing: border-box;
+    }
+
+}

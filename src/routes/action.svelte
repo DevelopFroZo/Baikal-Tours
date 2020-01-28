@@ -30,8 +30,6 @@
     userMail = "",
     disabled = "disabled";
 
-  console.log(result_action);
-
   let dates = [];
 
   for (let i = 0; i < data.dates.length; i++) {
@@ -201,6 +199,29 @@
     & > ul {
       margin-left: 10px;
       display: block;
+    }
+  }
+
+  @media only screen and (max-width: 768px) {
+    h1{
+      font-size: $Big_Font_Size;
+    }
+
+    .info-block{
+      flex-direction: column-reverse;
+    }
+
+    .right-side{
+      padding: 0;
+    }
+
+    .left-side{
+      margin-top: 30px;
+    }
+
+    .register-form{
+      width: 100%;
+      padding: 30px 50px;
     }
   }
 </style>
