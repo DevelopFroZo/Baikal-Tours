@@ -1,5 +1,6 @@
 <script>
   import { createEventDispatcher } from "svelte";
+  import BreadCrumbs from "../../components/breadcrumbs.svelte";
   import { validatePhone, validateMail } from "../../helpers/validators";
 
   const dispatch = createEventDispatcher();
@@ -35,6 +36,7 @@
   }} />
 
 <div class="register-block">
+  <BreadCrumbs path = {[{name: "Каталог событий", url: "./"}, {name: "регистрация", url: "./register"}]} white={true}/>
   <div class="in-block">
     <h1>Регистрация</h1>
 

@@ -9,12 +9,14 @@
 </script>
 
 <script>
+  import Fetcher from "./_helpers/fetcher.js";
+  import BreadCrumbs from "../components/breadcrumbs.svelte";
+  import { onMount } from "svelte";
   import Header from "../components/header.svelte";
   import Footer from "../components/footer.svelte";
-  import Fetcher from "./_helpers/fetcher.js";
-  import { onMount } from "svelte";
   import { parseDateToDateAndDay, parsePrice } from "../helpers/parsers.js";
   import { validateMail, validatePhone } from "../helpers/validators.js";
+  import {contactsToString} from "../helpers/converters.js";
 
   export let result_action, actionId;
 
@@ -28,7 +30,8 @@
     userName = "",
     userPhone = "",
     userMail = "",
-    disabled = "disabled";
+    disabled = "disabled",
+    contactData = contactsToString(data.contact_faces, data.emails, data.phones);
 
   let dates = [];
 
@@ -70,13 +73,14 @@
 
     if (subscribeStatus.ok) alert("Вы успешно подписались на событие");
   }
+
 </script>
 
 <style lang="scss">
   @import "./styles/global";
 
   .form-width {
-    margin: 45px auto 15px;
+    margin: 15px auto 15px;
     min-height: calc(100vh - 175px - 60px);
     font-size: $Medium_Font_Size;
   }
@@ -106,7 +110,7 @@
 
   .left-side {
     font-style: italic;
-    flex: 0.33;
+    flex: 0.4;
   }
 
   .right-side {
@@ -193,12 +197,11 @@
     height: 20px;
   }
 
-  .organisators {
+  .contact-ul{
     margin-top: 10px;
 
-    & > ul {
-      margin-left: 10px;
-      display: block;
+    & > li{
+      margin-top: 5px;
     }
   }
 
@@ -237,6 +240,7 @@
 </svelte:head>
 
 <Header />
+<BreadCrumbs path = {[{name: "Каталог событий", url: "./"}, {name: data.name, url: "./action?id=" + actionId}]} />
 <div class="form-width">
   <h1>{data.name}</h1>
   <p class="italic-bold">{data.tagline}</p>
@@ -286,24 +290,12 @@
         </div>
         <div class="info">
           {data.organizer_name}
-          {#if data.contact_faces !== null && data.contact_faces.length > 0}
-            {#each data.contact_faces as contact, i}
-              <div class="organisators">
-                {contact}
-                <ul>
-                  {#if data.phones !== null}
-                    {#if i < data.phones.length}
-                      <li>{data.phones[i]}</li>
-                    {/if}
-                  {/if}
-                  {#if data.emails !== null}
-                    {#if i < data.emails.length}
-                      <li>{data.emails[i]}</li>
-                    {/if}
-                  {/if}
-                </ul>
-              </div>
-            {/each}
+          {#if contactData.length > 0}
+            <ul class = "contact-ul">
+              {#each contactData as contact}
+                  <li>{contact}</li>
+              {/each}
+            </ul>
           {/if}
         </div>
       </div>

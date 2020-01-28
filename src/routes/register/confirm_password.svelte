@@ -1,6 +1,7 @@
 <script>
   import { onMount } from "svelte";
   import { response } from "../../helpers/response.js";
+  import BreadCrumbs from "../../components/breadcrumbs.svelte";
   
   let password = "",
     email;
@@ -32,6 +33,7 @@
 
 <div class="body">
   <div class="register-block">
+    <BreadCrumbs path = {[{name: "Каталог событий", url: "./"}, {name: "регистрация", url: "./register"}, {name: "подтверждение пароля", url: "./register/confirm_password"}]} white={true} />
     <div class="in-block">
       <h1>Регистрация</h1>
 

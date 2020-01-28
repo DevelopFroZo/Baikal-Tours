@@ -13,6 +13,7 @@
   import Header from "../components/header.svelte";
   import Footer from "../components/footer.svelte";
   import Card from "../components/card_of_event.svelte";
+  import BreadCrumbs from "../components/breadcrumbs.svelte";
   import { onMount } from "svelte";
   import Fetcher from "./_helpers/fetcher.js";
   import { parseDate } from "../helpers/parsers.js";
@@ -232,13 +233,13 @@
   @import "./styles/global";
 
   .form-width {
-    margin: 45px auto 15px;
+    margin: 15px auto 15px;
     min-height: calc(100vh - 175px - 60px);
   }
 
   .cards-block {
     display: grid;
-    grid-template-columns: repeat(3, 235px);
+    grid-template-columns: repeat(3, 300px);
     justify-content: space-between;
     grid-row-gap: 41px;
   }
@@ -457,6 +458,7 @@
 <svelte:window on:click={hideAll} />
 
 <Header />
+<BreadCrumbs path = {[{name: "Каталог событий", url: "./"}]} />
 <div class="form-width">
   <h1>Каталог событий</h1>
   <div class="filters">
