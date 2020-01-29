@@ -1,6 +1,8 @@
 <script>
   import { stores } from "@sapper/app";
 
+  export let page;
+
   const { session } = stores();
 </script>
 
@@ -109,7 +111,9 @@
         <img src="img/logo.png" alt="logo" />
       </div>
     </div>
-    <a href="./" class="page-name">Каталог событий</a>
+    {#if page !== "actions"}
+      <a href="./" class="page-name">Каталог событий</a>
+    {/if}
   </div>
   <div class="right-side">
     <button id="language">

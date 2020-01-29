@@ -202,6 +202,7 @@ export default class extends Foundation{
         s.id = acsu.subject_id`,
       [ id ]
     ) ).rows;
+    await transaction.end();
 
     return super.success( 0, main );
   }
