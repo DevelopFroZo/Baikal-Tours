@@ -16,9 +16,11 @@
   import Footer from "../components/footer.svelte";
   import { parseDateToDateAndDay, parsePrice } from "../helpers/parsers.js";
   import { validateMail, validatePhone } from "../helpers/validators.js";
-  import {contactsToString} from "../helpers/converters.js";
+  import {contactsToString, dateToString } from "../helpers/converters.js";
 
   export let result_action, actionId;
+
+  console.log(result_action)
 
   const fetcher = new Fetcher();
   let response,
@@ -32,21 +34,6 @@
     userMail = "",
     disabled = "disabled",
     contactData = contactsToString(data.contact_faces, data.emails, data.phones);
-
-  let dates = [];
-
-  for (let i = 0; i < data.dates.length; i++) {
-    if (data.dates[i].date_start === null)
-      dates.push(parseDateToDateAndDay(data.dates[i].date_end));
-    else if (data.dates[i].date_end === null)
-      dates.push(parseDateToDateAndDay(data.dates[i].date_start));
-    else
-      dates.push(
-        parseDateToDateAndDay(data.dates[i].date_start) +
-          " - " +
-          parseDateToDateAndDay(data.dates[i].date_end)
-      );
-  }
 
   onMount(() => {
     if (data.images.length > 0) {
@@ -264,8 +251,8 @@
         </div>
         <div class="info">
           <ul>
-            {#each dates as date}
-              <li>{date}</li>
+            {#each data.dates as date}
+              <li>{dateToString(date)}</li>
             {/each}
           </ul>
         </div>
