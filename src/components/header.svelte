@@ -102,13 +102,13 @@
 
 <header>
   <div class="form-width line">
-    <div class="header-name">
+    <a class="header-name" href="./">
       <h1>Календарь событий</h1>
       <div>
         <img src="img/ot.png" alt="от" />
         <img src="img/logo.png" alt="logo" />
       </div>
-    </div>
+    </a>
   </div>
   <div class="right-side">
     <button id="language">
