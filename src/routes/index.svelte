@@ -457,7 +457,7 @@
 
 <svelte:window on:click={hideAll} />
 
-<Header page={"actions"}/>
+<Header />
 <!-- <BreadCrumbs path = {[{name: "Каталог событий", url: "./"}]} /> -->
 <div class="form-width">
   <h1>Каталог событий</h1>
