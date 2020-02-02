@@ -16,6 +16,7 @@ export default {
      7: 'Invalid date',
      8: "Invalid price",
      9: "Invalid ID",
-    10: "No data"
+    10: "No data",
+    11: "Invalid locale"
   }
 };

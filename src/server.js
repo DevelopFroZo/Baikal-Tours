@@ -16,6 +16,7 @@ import database from "./database";
 
 // Helpers
 import mail from "./helpers/mail";
+import i18n from "./helpers/i18n";
 
 // Consts
 const { PORT, NODE_ENV } = process.env;
@@ -53,6 +54,8 @@ server.use(
   } )
 );
 
+let q = 1;
+
 // Some upgrade
 server.use( ( req, res, next ) => {
   req.database = database;
@@ -62,8 +65,16 @@ server.use( ( req, res, next ) => {
   // #fix поменять на !dev
   if( dev ) req.mail = mail;
 
+  if( !req.session.q ){
+    console.log( q );
+    req.session.q = q;
+    q++;
+  }
+
   if( !req.session.isLogged ) req.session.isLogged = false;
   if( !req.session.locale ) req.session.locale = "ru";
+
+  req._ = i18n( req.session.locale );
 
   next();
 } );
