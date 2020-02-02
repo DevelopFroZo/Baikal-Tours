@@ -63,7 +63,7 @@ server.use( ( req, res, next ) => {
   if( dev ) req.mail = mail;
 
   if( !req.session.isLogged ) req.session.isLogged = false;
-  if( !req.session.locale ) req.session.locale = "zh";
+  if( !req.session.locale ) req.session.locale = "ru";
 
   next();
 } );
