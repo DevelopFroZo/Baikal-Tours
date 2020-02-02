@@ -63,7 +63,7 @@ server.use( ( req, res, next ) => {
   if( dev ) req.mail = mail;
 
   if( !req.session.isLogged ) req.session.isLogged = false;
-  if( !req.session.email ) req.session.email = "";
+  if( !req.session.locale ) req.session.locale = "zh";
 
   next();
 } );
@@ -77,7 +77,7 @@ server
     sapper.middleware( {
       session: ( req, res ) => ( {
         isLogged: req.session.isLogged,
-        email: req.session.email
+        locale: req.session.locale
       } )
     } )
   )

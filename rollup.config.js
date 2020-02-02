@@ -7,6 +7,7 @@ import { terser } from 'rollup-plugin-terser';
 import config from 'sapper/config/rollup.js';
 import pkg from './package.json';
 import sveltePreprocess from 'svelte-preprocess';
+import rootImport from 'rollup-plugin-root-import';
 
 const mode = process.env.NODE_ENV;
 const dev = mode === 'development';
@@ -64,7 +65,12 @@ export default {
 
 			!dev && terser({
 				module: true
-			})
+			}),
+      rootImport( {
+        root: `${__dirname}/src`,
+        useInput: "prepend",
+        extensions: ".js",
+      } )
 		],
 
 		onwarn,
@@ -86,7 +92,12 @@ export default {
 			resolve({
 				dedupe
 			}),
-			commonjs()
+			commonjs(),
+      rootImport( {
+        root: `${__dirname}/src`,
+        useInput: "prepend",
+        extensions: ".js",
+      } )
 		],
 		external: Object.keys(pkg.dependencies).concat(
 			require('module').builtinModules || Object.keys(process.binding('natives'))

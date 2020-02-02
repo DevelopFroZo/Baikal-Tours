@@ -1,7 +1,10 @@
-import { toInt, toIntArray } from "../_helpers/converters";
+"use strict";
+
+import { toInt, toIntArray } from "/helpers/converters";
 
 // Errors: 6, 7, 8
 export async function get( req, res ){
+  const locale = req.session.locale;
   const filter = req.query.filter;
   const count = toInt( req.query.count );
 
@@ -10,7 +13,7 @@ export async function get( req, res ){
 
   // Errors: 6
   if( filter === undefined )
-    return res.json( await req.database.actions.getAll( count ) );
+    return res.json( await req.database.actions.getAll( locale, count ) );
 
   // filter is sended
   // Errors: 7, 8
@@ -35,6 +38,7 @@ export async function get( req, res ){
     return res.error( 8 );
 
   res.json( await req.database.actions.filter(
+    locale,
     dateStart,
     dateEnd,
     locations,

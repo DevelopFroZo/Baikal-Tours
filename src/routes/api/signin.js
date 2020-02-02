@@ -1,3 +1,5 @@
+"use strict";
+
 // Errors: 3, 4
 export async function post( req, res ){
   // #fix проверки на корректность данных
@@ -9,8 +11,7 @@ export async function post( req, res ){
   if( !result.ok ) return res.json( result );
 
   // #fix добавить роль
-  req.session.userId = result.data.id;
-  req.session.email = result.data.email;
+  req.session.userId = result.data;
   req.session.isLogged = true;
 
   res.success();

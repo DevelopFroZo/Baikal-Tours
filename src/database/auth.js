@@ -63,9 +63,6 @@ export default class extends Foundation{
       [ row.id ]
     );
 
-    return super.success( 0, {
-      id: row.id,
-      email: row.email
-    } );
+    return super.success( 0, row.id );
   }
 }

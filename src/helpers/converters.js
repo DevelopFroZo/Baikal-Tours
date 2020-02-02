@@ -1,7 +1,37 @@
 export {
+  toInt,
+  toIntArray,
   contactsToString,
   dateToString
 };
+
+function toInt( st ){
+  if( st === undefined || st === "" )
+    return null;
+
+  const int = parseInt( st.replace( / +/g, "" ) );
+
+  if( isNaN( int ) || typeof int !== "number" )
+    return null;
+
+  return int;
+}
+
+function toIntArray( st ){
+  if( st === undefined || st === "" )
+    return null;
+
+  const arr = st.replace( / +/g, "" ).split( "," );
+
+  for( let i = 0; i < arr.length; i++ ){
+    arr[i] = toInt( arr[i] );
+
+    if( arr[i] === null )
+      return null;
+  }
+
+  return arr;
+}
 
 function contactsToString( contact_faces, emails, phones ){
   contact_faces = contact_faces ? contact_faces : [];

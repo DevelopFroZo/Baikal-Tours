@@ -1,4 +1,6 @@
-import { toInt } from "../_helpers/converters";
+"use strict";
+
+import { toInt } from "/helpers/converters";
 
 // Errors: 9, 10
 export async function get( req, res ){
@@ -7,5 +9,5 @@ export async function get( req, res ){
   if( id === null || id < 1 )
     return res.error( 9 );
 
-  res.json( await req.database.actions.getOne( id ) );
+  res.json( await req.database.actions.getOne( id, req.session.locale ) );
 }

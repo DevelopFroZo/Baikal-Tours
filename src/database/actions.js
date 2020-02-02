@@ -5,43 +5,48 @@ export default class extends Foundation{
     super( modules, "Actions" );
   }
 
-  async getAll( count ){
+  async getAll( locale, count ){
     const limit = count ? `limit ${count}` : "";
     const rows = ( await super.query(
       `select
-         a.id, a.name,
-         array_agg( distinct ad.date_start ) as date_starts,
-         array_agg( distinct ad.date_end ) as date_ends,
-         ai.image_url, a.price_min, a.price_max,
-         array_agg( distinct s.name ) as subjects,
-         array_agg( distinct l.name ) as locations
-       from
-         actions as a
-         left join action_dates as ad
-         on a.id = ad.action_id
-         left join action_images as ai
-         on a.id = ai.action_id and ai.is_main = true
-         left join actions_subjects as acsu
-         on a.id = acsu.action_id
-         left join subjects as s
-         on acsu.subject_id = s.id
-         left join actions_locations as al
-         on a.id = al.action_id
-         left join locations as l
-         on al.location_id = l.id
-       group by a.id, a.name, ai.image_url, a.price_min, a.price_max
-       order by a.id
-       ${limit}`
+        a.id, at.name,
+        array_agg( distinct ad.date_start ) as date_starts,
+        array_agg( distinct ad.date_end ) as date_ends,
+        ai.image_url, a.price_min, a.price_max,
+        array_agg( distinct s.name ) as subjects,
+        array_agg( distinct l.name ) as locations
+      from
+        actions as a
+        left join action_dates as ad
+        on a.id = ad.action_id
+        left join action_images as ai
+        on a.id = ai.action_id and ai.is_main = true
+        left join actions_subjects as acsu
+        on a.id = acsu.action_id
+        left join subjects as s
+        on acsu.subject_id = s.id
+        left join actions_locations as al
+        on a.id = al.action_id
+        left join locations as l
+        on al.location_id = l.id,
+        actions_translates as at
+      where
+        a.id = at.action_id and
+        at.locale = $1
+      group by a.id, at.name, ai.image_url, a.price_min, a.price_max
+      order by a.id
+      ${limit}`,
+      [ locale ]
     ) ).rows;
 
     return super.success( 0, rows );
   }
 
-  async filter( dateStart, dateEnd, locations, companions, subjects, price_min, price_max, count ){
+  async filter( locale, dateStart, dateEnd, locations, companions, subjects, price_min, price_max, count ){
     const limit = count ? `limit ${count}` : "";
     let filters = [];
-    const params = [];
-    let i = 1;
+    const params = [ locale ];
+    let i = params.length + 1;
     let datesFilter = [];
 
     // #fix добавить фильтр на цену
@@ -109,25 +114,28 @@ export default class extends Foundation{
         ai.image_url
       from (
       	select
-      		a.id, a.name, a.price_min, a.price_max,
+      		a.id, at.name, a.price_min, a.price_max,
       		la.names as locations,
       		array_agg( distinct c.name ) as companions,
       		array_agg( distinct s.name ) as subjects
       	from
       		actions as a,
+          actions_translates as at,
       		locations_arrays as la,
       		actions_companions as ac,
       		companions as c,
       		actions_subjects as acsu,
       		subjects as s
       	where
+          at.locale = $1 and
       		${filters}
+          at.action_id = a.id and
       		a.id = la.id and
       		ac.companion_id = c.id and
       		ac.action_id = a.id and
       		acsu.subject_id = s.id and
       		acsu.action_id = a.id
-      	group by a.id, a.name, a.price_min, a.price_max, la.names ) as tmp
+      	group by a.id, at.name, a.price_min, a.price_max, la.names ) as tmp
       	left join action_dates as ad
       	on ad.action_id = tmp.id
         left join action_images as ai
@@ -142,16 +150,23 @@ export default class extends Foundation{
     return super.success( 0, rows );
   }
 
-  async getOne( id ){
+  async getOne( id, locale ){
     const transaction = await super.transaction();
     const main = ( await transaction.query(
-      `select a.*, u.email as organizer_email, u.phone as organizer_phone
+      `select
+        a.*,
+        u.email as organizer_email, u.phone as organizer_phone,
+        at.*
       from
         actions as a
         left join users as u
-        on a.organizer_id = u.id
-      where a.id = $1`,
-      [ id ]
+        on a.organizer_id = u.id,
+        actions_translates as at
+      where
+        a.id = $1 and
+        a.id = at.action_id and
+        at.locale = $2`,
+      [ id, locale ]
     ) ).rows[0];
 
     if( main === undefined ){
@@ -159,6 +174,9 @@ export default class extends Foundation{
 
       return super.error( 10 );
     }
+
+    delete main.organizer_id;
+    delete main.action_id;
 
     main.images = ( await transaction.query(
       `select image_url, is_main
@@ -191,7 +209,7 @@ export default class extends Foundation{
         at.action_id = $1 and
         t.id = at.transfer_id`,
       [ id ]
-    ) ).rows;
+    ) ).rows.map( transfer => transfer.name );
     main.subjects = ( await transaction.query(
       `select s.name
       from
@@ -201,18 +219,27 @@ export default class extends Foundation{
         acsu.action_id = $1 and
         s.id = acsu.subject_id`,
       [ id ]
-    ) ).rows;
+    ) ).rows.map( transfer => transfer.name );
     await transaction.end();
+
+    delete main.locale;
 
     return super.success( 0, main );
   }
 
-  async getOneForEmail( id ){
+  async getOneForEmail( id, locale ){
     const result = ( await super.query(
-      `select name, short_description, price_min, price_max, contact_faces, emails, phones
-      from actions
-      where id = $1`,
-      [ id ]
+      `select
+        at.name, at.short_description, a.emails, a.phones,
+        a.price_min, a.price_max, at.contact_faces
+      from
+        actions as a,
+        actions_translates as at
+      where
+        id = $1 and
+        a.id = at.action_id and
+        at.locale = $2`,
+      [ id, locale ]
     ) ).rows[0];
 
     return result !== undefined ? result : null;

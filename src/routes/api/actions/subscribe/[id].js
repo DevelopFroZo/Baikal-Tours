@@ -1,8 +1,9 @@
-// #fix придумать что-то с путём
-import { contactsToString } from "../../../../helpers/converters";
+"use strict";
+
+import { contactsToString } from "/helpers/converters";
 
 export async function post( req, res ){
-  const result = await req.database.actions.getOneForEmail( req.params.id );
+  const result = await req.database.actions.getOneForEmail( req.params.id, req.session.locale );
 
   if( result === null ) return res.error( 9 );
 
