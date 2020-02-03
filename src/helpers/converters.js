@@ -71,33 +71,33 @@ function parseDate( dateString ){
   return `${day}.${month}.${year}`;
 }
 
-function parseDays( days ){
+function parseDays( days, _ ){
   if( days === null ) return null;
 
   let sum = 0;
 
   days.forEach( day => sum += day );
 
-  if( sum === 21 ) return "каждый день";
+  if( sum === 21 ) return _( "every_day" );
 
   let st = "";
 
   days.forEach( ( day, i ) => {
     switch( day ){
-      case 0: st += "ПН"; break;
-      case 1: st += "ВТ"; break;
-      case 2: st += "СР"; break;
-      case 3: st += "ЧТ"; break;
-      case 4: st += "ПТ"; break;
-      case 5: st += "СБ"; break;
-      case 6: st += "ВС";
+      case 0: st += _( "monday.short" ); break;
+      case 1: st += _( "tuesday.short" ); break;
+      case 2: st += _( "wednesday.short" ); break;
+      case 3: st += _( "thursday.short" ); break;
+      case 4: st += _( "friday.short" ); break;
+      case 5: st += _( "saturday.short" ); break;
+      case 6: st += _( "sunday.short" );
     }
 
     if( i < days.length - 2 ) st += ", ";
-    else if( i < days.length - 1 ) st += " и ";
+    else if( i < days.length - 1 ) st += ` ${_( "and" )} `;
   } );
 
-  return `по ${st}`;
+  return `${_( "days_parser.by_days" )} ${st}`;
 }
 
 function upperFirst( st ){
@@ -105,33 +105,36 @@ function upperFirst( st ){
 }
 
 // #fix переделать на НОРМАЛЬНУЮ логику
-function dateToString( date ){
+function dateToString( date, _ ){
   let result = "";
 
-  if( date.date_start ) result += `С ${parseDate( date.date_start )}`;
+  // #fix убрать
+  if( _ === undefined ) return null;
+
+  if( date.date_start ) result += `${upperFirst( _( "date_to_string.start" ) )} ${parseDate( date.date_start )}`;
 
   if( date.days ){
-    const parsedDays = parseDays( date.days );
+    const parsedDays = parseDays( date.days, _ );
 
     if( result !== "" ) result += ` ${parsedDays}`;
     else result += upperFirst( parsedDays );
   }
 
   if( date.time_start ){
-    if( result !== "" ) result += ` с ${date.time_start}`;
-    else result += `С ${date.time_start}`;
+    if( result !== "" ) result += ` ${_( "date_to_string.start" )} ${date.time_start}`;
+    else result += `${upperFirst( _( "date_to_string.start" ) )} ${date.time_start}`;
   }
 
   if( date.date_end ){
     const parsedDate = parseDate( date.date_end );
 
-    if( result !== "" ) result += ` до ${parsedDate}`;
-    else result += `До ${parsedDate}`;
+    if( result !== "" ) result += ` ${_( "date_to_string.end" )} ${parsedDate}`;
+    else result += `${upperFirst( _( "date_to_string.end" ) )} ${parsedDate}`;
   }
 
   if( date.time_end ){
-    if( result !== "" ) result += ` до ${date.time_end}`;
-    else result += `До ${date.time_end}`;
+    if( result !== "" ) result += ` ${_( "date_to_string.end" )} ${date.time_end}`;
+    else result += `${upperFirst( _( "date_to_string.end" ) )} ${date.time_end}`;
   }
 
   return result;
