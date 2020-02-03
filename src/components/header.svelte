@@ -1,13 +1,14 @@
 <script>
   import { stores } from "@sapper/app";
   import Fetcher from "/helpers/fetcher.js";
-  import { translationText } from "/helpers/translate.js";
+  import i18n from "/helpers/i18n/index.js";
 
   export let locale;
 
   const fetcher = new Fetcher();
 
   const { session } = stores();
+  const _ = i18n( locale );
 
   let languages = [
     {
@@ -128,7 +129,7 @@
 <header>
   <div class="form-width line">
     <a class="header-name" href="./">
-      <h1>{translationText.eventCalendar[locale]}</h1>
+      <h1>{_("event_calendar")}</h1>
       <div>
         <img src="img/ot.png" alt="от" />
         <img src="img/logo.png" alt="logo" />
@@ -143,11 +144,11 @@
     </select>
     <img src="img/language.png" alt="language" />
     {#if !$session.isLogged}
-      <a href="./login" id="login">{translationText.authorize[locale]}</a>
-      <a href="./register" id="register">{translationText.registration[locale]}</a>
+      <a href="./login" id="login">{_("authorize")}</a>
+      <a href="./register" id="register">{_("registration")}</a>
     {:else}
       <a href="./" class = "my-page">*твоя почта*</a>
-      <button class = "logout">{translationText.logout[locale]}</button>
+      <button class = "logout">{_("logout")}</button>
     {/if}
   </div>
 </header>

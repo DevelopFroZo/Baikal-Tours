@@ -20,7 +20,7 @@
   import { parseDateToDateAndDay, parsePrice } from "/helpers/parsers.js";
   import { validateMail, validatePhone } from "/helpers/validators.js";
   import {contactsToString, dateToString } from "/helpers/converters.js";
-  import { translationText } from "/helpers/translate.js";
+  import i18n from "/helpers/i18n/index.js";
 
   export let result_action, actionId, locale;
 
@@ -39,6 +39,8 @@
     disabled = "disabled",
     contactData = contactsToString(data.contact_faces, data.emails, data.phones);
 
+  const _ = i18n( locale );
+
   onMount(() => {
     if (data.images.length > 0) {
       var elem = document.querySelector(".main-carousel");
@@ -53,7 +55,7 @@
     disabled = "";
   else disabled = "disabled";
 
-  second_price = parsePrice(data.price_min, data.price_max, locale);
+  second_price = parsePrice(data.price_min, data.price_max, _);
 
   async function subscribeUser(){
     let subscribeStatus = await fetcher.post("/api/actions/subscribe/" + actionId, {
@@ -232,7 +234,7 @@
 </svelte:head>
 
 <Header locale={locale}/>
-<BreadCrumbs path = {[{name: translationText.eventCatalog[locale], url: "./"}, {name: data.name, url: "./action?id=" + actionId}]} />
+<BreadCrumbs path = {[{name: _("event_catalog"), url: "./"}, {name: data.name, url: "./action?id=" + actionId}]} />
 <div class="form-width">
   <h1>{data.name}</h1>
   <p class="italic-bold">{data.tagline}</p>
@@ -257,7 +259,7 @@
         <div class="info">
           <ul>
             {#each data.dates as date}
-              <li>{dateToString(date)}</li>
+              <li>{dateToString(date, _)}</li>
             {/each}
           </ul>
         </div>
@@ -295,7 +297,7 @@
         <div class="info-image">
           <img src="img/price.png" alt="price" />
         </div>
-        <div class="info">{translationText.price[locale]}: {second_price}</div>
+        <div class="info">{_("price")}: {second_price}</div>
       </div>
       {#if data.vk_link !== null || data.instagram_link !== null || data.facebook_link !== null || data.twitter_link !== null || data.websites !== null}
         <div class="line">
@@ -307,28 +309,28 @@
               {#if data.websites !== null}
                 <li>
                   <a href={data.websites[0]} target="_blank">
-                    {translationText.officialSite[locale]}
+                    {_("official_site")}
                   </a>
                 </li>
               {/if}
               {#if data.vk_link !== null}
                 <li>
-                  <a href={data.vk_link} target="_blank">{translationText.VKGroup[locale]}</a>
+                  <a href={data.vk_link} target="_blank">{_("VK_group")}</a>
                 </li>
               {/if}
               {#if data.instagram_link !== null}
                 <li>
-                  <a href={data.instagram_link} target="_blank">{translationText.instagram[locale]}</a>
+                  <a href={data.instagram_link} target="_blank">{_("instagram")}</a>
                 </li>
               {/if}
               {#if data.facebook_link !== null}
                 <li>
-                  <a href={data.facebook_link} target="_blank">{translationText.facebook[locale]}</a>
+                  <a href={data.facebook_link} target="_blank">{_("facebook")}</a>
                 </li>
               {/if}
               {#if data.twitter_link !== null}
                 <li>
-                  <a href={data.twitter_link} target="_blank">{translationText.twitter[locale]}</a>
+                  <a href={data.twitter_link} target="_blank">{_("twitter")}</a>
                 </li>
               {/if}
             </ul>
@@ -340,7 +342,7 @@
           <img src="img/transfer.png" alt="transfer" />
         </div>
         <div class="info">
-          {translationText.transfer[locale]}
+          {_("transfer")}
           <ul>
             {#each data.transfers as transfer}
               <li>{transfer}</li>
@@ -366,12 +368,12 @@
 
   <div class="register-form">
     <div class="input-block">
-      <label for="name">{translationText.fullName[locale]}</label>
+      <label for="name">{_("full_name")}</label>
       <br />
       <input type="text" name="name" bind:value={userName} />
     </div>
     <div class="input-block">
-      <label for="phone">{translationText.phone[locale]}</label>
+      <label for="phone">{_("phone")}</label>
       <br />
       <input
         type="text"
@@ -384,7 +386,7 @@
       <br />
       <input type="text" name="email" bind:value={userMail} />
     </div>
-    <button class="register-button" {disabled} on:click={subscribeUser}>{translationText.register[locale]}</button>
+    <button class="register-button" {disabled} on:click={subscribeUser}>{_("register")}</button>
   </div>
 </div>
 <Footer locale={locale}/>

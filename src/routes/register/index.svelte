@@ -4,6 +4,8 @@
 
   const fetcher = new Fetcher();
 
+  export let locale;
+
   async function register(e) {
     let data = e.detail;
 
@@ -25,7 +27,7 @@
 </style>
 
 <svelte:head>
-  <title>Регистрация</title>
+  <title>{Регистрация}</title>
 </svelte:head>
 
 <div class="body">

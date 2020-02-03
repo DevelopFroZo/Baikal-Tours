@@ -1,7 +1,9 @@
 <script>
-  import { translationText } from "/helpers/translate.js";
+  import i18n from "/helpers/i18n/index.js";
 
   export let locale;
+
+  const _ = i18n( locale );
 </script>
 
 <style lang="scss">
@@ -106,8 +108,8 @@
     <div class="left-side">
       <img src="img/logo.png" alt="logo.png" />
       <br />
-      <div>{translationText.eventCalendarInfo[locale]}</div>
-      <a href="./" class="underline">{translationText.userAgreement[locale]}</a>
+      <div>{_("event_calendar_info")}</div>
+      <a href="./" class="underline">{_("user_agreement")}</a>
     </div>
     <!-- <div class="center">
       <div class="hrefs">
@@ -118,7 +120,7 @@
       <a href="./" class="underline">Политика конфиденциальности</a>
     </div> -->
     <div class="right-side">
-      <h1>{translationText.contacts[locale]}</h1>
+      <h1>{_("contacts")}</h1>
       <div class="mail">events@calendar.com</div>
       <!-- <div class="info">
         Туристическая справочная информация

@@ -26,5 +26,34 @@ export default ( {
     "Здравствуйте, {user}, вы зарегистрировались на событие {name}\n\n" +
     "{short_description}\n\n" +
     "Контакты мероприятия:{contacts}\n\n" +
-    "Цена: {price}"
+    "Цена: {price}",
+
+  event_catalog: "Каталог событий",
+  date_from: "Дата с",
+  date_by: "Дата по",
+  where: "Где",
+  with_whom: "С кем",
+  thematics: "Тематика",
+  price_from: "Цена от",
+  you_have_chosen: "Вы выбрали",
+  from: "от",
+  to: "до",
+  registration: "Регистрация",
+  authorize: "Вход",
+  logout: "Выход",
+  event_calendar: "Календарь событий",
+  free: "Бесплатно",
+  event_calendar_info: "Календарь событий от \"Фанат байкала\" ©2019",
+  user_agreement: "Пользовательское соглашение",
+  contacts: "Контакты",
+  price: "Цена",
+  official_site: "Официальный сайт",
+  VK_group: "Группа \"ВКонтакте\"",
+  instagram: "Инстаграм",
+  facebook: "Фейсбук",
+  twitter: "Твиттер",
+  transfer: "Трансфер",
+  full_name: "Имя и фамилия",
+  phone: "Телефон",
+  register: "Зарегистрироваться"
 } );

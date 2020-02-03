@@ -22,10 +22,11 @@
   import { onMount } from "svelte";
   import Fetcher from "/helpers/fetcher.js";
   import { parseDate } from "/helpers/parsers.js";
-  import { translationText } from "/helpers/translate.js";
+  import i18n from "/helpers/i18n/index.js";
 
   export let result_cards, result_filters, locale;
   const fetcher = new Fetcher();
+  const _ = i18n( locale );
 
   let date = "",
     price = "",
@@ -144,9 +145,9 @@
     else filter[4][1].active = true;
 
     if (filter[4][0].active && filter[4][1].active)
-      price = translationText.from[locale] + " " + filter[4][0].value + "₽ " + translationText.to[locale] + " " + filter[4][1].value + "₽";
-    else if (filter[4][0].active) price = translationText.from[locale] + " " + filter[4][0].value + "₽";
-    else if (filter[4][1].active) price = translationText.to[locale] + " " + filter[4][1].value + "₽";
+      price = _("from") + " " + filter[4][0].value + "₽ " + _("to") + " " + filter[4][1].value + "₽";
+    else if (filter[4][0].active) price = _("from") + " " + filter[4][0].value + "₽";
+    else if (filter[4][1].active) price = _("to") + " " + filter[4][1].value + "₽";
     else price = "";
 
     //show active filters
@@ -189,8 +190,6 @@
     }
 
     getFilterData(params);
-
-    console.log(1)
   }
 
   async function getFilterData(params) {
@@ -455,7 +454,7 @@
 </style>
 
 <svelte:head>
-  <title>{translationText.eventCatalog[locale]}</title>
+  <title>{_("event_catalog")}</title>
 </svelte:head>
 
 <svelte:window on:click={hideAll} />
@@ -463,11 +462,11 @@
 <Header locale={locale}/>
 <!-- <BreadCrumbs path = {[{name: "Каталог событий", url: "./"}]} /> -->
 <div class="form-width">
-  <h1>{translationText.eventCatalog[locale]}</h1>
+  <h1>{_("event_catalog")}</h1>
   <div class="filters">
     <div class="two-input">
       <input
-        placeholder={translationText.dateFrom[locale]}
+        placeholder={_("date_from")}
         class="date"
         type="text"
         bind:value={filter[0][0].value}
@@ -479,7 +478,7 @@
           e.target.type = 'text';
         }} />
       <input
-        placeholder={translationText.dateBy[locale]}
+        placeholder={_("date_by")}
         class="date"
         type="text"
         bind:value={filter[0][1].value}
@@ -499,7 +498,7 @@
         on:click={() => {
           options[0].isVisible = true;
         }}>
-        {translationText.where[locale]}
+        {_("where")}
       </button>
       <div
         class="option"
@@ -520,7 +519,7 @@
         on:click={() => {
           options[1].isVisible = true;
         }}>
-        {translationText.withWhom[locale]}
+        {_("with_whom")}
       </button>
       <div
         class="option"
@@ -541,7 +540,7 @@
         on:click={() => {
           options[2].isVisible = true;
         }}>
-        {translationText.thematics[locale]}
+        {_("thematics")}
       </button>
       <div
         class="option"
@@ -559,7 +558,7 @@
       <div class="price-filter">
         <input
           type="number"
-          placeholder={translationText.priceFrom[locale]}
+          placeholder={_("price_from")}
           id="price-start"
           bind:value={priceStart}
           on:blur={setPrice}
@@ -581,7 +580,7 @@
       <div class="price-filter">
         <input
           type="number"
-          placeholder={translationText.to[locale]}
+          placeholder={_("to")}
           id="price-end"
           bind:value={priceEnd}
           on:blur={setPrice}
@@ -604,7 +603,7 @@
   </div>
   {#if showFilter}
     <div class="active-filter-block">
-      <div class="filter-head">{translationText.youHaveChosen[locale]}</div>
+      <div class="filter-head">{_("you_have_chosen")}</div>
       {#if date !== ''}
         <div class="active-filter">
           {date}

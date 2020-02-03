@@ -1,5 +1,3 @@
-import { translationText } from "/helpers/translate.js";
-
 export {
     parseDate,
     dateOptions,
@@ -34,11 +32,11 @@ function parseDateToDateAndDay(date) {
     return date;
 }
 
-function parsePrice(price_min, price_max, locale) {
+function parsePrice(price_min, price_max, _) {
     var second_price;
-    if (price_min === 0 && price_max === 0) second_price = translationText.free[locale];
+    if (price_min === 0 && price_max === 0) second_price = _("free");
     else if (price_min === 0 && price_max !== 0)
-        second_price = translationText.free[locale] + " - " + price_max;
+        second_price = _("free") + " - " + price_max;
     else second_price = price_min + " - " + price_max;
     return second_price;
 }

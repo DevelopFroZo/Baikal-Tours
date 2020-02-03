@@ -1,6 +1,6 @@
 <script>
   import { parseDate, parsePrice } from "/helpers/parsers.js";
-  import { translationText } from "/helpers/translate.js";
+  import i18n from "/helpers/i18n/index.js";
   
   export let name = "",
     date_ends = "",
@@ -13,6 +13,8 @@
     id = "",
     locale;
 
+  const _ = i18n( locale );
+
   let dates = [],
     second_price;
 
@@ -20,14 +22,14 @@
     if (date_starts[i] !== date_ends[i]) {
       if (date_starts[i] === null) {
         let end = parseDate(new Date(date_ends[i]));
-        dates.push(translationText.liteDateTo[locale] + " " + end);
+        dates.push(_("date_to_string.end") + " " + end);
       } else if (date_ends[i] === null) {
         let start = parseDate(new Date(date_starts[i]));
-        dates.push(translationText.lineDateFrom[locale] + " " + start);
+        dates.push(_("date_to_string.start") + " " + start);
       } else {
         let start = parseDate(new Date(date_starts[i]));
         let end = parseDate(new Date(date_ends[i]));
-        dates.push(translationText.liteDateFrom[locale] + " " + start + " " + translationText.liteDateTo[locale] + " " + end);
+        dates.push(_("date_to_string.start") + " " + start + " " + _("date_to_string.end") + " " + end);
       }
     }
     else{
@@ -35,7 +37,7 @@
     }
   }
 
-  second_price = parsePrice(price_min, price_max, locale);
+  second_price = parsePrice(price_min, price_max, _);
 
 </script>
 
