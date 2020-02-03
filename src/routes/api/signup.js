@@ -18,7 +18,7 @@ export async function post( req, res ){
     req.mail.send(
       req.body.email,
       // #fix нормальная тема
-      "Пароль",
+      req._( "email.confirm_password.subject" ),
       // #fix нормальный текст
       result.data
     );

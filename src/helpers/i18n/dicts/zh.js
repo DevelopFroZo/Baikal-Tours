@@ -1,5 +1,5 @@
 export default ( {
-  "email.confirm_password.password": "密碼",
+  "email.confirm_password.subject": "密碼",
 
   no_contacts: "沒有啦",
 

@@ -54,8 +54,6 @@ server.use(
   } )
 );
 
-let q = 1;
-
 // Some upgrade
 server.use( ( req, res, next ) => {
   req.database = database;

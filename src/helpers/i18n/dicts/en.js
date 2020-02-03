@@ -1,5 +1,5 @@
 export default ( {
-  "email.confirm_password.password": "password",
+  "email.confirm_password.subject": "Password",
 
   no_contacts: "none",
 
