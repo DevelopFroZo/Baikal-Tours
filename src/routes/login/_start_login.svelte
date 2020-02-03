@@ -1,6 +1,6 @@
 <script>
   import { createEventDispatcher } from "svelte";
-  import BreadCrumbs from "../../components/breadcrumbs.svelte";
+  import BreadCrumbs from "/components/breadcrumbs.svelte";
 
   let email = "",
     password = "",

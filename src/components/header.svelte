@@ -1,7 +1,36 @@
 <script>
   import { stores } from "@sapper/app";
+  import Fetcher from "/helpers/fetcher.js";
+  import { translationText } from "/helpers/translate.js";
+
+  export let locale;
+
+  const fetcher = new Fetcher();
 
   const { session } = stores();
+
+  let languages = [
+    {
+      id: 1,
+      lang: "ru"
+    },
+    {
+      id: 2,
+      lang: "en",
+    },
+    {
+      id: 3,
+      lang: "zh"
+    }
+  ]
+
+  let secondLanguage = locale;
+
+  async function changeLanguage(){
+    let result = await fetcher.put("/api/locales/" + secondLanguage);
+
+    document.location.reload();
+  }
 </script>
 
 <style lang="scss">
@@ -55,15 +84,11 @@
     align-items: center;
   }
 
-  #language {
+  .language {
     text-transform: uppercase;
     display: flex;
     align-items: center;
     font-weight: bold;
-
-    & > img {
-      margin-left: 3px;
-    }
   }
 
   a {
@@ -103,7 +128,7 @@
 <header>
   <div class="form-width line">
     <a class="header-name" href="./">
-      <h1>Календарь событий</h1>
+      <h1>{translationText.eventCalendar[locale]}</h1>
       <div>
         <img src="img/ot.png" alt="от" />
         <img src="img/logo.png" alt="logo" />
@@ -111,16 +136,18 @@
     </a>
   </div>
   <div class="right-side">
-    <button id="language">
-      ru
-      <img src="img/language.png" alt="language" />
-    </button>
+    <select bind:value={secondLanguage} on:change={changeLanguage} class = "language">
+      {#each languages as lang}
+        <option value={lang.lang}>{lang.lang}</option>
+      {/each}
+    </select>
+    <img src="img/language.png" alt="language" />
     {#if !$session.isLogged}
-      <a href="./login" id="login">Войти</a>
-      <a href="./register" id="register">Регистрация</a>
+      <a href="./login" id="login">{translationText.authorize[locale]}</a>
+      <a href="./register" id="register">{translationText.registration[locale]}</a>
     {:else}
       <a href="./" class = "my-page">*твоя почта*</a>
-      <button class = "logout">Выход</button>
+      <button class = "logout">{translationText.logout[locale]}</button>
     {/if}
   </div>
 </header>

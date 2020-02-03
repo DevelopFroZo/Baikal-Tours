@@ -1,7 +1,7 @@
 <script>
   import { createEventDispatcher } from "svelte";
-  import BreadCrumbs from "../../components/breadcrumbs.svelte";
-  import { validatePhone, validateMail } from "../../helpers/validators";
+  import BreadCrumbs from "/components/breadcrumbs.svelte";
+  import { validatePhone, validateMail } from "/helpers/validators";
 
   const dispatch = createEventDispatcher();
   let confirm = false;

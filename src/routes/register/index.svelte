@@ -1,12 +1,13 @@
 <script>
   import StartRegister from "./_start_register.svelte";
-  import { response } from "../../helpers/response.js";
+  import Fetcher from "/helpers/fetcher.js";
+
+  const fetcher = new Fetcher();
 
   async function register(e) {
     let data = e.detail;
 
-    let register_response = await response("post", "/api/signup?action=start", data);
-    let result = await register_response.json();
+    let result = await fetcher.post("/api/signup?action=start", data);
 
     if (result.ok) {
       // localStorage.setItem('email', data.email)

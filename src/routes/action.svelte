@@ -1,26 +1,30 @@
 <script context = "module">
   export async function preload(page, session) {
     let actionId = page.query.id;
-    let response = await this.fetch("/api/actions/" + actionId);
+    let response = await this.fetch("/api/actions/" + actionId, {
+      credentials: "same-origin"
+    });
     let result_action = await response.json();
+    let locale = session.locale;
 
-    return { result_action, actionId };
+    return { result_action, actionId, locale };
   }
 </script>
 
 <script>
-  import Fetcher from "./_helpers/fetcher.js";
-  import BreadCrumbs from "../components/breadcrumbs.svelte";
+  import Fetcher from "/helpers/fetcher.js";
+  import BreadCrumbs from "/components/breadcrumbs.svelte";
   import { onMount } from "svelte";
-  import Header from "../components/header.svelte";
-  import Footer from "../components/footer.svelte";
-  import { parseDateToDateAndDay, parsePrice } from "../helpers/parsers.js";
-  import { validateMail, validatePhone } from "../helpers/validators.js";
-  import {contactsToString, dateToString } from "../helpers/converters.js";
+  import Header from "/components/header.svelte";
+  import Footer from "/components/footer.svelte";
+  import { parseDateToDateAndDay, parsePrice } from "/helpers/parsers.js";
+  import { validateMail, validatePhone } from "/helpers/validators.js";
+  import {contactsToString, dateToString } from "/helpers/converters.js";
+  import { translationText } from "/helpers/translate.js";
 
-  export let result_action, actionId;
+  export let result_action, actionId, locale;
 
-  console.log(result_action)
+  //console.log(result_action)
 
   const fetcher = new Fetcher();
   let response,
@@ -49,7 +53,7 @@
     disabled = "";
   else disabled = "disabled";
 
-  second_price = parsePrice(data.price_min, data.price_max);
+  second_price = parsePrice(data.price_min, data.price_max, locale);
 
   async function subscribeUser(){
     let subscribeStatus = await fetcher.post("/api/actions/subscribe/" + actionId, {
@@ -159,6 +163,7 @@
     color: white;
     font-size: $Big_Font_Size;
     transition: 0.3s;
+    min-width: 200px;
 
     &:disabled{
       opacity: 0.3;
@@ -226,8 +231,8 @@
     href="https://unpkg.com/flickity@2/dist/flickity.min.css" />
 </svelte:head>
 
-<Header />
-<BreadCrumbs path = {[{name: "Каталог событий", url: "./"}, {name: data.name, url: "./action?id=" + actionId}]} />
+<Header locale={locale}/>
+<BreadCrumbs path = {[{name: translationText.eventCatalog[locale], url: "./"}, {name: data.name, url: "./action?id=" + actionId}]} />
 <div class="form-width">
   <h1>{data.name}</h1>
   <p class="italic-bold">{data.tagline}</p>
@@ -290,7 +295,7 @@
         <div class="info-image">
           <img src="img/price.png" alt="price" />
         </div>
-        <div class="info">Цена: {second_price}</div>
+        <div class="info">{translationText.price[locale]}: {second_price}</div>
       </div>
       {#if data.vk_link !== null || data.instagram_link !== null || data.facebook_link !== null || data.twitter_link !== null || data.websites !== null}
         <div class="line">
@@ -302,28 +307,28 @@
               {#if data.websites !== null}
                 <li>
                   <a href={data.websites[0]} target="_blank">
-                    Официальный сайт
+                    {translationText.officialSite[locale]}
                   </a>
                 </li>
               {/if}
               {#if data.vk_link !== null}
                 <li>
-                  <a href={data.vk_link} target="_blank">Группа "ВКонтакте"</a>
+                  <a href={data.vk_link} target="_blank">{translationText.VKGroup[locale]}</a>
                 </li>
               {/if}
               {#if data.instagram_link !== null}
                 <li>
-                  <a href={data.instagram_link} target="_blank">Инстаграм</a>
+                  <a href={data.instagram_link} target="_blank">{translationText.instagram[locale]}</a>
                 </li>
               {/if}
               {#if data.facebook_link !== null}
                 <li>
-                  <a href={data.facebook_link} target="_blank">Фейсбук</a>
+                  <a href={data.facebook_link} target="_blank">{translationText.facebook[locale]}</a>
                 </li>
               {/if}
               {#if data.twitter_link !== null}
                 <li>
-                  <a href={data.twitter_link} target="_blank">Твиттер</a>
+                  <a href={data.twitter_link} target="_blank">{translationText.twitter[locale]}</a>
                 </li>
               {/if}
             </ul>
@@ -335,10 +340,10 @@
           <img src="img/transfer.png" alt="transfer" />
         </div>
         <div class="info">
-          Трансфер:
+          {translationText.transfer[locale]}
           <ul>
             {#each data.transfers as transfer}
-              <li>{transfer.name}</li>
+              <li>{transfer}</li>
             {/each}
           </ul>
         </div>
@@ -350,7 +355,7 @@
         <div class="info">
           <ul>
             {#each data.subjects as subjects}
-              <li>{subjects.name}</li>
+              <li>{subjects}</li>
             {/each}
           </ul>
         </div>
@@ -361,12 +366,12 @@
 
   <div class="register-form">
     <div class="input-block">
-      <label for="name">Имя и фамилия</label>
+      <label for="name">{translationText.fullName[locale]}</label>
       <br />
       <input type="text" name="name" bind:value={userName} />
     </div>
     <div class="input-block">
-      <label for="phone">Телефон</label>
+      <label for="phone">{translationText.phone[locale]}</label>
       <br />
       <input
         type="text"
@@ -379,7 +384,7 @@
       <br />
       <input type="text" name="email" bind:value={userMail} />
     </div>
-    <button class="register-button" {disabled} on:click={subscribeUser}>Зарегистрироваться</button>
+    <button class="register-button" {disabled} on:click={subscribeUser}>{translationText.register[locale]}</button>
   </div>
 </div>
-<Footer />
+<Footer locale={locale}/>

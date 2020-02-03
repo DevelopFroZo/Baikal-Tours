@@ -1,7 +1,9 @@
 <script>
   import { onMount } from "svelte";
-  import { response } from "../../helpers/response.js";
-  import BreadCrumbs from "../../components/breadcrumbs.svelte";
+  import Fetcher from "/helpers/fetcher.js";
+  import BreadCrumbs from "/components/breadcrumbs.svelte";
+
+  const fetcher = new Fetcher();
   
   let password = "",
     email;
@@ -12,8 +14,7 @@
       password: password
     };
 
-    let confirm_response = await response("POST", "/api/signup?action=confirm", data);
-    let result = await confirm_response.json();
+    let result = await fetcher.post("/api/signup?action=confirm", data);
 
     if (result.ok) {
       document.location.href = "./";
