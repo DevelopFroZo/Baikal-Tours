@@ -1,5 +1,7 @@
 <script>
+  import { translationText } from "/helpers/translate.js";
 
+  export let locale;
 </script>
 
 <style lang="scss">
@@ -104,12 +106,8 @@
     <div class="left-side">
       <img src="img/logo.png" alt="logo.png" />
       <br />
-      <div>
-        Календарь событий от
-        <br />
-        "Фанат байкала" ©2019
-      </div>
-      <a href="./" class="underline">Пользовательское соглашение</a>
+      <div>{translationText.eventCalendarInfo[locale]}</div>
+      <a href="./" class="underline">{translationText.userAgreement[locale]}</a>
     </div>
     <!-- <div class="center">
       <div class="hrefs">
@@ -120,13 +118,13 @@
       <a href="./" class="underline">Политика конфиденциальности</a>
     </div> -->
     <div class="right-side">
-      <h1>Контакты</h1>
+      <h1>{translationText.contacts[locale]}</h1>
       <div class="mail">events@calendar.com</div>
-      <div class="info">
+      <!-- <div class="info">
         Туристическая справочная информация
         <br />
         <a href="./">скачать pdf</a>
-      </div>
+      </div> -->
     </div>
   </div>
 </footer>

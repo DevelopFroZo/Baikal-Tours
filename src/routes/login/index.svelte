@@ -1,15 +1,16 @@
 <script context = "module">
   import StartLogin from "./_start_login.svelte";
   import ForgotPassword from "./_forgot_password.svelte";
-  import {response} from "../../helpers/response.js";
+  import Fetcher from "/helpers/fetcher.js";
+  
+  const fetcher = new Fetcher();
 
   let forgot = false;
 
   async function login(e){
-     let data = e.detail;
+    let data = e.detail;
 
-    let login_response = await response("post", '/api/signin', data);
-    let result = await login_response.json();
+    let result = await fetcher.post('/api/signin', data)
     
     if(result.ok){
       document.location.href = "./";

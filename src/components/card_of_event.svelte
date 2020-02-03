@@ -1,5 +1,6 @@
 <script>
-  import { parseDate, parsePrice } from "../helpers/parsers.js";
+  import { parseDate, parsePrice } from "/helpers/parsers.js";
+  import { translationText } from "/helpers/translate.js";
   
   export let name = "",
     date_ends = "",
@@ -9,7 +10,8 @@
     price_max = "",
     subjects = "",
     locations = "",
-    id = "";
+    id = "",
+    locale;
 
   let dates = [],
     second_price;
@@ -18,14 +20,14 @@
     if (date_starts[i] !== date_ends[i]) {
       if (date_starts[i] === null) {
         let end = parseDate(new Date(date_ends[i]));
-        dates.push("по " + end);
+        dates.push(translationText.liteDateTo[locale] + " " + end);
       } else if (date_ends[i] === null) {
         let start = parseDate(new Date(date_starts[i]));
-        dates.push("с " + start);
+        dates.push(translationText.lineDateFrom[locale] + " " + start);
       } else {
         let start = parseDate(new Date(date_starts[i]));
         let end = parseDate(new Date(date_ends[i]));
-        dates.push("с " + start + " по " + end);
+        dates.push(translationText.liteDateFrom[locale] + " " + start + " " + translationText.liteDateTo[locale] + " " + end);
       }
     }
     else{
@@ -33,7 +35,7 @@
     }
   }
 
-  second_price = parsePrice(price_min, price_max);
+  second_price = parsePrice(price_min, price_max, locale);
 
 </script>
 

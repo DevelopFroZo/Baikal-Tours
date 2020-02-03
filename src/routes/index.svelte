@@ -1,24 +1,28 @@
 <script context = "module">
   export async function preload(page, session) {
-    let response = await this.fetch("/api/actions");
+    let response = await this.fetch("/api/actions", {
+      credentials: "same-origin"
+    });
     let result_cards = await response.json();
 
     response = await this.fetch("/api/dataForFilters");
     let result_filters = await response.json();
-    return { result_cards, result_filters };
+    let locale = session.locale;
+    return { result_cards, result_filters, locale };
   }
 </script>
 
 <script>
-  import Header from "../components/header.svelte";
-  import Footer from "../components/footer.svelte";
-  import Card from "../components/card_of_event.svelte";
-  import BreadCrumbs from "../components/breadcrumbs.svelte";
+  import Header from "/components/header.svelte";
+  import Footer from "/components/footer.svelte";
+  import Card from "/components/card_of_event.svelte";
+  import BreadCrumbs from "/components/breadcrumbs.svelte";
   import { onMount } from "svelte";
-  import Fetcher from "./_helpers/fetcher.js";
-  import { parseDate } from "../helpers/parsers.js";
+  import Fetcher from "/helpers/fetcher.js";
+  import { parseDate } from "/helpers/parsers.js";
+  import { translationText } from "/helpers/translate.js";
 
-  export let result_cards, result_filters;
+  export let result_cards, result_filters, locale;
   const fetcher = new Fetcher();
 
   let date = "",
@@ -100,91 +104,91 @@
     }
   }
 
-  $: {
-    if (start) {
-      //change date status and her correct view
-      if (
-        new Date(filter[0][0].value) > new Date(filter[0][1].value) &&
-        filter[0][0].value !== "" &&
-        filter[0][1].value !== ""
-      )
-        filter[0][0].value = filter[0][1].value;
+  function changeFilter() {
+    //change date status and her correct view
+    if (
+      new Date(filter[0][0].value) > new Date(filter[0][1].value) &&
+      filter[0][0].value !== "" &&
+      filter[0][1].value !== ""
+    )
+      filter[0][0].value = filter[0][1].value;
 
-      filter[0][0].active = filter[0][0].value === "" ? false : true;
-      filter[0][1].active = filter[0][1].value === "" ? false : true;
+    filter[0][0].active = filter[0][0].value === "" ? false : true;
+    filter[0][1].active = filter[0][1].value === "" ? false : true;
 
-      if (filter[0][0].active && filter[0][1].active)
-        date = filter[0][0].value + " - " + filter[0][1].value;
-      else if (filter[0][0].active) date = filter[0][0].value;
-      else if (filter[0][1].active) date = filter[0][1].value;
-      else date = "";
+    if (filter[0][0].active && filter[0][1].active)
+      date = filter[0][0].value + " - " + filter[0][1].value;
+    else if (filter[0][0].active) date = filter[0][0].value;
+    else if (filter[0][1].active) date = filter[0][1].value;
+    else date = "";
 
-      //change price status and her correct
+    //change price status and her correct
 
-      if (
-        filter[4][0].value > filter[4][1].value &&
-        filter[4][0].value !== "" &&
-        filter[4][1].value !== ""
-      ) {
-        priceStart = filter[4][1].value;
-        filter[4][0].value = filter[4][1].value;
-      }
+    if (
+      filter[4][0].value > filter[4][1].value &&
+      filter[4][0].value !== "" &&
+      filter[4][1].value !== ""
+    ) {
+      priceStart = filter[4][1].value;
+      filter[4][0].value = filter[4][1].value;
+    }
 
-      if (filter[4][0].value === "" || filter[4][0].value === undefined)
-        filter[4][0].active = false;
-      else filter[4][0].active = true;
+    if (filter[4][0].value === "" || filter[4][0].value === undefined)
+      filter[4][0].active = false;
+    else filter[4][0].active = true;
 
-      if (filter[4][1].value === "" || filter[4][1].value === undefined)
-        filter[4][1].active = false;
-      else filter[4][1].active = true;
+    if (filter[4][1].value === "" || filter[4][1].value === undefined)
+      filter[4][1].active = false;
+    else filter[4][1].active = true;
 
-      if (filter[4][0].active && filter[4][1].active)
-        price = "от " + filter[4][0].value + "р до " + filter[4][1].value + "р";
-      else if (filter[4][0].active) price = "от " + filter[4][0].value + "р";
-      else if (filter[4][1].active) price = "до " + filter[4][1].value + "р";
-      else price = "";
+    if (filter[4][0].active && filter[4][1].active)
+      price = translationText.from[locale] + " " + filter[4][0].value + "₽ " + translationText.to[locale] + " " + filter[4][1].value + "₽";
+    else if (filter[4][0].active) price = translationText.from[locale] + " " + filter[4][0].value + "₽";
+    else if (filter[4][1].active) price = translationText.to[locale] + " " + filter[4][1].value + "₽";
+    else price = "";
 
-      //show active filters
+    //show active filters
 
-      let params = {
-        filter: ""
-      };
+    let params = {
+      filter: ""
+    };
 
-      if (filter[0][0].active) {
-        dateStart = new Date(filter[0][0].value).toISOString();
-        params.dateStart = parseDate(new Date(dateStart));
-      }
+    if (filter[0][0].active) {
+      dateStart = new Date(filter[0][0].value).toISOString();
+      params.dateStart = parseDate(new Date(dateStart));
+    }
 
-      if (filter[0][1].active) {
-        dateEnd = new Date(filter[0][1].value).toISOString();
-        params.dateEnd = parseDate(new Date(dateEnd));
-      }
+    if (filter[0][1].active) {
+      dateEnd = new Date(filter[0][1].value).toISOString();
+      params.dateEnd = parseDate(new Date(dateEnd));
+    }
 
-      arrData = getActiveOption(1);
-      if (arrData.length !== 0) params.locations = arrData;
+    arrData = getActiveOption(1);
+    if (arrData.length !== 0) params.locations = arrData;
 
-      arrData = getActiveOption(2);
-      if (arrData.length !== 0) params.companions = arrData;
+    arrData = getActiveOption(2);
+    if (arrData.length !== 0) params.companions = arrData;
 
-      arrData = getActiveOption(3);
-      if (arrData.length !== 0) params.subjects = arrData;
+    arrData = getActiveOption(3);
+    if (arrData.length !== 0) params.subjects = arrData;
 
-      if (filter[4][0].active) params.priceMin = parseInt(filter[4][0].value);
+    if (filter[4][0].active) params.priceMin = parseInt(filter[4][0].value);
 
-      if (filter[4][1].active) params.priceMax = parseInt(filter[4][1].value);
+    if (filter[4][1].active) params.priceMax = parseInt(filter[4][1].value);
 
-      showFilter = false;
-      for (let i = 0; i < filter.length; i++) {
-        for (let j = 0; j < filter[i].length; j++) {
-          if (filter[i][j].active) {
-            showFilter = true;
-            break;
-          }
+    showFilter = false;
+    for (let i = 0; i < filter.length; i++) {
+      for (let j = 0; j < filter[i].length; j++) {
+        if (filter[i][j].active) {
+          showFilter = true;
+          break;
         }
       }
-
-      getFilterData(params);
     }
+
+    getFilterData(params);
+
+    console.log(1)
   }
 
   async function getFilterData(params) {
@@ -204,6 +208,8 @@
   function setPrice() {
     filter[4][0].value = priceStart;
     filter[4][1].value = priceEnd;
+
+    changeFilter()
   }
 
   function setFilterData(category, res) {
@@ -222,11 +228,6 @@
   setFilterData(1, result_filters.data.locations);
   setFilterData(2, result_filters.data.companions);
   setFilterData(3, result_filters.data.subjects);
-
-  onMount(() => {
-    
-    start = true;
-  });
 </script>
 
 <style lang="scss">
@@ -404,34 +405,34 @@
   }
 
   @media only screen and (max-width: 768px) {
-    
-    .filters{
+    .filters {
       flex-direction: column;
 
-      & > div{
+      & > div {
         margin: 5px auto 0;
         width: 200px;
 
-        & > input, & > button{
+        & > input,
+        & > button {
           width: 100%;
         }
       }
     }
 
-    .two-input{
+    .two-input {
       display: flex;
 
-      & > input{
+      & > input {
         width: 50%;
         padding: 0 3px;
         box-sizing: border-box;
       }
 
-      & > div{
+      & > div {
         width: 50%;
         box-sizing: border-box;
 
-        & > input{
+        & > input {
           width: 100%;
           padding: 0 3px;
           box-sizing: border-box;
@@ -439,35 +440,36 @@
       }
     }
 
-    #price-end, #date-end{
+    #price-end,
+    #date-end {
       margin-left: -1px;
       width: calc(100% + 1px);
     }
 
-    .cards-block{
+    .cards-block {
       grid-template-columns: repeat(1, 100%);
     }
-
   }
 </style>
 
 <svelte:head>
-  <title>Каталог событий</title>
+  <title>{translationText.eventCatalog[locale]}</title>
 </svelte:head>
 
 <svelte:window on:click={hideAll} />
 
-<Header />
+<Header locale={locale}/>
 <!-- <BreadCrumbs path = {[{name: "Каталог событий", url: "./"}]} /> -->
 <div class="form-width">
-  <h1>Каталог событий</h1>
+  <h1>{translationText.eventCatalog[locale]}</h1>
   <div class="filters">
-    <div class = "two-input">
+    <div class="two-input">
       <input
-        placeholder="Дата с"
+        placeholder={translationText.dateFrom[locale]}
         class="date"
         type="text"
         bind:value={filter[0][0].value}
+        on:change={changeFilter}
         on:focus={function(e) {
           e.target.type = 'date';
         }}
@@ -475,10 +477,11 @@
           e.target.type = 'text';
         }} />
       <input
-        placeholder="Дата по"
+        placeholder={translationText.dateBy[locale]}
         class="date"
         type="text"
         bind:value={filter[0][1].value}
+        on:change={changeFilter}
         on:focus={function(e) {
           e.target.type = 'date';
         }}
@@ -494,7 +497,7 @@
         on:click={() => {
           options[0].isVisible = true;
         }}>
-        где
+        {translationText.where[locale]}
       </button>
       <div
         class="option"
@@ -503,7 +506,7 @@
         {#each filter[1] as city, i}
           <div on:click={() => (city.active = !city.active)}>
             <label>{city.value}</label>
-            <input type="checkbox" bind:checked={city.active} />
+            <input type="checkbox" bind:checked={city.active} on:change={changeFilter}/>
           </div>
         {/each}
       </div>
@@ -515,7 +518,7 @@
         on:click={() => {
           options[1].isVisible = true;
         }}>
-        с кем
+        {translationText.withWhom[locale]}
       </button>
       <div
         class="option"
@@ -524,7 +527,7 @@
         {#each filter[2] as companios}
           <div on:click={() => (companios.active = !companios.active)}>
             <label>{companios.value}</label>
-            <input type="checkbox" bind:checked={companios.active} />
+            <input type="checkbox" bind:checked={companios.active} on:change={changeFilter}/>
           </div>
         {/each}
       </div>
@@ -536,7 +539,7 @@
         on:click={() => {
           options[2].isVisible = true;
         }}>
-        тематика
+        {translationText.thematics[locale]}
       </button>
       <div
         class="option"
@@ -545,7 +548,7 @@
         {#each filter[3] as subjects}
           <div on:click={() => (subjects.active = !subjects.active)}>
             <label>{subjects.value}</label>
-            <input type="checkbox" bind:checked={subjects.active} />
+            <input type="checkbox" bind:checked={subjects.active} on:change={changeFilter}/>
           </div>
         {/each}
       </div>
@@ -554,7 +557,7 @@
       <div class="price-filter">
         <input
           type="number"
-          placeholder="цена от"
+          placeholder={translationText.priceFrom[locale]}
           id="price-start"
           bind:value={priceStart}
           on:blur={setPrice}
@@ -576,7 +579,7 @@
       <div class="price-filter">
         <input
           type="number"
-          placeholder="до"
+          placeholder={translationText.to[locale]}
           id="price-end"
           bind:value={priceEnd}
           on:blur={setPrice}
@@ -599,7 +602,7 @@
   </div>
   {#if showFilter}
     <div class="active-filter-block">
-      <div class="filter-head">Вы выбрали:</div>
+      <div class="filter-head">{translationText.youHaveChosen[locale]}</div>
       {#if date !== ''}
         <div class="active-filter">
           {date}
@@ -608,6 +611,7 @@
             on:click={() => {
               filter[0][0].value = '';
               filter[0][1].value = '';
+              changeFilter()
             }}>
             <img src="img/clear.png" />
           </button>
@@ -624,6 +628,7 @@
                   class="delete-filter"
                   on:click={() => {
                     fl.active = false;
+                    changeFilter()
                   }}>
                   <img src="img/clear.png" />
                 </button>
@@ -642,6 +647,7 @@
               priceStart = '';
               priceEnd = '';
               setPrice();
+              changeFilter()
             }}>
             <img src="img/clear.png" />
           </button>
@@ -652,8 +658,8 @@
 
   <div class="cards-block">
     {#each cards as cardInfo (cardInfo.id)}
-      <Card {...cardInfo} />
+      <Card {...cardInfo} locale={locale} />
     {/each}
   </div>
 </div>
-<Footer />
+<Footer locale={locale}/>
