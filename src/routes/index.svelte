@@ -5,7 +5,9 @@
     });
     let result_cards = await response.json();
 
-    response = await this.fetch("/api/dataForFilters");
+    response = await this.fetch("/api/dataForFilters", {
+      credentials: "same-origin"
+    } );
     let result_filters = await response.json();
     let locale = session.locale;
     return { result_cards, result_filters, locale };
