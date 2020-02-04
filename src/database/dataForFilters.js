@@ -5,21 +5,27 @@ export default class extends Foundation{
     super( modules, "Filters" );
   }
 
-  async get(){
+  async get( locale ){
     const transaction = await super.transaction();
 
     // #fix позже ПОМЕНЯТЬ
     const locations = ( await transaction.query(
       `select id, name
-      from locations`
+      from locations
+      where locale = $1`,
+      [ locale ]
     ) ).rows;
     const companions = ( await transaction.query(
-      `select *
-      from companions`
+      `select id, name
+      from companions
+      where locale = $1`,
+      [ locale ]
     ) ).rows;
     const subjects = ( await transaction.query(
-      `select *
-      from subjects`
+      `select id, name
+      from subjects
+      where locale = $1`,
+      [ locale ]
     ) ).rows;
     const prices = ( await transaction.query(
       `select

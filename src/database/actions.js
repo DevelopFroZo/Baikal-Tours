@@ -24,11 +24,11 @@ export default class extends Foundation{
         left join actions_subjects as acsu
         on a.id = acsu.action_id
         left join subjects as s
-        on acsu.subject_id = s.id
+        on acsu.subject_id = s.id and s.locale = $1
         left join actions_locations as al
         on a.id = al.action_id
         left join locations as l
-        on al.location_id = l.id,
+        on al.location_id = l.id and l.locale = $1,
         actions_translates as at
       where
         a.id = at.action_id and
@@ -103,6 +103,7 @@ export default class extends Foundation{
       		actions_locations as al,
       		locations as l
       	where
+          l.locale = $1 and
       		a.id = al.action_id and
       		al.location_id = l.id
       	group by a.id
@@ -128,6 +129,8 @@ export default class extends Foundation{
       		subjects as s
       	where
           at.locale = $1 and
+          c.locale = $1 and
+          s.locale = $1 and
       		${filters}
           at.action_id = a.id and
       		a.id = la.id and
@@ -197,8 +200,9 @@ export default class extends Foundation{
         locations as l
       where
         al.action_id = $1 and
+        l.locale = $2 and
         l.id = al.location_id`,
-      [ id ]
+      [ id, locale ]
     ) ).rows;
     main.transfers = ( await transaction.query(
       `select t.name
@@ -207,8 +211,9 @@ export default class extends Foundation{
         transfers as t
       where
         at.action_id = $1 and
+        t.locale = $2 and
         t.id = at.transfer_id`,
-      [ id ]
+      [ id, locale ]
     ) ).rows.map( transfer => transfer.name );
     main.subjects = ( await transaction.query(
       `select s.name
@@ -217,8 +222,9 @@ export default class extends Foundation{
         subjects as s
       where
         acsu.action_id = $1 and
+        s.locale = $2 and
         s.id = acsu.subject_id`,
-      [ id ]
+      [ id, locale ]
     ) ).rows.map( transfer => transfer.name );
     await transaction.end();
 
@@ -237,8 +243,8 @@ export default class extends Foundation{
         actions_translates as at
       where
         id = $1 and
-        a.id = at.action_id and
-        at.locale = $2`,
+        at.locale = $2 and
+        a.id = at.action_id`,
       [ id, locale ]
     ) ).rows[0];
 
