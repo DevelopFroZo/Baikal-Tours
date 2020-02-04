@@ -111,8 +111,12 @@
     margin-left: 23px;
   }
 
+  .language-img{
+    margin-left: 5px;
+  }
+
   @media only screen and (max-width: 768px) {
-    .right-side{
+    .user-info{
       display: none;
     }
 
@@ -142,13 +146,15 @@
         <option value={lang.lang}>{lang.lang}</option>
       {/each}
     </select>
-    <img src="img/language.png" alt="language" />
-    {#if !$session.isLogged}
-      <a href="./login" id="login">{_("authorize")}</a>
-      <a href="./register" id="register">{_("registration")}</a>
-    {:else}
-      <a href="./" class = "my-page">*твоя почта*</a>
-      <button class = "logout">{_("logout")}</button>
-    {/if}
+    <img src="img/language.png" alt="language" class = "language-img"/>
+    <div class = "user-info">
+      {#if !$session.isLogged}
+        <a href="./login" id="login">{_("authorize")}</a>
+        <a href="./register" id="register">{_("registration")}</a>
+      {:else}
+        <a href="./" class = "my-page">*твоя почта*</a>
+        <button class = "logout">{_("logout")}</button>
+      {/if}
+    </div>
   </div>
 </header>
