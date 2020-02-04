@@ -2,6 +2,8 @@
   import { createEventDispatcher } from "svelte";
   import BreadCrumbs from "/components/breadcrumbs.svelte";
 
+  export let _;
+
   let email = "",
     password = "",
     disabledLogin = "disabled";
@@ -29,9 +31,9 @@
 </style>
 
 <div class="register-block">
-  <BreadCrumbs path = {[{name: "Каталог событий", url: "./"}, {name: "вход", url: "./login"}]} white={true}/>
+  <!-- <BreadCrumbs path = {[{name: "Каталог событий", url: "./"}, {name: "вход", url: "./login"}]} white={true}/> -->
   <div class="in-block">
-    <h1>Вход</h1>
+    <h1>{_("authorize")}</h1>
 
     <div class="input-block">
       <label for="email">Email</label>
@@ -40,7 +42,7 @@
     </div>
 
     <div class="input-block">
-      <label for="password">Пароль</label>
+      <label for="password">{_("password")}</label>
       <br />
       <input
         name="password"
@@ -50,18 +52,18 @@
     </div>
 
     <button id="login" class="blue-button" on:click={login} disabled={disabledLogin}>
-      Войти
+      {_("enter")}
     </button>
 
     <button class="blue-text forgot-password" on:click={forgotPassword}>
-      Забыли пароль?
+      {_("forgot_password")}
     </button>
 
     <div class="inter">
-      Еще не зарегистрированны?
-      <a href="./register" class="blue-text">Регистрация</a>
+      {_("not_registered")}
+      <a href="./register" class="blue-text">{_("registration")}</a>
     </div>
   </div>
 
-  <a href="./">Вернуться на главную</a>
+  <a href="./">{_("return_to_home")}</a>
 </div>

@@ -3,6 +3,8 @@
   import BreadCrumbs from "/components/breadcrumbs.svelte";
   import { validatePhone, validateMail } from "/helpers/validators";
 
+  export let _;
+
   const dispatch = createEventDispatcher();
   let confirm = false;
   let disableRegister = "disabled",
@@ -36,24 +38,24 @@
   }} />
 
 <div class="register-block">
-  <BreadCrumbs path = {[{name: "Каталог событий", url: "./"}, {name: "регистрация", url: "./register"}]} white={true}/>
+  <!-- <BreadCrumbs path = {[{name: "Каталог событий", url: "./"}, {name: "регистрация", url: "./register"}]} white={true}/> -->
   <div class="in-block">
-    <h1>Регистрация</h1>
+    <h1>{_("registration")}</h1>
 
     <div class="input-block">
-      <label for="name">Имя</label>
+      <label for="name">{_("name")}</label>
       <br />
       <input name="name" id="name" type="text" bind:value={name} />
     </div>
 
     <div class="input-block">
-      <label for="surname">Фамилия</label>
+      <label for="surname">{_("surname")}</label>
       <br />
       <input name="surname" id="surname" type="text" bind:value={surname} />
     </div>
 
     <div class="input-block">
-      <label for="phone">Телефон</label>
+      <label for="phone">{_("phone")}</label>
       <br />
       <input
         name="phone"
@@ -75,8 +77,8 @@
         <div>✔</div>
       </div>
       <div class="success-text">
-        Я принимаю условия
-        <a href="./" class="blue-text">Пользовательского соглашения</a>
+        {_("accept")}
+        <a href="./" class="blue-text">{_("of_user_agreement")}</a>
       </div>
     </div>
 
@@ -85,14 +87,14 @@
       class="blue-button"
       on:click={register}
       disabled={disableRegister}>
-      Зарегистрироваться
+      {_("register")}
     </button>
 
     <div class="inter">
-      Уже зарегистрированы?
-      <a href="./login" class="blue-text">Войти</a>
+      {_("already_registered")}
+      <a href="./login" class="blue-text">{_("enter")}</a>
     </div>
   </div>
 
-  <a href="./">Вернуться на главную</a>
+  <a href="./">{_("return_to_home")}</a>
 </div>

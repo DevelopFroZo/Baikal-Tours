@@ -1,4 +1,4 @@
-export default ( {
+export default ({
   "email.confirm_password.subject": "Пароль",
 
   no_contacts: "нет",
@@ -55,5 +55,20 @@ export default ( {
   transfer: "Трансфер",
   full_name: "Имя и фамилия",
   phone: "Телефон",
-  register: "Зарегистрироваться"
-} );
+  register: "Зарегистрироваться",
+
+  name: "Имя",
+  surname: "Фамилия",
+  accept: "Я принимаю условия",
+  of_user_agreement: "пользовательского соглашения",
+  already_registered: "Уже зарегистрированы?",
+  enter: "Войти",
+  return_to_home: "Вернуться на главную страницу",
+  sent_mail_message: "Мы отправили Вам письмо на ваш почтовый ящик. Введите полученный пароль",
+  complete_registration: "Завершить регистрацию",
+  password: "Пароль",
+  forgot_password: "Забыли пароль?",
+  not_registered: "Еще не зарегистрированы?",
+  get_new_password: "Получить новый пароль",
+  return_login_page: "Вернуться на страницу входа"
+});

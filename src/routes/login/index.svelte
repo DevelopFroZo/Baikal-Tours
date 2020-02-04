@@ -1,9 +1,21 @@
-<script context = "module">
+<script context="module">
+  export function preload(page, session){
+    let locale = session.locale;
+
+    return { locale }
+  }
+</script>
+
+<script>
   import StartLogin from "./_start_login.svelte";
   import ForgotPassword from "./_forgot_password.svelte";
   import Fetcher from "/helpers/fetcher.js";
+  import i18n from "/helpers/i18n/index.js";
   
+  export let locale;
+
   const fetcher = new Fetcher();
+  const _ = i18n( locale );
 
   let forgot = false;
 
@@ -26,13 +38,13 @@
 </style>
 
 <svelte:head>
-  <title>Регистрация</title>
+  <title>{_("authorize")}</title>
 </svelte:head>
 
 <div class="body">
   {#if !forgot}
-    <StartLogin on:forgotPassword={() => (forgot = true)} on:login={login} />
+    <StartLogin on:forgotPassword={() => (forgot = true)} on:login={login} _={_}/>
   {:else}
-    <ForgotPassword on:login={() => {forgot = false}}/>
+    <ForgotPassword on:login={() => {forgot = false}} _={_}/>
   {/if}
 </div>

@@ -1,6 +1,8 @@
 <script>
   import { createEventDispatcher } from "svelte";
 
+  export let _;
+
   const dispatch = createEventDispatcher();
   let email = "";
 
@@ -16,7 +18,7 @@
 
 <div class="register-block">
   <div class="in-block">
-    <h1>Забыли пароль?</h1>
+    <h1>{_("forgor_password")}</h1>
 
     <div class="input-block">
       <label for="email">Email</label>
@@ -28,13 +30,13 @@
       id="login"
       class="blue-button"
       disabled={email === '' ? 'disabled' : ''}>
-      Получить новый пароль
+      {_("get_new_password")}
     </button>
 
     <button class="blue-text forgot-password" on:click={login}>
-      Вернуться на страницу входа
+      {_("return_login_page")}
     </button>
   </div>
 
-  <a href="./">Вернуться на главную</a>
+  <a href="./">{_("return_to_home")}</a>
 </div>

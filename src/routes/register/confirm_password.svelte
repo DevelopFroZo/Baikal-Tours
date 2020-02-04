@@ -1,9 +1,21 @@
+<script context="module">
+  export function preload(page, session){
+    let locale = session.locale;
+
+    return { locale }
+  }
+</script>
+
 <script>
   import { onMount } from "svelte";
   import Fetcher from "/helpers/fetcher.js";
   import BreadCrumbs from "/components/breadcrumbs.svelte";
+  import i18n from "/helpers/i18n/index.js";
+
+  export let locale;
 
   const fetcher = new Fetcher();
+  const _ = i18n( locale );
   
   let password = "",
     email;
@@ -34,13 +46,13 @@
 
 <div class="body">
   <div class="register-block">
-    <BreadCrumbs path = {[{name: "Каталог событий", url: "./"}, {name: "регистрация", url: "./register"}, {name: "подтверждение пароля", url: "./register/confirm_password"}]} white={true} />
+    <!-- <BreadCrumbs path = {[{name: "Каталог событий", url: "./"}, {name: "регистрация", url: "./register"}, {name: "подтверждение пароля", url: "./register/confirm_password"}]} white={true} /> -->
     <div class="in-block">
-      <h1>Регистрация</h1>
+      <h1>{_("registration")}</h1>
 
       <div class="input-block">
         <label>
-          Мы выслали Вам на почтовый ящик письмо Введите полученный пароль
+          {_("sent_mail_message")}
         </label>
         <br />
         <input type="text" bind:value={password} />
@@ -49,9 +61,9 @@
         class="blue-button"
         disabled={password === '' ? 'disabled' : ''}
         on:click={confirm}>
-        Завершить регистрацию
+        {_("complete_registration")}
       </button>
     </div>
-    <a href="./">Вернуться на главную</a>
+    <a href="./">{_("return_to_home")}</a>
   </div>
 </div>

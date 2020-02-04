@@ -55,5 +55,20 @@ export default ( {
     transfer: "Transfer",
     full_name: "First and last name",
     phone: "Phone",
-    register: "Register"
+    register: "Register",
+
+    name: "Name",
+    surname: "Surname",
+    accept: "I accept the terms",
+    of_user_agreement: "of the user agreement",
+    already_registered: "Already registered?",
+    enter: "Enter",
+    return_to_home: "Return to home page",
+    sent_mail_message: "We sent you an email to your mailbox. Enter the password you received",
+    complete_registration: "To complete the registration",
+    password: "Password",
+    forgot_password: "Forgot your password?",
+    not_registered: "Not registered yet?",
+    get_new_password: "Get a new password",
+    return_login_page: "Return to the login page"
 } );

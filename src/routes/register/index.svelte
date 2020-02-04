@@ -1,8 +1,20 @@
+<script context="module">
+  export function preload(page, session){
+    let locale = session.locale;
+
+    return { locale }
+  }
+</script>
+
 <script>
   import StartRegister from "./_start_register.svelte";
   import Fetcher from "/helpers/fetcher.js";
+  import i18n from "/helpers/i18n/index.js";
+
+  export let locale;
 
   const fetcher = new Fetcher();
+  const _ = i18n( locale );
 
   async function register(e) {
     let data = e.detail;
@@ -25,9 +37,9 @@
 </style>
 
 <svelte:head>
-  <title>Регистрация</title>
+  <title>{_("registration")}</title>
 </svelte:head>
 
 <div class="body">
-  <StartRegister on:register={register} />
+  <StartRegister on:register={register} _={_}/>
 </div>
