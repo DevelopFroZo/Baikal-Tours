@@ -119,6 +119,10 @@
     & > .info-image {
       margin-right: 15px;
       min-width: 20px;
+
+      & > img{
+        max-width: 16px;
+      }
     }
 
     &:not(:first-child) {
