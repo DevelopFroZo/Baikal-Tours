@@ -1,11 +1,17 @@
 export default class{
-  constructor(){
+  constructor( fetch_ ){
     // #fix добавить возможность определять базовый путь
     this.baseUrl = "";
     this.schemas = {
       json: async response => await response.json(),
       default: async response => await response.text()
     };
+
+    // #fix сделать нормальный способ передавать свой fetch
+    if( fetch_ === undefined )
+      this.fetch = fetch;
+    else
+      this.fetch = fetch_;
 
     // #fix добавить тип FormData
   }
@@ -70,7 +76,7 @@ export default class{
       options.body = JSON.stringify( body );
     }
 
-    const response = await fetch( url + params, options );
+    const response = await this.fetch( url + params, options );
 
     if( !response.ok ) return response;
 
