@@ -12,6 +12,7 @@ export default class{
       this.fetch = fetch;
     else
       this.fetch = fetch_;
+    
 
     // #fix добавить тип FormData
   }

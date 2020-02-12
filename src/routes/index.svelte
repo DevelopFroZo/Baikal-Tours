@@ -1,16 +1,81 @@
+
+
 <script context = "module">
+  import Fetcher from "/helpers/fetcher.js";
+
   export async function preload(page, session) {
+    const fetcher = new Fetcher( this.fetch );
+    let params = page.query,
+      filter = [
+        [
+          {
+            value: "",
+            active: false
+          },
+          {
+            value: "",
+            active: false
+          }
+        ],
+        [],
+        [],
+        [],
+        [
+          {
+            value: "",
+            active: false
+          },
+          {
+            value: "",
+            active: false
+          }
+        ]
+      ];
+
+    let response = await this.fetch("/api/dataForFilters", {
+      credentials: "same-origin"
+    });
+    // let result_filters = await fetcher.get("/api/dataForFilters", {
+    //   credentials: "same-origin"
+    // });
+
+    // if (Object.keys(params).length > 0) {
+    //   if (params.dateStart !== undefined) {
+    //     filter[0][0].active = true;
+    //     filter[0][0].value = params.dateStart;
+    //   }
+    //   if (params.dateEnd !== undefined) {
+    //     filter[0][1].active = true;
+    //     filter[0][1].value = params.dateEnd;
+    //   }
+    //   if (params.place !== undefined) {
+    //     setFilterFromUrl(params.place.split(","), 1);
+    //   }
+    //   if (params.companions !== undefined) {
+    //     setFilterFromUrl(params.companions.split(","), 2);
+    //   }
+    //   if (params.thematics !== undefined) {
+    //     setFilterFromUrl(params.thematics.split(","), 3);
+    //   }
+    //   if (params.priceStart !== undefined) {
+    //     filter[4][0].active = true;
+    //     filter[4][0].value = params.priceStart;
+    //   }
+    //   if (params.priceEnd !== undefined) {
+    //     filter[4][1].active = true;
+    //     filter[4][1].value = params.priceEnd;
+    //   }
+
+    //   response = await this.fetch("api/actions", )
+    // }
+
     let response = await this.fetch("/api/actions", {
       credentials: "same-origin"
     });
-    let result_cards = await response.json();
 
-    response = await this.fetch("/api/dataForFilters", {
-      credentials: "same-origin"
-    } );
-    let result_filters = await response.json();
+    let result_cards = await response.json();
     let locale = session.locale;
-    return { result_cards, result_filters, locale };
+    return { Fetcher, result_cards, result_filters, locale, filter };
   }
 </script>
 
@@ -20,13 +85,14 @@
   import Card from "/components/card_of_event.svelte";
   import BreadCrumbs from "/components/breadcrumbs.svelte";
   import { onMount } from "svelte";
-  import Fetcher from "/helpers/fetcher.js";
   import { parseDate } from "/helpers/parsers.js";
   import i18n from "/helpers/i18n/index.js";
+  import parseFilterData from "/helpers/filter.js";
 
-  export let result_cards, result_filters, locale;
+  export let Fetcher, result_cards, result_filters, locale, filter;
+
   const fetcher = new Fetcher();
-  const _ = i18n( locale );
+  const _ = i18n(locale);
 
   let date = "",
     price = "",
@@ -36,7 +102,6 @@
     resp,
     cards = result_cards.data,
     start,
-    arrData,
     dateStart,
     dateEnd,
     leftRange = true,
@@ -70,31 +135,15 @@
     }
   ];
 
-  let filter = [
-    [
-      {
-        value: "",
-        active: false
-      },
-      {
-        value: "",
-        active: false
+  function setFilterFromUrl(params, category) {
+    for (let i = 0; i < params.length; i++) {
+      for (let j = 0; j < filter[category].length; j++) {
+        if (parseInt(params) === filter[category][i].id) {
+          filter[category][i].active = true;
+        }
       }
-    ],
-    [],
-    [],
-    [],
-    [
-      {
-        value: "",
-        active: false
-      },
-      {
-        value: "",
-        active: false
-      }
-    ]
-  ];
+    }
+  }
 
   function hideAll(e) {
     for (let i = 0; i < options.length; i++) {
@@ -145,40 +194,22 @@
     else filter[4][1].active = true;
 
     if (filter[4][0].active && filter[4][1].active)
-      price = _("from") + " " + filter[4][0].value + "₽ " + _("to") + " " + filter[4][1].value + "₽";
-    else if (filter[4][0].active) price = _("from") + " " + filter[4][0].value + "₽";
-    else if (filter[4][1].active) price = _("to") + " " + filter[4][1].value + "₽";
+      price =
+        _("from") +
+        " " +
+        filter[4][0].value +
+        "₽ " +
+        _("to") +
+        " " +
+        filter[4][1].value +
+        "₽";
+    else if (filter[4][0].active)
+      price = _("from") + " " + filter[4][0].value + "₽";
+    else if (filter[4][1].active)
+      price = _("to") + " " + filter[4][1].value + "₽";
     else price = "";
 
     //show active filters
-
-    let params = {
-      filter: ""
-    };
-
-    if (filter[0][0].active) {
-      dateStart = new Date(filter[0][0].value).toISOString();
-      params.dateStart = parseDate(new Date(dateStart));
-    }
-
-    if (filter[0][1].active) {
-      dateEnd = new Date(filter[0][1].value).toISOString();
-      params.dateEnd = parseDate(new Date(dateEnd));
-    }
-
-    arrData = getActiveOption(1);
-    if (arrData.length !== 0) params.locations = arrData;
-
-    arrData = getActiveOption(2);
-    if (arrData.length !== 0) params.companions = arrData;
-
-    arrData = getActiveOption(3);
-    if (arrData.length !== 0) params.subjects = arrData;
-
-    if (filter[4][0].active) params.priceMin = parseInt(filter[4][0].value);
-
-    if (filter[4][1].active) params.priceMax = parseInt(filter[4][1].value);
-
     showFilter = false;
     for (let i = 0; i < filter.length; i++) {
       for (let j = 0; j < filter[i].length; j++) {
@@ -189,6 +220,7 @@
       }
     }
 
+    params = parseFilterData(filter);
     getFilterData(params);
   }
 
@@ -198,19 +230,11 @@
     if (filterStatus.ok) cards = filterStatus.data;
   }
 
-  function getActiveOption(category) {
-    var data = [];
-    for (var i = 0; i < filter[category].length; i++) {
-      if (filter[category][i].active) data.push(filter[category][i].id);
-    }
-    return data;
-  }
-
   function setPrice() {
     filter[4][0].value = priceStart;
     filter[4][1].value = priceEnd;
 
-    changeFilter()
+    changeFilter();
   }
 
   function setFilterData(category, res) {
@@ -454,19 +478,19 @@
 </style>
 
 <svelte:head>
-  <title>{_("event_catalog")}</title>
+  <title>{_('event_catalog')}</title>
 </svelte:head>
 
 <svelte:window on:click={hideAll} />
 
-<Header locale={locale}/>
+<Header {locale} />
 <!-- <BreadCrumbs path = {[{name: "Каталог событий", url: "./"}]} /> -->
 <div class="form-width">
-  <h1>{_("event_catalog")}</h1>
+  <h1>{_('event_catalog')}</h1>
   <div class="filters">
     <div class="two-input">
       <input
-        placeholder={_("date_from")}
+        placeholder={_('date_from')}
         class="date"
         type="text"
         bind:value={filter[0][0].value}
@@ -478,7 +502,7 @@
           e.target.type = 'text';
         }} />
       <input
-        placeholder={_("date_by")}
+        placeholder={_('date_by')}
         class="date"
         type="text"
         bind:value={filter[0][1].value}
@@ -498,16 +522,23 @@
         on:click={() => {
           options[0].isVisible = true;
         }}>
-        {_("where")}
+        {_('where')}
       </button>
       <div
         class="option"
         class:option-visible={options[0].isVisible}
         bind:this={options[0].option}>
         {#each filter[1] as city, i}
-          <div on:click={() => {city.active = !city.active; changeFilter()}}>
+          <div
+            on:click={() => {
+              city.active = !city.active;
+              changeFilter();
+            }}>
             <label>{city.value}</label>
-            <input type="checkbox" bind:checked={city.active} on:change={changeFilter}/>
+            <input
+              type="checkbox"
+              bind:checked={city.active}
+              on:change={changeFilter} />
           </div>
         {/each}
       </div>
@@ -519,16 +550,23 @@
         on:click={() => {
           options[1].isVisible = true;
         }}>
-        {_("with_whom")}
+        {_('with_whom')}
       </button>
       <div
         class="option"
         class:option-visible={options[1].isVisible}
         bind:this={options[1].option}>
         {#each filter[2] as companios}
-          <div on:click={() => {companios.active = !companios.active; changeFilter()}}>
+          <div
+            on:click={() => {
+              companios.active = !companios.active;
+              changeFilter();
+            }}>
             <label>{companios.value}</label>
-            <input type="checkbox" bind:checked={companios.active} on:change={changeFilter}/>
+            <input
+              type="checkbox"
+              bind:checked={companios.active}
+              on:change={changeFilter} />
           </div>
         {/each}
       </div>
@@ -540,16 +578,23 @@
         on:click={() => {
           options[2].isVisible = true;
         }}>
-        {_("thematics")}
+        {_('thematics')}
       </button>
       <div
         class="option"
         class:option-visible={options[2].isVisible}
         bind:this={options[2].option}>
         {#each filter[3] as subjects}
-          <div on:click={() => {subjects.active = !subjects.active; changeFilter()}}>
+          <div
+            on:click={() => {
+              subjects.active = !subjects.active;
+              changeFilter();
+            }}>
             <label>{subjects.value}</label>
-            <input type="checkbox" bind:checked={subjects.active} on:change={changeFilter}/>
+            <input
+              type="checkbox"
+              bind:checked={subjects.active}
+              on:change={changeFilter} />
           </div>
         {/each}
       </div>
@@ -558,7 +603,7 @@
       <div class="price-filter">
         <input
           type="number"
-          placeholder={_("price_from")}
+          placeholder={_('price_from')}
           id="price-start"
           bind:value={priceStart}
           on:blur={setPrice}
@@ -580,7 +625,7 @@
       <div class="price-filter">
         <input
           type="number"
-          placeholder={_("to")}
+          placeholder={_('to')}
           id="price-end"
           bind:value={priceEnd}
           on:blur={setPrice}
@@ -603,7 +648,7 @@
   </div>
   {#if showFilter}
     <div class="active-filter-block">
-      <div class="filter-head">{_("you_have_chosen")}</div>
+      <div class="filter-head">{_('you_have_chosen')}</div>
       {#if date !== ''}
         <div class="active-filter">
           {date}
@@ -612,7 +657,7 @@
             on:click={() => {
               filter[0][0].value = '';
               filter[0][1].value = '';
-              changeFilter()
+              changeFilter();
             }}>
             <img src="img/clear.png" />
           </button>
@@ -629,7 +674,7 @@
                   class="delete-filter"
                   on:click={() => {
                     fl.active = false;
-                    changeFilter()
+                    changeFilter();
                   }}>
                   <img src="img/clear.png" />
                 </button>
@@ -648,7 +693,7 @@
               priceStart = '';
               priceEnd = '';
               setPrice();
-              changeFilter()
+              changeFilter();
             }}>
             <img src="img/clear.png" />
           </button>
@@ -659,8 +704,8 @@
 
   <div class="cards-block">
     {#each cards as cardInfo (cardInfo.id)}
-      <Card {...cardInfo} locale={locale} />
+      <Card {...cardInfo} {locale} />
     {/each}
   </div>
 </div>
-<Footer locale={locale}/>
+<Footer {locale} />
