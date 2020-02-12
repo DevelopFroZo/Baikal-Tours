@@ -23,8 +23,8 @@ export async function get( req, res ){
   let locations = toIntArray( req.query.locations );
   let companions = toIntArray( req.query.companions );
   let subjects = toIntArray( req.query.subjects );
-  const price_min = toInt( req.query.priceMin );
-  const price_max = toInt( req.query.priceMax );
+  const priceMin = toInt( req.query.priceMin );
+  const priceMax = toInt( req.query.priceMax );
 
   if( dateStart === undefined ) dateStart = null;
   else if( dateStart === "" )
@@ -34,7 +34,7 @@ export async function get( req, res ){
   else if( dateEnd === "" )
     return res.error( 7 );
 
-  if( price_min < 0 || price_max < 0 )
+  if( priceMin < 0 || priceMax < 0 )
     return res.error( 8 );
 
   res.json( await req.database.actions.filter(
@@ -44,8 +44,8 @@ export async function get( req, res ){
     locations,
     companions,
     subjects,
-    price_min,
-    price_max,
+    priceMin,
+    priceMax,
     count
   ) );
 }

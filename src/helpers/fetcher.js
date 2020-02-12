@@ -8,9 +8,7 @@ export default class{
     };
 
     // #fix сделать нормальный способ передавать свой fetch
-    if( fetch_ === undefined )
-      this.fetch = fetch;
-    else
+    if( fetch_ !== undefined )
       this.fetch = fetch_;
 
     // #fix добавить тип FormData
@@ -22,12 +20,12 @@ export default class{
     return this.baseUrl + url;
   }
 
-  makeParams( options, level ){
+  makeQuery( options, level ){
     if( options === undefined || options === null ) return "";
     if( typeof options === "string" ) return "?" + options;
     if( typeof options === "object" ){
       if( options.length !== undefined ) return "?" + options.join( "&" );
-      if( level === undefined ) return this.makeParams( options.params, 1 );
+      if( level === undefined ) return this.makeQuery( options.query, 1 );
 
       const serialized = [];
 
@@ -57,12 +55,12 @@ export default class{
   }
 
   async send( url, body, options, method ){
-    const params = this.makeParams( options );
+    const query = this.makeQuery( options );
 
     url = this.makeUrl( url );
 
     if( typeof options === "object" && options.length === undefined ){
-      if( options.params ) delete options.params;
+      if( options.query ) delete options.query;
     }
     else options = {};
 
@@ -76,7 +74,10 @@ export default class{
       options.body = JSON.stringify( body );
     }
 
-    const response = await this.fetch( url + params, options );
+    let response;
+
+    if( this.fetch ) response = await this.fetch( url + query, options );
+    else response = await fetch( url + query, options );
 
     if( !response.ok ) return response;
 

@@ -42,7 +42,7 @@ export default class extends Foundation{
     return super.success( 0, rows );
   }
 
-  async filter( locale, dateStart, dateEnd, locations, companions, subjects, price_min, price_max, count ){
+  async filter( locale, dateStart, dateEnd, locations, companions, subjects, priceMin, priceMax, count ){
     const limit = count ? `limit ${count}` : "";
     let filters = [];
     const params = [ locale ];
@@ -50,14 +50,14 @@ export default class extends Foundation{
     let datesFilter = [];
 
     // #fix добавить фильтр на цену
-    // if( price_min ){
+    // if( priceMin ){
     //   filters.push( `a.price >= $${i}` );
-    //   params.push( price_min );
+    //   params.push( priceMin );
     //   i++;
     // }
-    // if( price_max ){
+    // if( priceMax ){
     //   filters.push( `a.price <= $${i}` );
-    //   params.push( price_max );
+    //   params.push( priceMax );
     //   i++;
     // }
     if( locations ){
