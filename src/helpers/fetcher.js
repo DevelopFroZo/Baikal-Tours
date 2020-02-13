@@ -42,17 +42,10 @@ export default class{
   }
 
   async serialize( response, schema ){
-    const cloned = response.clone();
+    if( this.schemas[ schema ] ) schema = this.schemas[ schema ];
+    else schema = this.schemas.default;
 
-    try{
-      // #fix переделать на любую схему
-      if( this.schemas[ schema ] ) return await this.schemas[ schema ]( response );
-    }
-    catch( error ){}
-
-    if( response.body.locked ) response = cloned;
-
-    return await this.schemas.default( response );
+    return await schema( response );
   }
 
   async send( url, body, options, method ){
