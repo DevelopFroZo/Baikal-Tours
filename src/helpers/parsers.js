@@ -2,7 +2,9 @@ export {
     parseDate,
     dateOptions,
     parseDateToDateAndDay,
-    parsePrice
+    parsePrice,
+    parseDateForActiveFilter,
+    parsePriceForActiveFilter
 }
 
 var dateOptions = {
@@ -39,4 +41,38 @@ function parsePrice(price_min, price_max, _) {
         second_price = _("free") + " - " + price_max;
     else second_price = price_min + " - " + price_max;
     return second_price;
+}
+
+function parseDateForActiveFilter(filter) {
+    let date;
+
+    if (filter[0][0].active && filter[0][1].active)
+        date = filter[0][0].value + " - " + filter[0][1].value;
+    else if (filter[0][0].active) date = filter[0][0].value;
+    else if (filter[0][1].active) date = filter[0][1].value;
+    else date = "";
+
+    return date;
+}
+
+function parsePriceForActiveFilter(filter, _) {
+    let price;
+
+    if (filter[4][0].active && filter[4][1].active)
+        price =
+            _("from") +
+            " " +
+            filter[4][0].value +
+            "₽ " +
+            _("to") +
+            " " +
+            filter[4][1].value +
+            "₽";
+    else if (filter[4][0].active)
+        price = _("from") + " " + filter[4][0].value + "₽";
+    else if (filter[4][1].active)
+        price = _("to") + " " + filter[4][1].value + "₽";
+    else price = "";
+
+    return price;
 }

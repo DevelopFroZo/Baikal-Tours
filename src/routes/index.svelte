@@ -1,10 +1,10 @@
-
-
 <script context = "module">
   import Fetcher from "/helpers/fetcher.js";
+  import parseFilterData from "/helpers/filter.js";
 
   export async function preload(page, session) {
-    const fetcher = new Fetcher( this.fetch );
+    const fetcher = new Fetcher(this.fetch);
+
     let params = page.query,
       filter = [
         [
@@ -30,52 +30,83 @@
             active: false
           }
         ]
-      ];
+      ],
+      result_cards, showFilter = false;
 
-    let response = await this.fetch("/api/dataForFilters", {
-      credentials: "same-origin"
-    });
-    // let result_filters = await fetcher.get("/api/dataForFilters", {
-    //   credentials: "same-origin"
-    // });
-
-    // if (Object.keys(params).length > 0) {
-    //   if (params.dateStart !== undefined) {
-    //     filter[0][0].active = true;
-    //     filter[0][0].value = params.dateStart;
-    //   }
-    //   if (params.dateEnd !== undefined) {
-    //     filter[0][1].active = true;
-    //     filter[0][1].value = params.dateEnd;
-    //   }
-    //   if (params.place !== undefined) {
-    //     setFilterFromUrl(params.place.split(","), 1);
-    //   }
-    //   if (params.companions !== undefined) {
-    //     setFilterFromUrl(params.companions.split(","), 2);
-    //   }
-    //   if (params.thematics !== undefined) {
-    //     setFilterFromUrl(params.thematics.split(","), 3);
-    //   }
-    //   if (params.priceStart !== undefined) {
-    //     filter[4][0].active = true;
-    //     filter[4][0].value = params.priceStart;
-    //   }
-    //   if (params.priceEnd !== undefined) {
-    //     filter[4][1].active = true;
-    //     filter[4][1].value = params.priceEnd;
-    //   }
-
-    //   response = await this.fetch("api/actions", )
-    // }
-
-    let response = await this.fetch("/api/actions", {
+    let result_filters = await fetcher.get("/api/dataForFilters", {
       credentials: "same-origin"
     });
 
-    let result_cards = await response.json();
+    setFilterData(1, result_filters.data.locations);
+    setFilterData(2, result_filters.data.companions);
+    setFilterData(3, result_filters.data.subjects);
+
+    if (Object.keys(params).length > 0) {
+
+      showFilter = true;
+
+      if (params.dateStart !== undefined) {
+        filter[0][0].active = true;
+        filter[0][0].value = params.dateStart;
+      }
+      if (params.dateEnd !== undefined) {
+        filter[0][1].active = true;
+        filter[0][1].value = params.dateEnd;
+      }
+      if (params.locations !== undefined) {
+        setFilterFromUrl(params.locations.split(","), 1);
+      }
+      if (params.companions !== undefined) {
+        setFilterFromUrl(params.companions.split(","), 2);
+      }
+      if (params.subjects !== undefined) {
+        setFilterFromUrl(params.subjects.split(","), 3);
+      }
+      if (params.priceMin !== undefined) {
+        filter[4][0].active = true;
+        filter[4][0].value = params.priceMin;
+      }
+      if (params.priceMax !== undefined) {
+        filter[4][1].active = true;
+        filter[4][1].value = params.priceMax;
+      }
+
+      let query = parseFilterData(filter);
+
+      result_cards = await fetcher.get("api/actions", {
+        credentials: "same-origin",
+        query
+      });
+    } else {
+      result_cards = await fetcher.get("api/actions", {
+        credentials: "same-origin"
+      });
+    }
+
     let locale = session.locale;
-    return { Fetcher, result_cards, result_filters, locale, filter };
+
+    function setFilterFromUrl(params, category) {
+      for (let i = 0; i < params.length; i++) {
+        for (let j = 0; j < filter[category].length; j++) {
+          if (parseInt(params[i]) === filter[category][j].id) {
+            filter[category][j].active = true;
+            break;
+          }
+        }
+      }
+    }
+
+    function setFilterData(category, res) {
+      for (let i = 0; i < res.length; i++) {
+        filter[category].push({
+          id: res[i].id,
+          value: res[i].name,
+          active: false
+        });
+      }
+    }
+
+    return { result_cards, result_filters, locale, filter, showFilter };
   }
 </script>
 
@@ -85,27 +116,23 @@
   import Card from "/components/card_of_event.svelte";
   import BreadCrumbs from "/components/breadcrumbs.svelte";
   import { onMount } from "svelte";
-  import { parseDate } from "/helpers/parsers.js";
+  import { parseDate, parseDateForActiveFilter, parsePriceForActiveFilter } from "/helpers/parsers.js";
   import i18n from "/helpers/i18n/index.js";
-  import parseFilterData from "/helpers/filter.js";
 
-  export let Fetcher, result_cards, result_filters, locale, filter;
+  export let result_cards, result_filters, locale, filter, showFilter;
 
   const fetcher = new Fetcher();
   const _ = i18n(locale);
 
   let date = "",
     price = "",
-    showFilter = false,
     priceStart = "",
     priceEnd = "",
     resp,
     cards = result_cards.data,
     start,
-    dateStart,
-    dateEnd,
     leftRange = true,
-    rightRange = true;
+    rightRange = true
 
   let options = [
     {
@@ -135,16 +162,12 @@
     }
   ];
 
-  function setFilterFromUrl(params, category) {
-    for (let i = 0; i < params.length; i++) {
-      for (let j = 0; j < filter[category].length; j++) {
-        if (parseInt(params) === filter[category][i].id) {
-          filter[category][i].active = true;
-        }
-      }
-    }
+  if(showFilter){
+    showActiveFilters();
+    date = parseDateForActiveFilter(filter);
+    price = parsePriceForActiveFilter(filter, _);
   }
-
+  
   function hideAll(e) {
     for (let i = 0; i < options.length; i++) {
       e = e || event;
@@ -167,6 +190,8 @@
 
     filter[0][0].active = filter[0][0].value === "" ? false : true;
     filter[0][1].active = filter[0][1].value === "" ? false : true;
+
+    date = parseDateForActiveFilter(filter);
 
     if (filter[0][0].active && filter[0][1].active)
       date = filter[0][0].value + " - " + filter[0][1].value;
@@ -193,39 +218,24 @@
       filter[4][1].active = false;
     else filter[4][1].active = true;
 
-    if (filter[4][0].active && filter[4][1].active)
-      price =
-        _("from") +
-        " " +
-        filter[4][0].value +
-        "₽ " +
-        _("to") +
-        " " +
-        filter[4][1].value +
-        "₽";
-    else if (filter[4][0].active)
-      price = _("from") + " " + filter[4][0].value + "₽";
-    else if (filter[4][1].active)
-      price = _("to") + " " + filter[4][1].value + "₽";
-    else price = "";
+    price = parsePriceForActiveFilter(filter, _);
 
-    //show active filters
-    showFilter = false;
-    for (let i = 0; i < filter.length; i++) {
-      for (let j = 0; j < filter[i].length; j++) {
-        if (filter[i][j].active) {
-          showFilter = true;
-          break;
-        }
-      }
-    }
+    let parseFilter = parseFilterData(filter);
+    showActiveFilters();
 
-    params = parseFilterData(filter);
-    getFilterData(params);
+    getFilterData(parseFilter);
+
+    let URL;
+    if (Object.keys(parseFilter).length > 1) {
+      URL = fetcher.makeQuery({ query: parseFilter });
+      URL = "?" + URL.slice(8, URL.length);
+    } else URL = "";
+
+    window.history.replaceState(URL, URL, URL);
   }
 
   async function getFilterData(params) {
-    let filterStatus = await fetcher.get("api/actions", { params });
+    let filterStatus = await fetcher.get("/api/actions", { query: params });
 
     if (filterStatus.ok) cards = filterStatus.data;
   }
@@ -237,22 +247,17 @@
     changeFilter();
   }
 
-  function setFilterData(category, res) {
-    for (let i = 0; i < res.length; i++) {
-      filter[category] = [
-        ...filter[category],
-        {
-          id: res[i].id,
-          value: res[i].name,
-          active: false
+  function showActiveFilters() {
+    showFilter = false;
+    for (let i = 0; i < filter.length; i++) {
+      for (let j = 0; j < filter[i].length; j++) {
+        if (filter[i][j].active) {
+          showFilter = true;
+          break;
         }
-      ];
+      }
     }
   }
-
-  setFilterData(1, result_filters.data.locations);
-  setFilterData(2, result_filters.data.companions);
-  setFilterData(3, result_filters.data.subjects);
 </script>
 
 <style lang="scss">

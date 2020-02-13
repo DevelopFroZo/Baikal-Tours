@@ -76,6 +76,10 @@
       //   white-space: nowrap;
       //   overflow: hidden;
     }
+
+    & > img{
+      width: 10px;
+    }
   }
 
   .image {

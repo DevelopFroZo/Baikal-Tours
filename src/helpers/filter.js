@@ -1,7 +1,9 @@
-export default function setFilterParams(filter) {
+import { parseDate } from "./parsers.js";
+
+export default function parseFilterData(filter) {
     let params = {
         filter: ""
-    }, arrData;
+    }, arrData, dateStart, dateEnd;
 
     if (filter[0][0].active) {
         dateStart = new Date(filter[0][0].value).toISOString();
