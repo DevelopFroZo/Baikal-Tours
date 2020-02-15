@@ -7,17 +7,17 @@ export async function get( req, res ){
   const locale = req.session.locale;
   const filter = req.query.filter;
   const count = toInt( req.query.count );
+  const offset = toInt( req.query.offset );
 
   if( count !== null && count < 1 )
     return res.error( 6 );
 
   // Errors: 6
   if( filter === undefined )
-    return res.json( await req.database.actions.getAll( locale, count ) );
+    return res.json( await req.database.actions.getAll( locale, count, offset ) );
 
-  // filter is sended
+  // Filters is sended
   // Errors: 7, 8
-  // #fix сохранять фильтры в URL
   let dateStart = req.query.dateStart;
   let dateEnd = req.query.dateEnd;
   let locations = toIntArray( req.query.locations );
@@ -46,6 +46,7 @@ export async function get( req, res ){
     subjects,
     priceMin,
     priceMax,
-    count
+    count,
+    offset
   ) );
 }

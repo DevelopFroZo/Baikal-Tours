@@ -5,8 +5,10 @@ export default class extends Foundation{
     super( modules, "Actions" );
   }
 
-  async getAll( locale, count ){
-    const limit = count ? `limit ${count}` : "";
+  async getAll( locale, count, offset ){
+    const limit = count && count > 0 ? `limit ${count}` : "";
+    const offset_ = offset && offset > -1 ? `offset ${offset}` : "";
+
     const rows = ( await super.query(
       `select
         a.id, at.name,
@@ -35,15 +37,17 @@ export default class extends Foundation{
         at.locale = $1
       group by a.id, at.name, ai.image_url, a.price_min, a.price_max
       order by a.id
-      ${limit}`,
+      ${limit}
+      ${offset_}`,
       [ locale ]
     ) ).rows;
 
     return super.success( 0, rows );
   }
 
-  async filter( locale, dateStart, dateEnd, locations, companions, subjects, priceMin, priceMax, count ){
-    const limit = count ? `limit ${count}` : "";
+  async filter( locale, dateStart, dateEnd, locations, companions, subjects, priceMin, priceMax, count, offset ){
+    const limit = count && count > 0 ? `limit ${count}` : "";
+    const offset_ = offset && offset > -1 ? `offset ${offset}` : "";
     let filters = [];
     const params = [ locale ];
     let i = params.length + 1;
@@ -51,34 +55,30 @@ export default class extends Foundation{
 
     // #fix добавить фильтр на цену
     // if( priceMin ){
-    //   filters.push( `a.price >= $${i}` );
+    //   filters.push( `a.price >= $${i++}` );
     //   params.push( priceMin );
     //   i++;
     // }
     // if( priceMax ){
-    //   filters.push( `a.price <= $${i}` );
+    //   filters.push( `a.price <= $${i++}` );
     //   params.push( priceMax );
     //   i++;
     // }
     if( locations ){
-      filters.push( `la.ids @> $${i}::int[]` );
+      filters.push( `la.ids @> $${i++}::int[]` );
       params.push( locations );
-      i++;
     }
     if( companions ){
-      filters.push( `c.id = any( $${i}::int[] )` );
+      filters.push( `c.id = any( $${i++}::int[] )` );
       params.push( companions );
-      i++;
     }
     if( subjects ){
-      filters.push( `s.id = any( $${i}::int[] )` );
+      filters.push( `s.id = any( $${i++}::int[] )` );
       params.push( subjects );
-      i++
     }
     if( dateStart ){
-      datesFilter.push( `( ad.date_start is null or ad.date_start >= $${i} )` );
+      datesFilter.push( `( ad.date_start is null or ad.date_start >= $${i++} )` );
       params.push( dateStart );
-      i++;
     }
     if( dateEnd ){
       datesFilter.push( `( ad.date_end is null or ad.date_end <= $${i} )` );
@@ -146,7 +146,8 @@ export default class extends Foundation{
       ${datesFilter}
       group by tmp.id, tmp.name, tmp.price_min, tmp.price_max, tmp.locations, tmp.companions, tmp.subjects, ai.image_url
       order by tmp.id
-      ${limit}`,
+      ${limit}
+      ${offset_}`,
       params
     ) ).rows;
 
