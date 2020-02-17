@@ -16,7 +16,8 @@ export default class extends Foundation{
         array_agg( distinct ad.date_end ) as date_ends,
         ai.image_url, a.price_min, a.price_max,
         array_agg( distinct s.name ) as subjects,
-        array_agg( distinct l.name ) as locations
+        array_agg( distinct l.name ) as locations,
+        count( 1 ) over ()
       from
         actions as a
         left join action_dates as ad
@@ -112,7 +113,8 @@ export default class extends Foundation{
       	tmp.*,
       	array_agg( ad.date_start ) as date_starts,
       	array_agg( ad.date_end ) as date_ends,
-        ai.image_url
+        ai.image_url,
+        count( 1 ) over ()
       from (
       	select
       		a.id, at.name, a.price_min, a.price_max,
