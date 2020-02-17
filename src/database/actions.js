@@ -34,6 +34,7 @@ export default class extends Foundation{
         on al.location_id = l.id and l.locale = $1,
         actions_translates as at
       where
+        a.status = 'active' and
         a.id = at.action_id and
         at.locale = $1
       group by a.id, at.name, ai.image_url, a.price_min, a.price_max
@@ -66,7 +67,7 @@ export default class extends Foundation{
     //   i++;
     // }
     if( locations ){
-      filters.push( `la.ids @> $${i++}::int[]` );
+      filters.push( `ae.locations_ids @> $${i++}::int[]` );
       params.push( locations );
     }
     if( companions ){
@@ -94,57 +95,55 @@ export default class extends Foundation{
 
     // #fix переделать на хранимку
     const rows = ( await super.query(
-      `with locations_arrays as (
-      	select
-      		a.id,
-      		array_agg( l.id ) as ids,
-      		array_agg( l.name ) as names
-      	from
-      		actions as a,
-      		actions_locations as al,
-      		locations as l
-      	where
-          l.locale = $1 and
-      		a.id = al.action_id and
-      		al.location_id = l.id
-      	group by a.id
+      `with actions_extended as (
+        select
+          a.id, at.locale, at.name, a.price_min, a.price_max,
+          array_agg( l.id ) as locations_ids,
+          array_agg( l.name ) as locations
+        from
+          actions as a,
+          actions_translates as at,
+          actions_locations as al,
+          locations as l
+        where
+          a.status = 'active' and
+          at.locale = $1 and
+          a.id = at.action_id and
+          l.locale = at.locale and
+          a.id = al.action_id and
+          al.location_id = l.id
+        group by a.id, at.locale, at.name, a.price_min, a.price_max
       )
       select
-      	tmp.*,
-      	array_agg( ad.date_start ) as date_starts,
-      	array_agg( ad.date_end ) as date_ends,
+        tmp.*,
+        array_agg( ad.date_start ) as date_starts,
+        array_agg( ad.date_end ) as date_ends,
         ai.image_url,
         count( 1 ) over ()
       from (
-      	select
-      		a.id, at.name, a.price_min, a.price_max,
-      		la.names as locations,
-      		array_agg( distinct c.name ) as companions,
-      		array_agg( distinct s.name ) as subjects
-      	from
-      		actions as a,
-          actions_translates as at,
-      		locations_arrays as la,
-      		actions_companions as ac,
-      		companions as c,
-      		actions_subjects as acsu,
-      		subjects as s
-      	where
-          at.locale = $1 and
-          c.locale = $1 and
-          s.locale = $1 and
-      		${filters}
-          at.action_id = a.id and
-      		a.id = la.id and
-      		ac.companion_id = c.id and
-      		ac.action_id = a.id and
-      		acsu.subject_id = s.id and
-      		acsu.action_id = a.id
-      	group by a.id, at.name, a.price_min, a.price_max, la.names ) as tmp
-      	left join action_dates as ad
-      	on ad.action_id = tmp.id
+        select
+          ae.id, ae.name, ae.price_min, ae.price_max, ae.locations,
+          array_agg( distinct c.name ) as companions,
+          array_agg( distinct s.name ) as subjects
+        from
+          actions_extended as ae,
+          actions_companions as ac,
+          companions as c,
+          actions_subjects as acsu,
+          subjects as s
+        where
+          c.locale = ae.locale and
+          s.locale = ae.locale and
+          ${filters}
+          ac.companion_id = c.id and
+          ac.action_id = ae.id and
+          acsu.subject_id = s.id and
+          acsu.action_id = ae.id
+        group by ae.id, ae.name, ae.price_min, ae.price_max, ae.locations ) as tmp
+        left join action_dates as ad
+        on ad.action_id = tmp.id
         left join action_images as ai
-      	on ai.action_id = tmp.id and ai.is_main = true
+        on ai.action_id = tmp.id and ai.is_main = true
       ${datesFilter}
       group by tmp.id, tmp.name, tmp.price_min, tmp.price_max, tmp.locations, tmp.companions, tmp.subjects, ai.image_url
       order by tmp.id
@@ -169,6 +168,7 @@ export default class extends Foundation{
         on a.organizer_id = u.id,
         actions_translates as at
       where
+        a.status = 'active' and
         a.id = $1 and
         a.id = at.action_id and
         at.locale = $2`,
@@ -245,6 +245,7 @@ export default class extends Foundation{
         actions as a,
         actions_translates as at
       where
+        a.status = 'active' and
         id = $1 and
         at.locale = $2 and
         a.id = at.action_id`,
