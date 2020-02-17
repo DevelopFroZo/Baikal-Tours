@@ -31,7 +31,10 @@
           }
         ]
       ],
-      result_cards, showFilter = false;
+      result_cards,
+      showFilter = false,
+      offset = 0,
+      count = 15;
 
     let result_filters = await fetcher.get("/api/dataForFilters", {
       credentials: "same-origin"
@@ -41,10 +44,11 @@
     setFilterData(2, result_filters.data.companions);
     setFilterData(3, result_filters.data.subjects);
 
-    if (Object.keys(params).length > 0) {
+    if (params.offset !== undefined) offset = parseInt(params.offset);
+    if (params.count !== undefined) count = parseInt(params.count);
 
+    if (Object.keys(params).length > 0 && Object.keys(params)[0] === "filter") {
       showFilter = true;
-
       if (params.dateStart !== undefined) {
         filter[0][0].active = true;
         filter[0][0].value = params.dateStart;
@@ -72,6 +76,8 @@
       }
 
       let query = parseFilterData(filter);
+      query.offset = offset;
+      query.count = count;
 
       result_cards = await fetcher.get("api/actions", {
         credentials: "same-origin",
@@ -79,9 +85,16 @@
       });
     } else {
       result_cards = await fetcher.get("api/actions", {
-        credentials: "same-origin"
+        credentials: "same-origin",
+        query: {
+          count: count,
+          offset: offset
+        }
       });
     }
+
+    let result_count = result_cards.count;
+    result_cards = result_cards.actions;
 
     let locale = session.locale;
 
@@ -106,7 +119,16 @@
       }
     }
 
-    return { result_cards, result_filters, locale, filter, showFilter };
+    return {
+      result_cards,
+      result_filters,
+      locale,
+      filter,
+      showFilter,
+      offset,
+      count,
+      result_count
+    };
   }
 </script>
 
@@ -115,11 +137,23 @@
   import Footer from "/components/footer.svelte";
   import Card from "/components/card_of_event.svelte";
   import BreadCrumbs from "/components/breadcrumbs.svelte";
+  import Pagination from "/components/pagination.svelte";
   import { onMount } from "svelte";
-  import { parseDate, parseDateForActiveFilter, parsePriceForActiveFilter } from "/helpers/parsers.js";
+  import {
+    parseDate,
+    parseDateForActiveFilter,
+    parsePriceForActiveFilter
+  } from "/helpers/parsers.js";
   import i18n from "/helpers/i18n/index.js";
 
-  export let result_cards, result_filters, locale, filter, showFilter;
+  export let result_cards,
+    result_filters,
+    locale,
+    filter,
+    showFilter,
+    offset,
+    count,
+    result_count;
 
   const fetcher = new Fetcher();
   const _ = i18n(locale);
@@ -129,10 +163,24 @@
     priceStart = "",
     priceEnd = "",
     resp,
-    cards = result_cards.data,
-    start,
+    pag = offset / count,
+    pagCards = count,
+    cards = result_cards,
+    pagList = [],
     leftRange = true,
-    rightRange = true
+    rightRange = true,
+    allPags = parseInt(Math.ceil(result_count / pagCards)),
+    parseFilter = {};
+
+  let pagData = {
+    offset: pag * pagCards,
+    count: pagCards
+  };
+
+  let url = {
+    ...parseFilter,
+    ...pagData
+  };
 
   let options = [
     {
@@ -162,12 +210,15 @@
     }
   ];
 
-  if(showFilter){
+  changePag(pag);
+
+  if (showFilter) {
     showActiveFilters();
+    parseFilter = parseFilterData(filter);
     date = parseDateForActiveFilter(filter);
     price = parsePriceForActiveFilter(filter, _);
   }
-  
+
   function hideAll(e) {
     for (let i = 0; i < options.length; i++) {
       e = e || event;
@@ -220,24 +271,25 @@
 
     price = parsePriceForActiveFilter(filter, _);
 
-    let parseFilter = parseFilterData(filter);
+    pag = 0;
+
+    parseFilter = parseFilterData(filter);
+    parseFilter.count = pagCards;
+    parseFilter.offset = pag * pagCards;
+
     showActiveFilters();
-
     getFilterData(parseFilter);
-
-    let URL;
-    if (Object.keys(parseFilter).length > 1) {
-      URL = fetcher.makeQuery({ query: parseFilter });
-      URL = "?" + URL.slice(8, URL.length);
-    } else URL = "";
-
-    window.history.replaceState(URL, URL, URL);
   }
 
   async function getFilterData(params) {
     let filterStatus = await fetcher.get("/api/actions", { query: params });
 
-    if (filterStatus.ok) cards = filterStatus.data;
+    result_count = filterStatus.count;
+    result_cards = filterStatus.actions;
+
+    allPags = parseInt(Math.ceil(result_count / pagCards));
+
+    changePagAndURL(0);
   }
 
   function setPrice() {
@@ -257,6 +309,60 @@
         }
       }
     }
+  }
+
+  function changePag(pagL) {
+    pag = pagL;
+    pagList = [];
+    if (allPags <= 5) for (let i = 0; i < allPags; i++) pagList.push(i);
+    else {
+      if (pag < 2) for (let i = 0; i < 5; i++) pagList.push(i);
+      else if (pag > allPags - 3)
+        for (let i = allPags - 5; i < allPags; i++) pagList.push(i);
+      else for (let i = pag; i < pag + 5; i++) pagList.push(i - 2);
+    }
+
+    cards = result_cards;
+
+    pagData = {
+      offset: pag * pagCards,
+      count: pagCards
+    };
+
+    url = {
+      ...parseFilter,
+      ...pagData
+    };
+  }
+
+  function setURL() {
+    let URL = fetcher.makeQuery({ query: url });
+    window.history.replaceState(URL, URL, URL);
+  }
+
+  function changePagAndURL(pagL) {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
+    changePag(pagL);
+    setURL();
+  }
+
+  async function clickPag(e) {
+    let pagL = e.detail.pagL;
+
+    result_cards = await fetcher.get("api/actions", {
+      query: {
+        ...parseFilter,
+        count: pagCards,
+        offset: pagL * pagCards
+      }
+    });
+    result_count = result_cards.count;
+    result_cards = result_cards.actions;
+
+    changePagAndURL(pagL);
   }
 </script>
 
@@ -712,5 +818,7 @@
       <Card {...cardInfo} {locale} />
     {/each}
   </div>
+
+  <Pagination {pagList} {pag} {allPags} on:clickPag={clickPag} />
 </div>
 <Footer {locale} />

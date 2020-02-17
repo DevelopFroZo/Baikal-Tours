@@ -27,6 +27,10 @@ $form-width: 1000px;
     margin: auto;
 }
 
+button:hover{
+    cursor: pointer;
+}
+
 @media only screen and (max-width: 768px) {
     
     .form-width{

@@ -2,16 +2,17 @@
   import { parseDate, parsePrice } from "/helpers/parsers.js";
   import i18n from "/helpers/i18n/index.js";
   
-  export let name = "",
-    date_ends = "",
-    date_starts = "",
-    image_url = "",
-    price_min = "",
-    price_max = "",
-    subjects = "",
-    locations = "",
-    id = "",
-    locale;
+  export let name,
+    date_ends,
+    date_starts,
+    image_url,
+    price_min,
+    price_max,
+    subjects,
+    locations,
+    id,
+    locale,
+    companions;
 
   const _ = i18n( locale );
 
