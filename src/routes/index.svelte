@@ -145,6 +145,7 @@
     parsePriceForActiveFilter
   } from "/helpers/parsers.js";
   import i18n from "/helpers/i18n/index.js";
+  import { goto } from '@sapper/app';
 
   export let result_cards,
     result_filters,
@@ -337,7 +338,11 @@
 
   function setURL() {
     let URL = fetcher.makeQuery({ query: url });
-    window.history.replaceState(URL, URL, URL);
+
+    //#fix Переделать на нормальный переход по странициам (без релоадинга и с бэками)
+    document.location.href = "./" + URL;
+
+    //goto(URL);
   }
 
   function changePagAndURL(pagL) {
@@ -364,6 +369,7 @@
 
     changePagAndURL(pagL);
   }
+
 </script>
 
 <style lang="scss">
