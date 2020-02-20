@@ -132,6 +132,7 @@
 <div
   class="card"
   on:click={() => {
+    localStorage.setItem("actionsParams", document.location.href);
     document.location.href = './action?id=' + id;
   }}>
   <h1>{name}</h1>

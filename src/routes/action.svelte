@@ -37,7 +37,8 @@
     userPhone = "",
     userMail = "",
     disabled = "disabled",
-    contactData = contactsToString(data.contact_faces, data.emails, data.phones);
+    contactData = contactsToString(data.contact_faces, data.emails, data.phones),
+    actionsParams;
 
   const _ = i18n( locale );
 
@@ -49,6 +50,10 @@
         imagesLoaded: true
       });
     }
+    actionsParams = localStorage.getItem("actionsParams")
+    if(actionsParams === null)
+      actionsParams = "./"
+
   });
 
   $: if (userName !== "" && userPhone !== "" && validateMail(userMail))
@@ -238,7 +243,7 @@
 </svelte:head>
 
 <Header locale={locale}/>
-<BreadCrumbs path = {[{name: _("event_catalog"), url: "./"}, {name: data.name, url: "./action?id=" + actionId}]} />
+<BreadCrumbs path = {[{name: _("event_catalog"), url: actionsParams}, {name: data.name, url: "./action?id=" + actionId}]} />
 <div class="form-width">
   <h1>{data.name}</h1>
   <p class="italic-bold">{data.tagline}</p>

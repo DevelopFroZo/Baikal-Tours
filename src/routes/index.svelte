@@ -145,6 +145,7 @@
   } from "/helpers/parsers.js";
   import i18n from "/helpers/i18n/index.js";
   import { goto } from '@sapper/app';
+  import { onMount } from "svelte";
 
   export let result_cards,
     result_filters,
@@ -330,6 +331,10 @@
 
     changePagAndURL(pagL);
   }
+
+  onMount(() => {
+    localStorage.removeItem("actionsParams");
+  })
 
 </script>
 
