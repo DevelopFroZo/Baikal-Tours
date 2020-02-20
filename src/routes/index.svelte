@@ -138,13 +138,14 @@
   import Card from "/components/card_of_event.svelte";
   import BreadCrumbs from "/components/breadcrumbs.svelte";
   import Pagination from "/components/pagination.svelte";
-  import { onMount } from "svelte";
   import {
     parseDate,
     parseDateForActiveFilter,
     parsePriceForActiveFilter
   } from "/helpers/parsers.js";
   import i18n from "/helpers/i18n/index.js";
+  import { goto } from '@sapper/app';
+  import { onMount } from "svelte";
 
   export let result_cards,
     result_filters,
@@ -163,13 +164,13 @@
     priceStart = "",
     priceEnd = "",
     resp,
-    pag = offset / count,
+    pag,
     pagCards = count,
     cards = result_cards,
     pagList = [],
     leftRange = true,
     rightRange = true,
-    allPags = parseInt(Math.ceil(result_count / pagCards)),
+    allPags,
     parseFilter = {};
 
   let pagData = {
@@ -182,41 +183,31 @@
     ...pagData
   };
 
-  let options = [
-    {
+  let options = [];
+
+  for(let i = 0; i < 5; i++)
+    options.push({
       isVisible: false,
       option: null,
       btn: null
-    },
-    {
-      isVisible: false,
-      option: null,
-      btn: null
-    },
-    {
-      isVisible: false,
-      option: null,
-      btn: null
-    },
-    {
-      isVisible: false,
-      option: null,
-      btn: null
-    },
-    {
-      isVisible: false,
-      option: null,
-      btn: null
+    })
+
+  $: {
+    cards = result_cards;
+    pag = offset / count;
+    allPags = Math.ceil(result_count / pagCards)
+
+    changePag(offset / count);
+    checkActiveFilter()
+  }
+
+  function checkActiveFilter(){
+    if (showFilter) {
+      showActiveFilters();
+      parseFilter = parseFilterData(filter);
+      date = parseDateForActiveFilter(filter);
+      price = parsePriceForActiveFilter(filter, _);
     }
-  ];
-
-  changePag(pag);
-
-  if (showFilter) {
-    showActiveFilters();
-    parseFilter = parseFilterData(filter);
-    date = parseDateForActiveFilter(filter);
-    price = parsePriceForActiveFilter(filter, _);
   }
 
   function hideAll(e) {
@@ -271,25 +262,13 @@
 
     price = parsePriceForActiveFilter(filter, _);
 
-    pag = 0;
-
     parseFilter = parseFilterData(filter);
     parseFilter.count = pagCards;
     parseFilter.offset = pag * pagCards;
 
     showActiveFilters();
-    getFilterData(parseFilter);
-  }
-
-  async function getFilterData(params) {
-    let filterStatus = await fetcher.get("/api/actions", { query: params });
-
-    result_count = filterStatus.count;
-    result_cards = filterStatus.actions;
-
-    allPags = parseInt(Math.ceil(result_count / pagCards));
-
     changePagAndURL(0);
+
   }
 
   function setPrice() {
@@ -321,23 +300,13 @@
         for (let i = allPags - 5; i < allPags; i++) pagList.push(i);
       else for (let i = pag; i < pag + 5; i++) pagList.push(i - 2);
     }
-
-    cards = result_cards;
-
-    pagData = {
-      offset: pag * pagCards,
-      count: pagCards
-    };
-
-    url = {
-      ...parseFilter,
-      ...pagData
-    };
   }
 
   function setURL() {
     let URL = fetcher.makeQuery({ query: url });
-    window.history.replaceState(URL, URL, URL);
+
+    //#fix переписать логику на сторы
+    goto(URL);
   }
 
   function changePagAndURL(pagL) {
@@ -345,25 +314,28 @@
       top: 0,
       behavior: "smooth"
     });
-    changePag(pagL);
+
+    pag = pagL;
+
+    url = {
+      ...parseFilter,
+      offset: pag * pagCards,
+      count: pagCards
+    };
+
     setURL();
   }
 
   async function clickPag(e) {
     let pagL = e.detail.pagL;
 
-    result_cards = await fetcher.get("api/actions", {
-      query: {
-        ...parseFilter,
-        count: pagCards,
-        offset: pagL * pagCards
-      }
-    });
-    result_count = result_cards.count;
-    result_cards = result_cards.actions;
-
     changePagAndURL(pagL);
   }
+
+  onMount(() => {
+    localStorage.removeItem("actionsParams");
+  })
+
 </script>
 
 <style lang="scss">
@@ -648,8 +620,7 @@
             <label>{city.value}</label>
             <input
               type="checkbox"
-              bind:checked={city.active}
-              on:change={changeFilter} />
+              bind:checked={city.active}/>
           </div>
         {/each}
       </div>
@@ -676,8 +647,7 @@
             <label>{companios.value}</label>
             <input
               type="checkbox"
-              bind:checked={companios.active}
-              on:change={changeFilter} />
+              bind:checked={companios.active}/>
           </div>
         {/each}
       </div>
@@ -704,8 +674,7 @@
             <label>{subjects.value}</label>
             <input
               type="checkbox"
-              bind:checked={subjects.active}
-              on:change={changeFilter} />
+              bind:checked={subjects.active}/>
           </div>
         {/each}
       </div>
