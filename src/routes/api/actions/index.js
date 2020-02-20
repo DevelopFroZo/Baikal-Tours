@@ -5,9 +5,11 @@ import { toInt, toIntArray } from "/helpers/converters";
 // Errors: 6, 7, 8
 export async function get( req, res ){
   const locale = req.session.locale;
+  const allStatus = req.query.allCount !== undefined && req.session.isAdmin;
   const filter = req.query.filter;
   const count = toInt( req.query.count );
   const offset = toInt( req.query.offset );
+
   let actions;
   let actionsCount;
 
@@ -16,7 +18,7 @@ export async function get( req, res ){
 
   // Errors: 6
   if( filter === undefined )
-    actions = ( await req.database.actions.getAll( locale, count, offset ) ).data;
+    actions = ( await req.database.actions.getAll( locale, allStatus, count, offset ) ).data;
   else{
     // Filters is sended
     // Errors: 7, 8

@@ -64,6 +64,7 @@ server.use( ( req, res, next ) => {
   if( dev ) req.mail = mail;
 
   if( !req.session.isLogged ) req.session.isLogged = false;
+  if( !req.session.isAdmin ) req.session.isAdmin = false;
   if( !req.session.locale ) req.session.locale = "ru";
 
   req._ = i18n( req.session.locale );

@@ -9,5 +9,6 @@ export async function get( req, res ){
   if( id === null || id < 1 )
     return res.error( 9 );
 
+  // #fix локаль для адреса локации
   res.json( await req.database.actions.getOne( id, req.session.locale ) );
 }

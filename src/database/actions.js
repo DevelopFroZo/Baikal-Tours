@@ -5,7 +5,8 @@ export default class extends Foundation{
     super( modules, "Actions" );
   }
 
-  async getAll( locale, count, offset ){
+  async getAll( locale, allStatus, count, offset ){
+    const status = allStatus ? "" : "a.status = 'active' and";
     const limit = count && count > 0 ? `limit ${count}` : "";
     const offset_ = offset && offset > -1 ? `offset ${offset}` : "";
 
@@ -34,7 +35,7 @@ export default class extends Foundation{
         on al.location_id = l.id and l.locale = $1,
         actions_translates as at
       where
-        a.status = 'active' and
+        ${status}
         a.id = at.action_id and
         at.locale = $1
       group by a.id, at.name, ai.image_url, a.price_min, a.price_max
@@ -196,6 +197,7 @@ export default class extends Foundation{
       where action_id = $1`,
       [ id ]
     ) ).rows;
+    // #fix локаль для адреса локации
     main.locations = ( await transaction.query(
       `select l.name, al.address
       from
