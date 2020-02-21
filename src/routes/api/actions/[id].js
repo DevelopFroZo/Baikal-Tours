@@ -19,9 +19,7 @@ export async function put( req, res ){
   if( id === null || id < 1 )
     return res.error( 9 );
 
-  const status = req.body.status;
-
-  req.database.actions.edit( id, status );
+  req.database.actions.edit( id, req.body );
 
   res.success();
 }

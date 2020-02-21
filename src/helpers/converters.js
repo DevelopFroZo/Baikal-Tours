@@ -11,6 +11,9 @@ function toInt( st ){
   if( st === undefined || st === "" )
     return null;
 
+  if( typeof st === "number" )
+    return st;
+
   const int = parseInt( st.replace( / +/g, "" ) );
 
   if( isNaN( int ) || typeof int !== "number" )

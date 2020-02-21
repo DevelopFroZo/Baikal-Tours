@@ -257,7 +257,12 @@ export default class extends Foundation{
     return result !== undefined ? result : null;
   }
 
-  async edit( id, status ){
+  async edit( id, {
+    status, priceMin, priceMax, organizerId,
+    sitePaymant, organizerPayment, emails, phones,
+    websites, vkLink, facebookLink, instagramLink,
+    twitterLink, isFavorite
+  } ){
     let set = [];
     const params = [ id ];
     let sc = 2;
@@ -265,6 +270,71 @@ export default class extends Foundation{
     if( status ){
       set.push( `status = $${sc++}` );
       params.push( status );
+    }
+
+    if( priceMin ){
+      set.push( `price_min = $${sc++}` );
+      params.push( priceMin );
+    }
+
+    if( priceMax ){
+      set.push( `price_max = $${sc++}` );
+      params.push( priceMax );
+    }
+
+    if( organizerId === null || typeof organizerId === "number" ){
+      set.push( `organizer_id = $${sc++}` );
+      params.push( organizerId );
+    }
+
+    if( typeof sitePaymant === "boolean" ){
+      set.push( `site_payment = $${sc++}` );
+      params.push( sitePaymant );
+    }
+
+    if( organizerPayment !== undefined && organizerPayment !== "" ){
+      set.push( `organizer_payment = $${sc++}` );
+      params.push( organizerPayment );
+    }
+
+    if( emails === null || Array.isArray( emails ) ){
+      set.push( `emails = $${sc++}::character varying[]` );
+      params.push( emails );
+    }
+
+    if( phones === null || Array.isArray( phones ) ){
+      set.push( `phones = $${sc++}::character varying[]` );
+      params.push( phones );
+    }
+
+    if( websites === null || Array.isArray( websites ) ){
+      set.push( `websites = $${sc++}::character varying[]` );
+      params.push( websites );
+    }
+
+    if( vkLink === null || vkLink ){
+      set.push( `vk_link = $${sc++}` );
+      params.push( vkLink );
+    }
+
+    if( facebookLink === null || facebookLink ){
+      set.push( `facebook_link = $${sc++}` );
+      params.push( facebookLink );
+    }
+
+    if( instagramLink === null || instagramLink ){
+      set.push( `instagram_link = $${sc++}` );
+      params.push( instagramLink );
+    }
+
+    if( twitterLink === null || twitterLink ){
+      set.push( `twitter_link = $${sc++}` );
+      params.push( twitterLink );
+    }
+
+    if( typeof isFavorite === "boolean" ){
+      set.push( `is_favorite = $${sc++}` );
+      params.push( isFavorite );
     }
 
     if( set.length > 0 ){
