@@ -5,7 +5,7 @@ import { toInt, toIntArray } from "/helpers/converters";
 // Errors: 6, 7, 8
 export async function get( req, res ){
   const locale = req.session.locale;
-  const allStatus = req.query.allCount !== undefined && req.session.isAdmin;
+  const allStatus = req.query.allStatus !== undefined && req.session.isAdmin;
   const filter = req.query.filter;
   const count = toInt( req.query.count );
   const offset = toInt( req.query.offset );

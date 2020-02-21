@@ -12,7 +12,7 @@ export default class extends Foundation{
 
     const rows = ( await super.query(
       `select
-        a.id, at.name,
+        a.id, a.status, at.name,
         array_agg( distinct ad.date_start ) as date_starts,
         array_agg( distinct ad.date_end ) as date_ends,
         ai.image_url, a.price_min, a.price_max,
@@ -38,7 +38,7 @@ export default class extends Foundation{
         ${status}
         a.id = at.action_id and
         at.locale = $1
-      group by a.id, at.name, ai.image_url, a.price_min, a.price_max
+      group by a.id, a.status, at.name, ai.image_url, a.price_min, a.price_max
       order by a.id
       ${limit}
       ${offset_}`,
