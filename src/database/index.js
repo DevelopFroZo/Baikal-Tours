@@ -13,6 +13,7 @@ import Locations from "./locations";
 import Companions from "./companions";
 import Subjects from "./subjects";
 import DataForFilters from "./dataForFilters";
+import Users from "./users";
 
 // Main pool
 modules.pool = new pg.Pool( !dev ? config.production : config.development );
@@ -24,6 +25,7 @@ modules.locations = new Locations( modules );
 modules.companions = new Companions( modules );
 modules.subjects = new Subjects( modules );
 modules.dataForFilters = new DataForFilters( modules );
+modules.users = new Users( modules );
 
 // #fix вынести на глобальный уровень
 // Success & error functions

@@ -17,6 +17,7 @@ import database from "./database";
 // Helpers
 import mail from "./helpers/mail";
 import i18n from "./helpers/i18n";
+import routeControl from "./helpers/routeControl";
 
 // Consts
 const { PORT, NODE_ENV } = process.env;
@@ -71,6 +72,9 @@ server.use( ( req, res, next ) => {
 
   next();
 } );
+
+// Role control
+routeControl( server );
 
 // Run
 server

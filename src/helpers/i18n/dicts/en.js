@@ -1,3 +1,5 @@
+"use strict";
+
 export default ( {
   "email.confirm_password.subject": "Password",
 

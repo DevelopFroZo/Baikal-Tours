@@ -1,4 +1,6 @@
-export default ({
+"use strict";
+
+export default ( {
   "email.confirm_password.subject": "密碼",
 
   no_contacts: "沒有啦",
@@ -71,4 +73,4 @@ export default ({
   not_registered: "尚未注册?",
   get_new_password: "获取新密码",
   return_login_page: "返回登录页面"
-});
+} );

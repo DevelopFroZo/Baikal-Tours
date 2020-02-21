@@ -256,4 +256,28 @@ export default class extends Foundation{
 
     return result !== undefined ? result : null;
   }
+
+  async edit( id, status ){
+    let set = [];
+    const params = [ id ];
+    let sc = 2;
+
+    if( status ){
+      set.push( `status = $${sc++}` );
+      params.push( status );
+    }
+
+    if( set.length > 0 ){
+      set = set.join( "," );
+
+      await super.query(
+        `update actions
+        set ${set}
+        where id = $1`,
+        params
+      );
+    }
+
+    return super.success();
+  }
 }

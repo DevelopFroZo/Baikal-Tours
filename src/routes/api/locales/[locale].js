@@ -1,3 +1,5 @@
+"use strict";
+
 import dicts from "/helpers/i18n/dicts/index";
 
 export async function put( req, res ){

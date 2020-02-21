@@ -1,4 +1,6 @@
-export default ({
+"use strict";
+
+export default ( {
   "email.confirm_password.subject": "Пароль",
 
   no_contacts: "нет",
@@ -71,4 +73,4 @@ export default ({
   not_registered: "Еще не зарегистрированы?",
   get_new_password: "Получить новый пароль",
   return_login_page: "Вернуться на страницу входа"
-});
+} );

@@ -17,6 +17,7 @@ export default {
      8: "Invalid price",
      9: "Invalid ID",
     10: "No data",
-    11: "Invalid locale"
+    11: "Invalid locale",
+    12: "Access denied"
   }
 };

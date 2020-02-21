@@ -1,3 +1,5 @@
+"use strict";
+
 export default class{
   constructor( fetch_ ){
     // #fix добавить возможность определять базовый путь
@@ -10,7 +12,7 @@ export default class{
     // #fix сделать нормальный способ передавать свой fetch
     if( fetch_ !== undefined )
       this.fetch = fetch_;
-    
+
 
     // #fix добавить тип FormData
   }

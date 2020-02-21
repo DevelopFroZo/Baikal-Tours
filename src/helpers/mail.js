@@ -1,3 +1,5 @@
+"use strict";
+
 import nodemailer from "nodemailer";
 
 const mail = nodemailer.createTransport( {

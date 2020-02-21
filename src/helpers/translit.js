@@ -1,3 +1,5 @@
+"use strict";
+
 export default text => {
   return text.replace( /([а-яё])|([\s_-])|([^a-z\d])/gi, ( all, ch, space, words, i ) => {
     if( space || words ){
