@@ -18,7 +18,7 @@ export async function get( req, res ){
 
   // Errors: 6
   if( filter === undefined )
-    actions = ( await req.database.actions.getAll( locale, allStatus, count, offset ) ).data;
+    actions = ( await req.database.actions.getAll( allStatus, locale, count, offset ) ).data;
   else{
     // Filters is sended
     // Errors: 7, 8
@@ -42,6 +42,7 @@ export async function get( req, res ){
       return res.error( 8 );
 
     actions = ( await req.database.actions.filter(
+      allStatus,
       locale,
       dateStart,
       dateEnd,

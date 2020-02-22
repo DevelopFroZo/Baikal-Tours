@@ -10,7 +10,7 @@ export async function get( req, res ){
     return res.error( 9 );
 
   // #fix локаль для адреса локации
-  res.json( await req.database.actions.getOne( id, req.session.locale ) );
+  res.json( await req.database.actions.getOne( id, req.session.locale, req.session.isAdmin ) );
 }
 
 export async function put( req, res ){

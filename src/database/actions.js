@@ -5,7 +5,7 @@ export default class extends Foundation{
     super( modules, "Actions" );
   }
 
-  async getAll( locale, allStatus, count, offset ){
+  async getAll( allStatus, locale, count, offset ){
     const status = allStatus ? "" : "a.status = 'active' and";
     const limit = count && count > 0 ? `limit ${count}` : "";
     const offset_ = offset && offset > -1 ? `offset ${offset}` : "";
@@ -48,7 +48,8 @@ export default class extends Foundation{
     return super.success( 0, rows );
   }
 
-  async filter( locale, dateStart, dateEnd, locations, companions, subjects, priceMin, priceMax, count, offset ){
+  async filter( allStatus, locale, dateStart, dateEnd, locations, companions, subjects, priceMin, priceMax, count, offset ){
+    const status = allStatus ? "" : "a.status = 'active' and";
     const limit = count && count > 0 ? `limit ${count}` : "";
     const offset_ = offset && offset > -1 ? `offset ${offset}` : "";
     let filters = [];
@@ -98,7 +99,7 @@ export default class extends Foundation{
     const rows = ( await super.query(
       `with actions_extended as (
         select
-          a.id, at.locale, at.name, a.price_min, a.price_max,
+          a.id, a.status, at.locale, at.name, a.price_min, a.price_max,
           array_agg( l.id ) as locations_ids,
           array_agg( l.name ) as locations
         from
@@ -107,13 +108,13 @@ export default class extends Foundation{
           actions_locations as al,
           locations as l
         where
-          a.status = 'active' and
+          ${status}
           at.locale = $1 and
           a.id = at.action_id and
           l.locale = at.locale and
           a.id = al.action_id and
           al.location_id = l.id
-        group by a.id, at.locale, at.name, a.price_min, a.price_max
+        group by a.id, a.status, at.locale, at.name, a.price_min, a.price_max
       )
       select
         tmp.*,
@@ -123,7 +124,7 @@ export default class extends Foundation{
         count( 1 ) over ()
       from (
         select
-          ae.id, ae.name, ae.price_min, ae.price_max, ae.locations,
+          ae.id, ae.status, ae.name, ae.price_min, ae.price_max, ae.locations,
           array_agg( distinct c.name ) as companions,
           array_agg( distinct s.name ) as subjects
         from
@@ -140,13 +141,13 @@ export default class extends Foundation{
           ac.action_id = ae.id and
           acsu.subject_id = s.id and
           acsu.action_id = ae.id
-        group by ae.id, ae.name, ae.price_min, ae.price_max, ae.locations ) as tmp
+        group by ae.id, ae.status, ae.name, ae.price_min, ae.price_max, ae.locations ) as tmp
         left join action_dates as ad
         on ad.action_id = tmp.id
         left join action_images as ai
         on ai.action_id = tmp.id and ai.is_main = true
       ${datesFilter}
-      group by tmp.id, tmp.name, tmp.price_min, tmp.price_max, tmp.locations, tmp.companions, tmp.subjects, ai.image_url
+      group by tmp.id, tmp.status, tmp.name, tmp.price_min, tmp.price_max, tmp.locations, tmp.companions, tmp.subjects, ai.image_url
       order by tmp.id
       ${limit}
       ${offset_}`,
@@ -156,7 +157,8 @@ export default class extends Foundation{
     return super.success( 0, rows );
   }
 
-  async getOne( id, locale ){
+  async getOne( id, locale, isAdmin ){
+    const status = isAdmin ? "" : "a.status = 'active' and";
     const transaction = await super.transaction();
     const main = ( await transaction.query(
       `select
@@ -169,7 +171,7 @@ export default class extends Foundation{
         on a.organizer_id = u.id,
         actions_translates as at
       where
-        a.status = 'active' and
+        ${status}
         a.id = $1 and
         a.id = at.action_id and
         at.locale = $2`,
