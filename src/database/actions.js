@@ -48,7 +48,7 @@ export default class extends Foundation{
     return super.success( 0, rows );
   }
 
-  async filter( allStatus, locale, dateStart, dateEnd, locations, companions, subjects, priceMin, priceMax, count, offset ){
+  async filter( allStatus, locale, dateStart, dateEnd, locations, companions, subjects, search, priceMin, priceMax, count, offset ){
     const status = allStatus ? "" : "a.status = 'active' and";
     const limit = count && count > 0 ? `limit ${count}` : "";
     const offset_ = offset && offset > -1 ? `offset ${offset}` : "";
@@ -72,18 +72,30 @@ export default class extends Foundation{
       filters.push( `ae.locations_ids @> $${i++}::int[]` );
       params.push( locations );
     }
+
     if( companions ){
       filters.push( `c.id = any( $${i++}::int[] )` );
       params.push( companions );
     }
+
     if( subjects ){
       filters.push( `s.id = any( $${i++}::int[] )` );
       params.push( subjects );
     }
+
+    if( search && search !== "" ){
+      filters.push(
+        `( ae.name || ' ' ||
+        ae.full_description ) ilike $${i++}`
+      );
+      params.push( search );
+    }
+
     if( dateStart ){
       datesFilter.push( `( ad.date_start is null or ad.date_start >= $${i++} )` );
       params.push( dateStart );
     }
+
     if( dateEnd ){
       datesFilter.push( `( ad.date_end is null or ad.date_end <= $${i} )` );
       params.push( dateEnd );
@@ -99,7 +111,7 @@ export default class extends Foundation{
     const rows = ( await super.query(
       `with actions_extended as (
         select
-          a.id, a.status, at.locale, at.name, a.price_min, a.price_max,
+          a.id, a.status, at.locale, at.name, at.full_description, a.price_min, a.price_max,
           array_agg( l.id ) as locations_ids,
           array_agg( l.name ) as locations
         from
@@ -114,7 +126,7 @@ export default class extends Foundation{
           l.locale = at.locale and
           a.id = al.action_id and
           al.location_id = l.id
-        group by a.id, a.status, at.locale, at.name, a.price_min, a.price_max
+        group by a.id, a.status, at.locale, at.name, at.full_description, a.price_min, a.price_max
       )
       select
         tmp.*,

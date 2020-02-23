@@ -27,6 +27,7 @@ export async function get( req, res ){
     let locations = toIntArray( req.query.locations );
     let companions = toIntArray( req.query.companions );
     let subjects = toIntArray( req.query.subjects );
+    let search = req.query.search;
     const priceMin = toInt( req.query.priceMin );
     const priceMax = toInt( req.query.priceMax );
 
@@ -37,6 +38,9 @@ export async function get( req, res ){
     if( dateEnd === undefined ) dateEnd = null;
     else if( dateEnd === "" )
       return res.error( 7 );
+
+    if( search )
+      search = `%${decodeURIComponent( search )}%`;
 
     if( priceMin < 0 || priceMax < 0 )
       return res.error( 8 );
@@ -49,6 +53,7 @@ export async function get( req, res ){
       locations,
       companions,
       subjects,
+      search,
       priceMin,
       priceMax,
       count,
