@@ -5,7 +5,7 @@ import { toInt, toIntArray } from "/helpers/converters";
 // Errors: 6, 7, 8
 export async function get( req, res ){
   const locale = req.session.locale;
-  const allStatus = req.query.allStatus !== undefined && req.session.isAdmin;
+  const allStatuses = req.query.allStatuses !== undefined && req.session.isAdmin;
   const filter = req.query.filter;
   const count = toInt( req.query.count );
   const offset = toInt( req.query.offset );
@@ -18,7 +18,7 @@ export async function get( req, res ){
 
   // Errors: 6
   if( filter === undefined )
-    actions = ( await req.database.actions.getAll( allStatus, locale, count, offset ) ).data;
+    actions = ( await req.database.actions.getAll( allStatuses, locale, count, offset ) ).data;
   else{
     // Filters is sended
     // Errors: 7, 8
@@ -46,7 +46,7 @@ export async function get( req, res ){
       return res.error( 8 );
 
     actions = ( await req.database.actions.filter(
-      allStatus,
+      allStatuses,
       locale,
       dateStart,
       dateEnd,

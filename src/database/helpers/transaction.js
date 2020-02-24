@@ -1,3 +1,5 @@
+"use strict";
+
 class Transaction{
   constructor( client ){
     this.client = client;

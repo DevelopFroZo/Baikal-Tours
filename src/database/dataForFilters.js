@@ -1,3 +1,5 @@
+"use strict";
+
 import Foundation from "./helpers/foundation";
 
 export default class extends Foundation{

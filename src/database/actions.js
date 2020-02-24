@@ -1,12 +1,15 @@
+"use strict";
+
 import Foundation from "./helpers/foundation";
+import Translator from "/helpers/translator/index";
 
 export default class extends Foundation{
   constructor( modules ){
     super( modules, "Actions" );
   }
 
-  async getAll( allStatus, locale, count, offset ){
-    const status = allStatus ? "" : "a.status = 'active' and";
+  async getAll( allStatuses, locale, count, offset ){
+    const status = allStatuses ? "" : "a.status = 'active' and";
     const limit = count && count > 0 ? `limit ${count}` : "";
     const offset_ = offset && offset > -1 ? `offset ${offset}` : "";
 
@@ -48,8 +51,8 @@ export default class extends Foundation{
     return super.success( 0, rows );
   }
 
-  async filter( allStatus, locale, dateStart, dateEnd, locations, companions, subjects, search, priceMin, priceMax, count, offset ){
-    const status = allStatus ? "" : "a.status = 'active' and";
+  async filter( allStatuses, locale, dateStart, dateEnd, locations, companions, subjects, search, priceMin, priceMax, count, offset ){
+    const status = allStatuses ? "" : "a.status = 'active' and";
     const limit = count && count > 0 ? `limit ${count}` : "";
     const offset_ = offset && offset > -1 ? `offset ${offset}` : "";
     let filters = [];
@@ -83,6 +86,7 @@ export default class extends Foundation{
       params.push( subjects );
     }
 
+    // #fix по ключевым словам
     if( search && search !== "" ){
       filters.push(
         `( ae.name || ' ' ||
@@ -169,7 +173,7 @@ export default class extends Foundation{
     return super.success( 0, rows );
   }
 
-  async getOne( id, locale, isAdmin ){
+  async getOne( isAdmin, id, locale ){
     const status = isAdmin ? "" : "a.status = 'active' and";
     const transaction = await super.transaction();
     const main = ( await transaction.query(
@@ -271,15 +275,78 @@ export default class extends Foundation{
     return result !== undefined ? result : null;
   }
 
+  async saveOrUpdateActionsTranslates( client, actionId, locale, {
+    title, name, tagline, shortDescription,
+    fullDescription, organizerName, contactFaces
+  } ){
+    let values = [ "$1", "$2" ];
+    let sets = [];
+    let params = [ actionId, locale ];
+    let i = 3;
+
+    if( title ){
+      values.push( `$${i++}` );
+      sets.push( `title = excluded.title` );
+      params.push( title );
+    }
+    else values.push( "null" );
+
+    if( name ){
+      values.push( `$${i++}` );
+      sets.push( `name = excluded.name` );
+      params.push( name );
+    }
+    else values.push( "''" );
+
+    if( tagline ){
+      values.push( `$${i++}` );
+      sets.push( `tagline = excluded.tagline` );
+      params.push( tagline );
+    }
+    else values.push( "''" );
+
+    if( shortDescription ){
+      values.push( `$${i++}` );
+      sets.push( `short_description = excluded.short_description` );
+      params.push( shortDescription );
+    }
+    else values.push( "''" );
+
+    if( fullDescription ){
+      values.push( `$${i++}` );
+      sets.push( `full_description = excluded.full_description` );
+      params.push( fullDescription );
+    }
+    else values.push( "''" );
+
+    values.push( "''" );
+    values = values.join( "," );
+    sets = sets.join( "," );
+
+    await client.query(
+      `insert into actions_translates( action_id, locale, title, name, tagline, short_description, full_description, organizer_name )
+      values( ${values} )
+      on conflict ( action_id, locale ) do update
+      set ${sets}`,
+      params
+    );
+  }
+
   async edit( id, {
     status, priceMin, priceMax, organizerId,
     sitePaymant, organizerPayment, emails, phones,
     websites, vkLink, facebookLink, instagramLink,
-    twitterLink, isFavorite
+    twitterLink, isFavorite, title, name, tagline,
+    shortDescription, fullDescription,
+    organizerName, contactFaces
   } ){
     let set = [];
     const params = [ id ];
     let sc = 2;
+    const transaction = await super.transaction();
+    let translated = {};
+    const translator = new Translator( process.env.YANDEX_TRANSLATE_API_KEY );
+    const promises = [];
 
     if( status ){
       set.push( `status = $${sc++}` );
@@ -354,13 +421,88 @@ export default class extends Foundation{
     if( set.length > 0 ){
       set = set.join( "," );
 
-      await super.query(
+      await transaction.query(
         `update actions
         set ${set}
         where id = $1`,
         params
       );
     }
+
+    if( title ){
+      const locale = title.locale;
+
+      if( translated[ locale ] === undefined )
+        translated[ locale ] = {};
+
+      translated[ locale ].title = title.text;
+
+      if( title.autoTranslate === true )
+        translator.add( "title", title.text, locale, title.toLocales );
+    }
+
+    if( name ){
+      const locale = name.locale;
+
+      if( translated[ locale ] === undefined )
+        translated[ locale ] = {};
+
+      translated[ locale ].name = name.text;
+
+      if( name.autoTranslate === true )
+        translator.add( "name", name.text, locale, name.toLocales );
+    }
+
+    if( tagline ){
+      const locale = tagline.locale;
+
+      if( translated[ locale ] === undefined )
+        translated[ locale ] = {};
+
+      translated[ locale ].tagline = tagline.text;
+
+      if( tagline.autoTranslate === true )
+        translator.add( "tagline", tagline.text, locale, tagline.toLocales );
+    }
+
+    if( shortDescription ){
+      const locale = shortDescription.locale;
+
+      if( translated[ locale ] === undefined )
+        translated[ locale ] = {};
+
+      translated[ locale ].shortDescription = shortDescription.text;
+
+      if( shortDescription.autoTranslate === true )
+        translator.add( "shortDescription", shortDescription.text, locale, shortDescription.toLocales );
+    }
+
+    if( fullDescription ){
+      const locale = fullDescription.locale;
+
+      if( translated[ locale ] === undefined )
+        translated[ locale ] = {};
+
+      translated[ locale ].fullDescription = fullDescription.text;
+
+      if( fullDescription.autoTranslate === true )
+        translator.add( "fullDescription", fullDescription.text, locale, fullDescription.toLocales );
+    }
+
+    await translator.translate();
+    translator.transform();
+
+    for( let key in translator.transformed )
+      if( translated[ key ] !== undefined )
+        translated[ key ] = { ...translated[ key ], ...translator.transformed[ key ] };
+      else
+        translated[ key ] = translator.transformed[ key ];
+
+    for( let key in translated )
+      promises.push( this.saveOrUpdateActionsTranslates( transaction, id, key, translated[ key ] ) );
+
+    await Promise.all( promises );
+    await transaction.end();
 
     return super.success();
   }
