@@ -15,7 +15,7 @@ export default class extends Foundation{
 
     const rows = ( await super.query(
       `select
-        a.id, a.status, at.name,
+        a.id, a.status, a.is_favorite, at.name,
         array_agg( distinct ad.date_start ) as date_starts,
         array_agg( distinct ad.date_end ) as date_ends,
         ai.image_url, a.price_min, a.price_max,
@@ -41,7 +41,7 @@ export default class extends Foundation{
         ${status}
         a.id = at.action_id and
         at.locale = $1
-      group by a.id, a.status, at.name, ai.image_url, a.price_min, a.price_max
+      group by a.id, a.status, a.is_favorite, at.name, ai.image_url, a.price_min, a.price_max
       order by a.id
       ${limit}
       ${offset_}`,
@@ -115,7 +115,7 @@ export default class extends Foundation{
     const rows = ( await super.query(
       `with actions_extended as (
         select
-          a.id, a.status, at.locale, at.name, at.full_description, a.price_min, a.price_max,
+          a.id, a.status, a.is_favorite, at.locale, at.name, at.full_description, a.price_min, a.price_max,
           array_agg( l.id ) as locations_ids,
           array_agg( l.name ) as locations
         from
@@ -130,7 +130,7 @@ export default class extends Foundation{
           l.locale = at.locale and
           a.id = al.action_id and
           al.location_id = l.id
-        group by a.id, a.status, at.locale, at.name, at.full_description, a.price_min, a.price_max
+        group by a.id, a.status, a.is_favorite, at.locale, at.name, at.full_description, a.price_min, a.price_max
       )
       select
         tmp.*,
@@ -140,7 +140,7 @@ export default class extends Foundation{
         count( 1 ) over ()
       from (
         select
-          ae.id, ae.status, ae.name, ae.price_min, ae.price_max, ae.locations,
+          ae.id, ae.status, ae.is_favorite, ae.name, ae.price_min, ae.price_max, ae.locations,
           array_agg( distinct c.name ) as companions,
           array_agg( distinct s.name ) as subjects
         from
@@ -157,13 +157,23 @@ export default class extends Foundation{
           ac.action_id = ae.id and
           acsu.subject_id = s.id and
           acsu.action_id = ae.id
-        group by ae.id, ae.status, ae.name, ae.price_min, ae.price_max, ae.locations ) as tmp
+        group by ae.id, ae.status, ae.is_favorite, ae.name, ae.price_min, ae.price_max, ae.locations ) as tmp
         left join action_dates as ad
         on ad.action_id = tmp.id
         left join action_images as ai
         on ai.action_id = tmp.id and ai.is_main = true
       ${datesFilter}
-      group by tmp.id, tmp.status, tmp.name, tmp.price_min, tmp.price_max, tmp.locations, tmp.companions, tmp.subjects, ai.image_url
+      group
+        by tmp.id,
+        tmp.status,
+        tmp.is_favorite,
+        tmp.name,
+        tmp.price_min,
+        tmp.price_max,
+        tmp.locations,
+        tmp.companions,
+        tmp.subjects,
+        ai.image_url
       order by tmp.id
       ${limit}
       ${offset_}`,
@@ -173,7 +183,7 @@ export default class extends Foundation{
     return super.success( 0, rows );
   }
 
-  async getOne( isAdmin, id, locale ){
+  async getOne( isAdmin, id, locale, getSubscribers ){
     const status = isAdmin ? "" : "a.status = 'active' and";
     const transaction = await super.transaction();
     const main = ( await transaction.query(
@@ -200,24 +210,26 @@ export default class extends Foundation{
       return super.error( 10 );
     }
 
-    delete main.organizer_id;
+    delete main.locale;
     delete main.action_id;
 
     main.images = ( await transaction.query(
-      `select image_url, is_main
+      `select id, image_url, is_main
       from action_images
       where action_id = $1`,
       [ id ]
     ) ).rows;
+
     main.dates = ( await transaction.query(
-      `select date_start, date_end, time_start, time_end, days
+      `select id, date_start, date_end, time_start, time_end, days
       from action_dates
       where action_id = $1`,
       [ id ]
     ) ).rows;
+
     // #fix локаль для адреса локации
     main.locations = ( await transaction.query(
-      `select l.name, al.address
+      `select l.id, l.name, al.address
       from
         actions_locations as al,
         locations as l
@@ -227,8 +239,9 @@ export default class extends Foundation{
         l.id = al.location_id`,
       [ id, locale ]
     ) ).rows;
+
     main.transfers = ( await transaction.query(
-      `select t.name
+      `select t.id, t.name
       from
         actions_transfers as at,
         transfers as t
@@ -237,9 +250,10 @@ export default class extends Foundation{
         t.locale = $2 and
         t.id = at.transfer_id`,
       [ id, locale ]
-    ) ).rows.map( transfer => transfer.name );
+    ) ).rows;
+
     main.subjects = ( await transaction.query(
-      `select s.name
+      `select s.id, s.name
       from
         actions_subjects as acsu,
         subjects as s
@@ -248,10 +262,20 @@ export default class extends Foundation{
         s.locale = $2 and
         s.id = acsu.subject_id`,
       [ id, locale ]
-    ) ).rows.map( transfer => transfer.name );
-    await transaction.end();
+    ) ).rows;
 
-    delete main.locale;
+    if( getSubscribers ){
+      main.subscribers = ( await transaction.query(
+        `select u.name, u.surname, u.phone, u.email, u.image_path
+        from
+          actions_subscribers as asu,
+          users as u
+        where
+          asu.user_id = u.id`
+      ) ).rows;
+    }
+
+    await transaction.end();
 
     return super.success( 0, main );
   }
