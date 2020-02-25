@@ -1,0 +1,16 @@
+@import "./global.scss";
+
+.admin-block {
+  background: $Light_Gray;
+  min-height: 100vh;
+}
+
+.form-width {
+  display: flex;
+}
+
+.admin-page {
+  width: calc(100% - 120px - 30px);
+  margin: 15px 0 0 30px;
+  font-size: $Medium_Font_Size;
+}

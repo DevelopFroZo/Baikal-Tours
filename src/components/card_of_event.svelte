@@ -1,5 +1,5 @@
 <script>
-  import { parseDate, parsePrice } from "/helpers/parsers.js";
+  import { parseDateForCards, parsePrice } from "/helpers/parsers.js";
   import i18n from "/helpers/i18n/index.js";
   
   export let name,
@@ -16,29 +16,8 @@
 
   const _ = i18n( locale );
 
-  let dates = [],
-    second_price;
-
-  for (let i = 0; i < date_starts.length; i++) {
-    if (date_starts[i] !== date_ends[i]) {
-      if (date_starts[i] === null) {
-        let end = parseDate(new Date(date_ends[i]));
-        dates.push(_("date_to_string.end") + " " + end);
-      } else if (date_ends[i] === null) {
-        let start = parseDate(new Date(date_starts[i]));
-        dates.push(_("date_to_string.start") + " " + start);
-      } else {
-        let start = parseDate(new Date(date_starts[i]));
-        let end = parseDate(new Date(date_ends[i]));
-        dates.push(_("date_to_string.start") + " " + start + " " + _("date_to_string.end") + " " + end);
-      }
-    }
-    else{
-      dates.push(parseDate(new Date(date_starts[i])))
-    }
-  }
-
-  second_price = parsePrice(price_min, price_max, _);
+  let dates = parseDateForCards(date_starts, date_ends, _);
+  let second_price = parsePrice(price_min, price_max, _);
 
 </script>
 

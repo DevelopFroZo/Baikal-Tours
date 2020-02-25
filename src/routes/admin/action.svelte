@@ -1,0 +1,426 @@
+<script context="module">
+  import Fetcher from "/helpers/fetcher.js";
+
+  export async function preload(page, session) {
+    const fetcher = new Fetcher(this.fetch);
+    let actionId = page.query.id;
+    let result_action = await fetcher.get("/api/actions/" + actionId, {
+      credentials: "same-origin"
+    });
+    let locale = session.locale;
+
+    result_action = result_action.data;
+
+    return { result_action, actionId, locale };
+  }
+</script>
+
+<script>
+  import HrefMenu from "./_href_menu.svelte";
+  import i18n from "/helpers/i18n/index.js";
+  import { parsePrice } from "/helpers/parsers.js";
+  import { contactsToString, dateToString } from "/helpers/converters.js";
+
+  export let result_action, actionId, locale;
+
+  const _ = i18n(locale),
+    fetcher = new Fetcher();
+
+  let contactData = contactsToString(
+      result_action.contact_faces,
+      result_action.emails,
+      result_action.phones
+    ),
+    second_price = parsePrice(
+      result_action.price_min,
+      result_action.price_max,
+      _
+    );
+
+  console.log(result_action);
+
+  async function changeStatus() {
+    await fetcher.put("/api/actions/" + actionId, {
+      status: result_action.status
+    });
+  }
+</script>
+
+<style lang="scss">
+  @import "./styles/admin.scss";
+
+  .back-page {
+    color: $Dark_Gray;
+    font-size: $Medium_Font_Size;
+  }
+
+  .event-block {
+    margin-top: 15px;
+    background: white;
+    box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.25);
+    padding: 15px;
+  }
+
+  .event-edit {
+    & > select,
+    button {
+      background: $Medium_Gray;
+      border: 1px solid black;
+      font-weight: bold;
+      padding: 3px 6px;
+      height: 26px;
+    }
+
+    & > button {
+      margin-left: 15px;
+    }
+  }
+
+  h1 {
+    font-size: 20px;
+    margin-top: 25px;
+  }
+
+  pre {
+    white-space: pre-wrap;
+    margin-top: 20px;
+  }
+
+  h2 {
+    font-size: $Big_Font_Size;
+    margin-top: 35px;
+  }
+
+  .imp {
+    border: 1px solid black;
+  }
+
+  .images-block {
+    display: grid;
+    grid-template-columns: repeat(4, 150px);
+    justify-content: space-between;
+    grid-row-gap: 20px;
+    margin-top: 20px;
+  }
+
+  .img-block {
+    min-height: 100px;
+  }
+
+  .img {
+    position: relative;
+    overflow: hidden;
+    height: 100px;
+
+    & > img {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      max-width: 150px;
+      max-height: 100px;
+      box-sizing: border-box;
+    }
+  }
+
+  .imp-text {
+    margin-top: 2px;
+    text-align: center;
+  }
+
+  .info-block {
+    display: flex;
+    margin-top: 30px;
+
+    & > div {
+      flex: 0.5;
+    }
+  }
+
+  .left-side {
+    padding-right: 20px;
+  }
+
+  .line {
+    display: flex;
+    align-items: flex-start;
+
+    & > .info-image {
+      margin-right: 15px;
+      min-width: 20px;
+
+      & > img {
+        max-width: 16px;
+      }
+    }
+
+    &:not(:first-child) {
+      margin-top: 17px;
+    }
+  }
+
+  .payment-block {
+    margin-top: 15px;
+    display: flex;
+
+    & > div {
+      padding: 10px 20px;
+      color: white;
+
+      &:not(:first-child) {
+        margin-left: 25px;
+      }
+    }
+
+    & > .gray {
+      background: $Dark_Gray;
+    }
+
+    & > .blue {
+      background: $Light_Blue;
+    }
+
+    & > .green {
+      background: $Green;
+    }
+  }
+
+  table {
+    width: 100%;
+    border: 1px solid $Gray;
+    border-spacing: 0px;
+
+    & > tr {
+      & > td {
+        border: solid $Gray;
+        padding: 5px 10px;
+        text-align: center;
+      }
+    }
+
+    & > tr:first-child {
+      & > td {
+        font-weight: bold;
+      }
+    }
+
+    & > tr:not(:last-child) {
+      & > td:not(:last-child) {
+        border-width: 0 1px 1px 0;
+      }
+      & > td:last-child {
+        border-width: 0 0 1px 0;
+      }
+    }
+
+    & > tr:last-child {
+      & > td:not(:last-child) {
+        border-width: 0 1px 0 0;
+      }
+      & > td:last-child {
+        border: none;
+      }
+    }
+  }
+</style>
+
+<div class="admin-block">
+  <div class="form-width">
+    <HrefMenu page={0} />
+    <div class="admin-page">
+      <a href="./admin" class="back-page">назад к списку событий</a>
+      <div class="event-block">
+        <div class="event-edit">
+          <select bind:value={result_action.status} on:change={changeStatus}>
+            <option value="active">Активное</option>
+            <option value="hidden">Скрытое</option>
+            <option value="archive">Архив</option>
+          </select>
+          <button>Редактировать</button>
+        </div>
+        <h1>{result_action.name}</h1>
+        <pre>{result_action.full_description}</pre>
+        <h2>Фотографии события</h2>
+        <div class="images-block">
+          {#each result_action.images as image}
+            <div class="img-block">
+              <div class="img">
+                <img
+                  src={image.image_url}
+                  class:imp={image.is_main}
+                  alt="image" />
+              </div>
+              {#if image.is_main}
+                <div class="imp-text">Главная</div>
+              {/if}
+            </div>
+          {/each}
+        </div>
+        <div class="info-block">
+          <div class="left-side">
+
+            <div class="line">
+              <div class="info-image">
+                <img src="img/date.png" alt="date" />
+              </div>
+              <div class="info">
+                <ul>
+                  {#each result_action.dates as date}
+                    <li>{dateToString(date, _)}</li>
+                  {/each}
+                </ul>
+              </div>
+            </div>
+
+            <div class="line">
+              <div class="info-image">
+                <img src="img/place.png" alt="place" />
+              </div>
+              <div class="info">
+                <ul>
+                  {#each result_action.locations as location}
+                    <li>
+                      {location.name + (location.address === null ? '' : ', ' + location.address)}
+                    </li>
+                  {/each}
+                </ul>
+              </div>
+            </div>
+
+            <div class="line">
+              <div class="info-image">
+                <img src="img/org.png" alt="organisation" />
+              </div>
+              <div class="info">
+                {result_action.organizer_name}
+                {#if contactData.length > 0}
+                  <ul class="contact-ul">
+                    {#each contactData as contact}
+                      <li>{contact}</li>
+                    {/each}
+                  </ul>
+                {/if}
+              </div>
+            </div>
+
+            <div class="line">
+              <div class="info-image">
+                <img src="img/transfer.png" alt="transfer" />
+              </div>
+              <div class="info">
+                {_('transfer')}
+                <ul>
+                  {#each result_action.transfers as transfer}
+                    <li>{transfer}</li>
+                  {/each}
+                </ul>
+              </div>
+            </div>
+
+          </div>
+          <div class="right-side">
+
+            <div class="line">
+              <div class="info-image">
+                <img src="img/price.png" alt="price" />
+              </div>
+              <div class="info">{_('price')}: {second_price}</div>
+            </div>
+
+            {#if result_action.vk_link !== null || result_action.instagram_link !== null || result_action.facebook_link !== null || result_action.twitter_link !== null || result_action.websites !== null}
+              <div class="line">
+                <div class="info-image">
+                  <img src="img/pages.png" alt="pages" />
+                </div>
+                <div class="info">
+                  <ul>
+                    {#if result_action.websites !== null}
+                      <li>
+                        <a href={result_action.websites[0]} target="_blank">
+                          {_('official_site')}
+                        </a>
+                      </li>
+                    {/if}
+                    {#if result_action.vk_link !== null}
+                      <li>
+                        <a href={result_action.vk_link} target="_blank">
+                          {_('VK_group')}
+                        </a>
+                      </li>
+                    {/if}
+                    {#if result_action.instagram_link !== null}
+                      <li>
+                        <a href={result_action.instagram_link} target="_blank">
+                          {_('instagram')}
+                        </a>
+                      </li>
+                    {/if}
+                    {#if result_action.facebook_link !== null}
+                      <li>
+                        <a href={result_action.facebook_link} target="_blank">
+                          {_('facebook')}
+                        </a>
+                      </li>
+                    {/if}
+                    {#if result_action.twitter_link !== null}
+                      <li>
+                        <a href={result_action.twitter_link} target="_blank">
+                          {_('twitter')}
+                        </a>
+                      </li>
+                    {/if}
+                  </ul>
+                </div>
+              </div>
+            {/if}
+
+            <div class="line">
+              <div class="info-image">
+                <img src="img/birk.png" alt="date" />
+              </div>
+              <div class="info">
+                <ul>
+                  {#each result_action.subjects as subjects}
+                    <li>{subjects}</li>
+                  {/each}
+                </ul>
+              </div>
+            </div>
+
+          </div>
+        </div>
+        <h2>Варианты участия</h2>
+        <div class="payment-block">
+          {#if result_action.price_min == 0 && result_action.price_max === 0}
+            <div class="gray">Бесплатное</div>
+          {/if}
+          {#if result_action.organizer_payment !== null && result_action.organizer_payment !== ''}
+            <div class="blue">Оплата через организатора</div>
+          {/if}
+          {#if result_action.site_payment}
+            <div class="green">Оплата на сайте</div>
+          {/if}
+        </div>
+        <h2>Список зарегистрировавшихся</h2>
+        <table>
+          <tr>
+            <td>*</td>
+            <td>Имя</td>
+            <td>Фамилия</td>
+            <td>Телефон</td>
+            <td>E-mail</td>
+            <td>роль</td>
+          </tr>
+          <tr>
+            <td>*</td>
+            <td>Екатерина</td>
+            <td>Антюшина</td>
+            <td>342918742934</td>
+            <td>цотыдgmal.</td>
+            <td>идмин</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
