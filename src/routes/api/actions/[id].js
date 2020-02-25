@@ -9,8 +9,17 @@ export async function get( req, res ){
   if( id === null || id < 1 )
     return res.error( 9 );
 
+  const isAdmin = req.session.isAdmin;
+  let locale = req.session.locale;
+  let getSubscribers = false;
+
+  if( isAdmin ){
+    if( req.query.locale ) locale = req.query.locale;
+    if( req.query.getSubscribers !== undefined ) getSubscribers = true;
+  }
+
   // #fix локаль для адреса локации
-  res.json( await req.database.actions.getOne( id, req.session.locale, req.session.isAdmin ) );
+  res.json( await req.database.actions.getOne( isAdmin, id, locale, getSubscribers ) );
 }
 
 export async function put( req, res ){
@@ -19,7 +28,7 @@ export async function put( req, res ){
   if( id === null || id < 1 )
     return res.error( 9 );
 
-  req.database.actions.edit( id, req.body );
+  await req.database.actions.edit( id, req.body );
 
   res.success();
 }

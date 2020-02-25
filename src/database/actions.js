@@ -1,18 +1,21 @@
+"use strict";
+
 import Foundation from "./helpers/foundation";
+import Translator from "/helpers/translator/index";
 
 export default class extends Foundation{
   constructor( modules ){
     super( modules, "Actions" );
   }
 
-  async getAll( allStatus, locale, count, offset ){
-    const status = allStatus ? "" : "a.status = 'active' and";
+  async getAll( allStatuses, locale, count, offset ){
+    const status = allStatuses ? "" : "a.status = 'active' and";
     const limit = count && count > 0 ? `limit ${count}` : "";
     const offset_ = offset && offset > -1 ? `offset ${offset}` : "";
 
     const rows = ( await super.query(
       `select
-        a.id, a.status, at.name,
+        a.id, a.status, a.is_favorite, at.name,
         array_agg( distinct ad.date_start ) as date_starts,
         array_agg( distinct ad.date_end ) as date_ends,
         ai.image_url, a.price_min, a.price_max,
@@ -38,7 +41,7 @@ export default class extends Foundation{
         ${status}
         a.id = at.action_id and
         at.locale = $1
-      group by a.id, a.status, at.name, ai.image_url, a.price_min, a.price_max
+      group by a.id, a.status, a.is_favorite, at.name, ai.image_url, a.price_min, a.price_max
       order by a.id
       ${limit}
       ${offset_}`,
@@ -48,8 +51,8 @@ export default class extends Foundation{
     return super.success( 0, rows );
   }
 
-  async filter( allStatus, locale, dateStart, dateEnd, locations, companions, subjects, search, priceMin, priceMax, count, offset ){
-    const status = allStatus ? "" : "a.status = 'active' and";
+  async filter( allStatuses, locale, dateStart, dateEnd, locations, companions, subjects, search, priceMin, priceMax, count, offset ){
+    const status = allStatuses ? "" : "a.status = 'active' and";
     const limit = count && count > 0 ? `limit ${count}` : "";
     const offset_ = offset && offset > -1 ? `offset ${offset}` : "";
     let filters = [];
@@ -83,6 +86,7 @@ export default class extends Foundation{
       params.push( subjects );
     }
 
+    // #fix по ключевым словам
     if( search && search !== "" ){
       filters.push(
         `( ae.name || ' ' ||
@@ -111,7 +115,7 @@ export default class extends Foundation{
     const rows = ( await super.query(
       `with actions_extended as (
         select
-          a.id, a.status, at.locale, at.name, at.full_description, a.price_min, a.price_max,
+          a.id, a.status, a.is_favorite, at.locale, at.name, at.full_description, a.price_min, a.price_max,
           array_agg( l.id ) as locations_ids,
           array_agg( l.name ) as locations
         from
@@ -126,7 +130,7 @@ export default class extends Foundation{
           l.locale = at.locale and
           a.id = al.action_id and
           al.location_id = l.id
-        group by a.id, a.status, at.locale, at.name, at.full_description, a.price_min, a.price_max
+        group by a.id, a.status, a.is_favorite, at.locale, at.name, at.full_description, a.price_min, a.price_max
       )
       select
         tmp.*,
@@ -136,7 +140,7 @@ export default class extends Foundation{
         count( 1 ) over ()
       from (
         select
-          ae.id, ae.status, ae.name, ae.price_min, ae.price_max, ae.locations,
+          ae.id, ae.status, ae.is_favorite, ae.name, ae.price_min, ae.price_max, ae.locations,
           array_agg( distinct c.name ) as companions,
           array_agg( distinct s.name ) as subjects
         from
@@ -153,13 +157,23 @@ export default class extends Foundation{
           ac.action_id = ae.id and
           acsu.subject_id = s.id and
           acsu.action_id = ae.id
-        group by ae.id, ae.status, ae.name, ae.price_min, ae.price_max, ae.locations ) as tmp
+        group by ae.id, ae.status, ae.is_favorite, ae.name, ae.price_min, ae.price_max, ae.locations ) as tmp
         left join action_dates as ad
         on ad.action_id = tmp.id
         left join action_images as ai
         on ai.action_id = tmp.id and ai.is_main = true
       ${datesFilter}
-      group by tmp.id, tmp.status, tmp.name, tmp.price_min, tmp.price_max, tmp.locations, tmp.companions, tmp.subjects, ai.image_url
+      group
+        by tmp.id,
+        tmp.status,
+        tmp.is_favorite,
+        tmp.name,
+        tmp.price_min,
+        tmp.price_max,
+        tmp.locations,
+        tmp.companions,
+        tmp.subjects,
+        ai.image_url
       order by tmp.id
       ${limit}
       ${offset_}`,
@@ -169,7 +183,7 @@ export default class extends Foundation{
     return super.success( 0, rows );
   }
 
-  async getOne( id, locale, isAdmin ){
+  async getOne( isAdmin, id, locale, getSubscribers ){
     const status = isAdmin ? "" : "a.status = 'active' and";
     const transaction = await super.transaction();
     const main = ( await transaction.query(
@@ -196,24 +210,26 @@ export default class extends Foundation{
       return super.error( 10 );
     }
 
-    delete main.organizer_id;
+    delete main.locale;
     delete main.action_id;
 
     main.images = ( await transaction.query(
-      `select image_url, is_main
+      `select id, image_url, is_main
       from action_images
       where action_id = $1`,
       [ id ]
     ) ).rows;
+
     main.dates = ( await transaction.query(
-      `select date_start, date_end, time_start, time_end, days
+      `select id, date_start, date_end, time_start, time_end, days
       from action_dates
       where action_id = $1`,
       [ id ]
     ) ).rows;
+
     // #fix локаль для адреса локации
     main.locations = ( await transaction.query(
-      `select l.name, al.address
+      `select l.id, l.name, al.address
       from
         actions_locations as al,
         locations as l
@@ -223,8 +239,9 @@ export default class extends Foundation{
         l.id = al.location_id`,
       [ id, locale ]
     ) ).rows;
+
     main.transfers = ( await transaction.query(
-      `select t.name
+      `select t.id, t.name
       from
         actions_transfers as at,
         transfers as t
@@ -233,9 +250,10 @@ export default class extends Foundation{
         t.locale = $2 and
         t.id = at.transfer_id`,
       [ id, locale ]
-    ) ).rows.map( transfer => transfer.name );
+    ) ).rows;
+
     main.subjects = ( await transaction.query(
-      `select s.name
+      `select s.id, s.name
       from
         actions_subjects as acsu,
         subjects as s
@@ -244,10 +262,20 @@ export default class extends Foundation{
         s.locale = $2 and
         s.id = acsu.subject_id`,
       [ id, locale ]
-    ) ).rows.map( transfer => transfer.name );
-    await transaction.end();
+    ) ).rows;
 
-    delete main.locale;
+    if( getSubscribers ){
+      main.subscribers = ( await transaction.query(
+        `select u.name, u.surname, u.phone, u.email, u.image_path
+        from
+          actions_subscribers as asu,
+          users as u
+        where
+          asu.user_id = u.id`
+      ) ).rows;
+    }
+
+    await transaction.end();
 
     return super.success( 0, main );
   }
@@ -271,15 +299,78 @@ export default class extends Foundation{
     return result !== undefined ? result : null;
   }
 
+  async saveOrUpdateActionsTranslates( client, actionId, locale, {
+    title, name, tagline, shortDescription,
+    fullDescription, organizerName, contactFaces
+  } ){
+    let values = [ "$1", "$2" ];
+    let sets = [];
+    let params = [ actionId, locale ];
+    let i = 3;
+
+    if( title ){
+      values.push( `$${i++}` );
+      sets.push( `title = excluded.title` );
+      params.push( title );
+    }
+    else values.push( "null" );
+
+    if( name ){
+      values.push( `$${i++}` );
+      sets.push( `name = excluded.name` );
+      params.push( name );
+    }
+    else values.push( "''" );
+
+    if( tagline ){
+      values.push( `$${i++}` );
+      sets.push( `tagline = excluded.tagline` );
+      params.push( tagline );
+    }
+    else values.push( "''" );
+
+    if( shortDescription ){
+      values.push( `$${i++}` );
+      sets.push( `short_description = excluded.short_description` );
+      params.push( shortDescription );
+    }
+    else values.push( "''" );
+
+    if( fullDescription ){
+      values.push( `$${i++}` );
+      sets.push( `full_description = excluded.full_description` );
+      params.push( fullDescription );
+    }
+    else values.push( "''" );
+
+    values.push( "''" );
+    values = values.join( "," );
+    sets = sets.join( "," );
+
+    await client.query(
+      `insert into actions_translates( action_id, locale, title, name, tagline, short_description, full_description, organizer_name )
+      values( ${values} )
+      on conflict ( action_id, locale ) do update
+      set ${sets}`,
+      params
+    );
+  }
+
   async edit( id, {
     status, priceMin, priceMax, organizerId,
     sitePaymant, organizerPayment, emails, phones,
     websites, vkLink, facebookLink, instagramLink,
-    twitterLink, isFavorite
+    twitterLink, isFavorite, title, name, tagline,
+    shortDescription, fullDescription,
+    organizerName, contactFaces
   } ){
     let set = [];
     const params = [ id ];
     let sc = 2;
+    const transaction = await super.transaction();
+    let translated = {};
+    const translator = new Translator( process.env.YANDEX_TRANSLATE_API_KEY );
+    const promises = [];
 
     if( status ){
       set.push( `status = $${sc++}` );
@@ -354,13 +445,88 @@ export default class extends Foundation{
     if( set.length > 0 ){
       set = set.join( "," );
 
-      await super.query(
+      await transaction.query(
         `update actions
         set ${set}
         where id = $1`,
         params
       );
     }
+
+    if( title ){
+      const locale = title.locale;
+
+      if( translated[ locale ] === undefined )
+        translated[ locale ] = {};
+
+      translated[ locale ].title = title.text;
+
+      if( title.autoTranslate === true )
+        translator.add( "title", title.text, locale, title.toLocales );
+    }
+
+    if( name ){
+      const locale = name.locale;
+
+      if( translated[ locale ] === undefined )
+        translated[ locale ] = {};
+
+      translated[ locale ].name = name.text;
+
+      if( name.autoTranslate === true )
+        translator.add( "name", name.text, locale, name.toLocales );
+    }
+
+    if( tagline ){
+      const locale = tagline.locale;
+
+      if( translated[ locale ] === undefined )
+        translated[ locale ] = {};
+
+      translated[ locale ].tagline = tagline.text;
+
+      if( tagline.autoTranslate === true )
+        translator.add( "tagline", tagline.text, locale, tagline.toLocales );
+    }
+
+    if( shortDescription ){
+      const locale = shortDescription.locale;
+
+      if( translated[ locale ] === undefined )
+        translated[ locale ] = {};
+
+      translated[ locale ].shortDescription = shortDescription.text;
+
+      if( shortDescription.autoTranslate === true )
+        translator.add( "shortDescription", shortDescription.text, locale, shortDescription.toLocales );
+    }
+
+    if( fullDescription ){
+      const locale = fullDescription.locale;
+
+      if( translated[ locale ] === undefined )
+        translated[ locale ] = {};
+
+      translated[ locale ].fullDescription = fullDescription.text;
+
+      if( fullDescription.autoTranslate === true )
+        translator.add( "fullDescription", fullDescription.text, locale, fullDescription.toLocales );
+    }
+
+    await translator.translate();
+    translator.transform();
+
+    for( let key in translator.transformed )
+      if( translated[ key ] !== undefined )
+        translated[ key ] = { ...translated[ key ], ...translator.transformed[ key ] };
+      else
+        translated[ key ] = translator.transformed[ key ];
+
+    for( let key in translated )
+      promises.push( this.saveOrUpdateActionsTranslates( transaction, id, key, translated[ key ] ) );
+
+    await Promise.all( promises );
+    await transaction.end();
 
     return super.success();
   }

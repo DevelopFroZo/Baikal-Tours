@@ -1,3 +1,5 @@
+"use strict";
+
 import Foundation from "./helpers/foundation";
 import crypto from "crypto";
 import saltNHash from "./helpers/saltNHash";
