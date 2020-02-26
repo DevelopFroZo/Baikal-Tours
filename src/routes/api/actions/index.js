@@ -39,9 +39,6 @@ export async function get( req, res ){
     else if( dateEnd === "" )
       return res.error( 7 );
 
-    if( search )
-      search = `%${decodeURIComponent( search )}%`;
-
     if( priceMin < 0 || priceMax < 0 )
       return res.error( 8 );
 

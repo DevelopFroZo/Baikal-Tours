@@ -1,5 +1,6 @@
 "use strict";
 
+import { transliterate } from "transliteration";
 import Foundation from "./helpers/foundation";
 import Translator from "/helpers/translator/index";
 
@@ -88,10 +89,18 @@ export default class extends Foundation{
 
     // #fix по ключевым словам
     if( search && search !== "" ){
+      search = search.split( "," ).map( item => `%${item}%` );
+
       filters.push(
-        `( ae.name || ' ' ||
-        ae.full_description ) ilike $${i++}`
+        `(
+          coalesce( ae.title, '' ) ||
+          ae.name ||
+          ae.tagline ||
+          ae.short_description ||
+          ae.full_description
+        ) ilike any( $${i++}::character varying[] )`
       );
+
       params.push( search );
     }
 
@@ -115,7 +124,7 @@ export default class extends Foundation{
     const rows = ( await super.query(
       `with actions_extended as (
         select
-          a.id, a.status, a.is_favorite, at.locale, at.name, at.full_description, a.price_min, a.price_max,
+          a.id, a.status, a.is_favorite, at.locale, at.title, at.name, at.tagline, at.short_description, at.full_description, a.price_min, a.price_max,
           array_agg( l.id ) as locations_ids,
           array_agg( l.name ) as locations
         from
@@ -130,7 +139,7 @@ export default class extends Foundation{
           l.locale = at.locale and
           a.id = al.action_id and
           al.location_id = l.id
-        group by a.id, a.status, a.is_favorite, at.locale, at.name, at.full_description, a.price_min, a.price_max
+        group by a.id, a.status, a.is_favorite, at.locale, at.title, at.name, at.tagline, at.short_description, at.full_description, a.price_min, a.price_max
       )
       select
         tmp.*,
@@ -186,6 +195,7 @@ export default class extends Foundation{
   async getOne( isAdmin, id, locale, getSubscribers ){
     const status = isAdmin ? "" : "a.status = 'active' and";
     const transaction = await super.transaction();
+
     const main = ( await transaction.query(
       `select
         a.*,
@@ -266,7 +276,7 @@ export default class extends Foundation{
 
     if( getSubscribers ){
       main.subscribers = ( await transaction.query(
-        `select u.name, u.surname, u.phone, u.email, u.image_path
+        `select u.name, u.surname, u.phone, u.email, u.image_path, u.is_admin
         from
           actions_subscribers as asu,
           users as u
@@ -299,63 +309,6 @@ export default class extends Foundation{
     return result !== undefined ? result : null;
   }
 
-  async saveOrUpdateActionsTranslates( client, actionId, locale, {
-    title, name, tagline, shortDescription,
-    fullDescription, organizerName, contactFaces
-  } ){
-    let values = [ "$1", "$2" ];
-    let sets = [];
-    let params = [ actionId, locale ];
-    let i = 3;
-
-    if( title ){
-      values.push( `$${i++}` );
-      sets.push( `title = excluded.title` );
-      params.push( title );
-    }
-    else values.push( "null" );
-
-    if( name ){
-      values.push( `$${i++}` );
-      sets.push( `name = excluded.name` );
-      params.push( name );
-    }
-    else values.push( "''" );
-
-    if( tagline ){
-      values.push( `$${i++}` );
-      sets.push( `tagline = excluded.tagline` );
-      params.push( tagline );
-    }
-    else values.push( "''" );
-
-    if( shortDescription ){
-      values.push( `$${i++}` );
-      sets.push( `short_description = excluded.short_description` );
-      params.push( shortDescription );
-    }
-    else values.push( "''" );
-
-    if( fullDescription ){
-      values.push( `$${i++}` );
-      sets.push( `full_description = excluded.full_description` );
-      params.push( fullDescription );
-    }
-    else values.push( "''" );
-
-    values.push( "''" );
-    values = values.join( "," );
-    sets = sets.join( "," );
-
-    await client.query(
-      `insert into actions_translates( action_id, locale, title, name, tagline, short_description, full_description, organizer_name )
-      values( ${values} )
-      on conflict ( action_id, locale ) do update
-      set ${sets}`,
-      params
-    );
-  }
-
   async edit( id, {
     status, priceMin, priceMax, organizerId,
     sitePaymant, organizerPayment, emails, phones,
@@ -377,12 +330,12 @@ export default class extends Foundation{
       params.push( status );
     }
 
-    if( priceMin ){
+    if( typeof priceMin === "number" ){
       set.push( `price_min = $${sc++}` );
       params.push( priceMin );
     }
 
-    if( priceMax ){
+    if( typeof priceMax === "number" ){
       set.push( `price_max = $${sc++}` );
       params.push( priceMax );
     }
@@ -513,6 +466,46 @@ export default class extends Foundation{
         translator.add( "fullDescription", fullDescription.text, locale, fullDescription.toLocales );
     }
 
+    if( organizerName ){
+      const locale = organizerName.locale;
+
+      if( translated[ locale ] === undefined )
+        translated[ locale ] = {};
+
+      translated[ locale ].organizerName = organizerName.text;
+
+      if( organizerName.autoTranslate === true ){
+        const translited = transliterate( organizerName.text );
+
+        organizerName.toLocales.forEach( toLocale => {
+          if( translated[ toLocale ] === undefined )
+            translated[ toLocale ] = {};
+
+          translated[ toLocale ].organizerName = translited;
+        } );
+      }
+    }
+
+    if( contactFaces ){
+      const locale = contactFaces.locale;
+
+      if( translated[ locale ] === undefined )
+        translated[ locale ] = {};
+
+      translated[ locale ].contactFaces = contactFaces.source;
+
+      if( contactFaces.autoTranslate === true ){
+        const translited = contactFaces.source.map( contactFace => transliterate( contactFace ) );
+
+        contactFaces.toLocales.forEach( toLocale => {
+          if( translated[ toLocale ] === undefined )
+            translated[ toLocale ] = {};
+
+          translated[ toLocale ].contactFaces = translited;
+        } );
+      }
+    }
+
     await translator.translate();
     translator.transform();
 
@@ -523,7 +516,7 @@ export default class extends Foundation{
         translated[ key ] = translator.transformed[ key ];
 
     for( let key in translated )
-      promises.push( this.saveOrUpdateActionsTranslates( transaction, id, key, translated[ key ] ) );
+      promises.push( this.modules.actionsTranslates.saveOrUpdate( transaction, id, key, translated[ key ] ) );
 
     await Promise.all( promises );
     await transaction.end();
