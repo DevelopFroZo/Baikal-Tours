@@ -281,11 +281,19 @@ export default class extends Foundation{
           actions_subscribers as asu,
           users as u
         where
-          asu.user_id = u.id`
+          action_id = $1 and
+          asu.user_id = u.id`,
+        [ id ]
       ) ).rows;
     }
 
     await transaction.end();
+
+    if( locale !== "ru" ) main.locations = main.locations.map( location => {
+      if( location.address ) location.address = transliterate( location.address );
+
+      return location;
+    } );
 
     return super.success( 0, main );
   }
@@ -406,6 +414,7 @@ export default class extends Foundation{
       );
     }
 
+    // #fix move to "actionsTranslates.js" EDIT operations
     if( title ){
       const locale = title.locale;
 
