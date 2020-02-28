@@ -23,5 +23,4 @@ export default ( server ) => {
 
   server.post( "/api/actions", mustAdminAPI );
   server.put( "/api/actions/:id", mustAdminAPI );
-  server.delete( "/api/actions/:id", mustAdminAPI );
 };

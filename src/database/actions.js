@@ -318,12 +318,12 @@ export default class extends Foundation{
   }
 
   async edit( id, {
-    status, priceMin, priceMax, organizerId,
-    sitePaymant, organizerPayment, emails, phones,
-    websites, vkLink, facebookLink, instagramLink,
-    twitterLink, isFavorite, title, name, tagline,
-    shortDescription, fullDescription,
-    organizerName, contactFaces
+    status, price_min, price_max, organizer_id,
+    site_paymant, organizer_payment, emails, phones,
+    websites, vk_link, facebook_link, instagram_link,
+    twitter_link, is_favorite, title, name, tagline,
+    short_description, full_description,
+    organizer_name, contact_faces
   } ){
     let set = [];
     const params = [ id ];
@@ -338,29 +338,29 @@ export default class extends Foundation{
       params.push( status );
     }
 
-    if( typeof priceMin === "number" ){
+    if( typeof price_min === "number" ){
       set.push( `price_min = $${sc++}` );
-      params.push( priceMin );
+      params.push( price_min );
     }
 
-    if( typeof priceMax === "number" ){
+    if( typeof price_max === "number" ){
       set.push( `price_max = $${sc++}` );
-      params.push( priceMax );
+      params.push( price_max );
     }
 
-    if( organizerId === null || typeof organizerId === "number" ){
+    if( organizer_id === null || typeof organizer_id === "number" ){
       set.push( `organizer_id = $${sc++}` );
-      params.push( organizerId );
+      params.push( organizer_id );
     }
 
-    if( typeof sitePaymant === "boolean" ){
+    if( typeof site_paymant === "boolean" ){
       set.push( `site_payment = $${sc++}` );
-      params.push( sitePaymant );
+      params.push( site_paymant );
     }
 
-    if( organizerPayment !== undefined && organizerPayment !== "" ){
+    if( organizer_payment !== undefined && organizer_payment !== "" ){
       set.push( `organizer_payment = $${sc++}` );
-      params.push( organizerPayment );
+      params.push( organizer_payment );
     }
 
     if( emails === null || Array.isArray( emails ) ){
@@ -378,29 +378,29 @@ export default class extends Foundation{
       params.push( websites );
     }
 
-    if( vkLink === null || vkLink ){
+    if( vk_link === null || vk_link ){
       set.push( `vk_link = $${sc++}` );
-      params.push( vkLink );
+      params.push( vk_link );
     }
 
-    if( facebookLink === null || facebookLink ){
+    if( facebook_link === null || facebook_link ){
       set.push( `facebook_link = $${sc++}` );
-      params.push( facebookLink );
+      params.push( facebook_link );
     }
 
-    if( instagramLink === null || instagramLink ){
+    if( instagram_link === null || instagram_link ){
       set.push( `instagram_link = $${sc++}` );
-      params.push( instagramLink );
+      params.push( instagram_link );
     }
 
-    if( twitterLink === null || twitterLink ){
+    if( twitter_link === null || twitter_link ){
       set.push( `twitter_link = $${sc++}` );
-      params.push( twitterLink );
+      params.push( twitter_link );
     }
 
-    if( typeof isFavorite === "boolean" ){
+    if( typeof is_favorite === "boolean" ){
       set.push( `is_favorite = $${sc++}` );
-      params.push( isFavorite );
+      params.push( is_favorite );
     }
 
     if( set.length > 0 ){
@@ -451,66 +451,66 @@ export default class extends Foundation{
         translator.add( "tagline", tagline.text, locale, tagline.toLocales );
     }
 
-    if( shortDescription ){
-      const locale = shortDescription.locale;
+    if( short_description ){
+      const locale = short_description.locale;
 
       if( translated[ locale ] === undefined )
         translated[ locale ] = {};
 
-      translated[ locale ].shortDescription = shortDescription.text;
+      translated[ locale ].short_description = short_description.text;
 
-      if( shortDescription.autoTranslate === true )
-        translator.add( "shortDescription", shortDescription.text, locale, shortDescription.toLocales );
+      if( short_description.autoTranslate === true )
+        translator.add( "short_description", short_description.text, locale, short_description.toLocales );
     }
 
-    if( fullDescription ){
-      const locale = fullDescription.locale;
+    if( full_description ){
+      const locale = full_description.locale;
 
       if( translated[ locale ] === undefined )
         translated[ locale ] = {};
 
-      translated[ locale ].fullDescription = fullDescription.text;
+      translated[ locale ].full_description = full_description.text;
 
-      if( fullDescription.autoTranslate === true )
-        translator.add( "fullDescription", fullDescription.text, locale, fullDescription.toLocales );
+      if( full_description.autoTranslate === true )
+        translator.add( "full_description", full_description.text, locale, full_description.toLocales );
     }
 
-    if( organizerName ){
-      const locale = organizerName.locale;
+    if( organizer_name ){
+      const locale = organizer_name.locale;
 
       if( translated[ locale ] === undefined )
         translated[ locale ] = {};
 
-      translated[ locale ].organizerName = organizerName.text;
+      translated[ locale ].organizer_name = organizer_name.text;
 
-      if( organizerName.autoTranslate === true ){
-        const translited = transliterate( organizerName.text );
+      if( organizer_name.autoTranslate === true ){
+        const translited = transliterate( organizer_name.text );
 
-        organizerName.toLocales.forEach( toLocale => {
+        organizer_name.toLocales.forEach( toLocale => {
           if( translated[ toLocale ] === undefined )
             translated[ toLocale ] = {};
 
-          translated[ toLocale ].organizerName = translited;
+          translated[ toLocale ].organizer_name = translited;
         } );
       }
     }
 
-    if( contactFaces ){
-      const locale = contactFaces.locale;
+    if( contact_faces ){
+      const locale = contact_faces.locale;
 
       if( translated[ locale ] === undefined )
         translated[ locale ] = {};
 
-      translated[ locale ].contactFaces = contactFaces.source;
+      translated[ locale ].contact_faces = contact_faces.source;
 
-      if( contactFaces.autoTranslate === true ){
-        const translited = contactFaces.source.map( contactFace => transliterate( contactFace ) );
+      if( contact_faces.autoTranslate === true ){
+        const translited = contact_faces.source.map( contactFace => transliterate( contactFace ) );
 
-        contactFaces.toLocales.forEach( toLocale => {
+        contact_faces.toLocales.forEach( toLocale => {
           if( translated[ toLocale ] === undefined )
             translated[ toLocale ] = {};
 
-          translated[ toLocale ].contactFaces = translited;
+          translated[ toLocale ].contact_faces = translited;
         } );
       }
     }

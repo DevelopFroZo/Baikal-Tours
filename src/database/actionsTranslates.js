@@ -6,8 +6,8 @@ export default class extends Foundation{
   }
 
   async saveOrUpdate( client, actionId, locale, {
-    title, name, tagline, shortDescription,
-    fullDescription, organizerName, contactFaces
+    title, name, tagline, short_description,
+    full_description, organizer_name, contact_faces
   } ){
     let values = [ "$1", "$2" ];
     let sets = [];
@@ -35,31 +35,31 @@ export default class extends Foundation{
     }
     else values.push( "''" );
 
-    if( shortDescription ){
+    if( short_description ){
       values.push( `$${i++}` );
       sets.push( `short_description = excluded.short_description` );
-      params.push( shortDescription );
+      params.push( short_description );
     }
     else values.push( "''" );
 
-    if( fullDescription ){
+    if( full_description ){
       values.push( `$${i++}` );
       sets.push( `full_description = excluded.full_description` );
-      params.push( fullDescription );
+      params.push( full_description );
     }
     else values.push( "''" );
 
-    if( organizerName ){
+    if( organizer_name ){
       values.push( `$${i++}` );
       sets.push( `organizer_name = excluded.organizer_name` );
-      params.push( organizerName );
+      params.push( organizer_name );
     }
     else values.push( "''" );
 
-    if( contactFaces ){
+    if( contact_faces ){
       values.push( `$${i++}` );
       sets.push( `contact_faces = excluded.contact_faces` );
-      params.push( contactFaces );
+      params.push( contact_faces );
     }
     else values.push( "null" );
 
