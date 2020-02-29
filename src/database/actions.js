@@ -223,13 +223,6 @@ export default class extends Foundation{
     delete main.locale;
     delete main.action_id;
 
-    main.images = ( await transaction.query(
-      `select id, image_url, is_main
-      from action_images
-      where action_id = $1`,
-      [ id ]
-    ) ).rows;
-
     main.dates = ( await transaction.query(
       `select id, date_start, date_end, time_start, time_end, days
       from action_dates
@@ -237,7 +230,25 @@ export default class extends Foundation{
       [ id ]
     ) ).rows;
 
-    // #fix локаль для адреса локации
+    main.images = ( await transaction.query(
+      `select id, image_url, is_main
+      from action_images
+      where action_id = $1`,
+      [ id ]
+    ) ).rows;
+
+    main.companions = ( await transaction.query(
+      `select c.id, c.name
+      from
+        actions_companions as ac,
+        companions as c
+      where
+        ac.action_id = $1 and
+        c.locale = $2 and
+        c.id = ac.companion_id`,
+      [ id, locale ]
+    ) ).rows;
+
     main.locations = ( await transaction.query(
       `select l.id, l.name, al.address
       from
@@ -250,18 +261,6 @@ export default class extends Foundation{
       [ id, locale ]
     ) ).rows;
 
-    main.transfers = ( await transaction.query(
-      `select t.id, t.name
-      from
-        actions_transfers as at,
-        transfers as t
-      where
-        at.action_id = $1 and
-        t.locale = $2 and
-        t.id = at.transfer_id`,
-      [ id, locale ]
-    ) ).rows;
-
     main.subjects = ( await transaction.query(
       `select s.id, s.name
       from
@@ -271,6 +270,18 @@ export default class extends Foundation{
         acsu.action_id = $1 and
         s.locale = $2 and
         s.id = acsu.subject_id`,
+      [ id, locale ]
+    ) ).rows;
+
+    main.transfers = ( await transaction.query(
+      `select t.id, t.name
+      from
+        actions_transfers as at,
+        transfers as t
+      where
+        at.action_id = $1 and
+        t.locale = $2 and
+        t.id = at.transfer_id`,
       [ id, locale ]
     ) ).rows;
 
