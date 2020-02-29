@@ -1,5 +1,6 @@
 "use strict";
 
+import { transliterate } from "transliteration";
 import Foundation from "./helpers/foundation";
 import Translator from "/helpers/translator/index";
 
@@ -88,10 +89,18 @@ export default class extends Foundation{
 
     // #fix по ключевым словам
     if( search && search !== "" ){
+      search = search.split( "," ).map( item => `%${item}%` );
+
       filters.push(
-        `( ae.name || ' ' ||
-        ae.full_description ) ilike $${i++}`
+        `(
+          coalesce( ae.title, '' ) ||
+          ae.name ||
+          ae.tagline ||
+          ae.short_description ||
+          ae.full_description
+        ) ilike any( $${i++}::character varying[] )`
       );
+
       params.push( search );
     }
 
@@ -115,7 +124,7 @@ export default class extends Foundation{
     const rows = ( await super.query(
       `with actions_extended as (
         select
-          a.id, a.status, a.is_favorite, at.locale, at.name, at.full_description, a.price_min, a.price_max,
+          a.id, a.status, a.is_favorite, at.locale, at.title, at.name, at.tagline, at.short_description, at.full_description, a.price_min, a.price_max,
           array_agg( l.id ) as locations_ids,
           array_agg( l.name ) as locations
         from
@@ -130,7 +139,7 @@ export default class extends Foundation{
           l.locale = at.locale and
           a.id = al.action_id and
           al.location_id = l.id
-        group by a.id, a.status, a.is_favorite, at.locale, at.name, at.full_description, a.price_min, a.price_max
+        group by a.id, a.status, a.is_favorite, at.locale, at.title, at.name, at.tagline, at.short_description, at.full_description, a.price_min, a.price_max
       )
       select
         tmp.*,
@@ -186,6 +195,7 @@ export default class extends Foundation{
   async getOne( isAdmin, id, locale, getSubscribers ){
     const status = isAdmin ? "" : "a.status = 'active' and";
     const transaction = await super.transaction();
+
     const main = ( await transaction.query(
       `select
         a.*,
@@ -266,16 +276,24 @@ export default class extends Foundation{
 
     if( getSubscribers ){
       main.subscribers = ( await transaction.query(
-        `select u.name, u.surname, u.phone, u.email, u.image_path
+        `select u.name, u.surname, u.phone, u.email, u.image_path, u.is_admin
         from
           actions_subscribers as asu,
           users as u
         where
-          asu.user_id = u.id`
+          action_id = $1 and
+          asu.user_id = u.id`,
+        [ id ]
       ) ).rows;
     }
 
     await transaction.end();
+
+    if( locale !== "ru" ) main.locations = main.locations.map( location => {
+      if( location.address ) location.address = transliterate( location.address );
+
+      return location;
+    } );
 
     return super.success( 0, main );
   }
@@ -299,70 +317,13 @@ export default class extends Foundation{
     return result !== undefined ? result : null;
   }
 
-  async saveOrUpdateActionsTranslates( client, actionId, locale, {
-    title, name, tagline, shortDescription,
-    fullDescription, organizerName, contactFaces
-  } ){
-    let values = [ "$1", "$2" ];
-    let sets = [];
-    let params = [ actionId, locale ];
-    let i = 3;
-
-    if( title ){
-      values.push( `$${i++}` );
-      sets.push( `title = excluded.title` );
-      params.push( title );
-    }
-    else values.push( "null" );
-
-    if( name ){
-      values.push( `$${i++}` );
-      sets.push( `name = excluded.name` );
-      params.push( name );
-    }
-    else values.push( "''" );
-
-    if( tagline ){
-      values.push( `$${i++}` );
-      sets.push( `tagline = excluded.tagline` );
-      params.push( tagline );
-    }
-    else values.push( "''" );
-
-    if( shortDescription ){
-      values.push( `$${i++}` );
-      sets.push( `short_description = excluded.short_description` );
-      params.push( shortDescription );
-    }
-    else values.push( "''" );
-
-    if( fullDescription ){
-      values.push( `$${i++}` );
-      sets.push( `full_description = excluded.full_description` );
-      params.push( fullDescription );
-    }
-    else values.push( "''" );
-
-    values.push( "''" );
-    values = values.join( "," );
-    sets = sets.join( "," );
-
-    await client.query(
-      `insert into actions_translates( action_id, locale, title, name, tagline, short_description, full_description, organizer_name )
-      values( ${values} )
-      on conflict ( action_id, locale ) do update
-      set ${sets}`,
-      params
-    );
-  }
-
   async edit( id, {
-    status, priceMin, priceMax, organizerId,
-    sitePaymant, organizerPayment, emails, phones,
-    websites, vkLink, facebookLink, instagramLink,
-    twitterLink, isFavorite, title, name, tagline,
-    shortDescription, fullDescription,
-    organizerName, contactFaces
+    status, price_min, price_max, organizer_id,
+    site_paymant, organizer_payment, emails, phones,
+    websites, vk_link, facebook_link, instagram_link,
+    twitter_link, is_favorite, title, name, tagline,
+    short_description, full_description,
+    organizer_name, contact_faces
   } ){
     let set = [];
     const params = [ id ];
@@ -377,29 +338,29 @@ export default class extends Foundation{
       params.push( status );
     }
 
-    if( priceMin ){
+    if( typeof price_min === "number" ){
       set.push( `price_min = $${sc++}` );
-      params.push( priceMin );
+      params.push( price_min );
     }
 
-    if( priceMax ){
+    if( typeof price_max === "number" ){
       set.push( `price_max = $${sc++}` );
-      params.push( priceMax );
+      params.push( price_max );
     }
 
-    if( organizerId === null || typeof organizerId === "number" ){
+    if( organizer_id === null || typeof organizer_id === "number" ){
       set.push( `organizer_id = $${sc++}` );
-      params.push( organizerId );
+      params.push( organizer_id );
     }
 
-    if( typeof sitePaymant === "boolean" ){
+    if( typeof site_paymant === "boolean" ){
       set.push( `site_payment = $${sc++}` );
-      params.push( sitePaymant );
+      params.push( site_paymant );
     }
 
-    if( organizerPayment !== undefined && organizerPayment !== "" ){
+    if( organizer_payment !== undefined && organizer_payment !== "" ){
       set.push( `organizer_payment = $${sc++}` );
-      params.push( organizerPayment );
+      params.push( organizer_payment );
     }
 
     if( emails === null || Array.isArray( emails ) ){
@@ -417,29 +378,29 @@ export default class extends Foundation{
       params.push( websites );
     }
 
-    if( vkLink === null || vkLink ){
+    if( vk_link === null || vk_link ){
       set.push( `vk_link = $${sc++}` );
-      params.push( vkLink );
+      params.push( vk_link );
     }
 
-    if( facebookLink === null || facebookLink ){
+    if( facebook_link === null || facebook_link ){
       set.push( `facebook_link = $${sc++}` );
-      params.push( facebookLink );
+      params.push( facebook_link );
     }
 
-    if( instagramLink === null || instagramLink ){
+    if( instagram_link === null || instagram_link ){
       set.push( `instagram_link = $${sc++}` );
-      params.push( instagramLink );
+      params.push( instagram_link );
     }
 
-    if( twitterLink === null || twitterLink ){
+    if( twitter_link === null || twitter_link ){
       set.push( `twitter_link = $${sc++}` );
-      params.push( twitterLink );
+      params.push( twitter_link );
     }
 
-    if( typeof isFavorite === "boolean" ){
+    if( typeof is_favorite === "boolean" ){
       set.push( `is_favorite = $${sc++}` );
-      params.push( isFavorite );
+      params.push( is_favorite );
     }
 
     if( set.length > 0 ){
@@ -453,6 +414,7 @@ export default class extends Foundation{
       );
     }
 
+    // #fix move to "actionsTranslates.js" EDIT operations
     if( title ){
       const locale = title.locale;
 
@@ -489,28 +451,68 @@ export default class extends Foundation{
         translator.add( "tagline", tagline.text, locale, tagline.toLocales );
     }
 
-    if( shortDescription ){
-      const locale = shortDescription.locale;
+    if( short_description ){
+      const locale = short_description.locale;
 
       if( translated[ locale ] === undefined )
         translated[ locale ] = {};
 
-      translated[ locale ].shortDescription = shortDescription.text;
+      translated[ locale ].short_description = short_description.text;
 
-      if( shortDescription.autoTranslate === true )
-        translator.add( "shortDescription", shortDescription.text, locale, shortDescription.toLocales );
+      if( short_description.autoTranslate === true )
+        translator.add( "short_description", short_description.text, locale, short_description.toLocales );
     }
 
-    if( fullDescription ){
-      const locale = fullDescription.locale;
+    if( full_description ){
+      const locale = full_description.locale;
 
       if( translated[ locale ] === undefined )
         translated[ locale ] = {};
 
-      translated[ locale ].fullDescription = fullDescription.text;
+      translated[ locale ].full_description = full_description.text;
 
-      if( fullDescription.autoTranslate === true )
-        translator.add( "fullDescription", fullDescription.text, locale, fullDescription.toLocales );
+      if( full_description.autoTranslate === true )
+        translator.add( "full_description", full_description.text, locale, full_description.toLocales );
+    }
+
+    if( organizer_name ){
+      const locale = organizer_name.locale;
+
+      if( translated[ locale ] === undefined )
+        translated[ locale ] = {};
+
+      translated[ locale ].organizer_name = organizer_name.text;
+
+      if( organizer_name.autoTranslate === true ){
+        const translited = transliterate( organizer_name.text );
+
+        organizer_name.toLocales.forEach( toLocale => {
+          if( translated[ toLocale ] === undefined )
+            translated[ toLocale ] = {};
+
+          translated[ toLocale ].organizer_name = translited;
+        } );
+      }
+    }
+
+    if( contact_faces ){
+      const locale = contact_faces.locale;
+
+      if( translated[ locale ] === undefined )
+        translated[ locale ] = {};
+
+      translated[ locale ].contact_faces = contact_faces.source;
+
+      if( contact_faces.autoTranslate === true ){
+        const translited = contact_faces.source.map( contactFace => transliterate( contactFace ) );
+
+        contact_faces.toLocales.forEach( toLocale => {
+          if( translated[ toLocale ] === undefined )
+            translated[ toLocale ] = {};
+
+          translated[ toLocale ].contact_faces = translited;
+        } );
+      }
     }
 
     await translator.translate();
@@ -523,7 +525,7 @@ export default class extends Foundation{
         translated[ key ] = translator.transformed[ key ];
 
     for( let key in translated )
-      promises.push( this.saveOrUpdateActionsTranslates( transaction, id, key, translated[ key ] ) );
+      promises.push( this.modules.actionsTranslates.saveOrUpdate( transaction, id, key, translated[ key ] ) );
 
     await Promise.all( promises );
     await transaction.end();

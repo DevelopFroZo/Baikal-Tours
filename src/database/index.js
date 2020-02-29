@@ -14,6 +14,7 @@ import Companions from "./companions";
 import Subjects from "./subjects";
 import DataForFilters from "./dataForFilters";
 import Users from "./users";
+import ActionsTranslates from "./actionsTranslates";
 
 // Main pool
 modules.pool = new pg.Pool( !dev ? config.production : config.development );
@@ -26,6 +27,7 @@ modules.companions = new Companions( modules );
 modules.subjects = new Subjects( modules );
 modules.dataForFilters = new DataForFilters( modules );
 modules.users = new Users( modules );
+modules.actionsTranslates = new ActionsTranslates( modules );
 
 // #fix вынести на глобальный уровень
 // Success & error functions

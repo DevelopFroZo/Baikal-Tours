@@ -6,7 +6,7 @@ import saltNHash from "./helpers/saltNHash";
 
 export default class extends Foundation{
   constructor( modules ){
-    super( modules, "Register" );
+    super( modules, "Auth" );
   }
 
   createPassword(){
