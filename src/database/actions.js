@@ -426,8 +426,6 @@ export default class extends Foundation{
       );
     }
 
-    console.log( "Main info added" );
-
     // #fix move to "actionsTranslates.js" EDIT operations
     if( title ){
       const locale = title.locale;
@@ -529,9 +527,7 @@ export default class extends Foundation{
       }
     }
 
-    console.log( "Translate..." );
     await translator.translate();
-    console.log( "Translated" );
     translator.transform();
 
     for( let key in translator.transformed )
@@ -540,11 +536,9 @@ export default class extends Foundation{
       else
         translated[ key ] = translator.transformed[ key ];
 
-    console.log( "Save translated" );
     for( let key in translated )
       promises.push( this.modules.actionsTranslates.createOrEdit( transaction, id, key, translated[ key ] ) );
 
-    console.log( "Saved" );
     // Action dates
     if( dates ){
       if( dates.del )
@@ -555,8 +549,6 @@ export default class extends Foundation{
       if( dates.create )
         promises.push( this.modules.actionDates.create( id, dates.create, transaction ) );
     }
-
-    console.log( "Dates handled" );
 
     // Actions companions
     if( companions ){
@@ -569,8 +561,6 @@ export default class extends Foundation{
         promises.push( this.modules.actionsCompanions.create( id, companions.create, transaction ) );
     }
 
-    console.log( "Companions handled" );
-
     // Actions locations
     if( locations ){
       if( locations.del )
@@ -581,8 +571,6 @@ export default class extends Foundation{
       if( locations.create )
         promises.push( this.modules.actionsLocations.create( id, locations.create, transaction ) );
     }
-
-    console.log( "Locations handled" );
 
     // Actions subjects
     if( subjects ){
@@ -595,8 +583,6 @@ export default class extends Foundation{
         promises.push( this.modules.actionsSubjects.create( id, subjects.create, transaction ) );
     }
 
-    console.log( "Subjects handled" );
-
     // Actions transfers
     if( transfers ){
       if( transfers.del )
@@ -607,8 +593,6 @@ export default class extends Foundation{
       if( transfers.create )
         promises.push( this.modules.actionsTransfers.create( id, transfers.create, transaction ) );
     }
-
-    console.log( "Transfers handled" );
 
     await Promise.all( promises );
     await transaction.end();
