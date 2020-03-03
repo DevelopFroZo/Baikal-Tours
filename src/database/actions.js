@@ -9,6 +9,16 @@ export default class extends Foundation{
     super( modules, "Actions" );
   }
 
+  async createEmpty(){
+    const id = ( await super.query(
+      `insert into actions( price_min, price_max, site_payment, is_favorite )
+      values( 0, 0, false, false )
+      returning id`
+    ) ).rows[0].id;
+
+    return super.success( 0, id );
+  }
+
   async getAll( allStatuses, locale, count, offset ){
     const status = allStatuses ? "" : "a.status = 'active' and";
     const limit = count && count > 0 ? `limit ${count}` : "";
@@ -330,11 +340,12 @@ export default class extends Foundation{
 
   async edit( id, {
     status, price_min, price_max, organizer_id,
-    site_paymant, organizer_payment, emails, phones,
+    site_payment, organizer_payment, emails, phones,
     websites, vk_link, facebook_link, instagram_link,
     twitter_link, is_favorite, title, name, tagline,
     short_description, full_description,
-    organizer_name, contact_faces
+    organizer_name, contact_faces, dates, companions,
+    locations, subjects, transfers
   } ){
     let set = [];
     const params = [ id ];
@@ -364,9 +375,9 @@ export default class extends Foundation{
       params.push( organizer_id );
     }
 
-    if( typeof site_paymant === "boolean" ){
+    if( typeof site_payment === "boolean" ){
       set.push( `site_payment = $${sc++}` );
-      params.push( site_paymant );
+      params.push( site_payment );
     }
 
     if( organizer_payment !== undefined && organizer_payment !== "" ){
@@ -536,7 +547,62 @@ export default class extends Foundation{
         translated[ key ] = translator.transformed[ key ];
 
     for( let key in translated )
-      promises.push( this.modules.actionsTranslates.saveOrUpdate( transaction, id, key, translated[ key ] ) );
+      promises.push( this.modules.actionsTranslates.createOrEdit( transaction, id, key, translated[ key ] ) );
+
+    // Action dates
+    if( dates ){
+      if( dates.del )
+        promises.push( this.modules.actionDates.del( dates.del, transaction ) );
+      if( dates.edit )
+        for( let item of dates.edit )
+          promises.push( this.modules.actionDates.edit( item.id, item, transaction ) );
+      if( dates.create )
+        promises.push( this.modules.actionDates.create( id, dates.create, transaction ) );
+    }
+
+    // Actions companions
+    if( companions ){
+      if( companions.del )
+        promises.push( this.modules.actionsCompanions.del( id, companions.del, transaction ) );
+      if( companions.edit )
+        for( let item of companions.edit )
+          promises.push( this.modules.actionsCompanions.edit( id, item.oldCompanionId, item.newCompanionId, transaction ) );
+      if( companions.create )
+        promises.push( this.modules.actionsCompanions.create( id, companions.create, transaction ) );
+    }
+
+    // Actions locations
+    if( locations ){
+      if( locations.del )
+        promises.push( this.modules.actionsLocations.del( id, locations.del, transaction ) );
+      if( locations.edit )
+        for( let item of locations.edit )
+          promises.push( this.modules.actionsLocations.edit( id, item, transaction ) );
+      if( locations.create )
+        promises.push( this.modules.actionsLocations.create( id, locations.create, transaction ) );
+    }
+
+    // Actions subjects
+    if( subjects ){
+      if( subjects.del )
+        promises.push( this.modules.actionsSubjects.del( id, subjects.del, transaction ) );
+      if( subjects.edit )
+        for( let item of subjects.edit )
+          promises.push( this.modules.actionsSubjects.edit( id, item.oldSubjectId, item.newSubjectId, transaction ) );
+      if( subjects.create )
+        promises.push( this.modules.actionsSubjects.create( id, subjects.create, transaction ) );
+    }
+
+    // Actions transfers
+    if( transfers ){
+      if( transfers.del )
+        promises.push( this.modules.actionsTransfers.del( id, transfers.del, transaction ) );
+      if( transfers.edit )
+        for( let item of transfers.edit )
+          promises.push( this.modules.actionsTransfers.edit( id, item.oldTransferId, item.newTransferId, transaction ) );
+      if( transfers.create )
+        promises.push( this.modules.actionsTransfers.create( id, transfers.create, transaction ) );
+    }
 
     await Promise.all( promises );
     await transaction.end();

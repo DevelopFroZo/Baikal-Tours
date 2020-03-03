@@ -5,7 +5,7 @@ export default class extends Foundation{
     super( modules, "Actions Translates" );
   }
 
-  async saveOrUpdate( client, actionId, locale, {
+  async createOrEdit( client, actionId, locale, {
     title, name, tagline, short_description,
     full_description, organizer_name, contact_faces
   } ){

@@ -18,7 +18,6 @@ export async function get( req, res ){
     if( req.query.getSubscribers !== undefined ) getSubscribers = true;
   }
 
-  // #fix локаль для адреса локации
   res.json( await req.database.actions.getOne( isAdmin, id, locale, getSubscribers ) );
 }
 

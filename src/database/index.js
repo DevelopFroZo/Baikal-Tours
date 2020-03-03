@@ -15,6 +15,12 @@ import Subjects from "./subjects";
 import DataForFilters from "./dataForFilters";
 import Users from "./users";
 import ActionsTranslates from "./actionsTranslates";
+import ActionDates from "./actionDates";
+import ActionImages from "./actionImages";
+import ActionsCompanions from "./actionsCompanions";
+import ActionsLocations from "./actionsLocations";
+import ActionsSubjects from "./actionsSubjects";
+import ActionsTransfers from "./actionsTransfers";
 
 // Main pool
 modules.pool = new pg.Pool( !dev ? config.production : config.development );
@@ -28,6 +34,12 @@ modules.subjects = new Subjects( modules );
 modules.dataForFilters = new DataForFilters( modules );
 modules.users = new Users( modules );
 modules.actionsTranslates = new ActionsTranslates( modules );
+modules.actionDates = new ActionDates( modules );
+modules.actionImages = new ActionImages( modules );
+modules.actionsCompanions = new ActionsCompanions( modules );
+modules.actionsLocations = new ActionsLocations( modules );
+modules.actionsSubjects = new ActionsSubjects( modules );
+modules.actionsTransfers = new ActionsTransfers( modules );
 
 // #fix вынести на глобальный уровень
 // Success & error functions

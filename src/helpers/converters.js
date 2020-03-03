@@ -26,7 +26,12 @@ function toIntArray( st ){
   if( st === undefined || st === "" )
     return null;
 
-  const arr = st.replace( / +/g, "" ).split( "," );
+  let arr;
+
+  if( typeof st === "string" )
+    arr = st.replace( / +/g, "" ).split( "," );
+  else
+    arr = [ ...st ];
 
   for( let i = 0; i < arr.length; i++ ){
     arr[i] = toInt( arr[i] );

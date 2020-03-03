@@ -2,6 +2,10 @@
 
 import { toInt, toIntArray } from "/helpers/converters";
 
+export async function post( req, res ){
+  res.json( await req.database.actions.createEmpty() );
+}
+
 // Errors: 6, 7, 8
 export async function get( req, res ){
   const locale = req.session.locale;
