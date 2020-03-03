@@ -13,28 +13,32 @@ export default class extends Foundation{
     const locations = ( await transaction.query(
       `select id, name
       from locations
-      where locale = $1`,
+      where locale = $1
+      order by id`,
       [ locale ]
     ) ).rows;
 
     const companions = ( await transaction.query(
       `select id, name
       from companions
-      where locale = $1`,
+      where locale = $1
+      order by id`,
       [ locale ]
     ) ).rows;
 
     const subjects = ( await transaction.query(
       `select id, name
       from subjects
-      where locale = $1`,
+      where locale = $1
+      order by id`,
       [ locale ]
     ) ).rows;
 
     const transfers = ( await transaction.query(
       `select id, name
       from transfers
-      where locale = $1`,
+      where locale = $1
+      order by id`,
       [ locale ]
     ) ).rows;
 

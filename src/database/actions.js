@@ -9,6 +9,16 @@ export default class extends Foundation{
     super( modules, "Actions" );
   }
 
+  async createEmpty(){
+    const id = ( await super.query(
+      `insert into actions( price_min, price_max, site_payment, is_favorite )
+      values( 0, 0, false, false )
+      returning id`
+    ) ).rows[0].id;
+
+    return super.success( 0, id );
+  }
+
   async getAll( allStatuses, locale, count, offset ){
     const status = allStatuses ? "" : "a.status = 'active' and";
     const limit = count && count > 0 ? `limit ${count}` : "";
@@ -330,7 +340,7 @@ export default class extends Foundation{
 
   async edit( id, {
     status, price_min, price_max, organizer_id,
-    site_paymant, organizer_payment, emails, phones,
+    site_payment, organizer_payment, emails, phones,
     websites, vk_link, facebook_link, instagram_link,
     twitter_link, is_favorite, title, name, tagline,
     short_description, full_description,
@@ -365,9 +375,9 @@ export default class extends Foundation{
       params.push( organizer_id );
     }
 
-    if( typeof site_paymant === "boolean" ){
+    if( typeof site_payment === "boolean" ){
       set.push( `site_payment = $${sc++}` );
-      params.push( site_paymant );
+      params.push( site_payment );
     }
 
     if( organizer_payment !== undefined && organizer_payment !== "" ){
