@@ -12,9 +12,6 @@ export default class{
     // #fix сделать нормальный способ передавать свой fetch
     if( fetch_ !== undefined )
       this.fetch = fetch_;
-
-
-    // #fix добавить тип FormData
   }
 
   makeUrl( url ){
@@ -52,6 +49,7 @@ export default class{
 
   async send( url, body, options, method ){
     const query = this.makeQuery( options );
+    let response;
 
     url = this.makeUrl( url );
 
@@ -63,14 +61,31 @@ export default class{
     options.method = method;
 
     if( method === "POST" || method === "PUT" ){
-      // #fix переделать на любую другую схему
-      options.headers = {
-        "Content-Type": "application/json"
-      };
-      options.body = JSON.stringify( body );
-    }
+      if( options.bodyType === undefined || options.bodyType === "json" ){
+        options.headers = {
+          "Content-Type": "application/json"
+        };
+        options.body = JSON.stringify( body );
+      }
+      else if( options.bodyType === "formData" ){
+        const body_ = new FormData();
 
-    let response;
+        for( let key in body ){
+          const field = body[ key ];
+
+          if( !field ) continue;
+
+          if( field.length === undefined )
+            body_.append( key, field );
+          else for( let elem of field )
+            body_.append( key, elem );
+        }
+
+        options.body = body_;
+      }
+
+      delete options.bodyType;
+    }
 
     if( this.fetch ) response = await this.fetch( url + query, options );
     else response = await fetch( url + query, options );
@@ -95,7 +110,7 @@ export default class{
     return await this.send( url, body, options, "PUT" );
   }
 
-  async del( url, options ){
+  async delete( url, options ){
     return await this.send( url, null, options, "DELETE" );
   }
 }

@@ -334,7 +334,8 @@ export default class extends Foundation{
     websites, vk_link, facebook_link, instagram_link,
     twitter_link, is_favorite, title, name, tagline,
     short_description, full_description,
-    organizer_name, contact_faces
+    organizer_name, contact_faces, dates, companions,
+    locations, subjects, transfers
   } ){
     let set = [];
     const params = [ id ];
@@ -424,6 +425,8 @@ export default class extends Foundation{
         params
       );
     }
+
+    console.log( "Main info added" );
 
     // #fix move to "actionsTranslates.js" EDIT operations
     if( title ){
@@ -526,7 +529,9 @@ export default class extends Foundation{
       }
     }
 
+    console.log( "Translate..." );
     await translator.translate();
+    console.log( "Translated" );
     translator.transform();
 
     for( let key in translator.transformed )
@@ -535,8 +540,75 @@ export default class extends Foundation{
       else
         translated[ key ] = translator.transformed[ key ];
 
+    console.log( "Save translated" );
     for( let key in translated )
-      promises.push( this.modules.actionsTranslates.saveOrUpdate( transaction, id, key, translated[ key ] ) );
+      promises.push( this.modules.actionsTranslates.createOrEdit( transaction, id, key, translated[ key ] ) );
+
+    console.log( "Saved" );
+    // Action dates
+    if( dates ){
+      if( dates.del )
+        promises.push( this.modules.actionDates.del( dates.del, transaction ) );
+      if( dates.edit )
+        for( let item of dates.edit )
+          promises.push( this.modules.actionDates.edit( item.id, item, transaction ) );
+      if( dates.create )
+        promises.push( this.modules.actionDates.create( id, dates.create, transaction ) );
+    }
+
+    console.log( "Dates handled" );
+
+    // Actions companions
+    if( companions ){
+      if( companions.del )
+        promises.push( this.modules.actionsCompanions.del( id, companions.del, transaction ) );
+      if( companions.edit )
+        for( let item of companions.edit )
+          promises.push( this.modules.actionsCompanions.edit( id, item.oldCompanionId, item.newCompanionId, transaction ) );
+      if( companions.create )
+        promises.push( this.modules.actionsCompanions.create( id, companions.create, transaction ) );
+    }
+
+    console.log( "Companions handled" );
+
+    // Actions locations
+    if( locations ){
+      if( locations.del )
+        promises.push( this.modules.actionsLocations.del( id, locations.del, transaction ) );
+      if( locations.edit )
+        for( let item of locations.edit )
+          promises.push( this.modules.actionsLocations.edit( id, item, transaction ) );
+      if( locations.create )
+        promises.push( this.modules.actionsLocations.create( id, locations.create, transaction ) );
+    }
+
+    console.log( "Locations handled" );
+
+    // Actions subjects
+    if( subjects ){
+      if( subjects.del )
+        promises.push( this.modules.actionsSubjects.del( id, subjects.del, transaction ) );
+      if( subjects.edit )
+        for( let item of subjects.edit )
+          promises.push( this.modules.actionsSubjects.edit( id, item.oldSubjectId, item.newSubjectId, transaction ) );
+      if( subjects.create )
+        promises.push( this.modules.actionsSubjects.create( id, subjects.create, transaction ) );
+    }
+
+    console.log( "Subjects handled" );
+
+    // Actions transfers
+    if( transfers ){
+      if( transfers.del )
+        promises.push( this.modules.actionsTransfers.del( id, transfers.del, transaction ) );
+      if( transfers.edit )
+        for( let item of transfers.edit )
+          promises.push( this.modules.actionsTransfers.edit( id, item.oldTransferId, item.newTransferId, transaction ) );
+      if( transfers.create )
+        promises.push( this.modules.actionsTransfers.create( id, transfers.create, transaction ) );
+    }
+
+    console.log( "Transfers handled" );
 
     await Promise.all( promises );
     await transaction.end();
