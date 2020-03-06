@@ -10,10 +10,9 @@ export async function post( req, res ){
 
   if( !result.ok ) return res.json( result );
 
-  // #fix добавить роль
   req.session.userId = result.data.userId;
   req.session.isLogged = true;
-  req.session.isAdmin = result.data.isAdmin;
+  req.session.role = result.data.role;
 
   res.success();
 }

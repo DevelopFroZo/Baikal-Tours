@@ -20,10 +20,10 @@ export async function post( req, res ){
 }
 
 export async function get( req, res ){
-  const isAdmin = req.session.isAdmin;
+  const role = req.session.role;
   let locale = req.session.locale;
 
-  if( isAdmin && req.body.locale ) locale = req.body.locale;
+  if( role === "admin" && req.body.locale ) locale = req.body.locale;
 
   res.json( await req.database.companions.getAll( locale ) );
 }

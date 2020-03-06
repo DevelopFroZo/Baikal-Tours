@@ -114,7 +114,6 @@ function upperFirst( st ){
   return st[0].toUpperCase() + st.slice( 1, st.length );
 }
 
-// #fix переделать на НОРМАЛЬНУЮ логику
 function dateToString( date, _ ){
   let result = "";
 

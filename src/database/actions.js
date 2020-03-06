@@ -97,7 +97,6 @@ export default class extends Foundation{
       params.push( subjects );
     }
 
-    // #fix по ключевым словам
     if( search && search !== "" ){
       search = search.split( "," ).map( item => `%${item}%` );
 
@@ -202,8 +201,8 @@ export default class extends Foundation{
     return super.success( 0, rows );
   }
 
-  async getOne( isAdmin, id, locale, getSubscribers ){
-    const status = isAdmin ? "" : "a.status = 'active' and";
+  async getOne( allStatuses, id, locale, getSubscribers ){
+    const status = allStatuses ? "" : "a.status = 'active' and";
     const transaction = await super.transaction();
 
     const main = ( await transaction.query(
@@ -297,7 +296,7 @@ export default class extends Foundation{
 
     if( getSubscribers ){
       main.subscribers = ( await transaction.query(
-        `select u.name, u.surname, u.phone, u.email, u.image_path, u.is_admin
+        `select u.name, u.surname, u.phone, u.email, u.image_path, u.role
         from
           actions_subscribers as asu,
           users as u
