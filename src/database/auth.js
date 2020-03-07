@@ -10,7 +10,6 @@ export default class extends Foundation{
   }
 
   createPassword(){
-    // #fix вынести в конфиг env
     const password = crypto.randomBytes( 10 ).toString( "hex" );
     const { hashAndSalt } = saltNHash( password, {
       hashAlgorithm: process.env.HASH_ALGORITHM,
@@ -41,7 +40,7 @@ export default class extends Foundation{
     phoneOrEmail = phoneOrEmail.toLowerCase();
 
     const row = ( await super.query(
-      `select id, is_admin, email, password, password_confirmed
+      `select id, role, email, password, password_confirmed
       from users
       where
         phone = $1 or
@@ -67,7 +66,7 @@ export default class extends Foundation{
 
     return super.success( 0, {
       userId: row.id,
-      isAdmin: row.is_admin
+      role: row.role
     } );
   }
 }

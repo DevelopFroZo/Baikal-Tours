@@ -3,8 +3,8 @@
 const fetch = require( "node-fetch" );
 
 module.exports = class{
-  constructor( apiKey ){
-    this.apiKey = apiKey;
+  constructor( engine ){
+    this.engine = engine;
     this.directions = {};
     this.translated = {};
   }
@@ -42,21 +42,10 @@ module.exports = class{
     let responses;
     let i = 0;
 
-    for( let directionKey in this.directions ){
-      const direction = this.directions[ directionKey ];
-      const texts = direction.sources.join( "&text=" );
-      // #fix кастомный движок перевода
-      const URL =
-        "https://translate.yandex.net/api/v1.5/tr.json/translate" +
-        `?key=${this.apiKey}` +
-        `&lang=${directionKey}` +
-        `&text=${texts}`;
-
-      promises.push( fetch( URL ) );
-    }
+    for( let directionKey in this.directions )
+      promises.push( this.engine( this.directions[ directionKey ].sources, directionKey ) );
 
     responses = await Promise.all( promises );
-    responses = await Promise.all( responses.map( response => response.json() ) );
     i = 0;
 
     for( let direction in this.directions ){

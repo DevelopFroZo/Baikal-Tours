@@ -9,7 +9,7 @@ export async function post( req, res ){
 // Errors: 6, 7, 8
 export async function get( req, res ){
   const locale = req.session.locale;
-  const allStatuses = req.query.allStatuses !== undefined && req.session.isAdmin;
+  const allStatuses = req.query.allStatuses !== undefined && req.session.role === "admin";
   const filter = req.query.filter;
   const count = toInt( req.query.count );
   const offset = toInt( req.query.offset );

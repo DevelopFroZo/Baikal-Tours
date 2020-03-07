@@ -9,7 +9,7 @@ export default class extends Foundation{
 
   async getAll(){
     const rows = ( await super.query(
-      `select id, name, surname, phone, email, image_path, password_confirmed, is_admin
+      `select id, name, surname, phone, email, image_path, password_confirmed, role
       from users
       order by id`
     ) ).rows;

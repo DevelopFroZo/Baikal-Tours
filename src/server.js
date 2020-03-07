@@ -60,12 +60,10 @@ server.use( ( req, res, next ) => {
   req.database = database;
   res.success = ( code, data ) => res.json( database.success( code, data ) );
   res.error = code => res.json( database.error( code ) );
-
-  // #fix поменять на !dev
-  if( dev ) req.mail = mail;
+  req.mail = mail;
 
   if( !req.session.isLogged ) req.session.isLogged = false;
-  if( !req.session.isAdmin ) req.session.isAdmin = false;
+  if( !req.session.role ) req.session.role = "user";
   if( !req.session.locale ) req.session.locale = "ru";
 
   req._ = i18n( req.session.locale );

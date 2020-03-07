@@ -9,16 +9,19 @@ export async function get( req, res ){
   if( id === null || id < 1 )
     return res.error( 9 );
 
-  const isAdmin = req.session.isAdmin;
+  const role = req.session.role;
   let locale = req.session.locale;
   let getSubscribers = false;
+  let allStatuses = false;
 
-  if( isAdmin ){
+  if( role === "admin" ){
     if( req.query.locale ) locale = req.query.locale;
     if( req.query.getSubscribers !== undefined ) getSubscribers = true;
+
+    allStatuses = true;
   }
 
-  res.json( await req.database.actions.getOne( isAdmin, id, locale, getSubscribers ) );
+  res.json( await req.database.actions.getOne( allStatuses, id, locale, getSubscribers ) );
 }
 
 export async function put( req, res ){
