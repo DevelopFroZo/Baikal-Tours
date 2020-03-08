@@ -1,8 +1,10 @@
 "use strict";
 
+import fetch from "node-fetch";
 import { transliterate } from "transliteration";
 import Foundation from "./helpers/foundation";
 import Translator from "/helpers/translator/index";
+import yandexEngineBuilder from "/helpers/translator/engines/yandex";
 
 export default class extends Foundation{
   constructor( modules ){
@@ -351,7 +353,8 @@ export default class extends Foundation{
     let sc = 2;
     const transaction = await super.transaction();
     let translated = {};
-    const translator = new Translator( process.env.YANDEX_TRANSLATE_API_KEY );
+    const yandexEngine = yandexEngineBuilder( process.env.YANDEX_TRANSLATE_API_KEY, fetch );
+    const translator = new Translator( yandexEngine );
     const promises = [];
 
     if( status ){
