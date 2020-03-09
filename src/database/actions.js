@@ -548,8 +548,10 @@ export default class extends Foundation{
       else
         translated[ key ] = translator.transformed[ key ];
 
-    for( let key in translated )
-      promises.push( this.modules.actionsTranslates.createOrEdit( transaction, id, key, translated[ key ] ) );
+    promises.push( ( async () => {
+      for( let key in translated )
+        await this.modules.actionsTranslates.createOrEdit( transaction, id, key, translated[ key ] );
+    } )() );
 
     // Action dates
     if( dates ){
