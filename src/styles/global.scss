@@ -31,6 +31,10 @@ button:hover{
     cursor: pointer;
 }
 
+li{
+    list-style-type: none;
+}
+
 @media only screen and (max-width: 768px) {
     
     .form-width{

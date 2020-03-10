@@ -1,6 +1,6 @@
-<script context = "module">
+<script context="module">
   import Fetcher from "/helpers/fetcher.js";
-  import parseFilterData from "/helpers/filter.js";
+  import { parseFilterData, setFilterData, setFilterFromUrl, showActiveFilters } from "/helpers/filter.js";
 
   export async function preload(page, session) {
     const fetcher = new Fetcher(this.fetch);
@@ -40,14 +40,16 @@
       credentials: "same-origin"
     });
 
-    setFilterData(1, result_filters.data.locations);
-    setFilterData(2, result_filters.data.companions);
-    setFilterData(3, result_filters.data.subjects);
+    filter[1] = setFilterData(result_filters.data.locations);
+    filter[2] = setFilterData(result_filters.data.companions);
+    filter[3] = setFilterData(result_filters.data.subjects);
 
     if (params.offset !== undefined) offset = parseInt(params.offset);
     if (params.count !== undefined) count = parseInt(params.count);
 
-    if (Object.keys(params).length > 0 && Object.keys(params)[0] === "filter") {
+    let paramsKeys = Object.keys(params);
+
+    if (paramsKeys.length > 0 && paramsKeys[0] === "filter" && paramsKeys[1] !== "count" && paramsKeys[1] !== "offset") {
       showFilter = true;
       if (params.dateStart !== undefined) {
         filter[0][0].active = true;
@@ -58,13 +60,13 @@
         filter[0][1].value = params.dateEnd;
       }
       if (params.locations !== undefined) {
-        setFilterFromUrl(params.locations.split(","), 1);
+        filter[1] = setFilterFromUrl(params.locations.split(","), filter[1]);
       }
       if (params.companions !== undefined) {
-        setFilterFromUrl(params.companions.split(","), 2);
+        filter[2] = setFilterFromUrl(params.companions.split(","), filter[2]);
       }
       if (params.subjects !== undefined) {
-        setFilterFromUrl(params.subjects.split(","), 3);
+        filter[3] = setFilterFromUrl(params.subjects.split(","), filter[3]);
       }
       if (params.priceMin !== undefined) {
         filter[4][0].active = true;
@@ -98,27 +100,6 @@
 
     let locale = session.locale;
 
-    function setFilterFromUrl(params, category) {
-      for (let i = 0; i < params.length; i++) {
-        for (let j = 0; j < filter[category].length; j++) {
-          if (parseInt(params[i]) === filter[category][j].id) {
-            filter[category][j].active = true;
-            break;
-          }
-        }
-      }
-    }
-
-    function setFilterData(category, res) {
-      for (let i = 0; i < res.length; i++) {
-        filter[category].push({
-          id: res[i].id,
-          value: res[i].name,
-          active: false
-        });
-      }
-    }
-
     return {
       result_cards,
       result_filters,
@@ -144,8 +125,9 @@
     parsePriceForActiveFilter
   } from "/helpers/parsers.js";
   import i18n from "/helpers/i18n/index.js";
-  import { goto } from '@sapper/app';
+  import { goto } from "@sapper/app";
   import { onMount } from "svelte";
+  import ActiveFilters from "/components/active_filters.svelte";
 
   export let result_cards,
     result_filters,
@@ -164,46 +146,40 @@
     priceStart = "",
     priceEnd = "",
     resp,
-    pag,
     pagCards = count,
     cards = result_cards,
-    pagList = [],
     leftRange = true,
     rightRange = true,
-    allPags,
-    parseFilter = {};
-
-  let pagData = {
-    offset: pag * pagCards,
-    count: pagCards
-  };
+    parseFilter = {},
+    pagData;
 
   let url = {
     ...parseFilter,
-    ...pagData
+    offset: offset / count * pagCards,
+    count: pagCards
   };
 
   let options = [];
 
-  for(let i = 0; i < 5; i++)
+  for (let i = 0; i < 5; i++)
     options.push({
       isVisible: false,
       option: null,
       btn: null
-    })
+    });
 
   $: {
     cards = result_cards;
-    pag = offset / count;
-    allPags = Math.ceil(result_count / pagCards)
+    pagData = {
+      allPags: Math.ceil(result_count / pagCards),
+      pag: offset / count
+    };
 
-    changePag(offset / count);
-    checkActiveFilter()
+    checkActiveFilter();
   }
 
-  function checkActiveFilter(){
+  function checkActiveFilter() {
     if (showFilter) {
-      showActiveFilters();
       parseFilter = parseFilterData(filter);
       date = parseDateForActiveFilter(filter);
       price = parsePriceForActiveFilter(filter, _);
@@ -264,11 +240,10 @@
 
     parseFilter = parseFilterData(filter);
     parseFilter.count = pagCards;
-    parseFilter.offset = pag * pagCards;
+    parseFilter.offset = pagData.pag * pagCards;
 
-    showActiveFilters();
+    showActiveFilters(filter);
     changePagAndURL(0);
-
   }
 
   function setPrice() {
@@ -276,30 +251,6 @@
     filter[4][1].value = priceEnd;
 
     changeFilter();
-  }
-
-  function showActiveFilters() {
-    showFilter = false;
-    for (let i = 0; i < filter.length; i++) {
-      for (let j = 0; j < filter[i].length; j++) {
-        if (filter[i][j].active) {
-          showFilter = true;
-          break;
-        }
-      }
-    }
-  }
-
-  function changePag(pagL) {
-    pag = pagL;
-    pagList = [];
-    if (allPags <= 5) for (let i = 0; i < allPags; i++) pagList.push(i);
-    else {
-      if (pag < 2) for (let i = 0; i < 5; i++) pagList.push(i);
-      else if (pag > allPags - 3)
-        for (let i = allPags - 5; i < allPags; i++) pagList.push(i);
-      else for (let i = pag; i < pag + 5; i++) pagList.push(i - 2);
-    }
   }
 
   function setURL() {
@@ -315,11 +266,11 @@
       behavior: "smooth"
     });
 
-    pag = pagL;
+    pagData.pag = pagL;
 
     url = {
       ...parseFilter,
-      offset: pag * pagCards,
+      offset: pagData.pag * pagCards,
       count: pagCards
     };
 
@@ -334,8 +285,20 @@
 
   onMount(() => {
     localStorage.removeItem("actionsParams");
-  })
+  });
 
+  function closePrice(e){
+    priceStart = '';
+    priceEnd = '';
+
+    setPrice();
+  }
+
+  function closeFilter(e){
+    filter = e.detail.filter;
+
+    changeFilter();
+  }
 </script>
 
 <style lang="scss">
@@ -460,33 +423,6 @@
 
   .option-visible {
     visibility: visible;
-  }
-
-  .active-filter-block {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    font-style: italic;
-    font-size: $Medium_Font_Size;
-    margin-bottom: 28px;
-
-    & > .filter-head {
-      margin-top: 5px;
-    }
-  }
-
-  .active-filter {
-    padding: 3px 7px;
-    background: $Medium_Gray;
-    border-radius: 20px;
-    display: flex;
-    align-items: center;
-    margin-left: 8px;
-    margin-top: 5px;
-
-    & > button {
-      margin-left: 7px;
-    }
   }
 
   .price-filter {
@@ -618,9 +554,7 @@
               changeFilter();
             }}>
             <label>{city.value}</label>
-            <input
-              type="checkbox"
-              bind:checked={city.active}/>
+            <input type="checkbox" bind:checked={city.active} />
           </div>
         {/each}
       </div>
@@ -645,9 +579,7 @@
               changeFilter();
             }}>
             <label>{companios.value}</label>
-            <input
-              type="checkbox"
-              bind:checked={companios.active}/>
+            <input type="checkbox" bind:checked={companios.active} />
           </div>
         {/each}
       </div>
@@ -672,9 +604,7 @@
               changeFilter();
             }}>
             <label>{subjects.value}</label>
-            <input
-              type="checkbox"
-              bind:checked={subjects.active}/>
+            <input type="checkbox" bind:checked={subjects.active} />
           </div>
         {/each}
       </div>
@@ -726,61 +656,8 @@
       </div>
     </div>
   </div>
-  {#if showFilter}
-    <div class="active-filter-block">
-      <div class="filter-head">{_('you_have_chosen')}</div>
-      {#if date !== ''}
-        <div class="active-filter">
-          {date}
-          <button
-            class="delete-filter"
-            on:click={() => {
-              filter[0][0].value = '';
-              filter[0][1].value = '';
-              changeFilter();
-            }}>
-            <img src="img/clear.png" />
-          </button>
-        </div>
-      {/if}
-
-      {#each filter as filt, i}
-        {#if i > 0 && i < 4}
-          {#each filt as fl, j}
-            {#if fl.active}
-              <div class="active-filter">
-                {fl.value}
-                <button
-                  class="delete-filter"
-                  on:click={() => {
-                    fl.active = false;
-                    changeFilter();
-                  }}>
-                  <img src="img/clear.png" />
-                </button>
-              </div>
-            {/if}
-          {/each}
-        {/if}
-      {/each}
-
-      {#if price !== ''}
-        <div class="active-filter">
-          {price}
-          <button
-            class="delete-filter"
-            on:click={() => {
-              priceStart = '';
-              priceEnd = '';
-              setPrice();
-              changeFilter();
-            }}>
-            <img src="img/clear.png" />
-          </button>
-        </div>
-      {/if}
-    </div>
-  {/if}
+  
+  <ActiveFilters {filter} {showFilter} {date} {price} min={0} max={4} {_} on:closeFilter={closeFilter} on:closePrice={closePrice}/>
 
   <div class="cards-block">
     {#each cards as cardInfo (cardInfo.id)}
@@ -788,6 +665,6 @@
     {/each}
   </div>
 
-  <Pagination {pagList} {pag} {allPags} on:clickPag={clickPag} />
+  <Pagination {pagData} on:clickPag={clickPag} />
 </div>
 <Footer {locale} />

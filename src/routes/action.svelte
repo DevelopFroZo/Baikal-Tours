@@ -17,7 +17,7 @@
   import { onMount } from "svelte";
   import Header from "/components/header.svelte";
   import Footer from "/components/footer.svelte";
-  import { parseDateToDateAndDay, parsePrice } from "/helpers/parsers.js";
+  import { parsePrice } from "/helpers/parsers.js";
   import { validateMail, validatePhone } from "/helpers/validators.js";
   import {contactsToString, dateToString } from "/helpers/converters.js";
   import i18n from "/helpers/i18n/index.js";
