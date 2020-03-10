@@ -234,7 +234,13 @@
     changeFilter();
   }
 
-  console.log(result_cards)
+  async function changeFavorite(i){
+    cards[i].is_favorite = !cards[i].is_favorite;
+
+    let test = await fetcher.put("/api/actions/" + cards[i].id, {
+      isFavorite: cards[i].is_favorite
+    })
+  }
 </script>
 
 <style lang="scss">
@@ -458,7 +464,7 @@
           <div>Скрытые {cardsCounts.hidden}</div>
           <div>Архив {cardsCounts.archive}</div>
         </div>
-        <a href="./admin/new-event" class="new-event">Новое событие</a>
+        <a href="./admin/edit" class="new-event">Новое событие</a>
       </div>
       <div class="filter-block">
         <input
@@ -525,10 +531,14 @@
         on:closeFilter={closeFilter}
         {_} />
       <div class="events-block">
-        {#each cards as card}
+        {#each cards as card, i}
           <div class="full-event-block">
-            <button>
-              <img src="/img/star.png" />
+            <button on:click={() => changeFavorite(i)}>
+              {#if !card.is_favorite}
+                <img src="/img/star.png" />
+                {:else}
+                <img src="/img/favorite-star.png" />
+              {/if}
             </button>
             <a class="event-block" href={'./admin/action?id=' + card.id}>
               <div class="event">

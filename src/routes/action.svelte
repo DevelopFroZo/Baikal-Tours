@@ -24,7 +24,7 @@
 
   export let result_action, actionId, locale;
 
-  //console.log(result_action)
+  console.log(result_action)
 
   const fetcher = new Fetcher();
   let response,
@@ -39,6 +39,7 @@
     disabled = "disabled",
     contactData = contactsToString(data.contact_faces, data.emails, data.phones),
     actionsParams;
+
 
   const _ = i18n( locale );
 
@@ -354,7 +355,7 @@
           {_("transfer")}
           <ul>
             {#each data.transfers as transfer}
-              <li>{transfer}</li>
+              <li>{transfer.name}</li>
             {/each}
           </ul>
         </div>
@@ -366,7 +367,7 @@
         <div class="info">
           <ul>
             {#each data.subjects as subjects}
-              <li>{subjects}</li>
+              <li>{subjects.name}</li>
             {/each}
           </ul>
         </div>
