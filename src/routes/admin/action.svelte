@@ -37,8 +37,6 @@
       _
     );
 
-  console.log(result_action);
-
   async function changeStatus() {
     await fetcher.put("/api/actions/" + actionId, {
       status: result_action.status
@@ -63,7 +61,7 @@
 
   .event-edit {
     & > select,
-    button {
+    a {
       background: $Medium_Gray;
       border: 1px solid black;
       font-weight: bold;
@@ -71,7 +69,7 @@
       height: 26px;
     }
 
-    & > button {
+    & > a {
       margin-left: 15px;
     }
   }
@@ -89,43 +87,6 @@
   h2 {
     font-size: $Big_Font_Size;
     margin-top: 35px;
-  }
-
-  .imp {
-    border: 1px solid black;
-  }
-
-  .images-block {
-    display: grid;
-    grid-template-columns: repeat(4, 150px);
-    justify-content: space-between;
-    grid-row-gap: 20px;
-    margin-top: 20px;
-  }
-
-  .img-block {
-    min-height: 100px;
-  }
-
-  .img {
-    position: relative;
-    overflow: hidden;
-    height: 100px;
-
-    & > img {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      max-width: 150px;
-      max-height: 100px;
-      box-sizing: border-box;
-    }
-  }
-
-  .imp-text {
-    margin-top: 2px;
-    text-align: center;
   }
 
   .info-block {
@@ -236,7 +197,7 @@
             <option value="hidden">Скрытое</option>
             <option value="archive">Архив</option>
           </select>
-          <button>Редактировать</button>
+          <a href={`/admin/edit?id=${actionId}`}>Редактировать</a>
         </div>
         <h1>{result_action.name}</h1>
         <pre>{result_action.full_description}</pre>
@@ -311,7 +272,7 @@
                 {_('transfer')}
                 <ul>
                   {#each result_action.transfers as transfer}
-                    <li>{transfer}</li>
+                    <li>{transfer.name}</li>
                   {/each}
                 </ul>
               </div>
@@ -381,7 +342,7 @@
               <div class="info">
                 <ul>
                   {#each result_action.subjects as subjects}
-                    <li>{subjects}</li>
+                    <li>{subjects.name}</li>
                   {/each}
                 </ul>
               </div>
@@ -402,6 +363,7 @@
           {/if}
         </div>
         <h2>Список зарегистрировавшихся</h2>
+        <!-- {#if result_action.subscribers.length !== 0}
         <table>
           <tr>
             <td>*</td>
@@ -411,15 +373,26 @@
             <td>E-mail</td>
             <td>роль</td>
           </tr>
-          <tr>
-            <td>*</td>
-            <td>Екатерина</td>
-            <td>Антюшина</td>
-            <td>342918742934</td>
-            <td>цотыдgmal.</td>
-            <td>идмин</td>
-          </tr>
+          {#each result_action.subscribers as subscriber}
+            <tr>
+                <td>*</td>
+                <td>{subscriber.name}</td>
+                <td>{subscriber.surname}</td>
+                <td>{subscriber.phone}</td>
+                <td>{subscriber.email}</td>
+                <td>
+                    {#if subscriber.is_admin}
+                        Администратор
+                    {:else}
+                        Пользователь
+                    {/if}
+                </td>
+            </tr>
+          {/each}
         </table>
+        {:else}
+            Нет зарегистрированных пользователей
+        {/if} -->
       </div>
     </div>
   </div>

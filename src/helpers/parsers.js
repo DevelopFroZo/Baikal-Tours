@@ -3,7 +3,7 @@ export {
     parsePrice,
     parseDateForActiveFilter,
     parsePriceForActiveFilter,
-    parseDateForCards
+    parseDateForCards,
 }
 
 function parseDate(date) {

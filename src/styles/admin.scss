@@ -3,6 +3,8 @@
 .admin-block {
   background: $Light_Gray;
   min-height: 100vh;
+  padding-bottom: 35px;
+  box-sizing: border-box;
 }
 
 .form-width {
@@ -13,4 +15,41 @@
   width: calc(100% - 120px - 30px);
   margin: 15px 0 0 30px;
   font-size: $Medium_Font_Size;
+}
+
+.images-block {
+  display: grid;
+  grid-template-columns: repeat(4, 150px);
+  justify-content: space-between;
+  grid-row-gap: 20px;
+  margin-top: 20px;
+}
+
+.img-block {
+  min-height: 100px;
+}
+
+.img {
+  position: relative;
+  overflow: hidden;
+  height: 100px;
+
+  & > img {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    max-width: 150px;
+    max-height: 100px;
+    box-sizing: border-box;
+  }
+}
+
+.imp-text {
+  margin-top: 2px;
+  text-align: center;
+}
+
+.imp {
+  border: 1px solid black;
 }
