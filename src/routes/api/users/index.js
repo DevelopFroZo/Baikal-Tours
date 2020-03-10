@@ -1,5 +1,5 @@
 "use strict";
 
 export async function get( req, res ){
-  res.json( await req.database.users.getAll() );
+  res.json( await req.database.users.get() );
 }

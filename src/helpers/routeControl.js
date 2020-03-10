@@ -35,6 +35,7 @@ export default ( server ) => {
 
   // API
   server.get( "/api/users", secureAPI( "admin" ) );
+  server.delete( "/api/users/:id", secureAPI( "admin" ) );
 
   server.post( "/api/actions", secureAPI( "admin" ) );
   server.put( "/api/actions/:id", secureAPI( "admin" ) );
