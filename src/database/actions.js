@@ -55,7 +55,7 @@ export default class extends Foundation{
         a.id = at.action_id and
         at.locale = $1
       group by a.id, a.status, a.is_favorite, at.name, ai.image_url, a.price_min, a.price_max
-      order by a.id
+      order by date_starts, a.id
       ${limit}
       ${offset_}`,
       [ locale ]
@@ -194,7 +194,7 @@ export default class extends Foundation{
         tmp.companions,
         tmp.subjects,
         ai.image_url
-      order by tmp.id
+      order by date_starts, tmp.id
       ${limit}
       ${offset_}`,
       params
@@ -237,7 +237,8 @@ export default class extends Foundation{
     main.dates = ( await transaction.query(
       `select id, date_start, date_end, time_start, time_end, days
       from action_dates
-      where action_id = $1`,
+      where action_id = $1
+      order by date_start`,
       [ id ]
     ) ).rows;
 

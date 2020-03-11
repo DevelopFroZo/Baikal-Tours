@@ -72,7 +72,7 @@ function parseDate( dateString ){
 
   const date = new Date( dateString );
   let day = "" + date.getDate();
-  let month = "" + date.getMonth();
+  let month = "" + ( date.getMonth() + 1 );
   let year = date.getFullYear();
 
   if( day.length === 1 ) day = "0" + day;
