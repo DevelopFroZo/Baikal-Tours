@@ -5,6 +5,7 @@ yarn-error.log
 __sapper__/
 
 static/img/actions/
+static/img/partners/
 
 src/configs/
 svelte.config.js

@@ -62,9 +62,10 @@ server.use( ( req, res, next ) => {
   res.error = code => res.json( database.error( code ) );
   req.mail = mail;
 
-  if( !req.session.isLogged ) req.session.isLogged = false;
+  if( typeof req.session.isLogged !== "boolean" ) req.session.isLogged = false;
   if( !req.session.role ) req.session.role = "user";
   if( !req.session.locale ) req.session.locale = "ru";
+  if( typeof req.session.userId !== "number" ) req.session.userId = 0;
 
   req._ = i18n( req.session.locale );
 
@@ -83,7 +84,8 @@ server
     sapper.middleware( {
       session: ( req, res ) => ( {
         isLogged: req.session.isLogged,
-        locale: req.session.locale
+        locale: req.session.locale,
+        userId: req.session.userId
       } )
     } )
   )

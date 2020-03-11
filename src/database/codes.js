@@ -18,6 +18,9 @@ export default {
      9: "Invalid ID",
     10: "No data",
     11: "Invalid locale",
-    12: "Access denied"
+    12: "Access denied",
+    13: "Missing required field",
+    14: "Invalid image size",
+    15: "Invalid image extension"
   }
 };
