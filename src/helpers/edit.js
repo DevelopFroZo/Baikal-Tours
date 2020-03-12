@@ -365,20 +365,19 @@ function validateNewtranslateData(newObj, oldObj, key, newData) {
 }
 
 function setTextTranslation(text, locale, actionId) {
-    let locales = ["ru", "en", "zh"];
-    let spliceLocales = [],
-        data = {
-            locale: locale,
-            autoTranslate: actionId === undefined
+    // let locales = ["ru", "en", "zh"];
+    // let spliceLocales = [],
+        let data = {
+            locale: "ru",
+            autoTranslate: actionId === undefined,
+            toLocales: "en, zh"
         };
 
-    if (data.autoTranslate) {
-        for (let local of locales)
-            if (local !== locale) spliceLocales.push(local);
-        data.toLocales = spliceLocales;
-    }
-
-    console.log(data.toLocales)
+    // if (data.autoTranslate) {
+    //     for (let local of locales)
+    //         if (local !== locale) spliceLocales.push(local);
+    //     data.toLocales = spliceLocales;
+    // }
 
     if (Array.isArray(text)) data.source = text;
     else data.text = text;

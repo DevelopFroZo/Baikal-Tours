@@ -354,16 +354,6 @@
 
   .filter-block {
     margin-top: 25px;
-
-    & > input {
-      width: 325px;
-      height: 22px;
-      border: 1px solid black;
-      padding-left: 12px;
-      border-radius: 5px;
-      background: white;
-      box-sizing: border-box;
-    }
   }
 
   .event-block {
@@ -451,6 +441,10 @@
   }
 </style>
 
+<svelte:head>
+  <title>События</title>
+</svelte:head>
+
 <svelte:window on:click={hideAll} />
 
 <div class="admin-block">
@@ -471,7 +465,8 @@
           type="text"
           placeholder="поиск по названию"
           bind:value={filter[0][0].value}
-          on:blur={checkSearchFilter} />
+          on:blur={checkSearchFilter} 
+          class="search-input"/>
         <div class="select-block">
           <button
             class="select"

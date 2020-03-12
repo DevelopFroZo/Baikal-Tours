@@ -3,12 +3,16 @@
   import Fetcher from "/helpers/fetcher.js";
   import i18n from "/helpers/i18n/index.js";
 
-  export let locale;
+  export let locale,
+    little = false;
 
   const fetcher = new Fetcher();
 
   const { session } = stores();
-  const _ = i18n( locale );
+
+  console.log($session)
+
+  const _ = i18n(locale);
 
   let languages = [
     {
@@ -17,17 +21,17 @@
     },
     {
       id: 2,
-      lang: "en",
+      lang: "en"
     },
     {
       id: 3,
       lang: "zh"
     }
-  ]
+  ];
 
   let secondLanguage = locale;
 
-  async function changeLanguage(){
+  async function changeLanguage() {
     let result = await fetcher.put("/api/locales/" + secondLanguage);
 
     document.location.reload();
@@ -40,9 +44,11 @@
   header {
     height: 46px;
     background-color: $Gray;
-    padding: 7px 0;
+    padding: 7px 15px 7px 0;
     box-sizing: border-box;
     position: relative;
+    border-radius: 0 0 5px 5px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.25);
   }
 
   .header-name {
@@ -69,6 +75,7 @@
   .line {
     display: flex;
     align-items: center;
+    justify-content: space-between;
   }
 
   .page-name {
@@ -76,11 +83,7 @@
     font-size: $Medium_Font_Size;
   }
 
-  .right-side {
-    position: absolute;
-    top: 50%;
-    right: 20px;
-    transform: translateY(-50%);
+  .right-side, .left-side {
     display: flex;
     align-items: center;
   }
@@ -90,6 +93,22 @@
     display: flex;
     align-items: center;
     font-weight: bold;
+    border: 1px solid $Gray;
+    background-image: url("../img/language.png");
+    background-repeat: no-repeat;
+    background-position: right .7em top 50%, 0 0;
+    width: 45px;
+    -moz-appearance: none;
+    -webkit-appearance: none;
+    cursor: pointer;
+
+    &::-ms-expand{
+      display: none;
+    }
+
+    & > option{
+      background: $Gray;
+    }
   }
 
   a {
@@ -99,7 +118,7 @@
       margin-left: 23px;
     }
 
-    &[href="./register"], &.my-page {
+    &[href="./register"] {
       margin-left: 15px;
       padding: 5px 8px;
       border-radius: 5px;
@@ -107,53 +126,58 @@
     }
   }
 
-  .logout{
+  .logout {
     margin-left: 23px;
   }
 
-  .language-img{
+  .language-img {
     margin-left: 5px;
   }
 
+  .my-page {
+    margin-left: 15px;
+    padding: 5px 8px;
+    border-radius: 5px;
+    font-weight: bold;
+  }
+
   @media only screen and (max-width: 768px) {
-    .user-info{
+    .user-info {
       display: none;
     }
 
-    .page-name{
+    .page-name {
       margin-left: 0;
-    }
-
-    .line{
-      justify-content: space-between;
     }
   }
 </style>
 
-<header>
-  <div class="form-width line">
+<header class="form-width line" class:short={little}>
+  <div class="left-side">
     <a class="header-name" href="./">
-      <h1>{_("event_calendar")}</h1>
+      <h1>{_('event_calendar')}</h1>
       <div>
         <img src="img/ot.png" alt="от" />
         <img src="img/logo.png" alt="logo" />
       </div>
     </a>
-  </div>
-  <div class="right-side">
-    <select bind:value={secondLanguage} on:change={changeLanguage} class = "language">
+    <select
+      bind:value={secondLanguage}
+      on:change={changeLanguage}
+      class="language">
       {#each languages as lang}
         <option value={lang.lang}>{lang.lang}</option>
       {/each}
     </select>
-    <img src="img/language.png" alt="language" class = "language-img"/>
-    <div class = "user-info">
+  </div>
+  <div class="right-side">
+    <div class="user-info">
       {#if !$session.isLogged}
-        <a href="./login" id="login">{_("authorize")}</a>
-        <a href="./register" id="register">{_("registration")}</a>
+        <a href="./login" id="login">{_('authorize')}</a>
+        <a href="./register" id="register">{_('registration')}</a>
       {:else}
-        <a href="./" class = "my-page">*твоя почта*</a>
-        <button class = "logout">{_("logout")}</button>
+        <a href="./profile?section=settings" class="my-page">*твоя почта*</a>
+        <a class="logout" href="/logout">{_('logout')}</a>
       {/if}
     </div>
   </div>

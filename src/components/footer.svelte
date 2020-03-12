@@ -104,7 +104,7 @@
 </style>
 
 <footer>
-  <div class="form-width">
+  <div class="form-width" class:short={true}>
     <div class="left-side">
       <img src="img/logo.png" alt="logo.png" />
       <br />

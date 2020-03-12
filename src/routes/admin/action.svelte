@@ -185,6 +185,10 @@
   }
 </style>
 
+<svelte:head>
+  <title>{title}</title>
+</svelte:head>
+
 <div class="admin-block">
   <div class="form-width">
     <HrefMenu page={0} />

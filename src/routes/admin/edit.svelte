@@ -664,6 +664,8 @@
 
     result = await fetcher.put(`/api/actions/${actionId}`, newData);
 
+    document.location.href = `/admin/action?id=${actionId}`
+
     console.log(result, actionId);
   }
 </script>
@@ -1064,6 +1066,12 @@
     width: 20px;
   }
 </style>
+
+<svelte:head>
+  <title>
+    {actionId === undefined ? "Создание события" : "Редактирование события"}
+  </title>
+</svelte:head>
 
 <svelte:window on:click={hideAll} />
 
