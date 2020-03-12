@@ -1,5 +1,6 @@
 "use strict";
 
+import { transliterate } from "transliteration";
 import Foundation from "./helpers/foundation";
 import saltNHash from "./helpers/saltNHash";
 
@@ -35,28 +36,41 @@ export default class extends Foundation{
   async getSubscribedActions( id, locale ){
     const rows = ( await super.query(
       `select
-      	at.action_id, at.name,
-      	array_agg( l.name ) as locations,
-      	array_agg( ad.date_start ) as date_starts,
-      	array_agg( ad.date_end ) as date_ends
+        at.action_id, at.name,
+        array_agg( array[ l.name, al.address ] ) as locations,
+        array_agg( ad.date_start ) as date_starts,
+        array_agg( ad.date_end ) as date_ends,
+        ai.image_url
       from
-      	actions_subscribers as asu,
-      	actions_translates as at,
-      	actions_locations as al,
-      	locations as l,
-      	action_dates as ad
+        actions_subscribers as asu
+        left join action_images as ai
+        on ai.action_id = asu.action_id and is_main = true,
+        actions_translates as at,
+        actions_locations as al,
+        locations as l,
+        action_dates as ad
       where
-      	asu.user_id = $1 and
-      	at.locale = $2 and
-      	l.locale = at.locale and
-      	asu.action_id = at.action_id and
-      	asu.action_id = al.action_id and
-      	al.location_id = l.id and
-      	asu.action_id = ad.action_id
-      group by at.action_id, at.name
+        asu.user_id = $1 and
+        at.locale = $2 and
+        l.locale = at.locale and
+        asu.action_id = at.action_id and
+        asu.action_id = al.action_id and
+        al.location_id = l.id and
+        asu.action_id = ad.action_id
+      group by at.action_id, at.name, ai.image_url
       order by date_starts`,
       [ id, locale ]
     ) ).rows;
+
+    if( locale !== "ru" ){
+      rows.forEach( row => {
+        row.locations = row.locations.map( location => {
+          if( location[1] ) location[1] = transliterate( location[1] );
+
+          return location;
+        } );
+      } );
+    }
 
     return super.success( 0, rows );
   }
