@@ -249,6 +249,13 @@ export default class extends Foundation{
       [ id ]
     ) ).rows;
 
+    main.partners = ( await transaction.query(
+      `select id, name, image_url
+      from action_partners
+      where action_id = $1`,
+      [ id ]
+    ) ).rows;
+
     main.companions = ( await transaction.query(
       `select c.id, c.name
       from
@@ -312,11 +319,19 @@ export default class extends Foundation{
 
     await transaction.end();
 
-    if( locale !== "ru" ) main.locations = main.locations.map( location => {
-      if( location.address ) location.address = transliterate( location.address );
+    if( locale !== "ru" ){
+      main.locations = main.locations.map( location => {
+        if( location.address ) location.address = transliterate( location.address );
 
-      return location;
-    } );
+        return location;
+      } );
+
+      main.partners = main.partners.map( partner => {
+        partner.name = transliterate( partner.name );
+
+        return partner;
+      } );
+    }
 
     return super.success( 0, main );
   }

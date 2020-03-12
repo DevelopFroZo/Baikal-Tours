@@ -43,4 +43,8 @@ export default ( server ) => {
   server.post( "/api/actionImages", secureAPI( "admin" ), upload.array( "images" ) );
   server.put( "/api/actionImages/:id", secureAPI( "admin" ), upload.single( "image" ) );
   server.delete( "/api/actionImages/:id", secureAPI( "admin" ) );
+
+  server.post( "/api/actionPartners", secureAPI( "admin" ), upload.single( "image" ) );
+  server.put( "/api/actionPartners/:id", secureAPI( "admin" ), upload.single( "image" ) );
+  server.delete( "/api/actionPartners/:id", secureAPI( "admin" ) );
 };

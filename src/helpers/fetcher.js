@@ -75,10 +75,11 @@ export default class{
 
           if( !field ) continue;
 
-          if( field.length === undefined )
+          if( typeof field === "object" && field.length !== undefined )
+            for( let elem of field )
+              body_.append( key, elem );
+          else
             body_.append( key, field );
-          else for( let elem of field )
-            body_.append( key, elem );
         }
 
         options.body = body_;
@@ -98,16 +99,20 @@ export default class{
     return await this.serialize( response, "json" );
   }
 
-  async get( url, options ){
-    return await this.send( url, null, options, "GET" );
+  get( url, options ){
+    return this.send( url, null, options, "GET" );
   }
 
-  async post( url, body, options ){
-    return await this.send( url, body, options, "POST" );
+  post( url, body, options ){
+    return this.send( url, body, options, "POST" );
   }
 
-  async put( url, body, options ){
-    return await this.send( url, body, options, "PUT" );
+  put( url, body, options ){
+    return this.send( url, body, options, "PUT" );
+  }
+
+  patch( url, body, options ){
+    return this.send( url, body, options, "PATCH" );
   }
 
   async delete( url, options ){
