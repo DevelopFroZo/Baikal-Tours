@@ -31,10 +31,18 @@ export async function put( req, res ){
 
   const result = await req.database.users.edit( id, req.body );
 
-  if( id === userId && req.body.role )
-    req.session.role = req.body.role;
+  if( id === userId ){
+    if( req.body.role )
+      req.session.role = req.body.role;
 
-  res.json( { q: result } );
+    if( req.body.name )
+      req.session.name = req.body.name;
+
+    if( req.body.email )
+      req.session.email = req.body.email;
+  }
+
+  res.success();
 }
 
 export async function del( req, res ){

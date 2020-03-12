@@ -65,7 +65,6 @@ server.use( ( req, res, next ) => {
   if( typeof req.session.isLogged !== "boolean" ) req.session.isLogged = false;
   if( !req.session.role ) req.session.role = "user";
   if( !req.session.locale ) req.session.locale = "ru";
-  if( typeof req.session.userId !== "number" ) req.session.userId = 0;
 
   req._ = i18n( req.session.locale );
 
