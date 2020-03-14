@@ -10,8 +10,6 @@
 
   const { session } = stores();
 
-  console.log($session)
-
   const _ = i18n(locale);
 
   let languages = [

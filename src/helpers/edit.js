@@ -329,19 +329,20 @@ function setDataToCK(data) {
 }
 
 function validateEditArray(newObj, oldObj, key, newData) {
-    let bl = false;
-    newObj = Object.assign([], newObj);
-    let newObjArr = []
-    for (let i = 0; i < newObj.length; i++) {
-        let obj = typeof newObj[i] === "object" ? newObj[i].source.join(" ") : newObj[i];
+    newObj = Object.assign(!Array.isArray(newObj) ? {} : [], newObj);
 
-        if (obj === "" || obj === null) {
-            newObj.splice(i, 1);
+    let obj = newObj;
+    if(!Array.isArray(newObj))
+        obj = newObj.source;
+    
+    let newObjArr = []
+    for (let i = 0; i < obj.length; i++) {
+        if (obj[i] === "" || obj[i] === null) {
+            obj.splice(i, 1);
             i--;
         } else {
-            newObjArr.push(obj);
+            newObjArr.push(obj[i]);
         }
-
     }
 
     let formatOldObj = (oldObj === null || oldObj === undefined) ? "" : oldObj.join(";")
@@ -369,8 +370,8 @@ function setTextTranslation(text, locale, actionId) {
     // let spliceLocales = [],
         let data = {
             locale: "ru",
-            autoTranslate: actionId === undefined,
-            toLocales: "en, zh"
+            autoTranslate: true,
+            toLocales: ["en", "zh"]
         };
 
     // if (data.autoTranslate) {

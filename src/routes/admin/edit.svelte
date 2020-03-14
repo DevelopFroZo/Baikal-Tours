@@ -37,7 +37,8 @@
         locations: null,
         transfers: null,
         subjects: null,
-        companions: null
+        companions: null,
+        partners: []
       };
 
     let result_filters = await fetcher.get("/api/dataForFilters", {
@@ -109,6 +110,7 @@
     transfers = null,
     subjects = null,
     companions = null,
+    partners = [],
     locale;
 
   const fetcher = new Fetcher();
@@ -142,9 +144,12 @@
     companionsNames = [],
     participation,
     uploadImg,
+    uploadPartners,
     newImages = [],
+    newPartners = [],
     mainImg = null,
-    newData = {};
+    newData = {},
+    newPartnerName = "";
 
   if (price_min === 0 && price_max === 0) participation = "free";
   else if (organizer_payment !== null) participation = "organiser";
@@ -351,16 +356,9 @@
     let fContact_faces = [];
 
     for (let i = 0; i < contact_faces.length; i++)
-      fContact_faces.push(
-        edit.setTextTranslation(
-          contact_faces[i]
-            .replace(/\s+/g, " ")
-            .trim()
-            .split(" "),
-          locale,
-          actionId
-        )
-      );
+      fContact_faces.push(contact_faces[i]);
+
+    fContact_faces = edit.setTextTranslation(fContact_faces, locale, actionId);
 
     newData = edit.validateEditArray(
       fContact_faces,
@@ -540,7 +538,8 @@
   }
 
   async function changeImages() {
-    let newSecondImages = [], result;
+    let newSecondImages = [],
+      result;
     for (let img of uploadImg.files) {
       if (img.size / 1024 / 1024 <= 1) {
         newSecondImages.push(img);
@@ -660,13 +659,72 @@
           });
         }
       }
+      if (newPartners.length !== 0) {
+        for (let partner of newPartners) {
+          result = await fetcher.post(
+            `/api/actionPartners`,
+            {
+              actionId: actionId,
+              name: partner.name,
+              image: partner.image_url
+            },
+            { bodyType: "formData" }
+          );
+        }
+      }
     }
 
     result = await fetcher.put(`/api/actions/${actionId}`, newData);
 
-    document.location.href = `/admin/action?id=${actionId}`
+    document.location.href = `/admin/action?id=${actionId}`;
+  }
 
-    console.log(result, actionId);
+  async function changePartners() {
+    let img = uploadPartners.files,
+      newPartner = {},
+      result;
+    if (img.length !== 0) {
+      if (img[0].size / 1024 / 1024 <= 1) {
+        newPartner = {
+          image_url: img[0],
+          name: newPartnerName
+        };
+      } else
+        alert(
+          "Изображение " +
+            img[0].name +
+            " не может быть загружено, так как превышает размер в 1МБ"
+        );
+    }
+
+    if (actionId !== undefined && Object.keys(newPartner).length !== 0) {
+      result = (await fetcher.post(
+        `/api/actionPartners`,
+        {
+          actionId: Number(actionId),
+          name: newPartner.name,
+          image: newPartner.image_url
+        },
+        { bodyType: "formData" }
+      )).data;
+
+      newPartner.id = result;
+    }
+
+    newPartners.push(newPartner);
+    newPartners = newPartners;
+
+    newPartnerName = "";
+  }
+
+  async function renamePartner(id, name) {
+    if (actionId !== undefined)
+      await fetcher.put(`/api/actionPartners/${id}`, { name });
+  }
+
+  async function deletePartner(partnerId) {
+    if (actionId !== undefined)
+      await fetcher.delete(`/api/actionPartners/${partnerId}`);
   }
 </script>
 
@@ -1000,7 +1058,7 @@
   .empty {
     position: relative;
     width: 150px;
-    height: 70px;
+    height: 100px;
     background: $Gray;
 
     & > div {
@@ -1021,6 +1079,16 @@
         color: $Gray;
         font-size: 50px;
       }
+    }
+
+    & > input {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      cursor: pointer;
     }
   }
 
@@ -1069,7 +1137,7 @@
 
 <svelte:head>
   <title>
-    {actionId === undefined ? "Создание события" : "Редактирование события"}
+    {actionId === undefined ? 'Создание события' : 'Редактирование события'}
   </title>
 </svelte:head>
 
@@ -1621,13 +1689,67 @@
 
           <div class="partner">
 
-            <div class="partner-block">
+            {#each partners as partner, i}
+              <div class="img-block">
+                <div class="img">
+                  <button
+                    on:click={() => {
+                      partners.splice(i, 1);
+                      partners = partners;
+                      deletePartner(partner.id);
+                    }}>
+                    ×
+                  </button>
+                  <img src={partner.image_url} alt="image" />
+                </div>
+                <input
+                  type="text"
+                  bind:value={partner.name}
+                  placeholder="название партнера"
+                  on:blur={() => renamePartner(partner.id, partner.name)} />
+              </div>
+            {/each}
+
+            {#each newPartners as partner, i}
+              <div class="img-block">
+                <div class="img">
+                  <button
+                    on:click={() => {
+                      newPartners.splice(i, 1);
+                      newPartners = newPartners;
+                      deletePartner(partner.id);
+                    }}>
+                    ×
+                  </button>
+                  <img
+                    src={URL.createObjectURL(partner.image_url)}
+                    alt="image" />
+                </div>
+                <input
+                  type="text"
+                  bind:value={partner.name}
+                  placeholder="название партнера"
+                  on:blur={() => renamePartner(partner.id, partner.name)} />
+              </div>
+            {/each}
+
+            <div>
               <button class="empty">
                 <div>
                   <div>+</div>
                 </div>
+                <input
+                  type="file"
+                  class="upload-image"
+                  accept=".jpg, .jpeg, .png"
+                  bind:this={uploadPartners}
+                  on:change={changePartners}
+                  name="uploadImg" />
               </button>
-              <input type="text" placeholder="название партнера" />
+              <input
+                type="text"
+                placeholder="название партнера"
+                bind:value={newPartnerName} />
             </div>
 
           </div>
