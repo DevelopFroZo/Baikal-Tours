@@ -10,13 +10,17 @@ export default class extends Foundation{
   async create( actionId, name, imageUrl ){
     const transaction = await super.transaction();
 
-    await transaction.query(
-      `insert into action_partners( action_id, name, image_url )
-      values( $1, $2, $3 )`,
-      [ actionId, name, imageUrl ]
-    );
+    if( typeof name !== "string" || name === "" )
+      name = null;
 
-    return transaction;
+    const id = ( await transaction.query(
+      `insert into action_partners( action_id, name, image_url )
+      values( $1, $2, $3 )
+      returning id`,
+      [ actionId, name, imageUrl ]
+    ) ).rows[0].id;
+
+    return { transaction, id };
   }
 
   async get( id, client ){

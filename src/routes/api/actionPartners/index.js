@@ -13,11 +13,6 @@ export async function post( req, res ){
   if( actionId === null || actionId < 1 )
     return res.error( 9 );
 
-  const { name } = req.body;
-
-  if( typeof name !== "string" || name === "" )
-    return res.error( 13 );
-
   const { originalname, buffer, size } = req.file;
 
   if( ( size / Math.pow( 2, 20 ) ) >= 1 )
@@ -35,10 +30,10 @@ export async function post( req, res ){
   hash.update( `${actionId}${originalname}${size}${time}${seed}` );
 
   const path = `img/partners/${hash.digest( "hex" )}.${ext}`;
-  const transaction = await req.database.actionPartners.create( actionId, name, path );
+  const { transaction, id } = await req.database.actionPartners.create( actionId, req.body.name, path );
 
   await writeFile( `static/${path}`, buffer );
   await transaction.end();
 
-  res.success();
+  res.success( 0, id );
 }

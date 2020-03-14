@@ -32,7 +32,7 @@ export async function put( req, res ){
 
   if( transaction ) await transaction.end();
 
-  res.error();
+  res.success();
 }
 
 export async function del( req, res ){
