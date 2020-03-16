@@ -47,4 +47,8 @@ export default ( server ) => {
   server.post( "/api/actionPartners", secureAPI( "admin" ), upload.single( "image" ) );
   server.put( "/api/actionPartners/:id", secureAPI( "admin" ), upload.single( "image" ) );
   server.delete( "/api/actionPartners/:id", secureAPI( "admin" ) );
+
+  server.post( "/api/compiliations", secureAPI( "admin" ) );
+  server.post( "/api/compiliations/:id/image", secureAPI( "admin" ), upload.single( "image" ) );
+  // #fix добавить PUT
 };
