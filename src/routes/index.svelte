@@ -1,616 +1,197 @@
 <script context="module">
   import Fetcher from "/helpers/fetcher.js";
-  import { parseFilterData, setFilterData, setFilterFromUrl, showActiveFilters } from "/helpers/filter.js";
 
   export async function preload(page, session) {
     const fetcher = new Fetcher(this.fetch);
 
-    let params = page.query,
-      filter = [
-        [
-          {
-            value: "",
-            active: false
-          },
-          {
-            value: "",
-            active: false
-          }
-        ],
-        [],
-        [],
-        [],
-        [
-          {
-            value: "",
-            active: false
-          },
-          {
-            value: "",
-            active: false
-          }
-        ]
-      ],
-      result_cards,
-      showFilter = false,
-      offset = 0,
-      count = 15;
-
-    let result_filters = await fetcher.get("/api/dataForFilters", {
-      credentials: "same-origin"
-    });
-
-    filter[1] = setFilterData(result_filters.data.locations);
-    filter[2] = setFilterData(result_filters.data.companions);
-    filter[3] = setFilterData(result_filters.data.subjects);
-
-    if (params.offset !== undefined) offset = parseInt(params.offset);
-    if (params.count !== undefined) count = parseInt(params.count);
-
-    let paramsKeys = Object.keys(params);
-
-    if (paramsKeys.length > 0 && paramsKeys[0] === "filter" && paramsKeys[1] !== "count" && paramsKeys[1] !== "offset") {
-      showFilter = true;
-      if (params.dateStart !== undefined) {
-        filter[0][0].active = true;
-        filter[0][0].value = params.dateStart;
-      }
-      if (params.dateEnd !== undefined) {
-        filter[0][1].active = true;
-        filter[0][1].value = params.dateEnd;
-      }
-      if (params.locations !== undefined) {
-        filter[1] = setFilterFromUrl(params.locations.split(","), filter[1]);
-      }
-      if (params.companions !== undefined) {
-        filter[2] = setFilterFromUrl(params.companions.split(","), filter[2]);
-      }
-      if (params.subjects !== undefined) {
-        filter[3] = setFilterFromUrl(params.subjects.split(","), filter[3]);
-      }
-      if (params.priceMin !== undefined) {
-        filter[4][0].active = true;
-        filter[4][0].value = params.priceMin;
-      }
-      if (params.priceMax !== undefined) {
-        filter[4][1].active = true;
-        filter[4][1].value = params.priceMax;
-      }
-
-      let query = parseFilterData(filter);
-      query.offset = offset;
-      query.count = count;
-
-      result_cards = await fetcher.get("api/actions", {
-        credentials: "same-origin",
-        query
-      });
-    } else {
-      result_cards = await fetcher.get("api/actions", {
-        credentials: "same-origin",
-        query: {
-          count: count,
-          offset: offset
-        }
-      });
-    }
-
-    let result_count = result_cards.count;
-    result_cards = result_cards.actions;
-
     let locale = session.locale;
 
-    return {
-      result_cards,
-      result_filters,
-      locale,
-      filter,
-      showFilter,
-      offset,
-      count,
-      result_count
-    };
+    let subjects = (await fetcher.get("/api/dataForFilters", {
+      credentials: "same-origin"
+    })).data.subjects;
+
+    let actions = (await fetcher.get("/api/actions", {
+      credentials: "same-origin",
+      query: {
+        offset: 0,
+        count: 5
+      }
+    })).actions;
+
+    return { locale, subjects, actions };
   }
 </script>
 
 <script>
   import Header from "/components/header.svelte";
   import Footer from "/components/footer.svelte";
+  import Quiz from "/components/quiz.svelte";
+  import Selection from "/components/selection.svelte";
   import Card from "/components/card_of_event.svelte";
-  import BreadCrumbs from "/components/breadcrumbs.svelte";
-  import Pagination from "/components/pagination.svelte";
-  import {
-    parseDate,
-    parseDateForActiveFilter,
-    parsePriceForActiveFilter
-  } from "/helpers/parsers.js";
   import i18n from "/helpers/i18n/index.js";
-  import { goto } from "@sapper/app";
   import { onMount } from "svelte";
-  import ActiveFilters from "/components/active_filters.svelte";
 
-  export let result_cards,
-    result_filters,
-    locale,
-    filter,
-    showFilter,
-    offset,
-    count,
-    result_count;
+  export let locale, subjects, actions;
 
   const fetcher = new Fetcher();
+
   const _ = i18n(locale);
 
-  let date = "",
-    price = "",
-    priceStart = "",
-    priceEnd = "",
-    resp,
-    pagCards = count,
-    cards = result_cards,
-    leftRange = true,
-    rightRange = true,
-    parseFilter = {},
-    pagData;
-
-  let url = {
-    ...parseFilter,
-    offset: offset / count * pagCards,
-    count: pagCards
-  };
-
-  let options = [];
-
-  for (let i = 0; i < 5; i++)
-    options.push({
-      isVisible: false,
-      option: null,
-      btn: null
-    });
-
-  $: {
-    cards = result_cards;
-    pagData = {
-      allPags: Math.ceil(result_count / pagCards),
-      pag: offset / count
-    };
-
-    checkActiveFilter();
-  }
-
-  function checkActiveFilter() {
-    if (showFilter) {
-      parseFilter = parseFilterData(filter);
-      date = parseDateForActiveFilter(filter);
-      price = parsePriceForActiveFilter(filter, _);
-    }
-  }
-
-  function hideAll(e) {
-    for (let i = 0; i < options.length; i++) {
-      e = e || event;
-      let target = e.target || e.srcElement;
-      const its_menu =
-        target == options[i].option || options[i].option.contains(target);
-      const its_btnMenu = target == options[i].btn;
-      if (!its_menu && !its_btnMenu) options[i].isVisible = false;
-    }
-  }
-
-  function changeFilter() {
-    //change date status and her correct view
-    if (
-      new Date(filter[0][0].value) > new Date(filter[0][1].value) &&
-      filter[0][0].value !== "" &&
-      filter[0][1].value !== ""
-    )
-      filter[0][0].value = filter[0][1].value;
-
-    filter[0][0].active = filter[0][0].value === "" ? false : true;
-    filter[0][1].active = filter[0][1].value === "" ? false : true;
-
-    date = parseDateForActiveFilter(filter);
-
-    if (filter[0][0].active && filter[0][1].active)
-      date = filter[0][0].value + " - " + filter[0][1].value;
-    else if (filter[0][0].active) date = filter[0][0].value;
-    else if (filter[0][1].active) date = filter[0][1].value;
-    else date = "";
-
-    //change price status and her correct
-
-    if (
-      filter[4][0].value > filter[4][1].value &&
-      filter[4][0].value !== "" &&
-      filter[4][1].value !== ""
-    ) {
-      priceStart = filter[4][1].value;
-      filter[4][0].value = filter[4][1].value;
-    }
-
-    if (filter[4][0].value === "" || filter[4][0].value === undefined)
-      filter[4][0].active = false;
-    else filter[4][0].active = true;
-
-    if (filter[4][1].value === "" || filter[4][1].value === undefined)
-      filter[4][1].active = false;
-    else filter[4][1].active = true;
-
-    price = parsePriceForActiveFilter(filter, _);
-
-    parseFilter = parseFilterData(filter);
-    parseFilter.count = pagCards;
-    parseFilter.offset = pagData.pag * pagCards;
-
-    showActiveFilters(filter);
-    changePagAndURL(0);
-  }
-
-  function setPrice() {
-    filter[4][0].value = priceStart;
-    filter[4][1].value = priceEnd;
-
-    changeFilter();
-  }
-
-  function setURL() {
-    let URL = fetcher.makeQuery({ query: url });
-
-    //#fix переписать логику на сторы
-    goto(URL);
-  }
-
-  function changePagAndURL(pagL) {
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth"
-    });
-
-    pagData.pag = pagL;
-
-    url = {
-      ...parseFilter,
-      offset: pagData.pag * pagCards,
-      count: pagCards
-    };
-
-    setURL();
-  }
-
-  async function clickPag(e) {
-    let pagL = e.detail.pagL;
-
-    changePagAndURL(pagL);
-  }
+  let selectionsBlock,
+    actinosBlock,
+    isLoad = false,
+    flickityLoad = false;
 
   onMount(() => {
+    isLoad = true;
+    if (flickityLoad) startFlickity();
+
     localStorage.removeItem("actionsParams");
   });
 
-  function closePrice(e){
-    priceStart = '';
-    priceEnd = '';
-
-    setPrice();
+  function fLoad() {
+    flickityLoad = true;
+    if (isLoad) startFlickity();
   }
 
-  function closeFilter(e){
-    filter = e.detail.filter;
+  function startFlickity() {
+    new Flickity(selectionsBlock, {
+      groupCells: 2
+    });
 
-    changeFilter();
+    new Flickity(actinosBlock, {
+      groupCells: 3
+    });
   }
 </script>
 
 <style lang="scss">
-  @import "./styles/global";
-
-  .form-width {
-    margin: 15px auto 15px;
-    min-height: calc(100vh - 175px - 60px);
-  }
-
-  .cards-block {
-    display: grid;
-    grid-template-columns: repeat(3, 300px);
-    justify-content: space-between;
-    grid-row-gap: 41px;
-  }
-
-  input,
-  .select {
-    border: 1px solid #7b7b7b66;
-    background: white;
-    font-style: italic;
-    padding: 0 3px;
-    font-size: 13px;
-    height: 23px;
-
-    &[type="date"] {
-      padding: 0;
-    }
-
-    &.date {
-      width: 70px;
-      position: relative;
-    }
-
-    &[type="number"] {
-      width: 70px;
-    }
-  }
-
-  .date::-webkit-inner-spin-button,
-  .date::-webkit-clear-button {
-    display: none;
-    -webkit-appearance: none;
-  }
-
-  .date::-webkit-calendar-picker-indicator {
-    background-color: transparent;
-    position: absolute;
-    right: 3px;
-    top: 50%;
-    transform: translateY(-50%);
-  }
-
-  #date-end,
-  #price-end {
-    margin-left: -5px;
-  }
+  @import "./styles/global.scss";
 
   h1 {
+    text-align: center;
+    font-size: $Big_Font_Size;
     font-weight: normal;
-    font-size: $MaxBig_Font_Size;
+    margin-top: 45px;
+    margin-bottom: 20px;
   }
 
-  .filters {
-    background: $Light_Gray;
-    padding: 18px 20px;
-    margin: 20px 0 15px;
+  .info-block {
     display: flex;
-    justify-content: space-between;
-  }
-
-  .price-filter {
-    position: relative;
+    margin: 50px auto 0;
+    width: 830px;
+    text-align: center;
 
     & > div {
-      position: absolute;
-      top: 20px;
-      left: 0;
-      width: calc(100% - 10px);
+      flex: 0.4;
 
-      & > input {
-        width: 100%;
+      & > h2 {
+        margin-bottom: 13px;
       }
+
+      & > p:not(:first-child) {
+        margin-top: 16px;
+      }
+
+      & > .new-section {
+        margin-top: 25px !important;
+      }
+    }
+
+    & > frame {
+      flex: 0.6;
+      width: 100%;
+      height: 100%;
     }
   }
 
-  .prices {
+  .form-width {
+    padding-bottom: 50px;
+  }
+
+  .form-width > h2 {
+    font-size: $Big_Font_Size;
+    margin-top: 50px;
+    text-align: center;
+  }
+
+  .selections-block {
+    width: 675px;
     display: flex;
+    justify-content: space-between;
+    margin: 20px auto 0;
   }
 
-  .hide-range {
-    visibility: hidden;
+  .selection-carousel {
+    width: 675px;
+    margin: 25px auto 0;
+
+    & :global(.selection-block) {
+      margin-left: 30px;
+    }
   }
 
-  @media only screen and (max-width: 768px) {
-    .filters {
-      flex-direction: column;
+  .action-carousel {
+    margin: 25px auto 0;
 
-      & > div {
-        margin: 5px auto 0;
-        width: 200px;
-
-        & > input,
-        & > button {
-          width: 100%;
-        }
-      }
-    }
-
-    .two-input {
-      display: flex;
-
-      & > input {
-        width: 50%;
-        padding: 0 3px;
-        box-sizing: border-box;
-      }
-
-      & > div {
-        width: 50%;
-        box-sizing: border-box;
-
-        & > input {
-          width: 100%;
-          padding: 0 3px;
-          box-sizing: border-box;
-        }
-      }
-    }
-
-    #price-end,
-    #date-end {
-      margin-left: -1px;
-      width: calc(100% + 1px);
-    }
-
-    .cards-block {
-      grid-template-columns: repeat(1, 100%);
+    & :global(.card) {
+      margin-left: 15px;
     }
   }
 </style>
 
 <svelte:head>
-  <title>{_('event_catalog')}</title>
+  <title>{_('event_calendar')}</title>
+  <script src="./js/flickity.min.js" on:load={fLoad}>
+
+  </script>
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/flickity@2/dist/flickity.min.css" />
 </svelte:head>
 
-<svelte:window on:click={hideAll} />
-
 <Header {locale} />
-<!-- <BreadCrumbs path = {[{name: "Каталог событий", url: "./"}]} /> -->
 <div class="form-width">
-  <h1>{_('event_catalog')}</h1>
-  <div class="filters">
-    <div class="two-input">
-      <input
-        placeholder={_('date_from')}
-        class="date"
-        type="text"
-        bind:value={filter[0][0].value}
-        on:change={changeFilter}
-        on:focus={function(e) {
-          e.target.type = 'date';
-        }}
-        on:blur={function(e) {
-          e.target.type = 'text';
-        }} />
-      <input
-        placeholder={_('date_by')}
-        class="date"
-        type="text"
-        bind:value={filter[0][1].value}
-        on:change={changeFilter}
-        on:focus={function(e) {
-          e.target.type = 'date';
-        }}
-        on:blur={function(e) {
-          e.target.type = 'text';
-        }}
-        id="date-end" />
+  <h1>{_("main_text")}</h1>
+  <Quiz {_} {subjects} {fetcher} />
+  <div class="info-block">
+    <div>
+      <h2>{_("event_calendar_baikal")}</h2>
+      <p>
+        <b>{_("event_calendar_text_1")}</b>
+      </p>
+      <p>
+        {_("event_calendar_text_2")}
+      </p>
+      <p class="new-section">
+        <b>{_("event_calendar_text_3")}</b>
+      </p>
+      <p>{_("event_calendar_text_4")}</p>
     </div>
-    <div class="select-block">
-      <button
-        class="select"
-        bind:this={options[0].btn}
-        on:click={() => {
-          options[0].isVisible = true;
-        }}>
-        {_('where')}
-      </button>
-      <div
-        class="option"
-        class:option-visible={options[0].isVisible}
-        bind:this={options[0].option}>
-        {#each filter[1] as city, i}
-          <div
-            on:click={() => {
-              city.active = !city.active;
-              changeFilter();
-            }}>
-            <label>{city.value}</label>
-            <input type="checkbox" bind:checked={city.active} />
-          </div>
-        {/each}
-      </div>
-    </div>
-    <div class="select-block">
-      <button
-        class="select"
-        bind:this={options[1].btn}
-        on:click={() => {
-          options[1].isVisible = true;
-        }}>
-        {_('with_whom')}
-      </button>
-      <div
-        class="option"
-        class:option-visible={options[1].isVisible}
-        bind:this={options[1].option}>
-        {#each filter[2] as companios}
-          <div
-            on:click={() => {
-              companios.active = !companios.active;
-              changeFilter();
-            }}>
-            <label>{companios.value}</label>
-            <input type="checkbox" checked={companios.active} />
-          </div>
-        {/each}
-      </div>
-    </div>
-    <div class="select-block">
-      <button
-        class="select"
-        bind:this={options[2].btn}
-        on:click={() => {
-          options[2].isVisible = true;
-        }}>
-        {_('thematics')}
-      </button>
-      <div
-        class="option"
-        class:option-visible={options[2].isVisible}
-        bind:this={options[2].option}>
-        {#each filter[3] as subjects}
-          <div
-            on:click={() => {
-              subjects.active = !subjects.active;
-              changeFilter();
-            }}>
-            <label>{subjects.value}</label>
-            <input type="checkbox" bind:checked={subjects.active} />
-          </div>
-        {/each}
-      </div>
-    </div>
-    <div class="prices two-input">
-      <div class="price-filter">
-        <input
-          type="number"
-          placeholder={_('price_from')}
-          id="price-start"
-          bind:value={priceStart}
-          on:blur={setPrice}
-          bind:this={options[3].btn}
-          on:click={() => {
-            options[3].isVisible = true;
-          }} />
-        <div
-          class:hide-range={!options[3].isVisible}
-          bind:this={options[3].option}>
-          <input
-            type="range"
-            min={result_filters.data.prices[0].min}
-            max={priceEnd === '' ? result_filters.data.prices[0].max - 1 : priceEnd}
-            bind:value={priceStart}
-            on:change={setPrice} />
-        </div>
-      </div>
-      <div class="price-filter">
-        <input
-          type="number"
-          placeholder={_('to')}
-          id="price-end"
-          bind:value={priceEnd}
-          on:blur={setPrice}
-          bind:this={options[4].btn}
-          on:click={() => {
-            options[4].isVisible = true;
-          }} />
-        <div
-          class:hide-range={!options[4].isVisible}
-          bind:this={options[4].option}>
-          <input
-            type="range"
-            min={priceStart}
-            max={result_filters.data.prices[0].max}
-            bind:value={priceEnd}
-            on:change={setPrice} />
-        </div>
-      </div>
-    </div>
+    <frame
+      src="https://www.youtube.com/watch?v=Ryh-7RNmC44"
+      name="video"
+      scrolling="no"
+      noresize />
   </div>
-  
-  <ActiveFilters {filter} {showFilter} {date} {price} min={0} max={4} {_} on:closeFilter={closeFilter} on:closePrice={closePrice}/>
 
-  <div class="cards-block">
-    {#each cards as cardInfo (cardInfo.id)}
-      <Card {...cardInfo} {locale} />
+  <h2>{_("selections_top")}</h2>
+  <div class="selections-block">
+    <Selection width={200} height={150} />
+    <Selection width={200} height={150} />
+    <Selection width={200} height={150} />
+  </div>
+  <div class="selection-carousel" bind:this={selectionsBlock}>
+    <Selection width={270} height={150} />
+    <Selection width={270} height={150} />
+    <Selection width={270} height={150} />
+  </div>
+
+  <h2>{_("actions_top")}</h2>
+  <div class="action-carousel" bind:this={actinosBlock}>
+    {#each actions as action}
+      <Card {...action} {locale} saveURL={false}/>
     {/each}
   </div>
-
-  <Pagination {pagData} on:clickPag={clickPag} />
 </div>
 <Footer {locale} />

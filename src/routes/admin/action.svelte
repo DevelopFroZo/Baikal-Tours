@@ -5,6 +5,9 @@
     const fetcher = new Fetcher(this.fetch);
     let actionId = page.query.id;
     let result_action = await fetcher.get("/api/actions/" + actionId, {
+      query: {
+        getSubscribers: ""
+      },
       credentials: "same-origin"
     });
     let locale = session.locale;
@@ -16,7 +19,7 @@
 </script>
 
 <script>
-  import HrefMenu from "./_href_menu.svelte";
+  import AdminPage from "./_admin_page.svelte";
   import i18n from "/helpers/i18n/index.js";
   import { parsePrice } from "/helpers/parsers.js";
   import { contactsToString, dateToString } from "/helpers/converters.js";
@@ -186,233 +189,219 @@
 </style>
 
 <svelte:head>
-  <title>{result_action.title === null ? "Страница события" : result_action.title}</title>
+  <title>
+    {result_action.title === null ? 'Страница события' : result_action.title}
+  </title>
 </svelte:head>
 
-<div class="admin-block">
-  <div class="form-width">
-    <HrefMenu page={0} />
-    <div class="admin-page">
-      <a href="./admin" class="back-page">назад к списку событий</a>
-      <div class="event-block">
-        <div class="event-edit">
-          <select bind:value={result_action.status} on:change={changeStatus}>
-            <option value="active">Активное</option>
-            <option value="hidden">Скрытое</option>
-            <option value="archive">Архив</option>
-          </select>
-          <a href={`/admin/edit?id=${actionId}`}>Редактировать</a>
-        </div>
-        <h1>{result_action.name}</h1>
-        <pre>{result_action.full_description}</pre>
-        <h2>Фотографии события</h2>
-        <div class="images-block">
-          {#each result_action.images as image}
-            <div class="img-block">
-              <div class="img">
-                <img
-                  src={image.image_url}
-                  class:imp={image.is_main}
-                  alt="image" />
-              </div>
-              {#if image.is_main}
-                <div class="imp-text">Главная</div>
-              {/if}
-            </div>
-          {/each}
-        </div>
-        <div class="info-block">
-          <div class="left-side">
-
-            <div class="line">
-              <div class="info-image">
-                <img src="img/date.png" alt="date" />
-              </div>
-              <div class="info">
-                <ul>
-                  {#each result_action.dates as date}
-                    <li>{dateToString(date, _)}</li>
-                  {/each}
-                </ul>
-              </div>
-            </div>
-
-            <div class="line">
-              <div class="info-image">
-                <img src="img/place.png" alt="place" />
-              </div>
-              <div class="info">
-                <ul>
-                  {#each result_action.locations as location}
-                    <li>
-                      {location.name + (location.address === null ? '' : ', ' + location.address)}
-                    </li>
-                  {/each}
-                </ul>
-              </div>
-            </div>
-
-            <div class="line">
-              <div class="info-image">
-                <img src="img/org.png" alt="organisation" />
-              </div>
-              <div class="info">
-                {result_action.organizer_name}
-                {#if contactData.length > 0}
-                  <ul class="contact-ul">
-                    {#each contactData as contact}
-                      <li>{contact}</li>
-                    {/each}
-                  </ul>
-                {/if}
-              </div>
-            </div>
-
-            <div class="line">
-              <div class="info-image">
-                <img src="img/transfer.png" alt="transfer" />
-              </div>
-              <div class="info">
-                {_('transfer')}
-                <ul>
-                  {#each result_action.transfers as transfer}
-                    <li>{transfer.name}</li>
-                  {/each}
-                </ul>
-              </div>
-            </div>
-
+<AdminPage page={0}>
+  <a href="./admin" class="back-page">назад к списку событий</a>
+  <div class="event-block">
+    <div class="event-edit">
+      <select bind:value={result_action.status} on:change={changeStatus}>
+        <option value="active">Активное</option>
+        <option value="hidden">Скрытое</option>
+        <option value="archive">Архив</option>
+      </select>
+      <a href={`/admin/edit?id=${actionId}`}>Редактировать</a>
+    </div>
+    <h1>{result_action.name}</h1>
+    <pre>{result_action.full_description}</pre>
+    <h2>Фотографии события</h2>
+    <div class="images-block">
+      {#each result_action.images as image}
+        <div class="img-block">
+          <div class="img">
+            <img src={image.image_url} class:imp={image.is_main} alt="image" />
           </div>
-          <div class="right-side">
+          {#if image.is_main}
+            <div class="imp-text">Главная</div>
+          {/if}
+        </div>
+      {/each}
+    </div>
+    <div class="info-block">
+      <div class="left-side">
 
-            <div class="line">
-              <div class="info-image">
-                <img src="img/price.png" alt="price" />
-              </div>
-              <div class="info">{_('price')}: {second_price}</div>
-            </div>
+        <div class="line">
+          <div class="info-image">
+            <img src="img/date.png" alt="date" />
+          </div>
+          <div class="info">
+            <ul>
+              {#each result_action.dates as date}
+                <li>{dateToString(date, _)}</li>
+              {/each}
+            </ul>
+          </div>
+        </div>
 
-            {#if result_action.vk_link !== null || result_action.instagram_link !== null || result_action.facebook_link !== null || result_action.twitter_link !== null || result_action.websites !== null}
-              <div class="line">
-                <div class="info-image">
-                  <img src="img/pages.png" alt="pages" />
-                </div>
-                <div class="info">
-                  <ul>
-                    {#if result_action.websites !== null}
-                      <li>
-                        <a href={result_action.websites[0]} target="_blank">
-                          {_('official_site')}
-                        </a>
-                      </li>
-                    {/if}
-                    {#if result_action.vk_link !== null}
-                      <li>
-                        <a href={result_action.vk_link} target="_blank">
-                          {_('VK_group')}
-                        </a>
-                      </li>
-                    {/if}
-                    {#if result_action.instagram_link !== null}
-                      <li>
-                        <a href={result_action.instagram_link} target="_blank">
-                          {_('instagram')}
-                        </a>
-                      </li>
-                    {/if}
-                    {#if result_action.facebook_link !== null}
-                      <li>
-                        <a href={result_action.facebook_link} target="_blank">
-                          {_('facebook')}
-                        </a>
-                      </li>
-                    {/if}
-                    {#if result_action.twitter_link !== null}
-                      <li>
-                        <a href={result_action.twitter_link} target="_blank">
-                          {_('twitter')}
-                        </a>
-                      </li>
-                    {/if}
-                  </ul>
-                </div>
-              </div>
+        <div class="line">
+          <div class="info-image">
+            <img src="img/place.png" alt="place" />
+          </div>
+          <div class="info">
+            <ul>
+              {#each result_action.locations as location}
+                <li>
+                  {location.name + (location.address === null ? '' : ', ' + location.address)}
+                </li>
+              {/each}
+            </ul>
+          </div>
+        </div>
+
+        <div class="line">
+          <div class="info-image">
+            <img src="img/org.png" alt="organisation" />
+          </div>
+          <div class="info">
+            {result_action.organizer_name}
+            {#if contactData.length > 0}
+              <ul class="contact-ul">
+                {#each contactData as contact}
+                  <li>{contact}</li>
+                {/each}
+              </ul>
             {/if}
-
-            <div class="line">
-              <div class="info-image">
-                <img src="img/birk.png" alt="date" />
-              </div>
-              <div class="info">
-                <ul>
-                  {#each result_action.subjects as subjects}
-                    <li>{subjects.name}</li>
-                  {/each}
-                </ul>
-              </div>
-            </div>
-
           </div>
         </div>
-        <h2>Варианты участия</h2>
-        <div class="payment-block">
-          {#if result_action.price_min == 0 && result_action.price_max === 0}
-            <div class="gray">Бесплатное</div>
-          {/if}
-          {#if result_action.organizer_payment !== null && result_action.organizer_payment !== ''}
-            <div class="blue">Оплата через организатора</div>
-          {/if}
-          {#if result_action.site_payment}
-            <div class="green">Оплата на сайте</div>
-          {/if}
+
+        <div class="line">
+          <div class="info-image">
+            <img src="img/transfer.png" alt="transfer" />
+          </div>
+          <div class="info">
+            {_('transfer')}
+            <ul>
+              {#each result_action.transfers as transfer}
+                <li>{transfer.name}</li>
+              {/each}
+            </ul>
+          </div>
         </div>
-        <h2>Партнеры события</h2>
-        <div class="images-block">
-          {#each result_action.partners as partner}
-            <div class="img-block">
-              <div class="img">
-                <img
-                  src={partner.image_url}
-                  alt="image" />
-              </div>
-              {#if partner.name !== null}
-                <div class="imp-text">{partner.name}</div>
-              {/if}
+
+      </div>
+      <div class="right-side">
+
+        <div class="line">
+          <div class="info-image">
+            <img src="img/price.png" alt="price" />
+          </div>
+          <div class="info">{_('price')}: {second_price}</div>
+        </div>
+
+        {#if result_action.vk_link !== null || result_action.instagram_link !== null || result_action.facebook_link !== null || result_action.twitter_link !== null || result_action.websites !== null}
+          <div class="line">
+            <div class="info-image">
+              <img src="img/pages.png" alt="pages" />
             </div>
-          {/each}
+            <div class="info">
+              <ul>
+                {#if result_action.websites !== null}
+                  <li>
+                    <a href={result_action.websites[0]} target="_blank">
+                      {_('official_site')}
+                    </a>
+                  </li>
+                {/if}
+                {#if result_action.vk_link !== null}
+                  <li>
+                    <a href={result_action.vk_link} target="_blank">
+                      {_('VK_group')}
+                    </a>
+                  </li>
+                {/if}
+                {#if result_action.instagram_link !== null}
+                  <li>
+                    <a href={result_action.instagram_link} target="_blank">
+                      {_('instagram')}
+                    </a>
+                  </li>
+                {/if}
+                {#if result_action.facebook_link !== null}
+                  <li>
+                    <a href={result_action.facebook_link} target="_blank">
+                      {_('facebook')}
+                    </a>
+                  </li>
+                {/if}
+                {#if result_action.twitter_link !== null}
+                  <li>
+                    <a href={result_action.twitter_link} target="_blank">
+                      {_('twitter')}
+                    </a>
+                  </li>
+                {/if}
+              </ul>
+            </div>
+          </div>
+        {/if}
+
+        <div class="line">
+          <div class="info-image">
+            <img src="img/birk.png" alt="date" />
+          </div>
+          <div class="info">
+            <ul>
+              {#each result_action.subjects as subjects}
+                <li>{subjects.name}</li>
+              {/each}
+            </ul>
+          </div>
         </div>
-        <!-- <h2>Список зарегистрировавшихся</h2>
-        {#if result_action.subscribers.length !== 0}
-        <table>
-          <tr>
-            <td>*</td>
-            <td>Имя</td>
-            <td>Фамилия</td>
-            <td>Телефон</td>
-            <td>E-mail</td>
-            <td>роль</td>
-          </tr>
-          {#each result_action.subscribers as subscriber}
-            <tr>
-                <td>*</td>
-                <td>{subscriber.name}</td>
-                <td>{subscriber.surname}</td>
-                <td>{subscriber.phone}</td>
-                <td>{subscriber.email}</td>
-                <td>
-                    {#if subscriber.is_admin}
-                        Администратор
-                    {:else}
-                        Пользователь
-                    {/if}
-                </td>
-            </tr>
-          {/each}
-        </table>
-        {:else}
-            Нет зарегистрированных пользователей
-        {/if} -->
+
       </div>
     </div>
+    <h2>Варианты участия</h2>
+    <div class="payment-block">
+      {#if result_action.price_min == 0 && result_action.price_max === 0}
+        <div class="gray">Бесплатное</div>
+      {/if}
+      {#if result_action.organizer_payment !== null && result_action.organizer_payment !== ''}
+        <div class="blue">Оплата через организатора</div>
+      {/if}
+      {#if result_action.site_payment}
+        <div class="green">Оплата на сайте</div>
+      {/if}
+    </div>
+    <h2>Партнеры события</h2>
+    <div class="images-block">
+      {#each result_action.partners as partner}
+        <div class="img-block">
+          <div class="img">
+            <img src={partner.image_url} alt="image" />
+          </div>
+          {#if partner.name !== null}
+            <div class="imp-text">{partner.name}</div>
+          {/if}
+        </div>
+      {/each}
+    </div>
+    <h2>Список зарегистрировавшихся</h2>
+    {#if result_action.subscribers.length !== 0}
+      <table>
+        <tr>
+          <td>*</td>
+          <td>Имя</td>
+          <td>Фамилия</td>
+          <td>Телефон</td>
+          <td>E-mail</td>
+          <td>роль</td>
+        </tr>
+        {#each result_action.subscribers as subscriber}
+          <tr>
+            <td>*</td>
+            <td>{subscriber.name}</td>
+            <td>{subscriber.surname}</td>
+            <td>{subscriber.phone}</td>
+            <td>{subscriber.email}</td>
+            <td>
+              {#if subscriber.is_admin}Администратор{:else}Пользователь{/if}
+            </td>
+          </tr>
+        {/each}
+      </table>
+    {:else}Нет зарегистрированных пользователей{/if}
   </div>
-</div>
+</AdminPage>

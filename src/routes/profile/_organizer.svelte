@@ -1,5 +1,7 @@
 <script>
-
+  export let _;
+  let hideForm = false,
+    hideApplications = false;
 </script>
 
 <style lang="scss">
@@ -163,157 +165,163 @@
       }
     }
   }
-  
-  .event{
-      background: $Light_Gray;
-      border: 1px solid $Gray;
-      padding: 20px;
-      box-sizing: border-box;
 
-      &:not(:first-child){
-          margin-top: 25px;
-      }
+  .event {
+    background: $Light_Gray;
+    border: 1px solid $Gray;
+    padding: 20px;
+    box-sizing: border-box;
 
-      & > h2{
-          margin: 0;
-      }
+    &:not(:first-child) {
+      margin-top: 25px;
+    }
 
-      & > p{
-          padding: 10px 0;
-          border: solid $Gray;
-          border-width: 0 0 1px 0;
-      }
-  }
+    & > h2 {
+      margin: 0;
+    }
 
-  .tickets-block{
-      display: flex;
-      justify-content: space-between;
-      margin-top: 20px;
-      padding-bottom: 20px;
+    & > p {
+      padding: 10px 0;
       border: solid $Gray;
       border-width: 0 0 1px 0;
-
-      & > div{
-          width: 155px;
-
-          & > span{
-              font-weight: bold;
-          }
-
-          & > table{
-              margin-top: 10px;
-              width: 100%;
-          }
-      }
-
-      & > .download-info-block{
-          width: 190px;
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          
-          & > button{
-              background: #4FC617;
-              box-shadow: inset 0px 0px 7px rgba(0, 0, 0, 0.25);
-              display: flex;
-              align-items: center;
-              padding: 5px 10px;
-              color: white;
-              text-align: left;
-              box-sizing: border-box;
-
-              & > img{
-                  margin-left: 5px;
-              }
-          }
-
-      }
+    }
   }
 
-  .payed{
-      margin: 20px 0 0 0 !important;
+  .tickets-block {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+    padding-bottom: 20px;
+    border: solid $Gray;
+    border-width: 0 0 1px 0;
+
+    & > div {
+      width: 155px;
+
+      & > span {
+        font-weight: bold;
+      }
+
+      & > table {
+        margin-top: 10px;
+        width: 100%;
+      }
+    }
+
+    & > .download-info-block {
+      width: 190px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+
+      & > button {
+        background: #4fc617;
+        box-shadow: inset 0px 0px 7px rgba(0, 0, 0, 0.25);
+        display: flex;
+        align-items: center;
+        padding: 5px 10px;
+        color: white;
+        text-align: left;
+        box-sizing: border-box;
+
+        & > img {
+          margin-left: 5px;
+        }
+      }
+    }
   }
 
+  .payed {
+    margin: 20px 0 0 0 !important;
+  }
 </style>
 
 <div class="form">
   <div class="balance-block">
-    <h3>Баланс</h3>
+    <h3>{_("balance")}</h3>
     <div class="balanse-info-block">
-      <div>На Вашем баллансе</div>
-      <div>10 500 руб</div>
+      <div>{_("balance_status")}</div>
+      <div>10 500 {_("rub")}</div>
     </div>
-    <button class="hide">Скрыть форму заявки</button>
-    <div class="payment-block">
-      <h2>Заявка на вывод средств</h2>
-      <div class="payment-info-block">
-        <div>
+    <button class="hide" on:click={() => (hideForm = !hideForm)}>
+      {#if !hideForm}{_("hide_application_form")}{:else}{_("show_application_form")}{/if}
+    </button><br>
+    {#if !hideForm}
+      <div class="payment-block">
+        <h2>{_("request_for_applications")}</h2>
+        <div class="payment-info-block">
           <div>
-            <label for="name">Плучатель</label>
-            <input type="text" name="name" />
+            <div>
+              <label for="name">{_("recipient")}</label>
+              <input type="text" name="name" />
+            </div>
+            <div>
+              <label for="bank">{_("recipient_bank")}</label>
+              <input type="text" name="bank" />
+            </div>
+            <div>
+              <label for="number">{_("account_number")}</label>
+              <input type="text" name="number" />
+            </div>
           </div>
           <div>
-            <label for="bank">Банк получателя</label>
-            <input type="text" name="bank" />
-          </div>
-          <div>
-            <label for="number">Номер счета</label>
-            <input type="text" name="number" />
+            <div>
+              <label for="bik">{_("bik")}</label>
+              <input type="text" name="bik" />
+            </div>
+            <div>
+              <label for="inn">{_("inn")}</label>
+              <input type="text" name="inn" />
+            </div>
+            <div>
+              <label for="kpp">{_("kpp")}</label>
+              <input type="text" name="kpp" />
+            </div>
           </div>
         </div>
-        <div>
-          <div>
-            <label for="bik">БИК</label>
-            <input type="text" name="bik" />
-          </div>
-          <div>
-            <label for="inn">ИНН</label>
-            <input type="text" name="inn" />
-          </div>
-          <div>
-            <label for="kpp">КПП</label>
-            <input type="text" name="kpp" />
-          </div>
+        <div class="price-block">
+          <label for="price">{_("amount")}</label>
+          <input type="text" name="price" />
+          {_("rub")}
+          <button class="blue-button">{_("send_request")}</button>
         </div>
       </div>
-      <div class="price-block">
-        <label for="price">Сумма</label>
-        <input type="text" name="price" />
-        руб.
-        <button class="blue-button">Отправить заявку</button>
-      </div>
-    </div>
-    <button class="hide">Скрыть все заявки</button>
-    <table class="price-list">
-      <tr>
-        <td>Сумма</td>
-        <td>Статус заказа</td>
-      </tr>
-      <tr>
-        <td>8900руб.</td>
-        <td>Обрабатывается</td>
-      </tr>
-      <tr>
-        <td>3900руб.</td>
-        <td>
-          <div>
-            Отклонена
-            <button class="info">
-              <img src="/img/tooltip.png" alt="tooltip" />
-            </button>
-            <div class="info-hover">Ну кароче ты дурачек</div>
-          </div>
+    {/if}
+    <button class="hide" on:click={() => hideApplications = !hideApplications}>
+      {#if !hideApplications}{_("hide_all_applications")}{:else}{_("show_all_applications")}{/if}
+    </button>
+    {#if !hideApplications}
+      <table class="price-list">
+        <tr>
+          <td>{_("amount")}</td>
+          <td>{_("order_status")}</td>
+        </tr>
+        <tr>
+          <td>8900{_("rub")}</td>
+          <td>{_("processed")}</td>
+        </tr>
+        <tr>
+          <td>3900{_("rub")}</td>
+          <td>
+            <div>
+              {_("rejected")}
+              <button class="info">
+                <img src="/img/tooltip.png" alt="tooltip" />
+              </button>
+              <div class="info-hover">Ну кароче ты дурачек</div>
+            </div>
 
-        </td>
-      </tr>
-      <tr>
-        <td>1900руб</td>
-        <td>Выплачено</td>
-      </tr>
-    </table>
+          </td>
+        </tr>
+        <tr>
+          <td>1900{_("rub")}</td>
+          <td>{_("paid")}</td>
+        </tr>
+      </table>
+    {/if}
   </div>
 
-  <h2 class="high">Ваши события</h2>
+  <h2 class="high">{_("your_events")}</h2>
 
   <div class="events-block">
     <div class="event">
@@ -325,7 +333,9 @@
       </p>
       <div class="tickets-block">
         <div class="ticket-block">
-          <span>Оплачно<br>билетов</span>
+          <span>
+            {_("paid_tickets")}
+          </span>
           <table>
             <tr>
               <td>Взрослый</td>
@@ -342,7 +352,9 @@
           </table>
         </div>
         <div class="services-block">
-          <span>Оплачно<br>дополнительных услуг</span>
+          <span>
+            {_("paid_additional")}
+          </span>
           <table>
             <tr>
               <td>Питание</td>
@@ -356,12 +368,12 @@
         </div>
         <div class="download-info-block">
           <button>
-            Скачать список зарегистрированнах
+            {_("download_registered_users")}
             <img src="/img/excel.png" alt="excel" />
           </button>
         </div>
       </div>
-      <h2 class="payed">Оплачено: 29 500 руб.</h2>
+      <h2 class="payed">{_("paid2")} 29 500 {_("rub")}</h2>
     </div>
   </div>
 

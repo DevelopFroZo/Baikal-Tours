@@ -10,17 +10,17 @@
 
     let locale = session.locale;
 
-    return {users, locale};
+    return { users, locale };
   }
 </script>
 
 <script>
-  import HrefMenu from "./_href_menu.svelte";
+  import AdminPage from "./_admin_page.svelte";
   import i18n from "/helpers/i18n/index.js";
 
   export let users, locale;
 
-  const _ = i18n( locale );
+  const _ = i18n(locale);
 </script>
 
 <style lang="scss">
@@ -55,36 +55,35 @@
   <title>Пользователи</title>
 </svelte:head>
 
-<div class="admin-block">
-  <div class="form-width">
-    <HrefMenu page={1} />
-    <div class="admin-page">
-      <div>
-        <h1>Пользователи - {users.length}</h1>
+<AdminPage page={1}>
+  <div>
+    <h1>Пользователи - {users.length}</h1>
 
-        <input type="text" placeholder="поиск" class="search-input" />
+    <input type="text" placeholder="поиск" class="search-input" />
 
-        <table>
-          <tr>
-            <td />
-            <td>Имя</td>
-            <td>Фамилия</td>
-            <td>Телефон</td>
-            <td>E-mail</td>
-            <td>Роль</td>
-          </tr>
-          {#each users as user}
-            <tr>
-                <td><a href="./"><img src="/img/info.png" alt="info"></a></td>
-                <td>{user.name}</td>
-                <td>{user.surname}</td>
-                <td>{user.phone}</td>
-                <td>{user.email}</td>
-                <td>{_(user.role)}</td>
-            </tr>
-          {/each}
-        </table>
-      </div>
-    </div>
+    <table>
+      <tr>
+        <td />
+        <td>Имя</td>
+        <td>Фамилия</td>
+        <td>Телефон</td>
+        <td>E-mail</td>
+        <td>Роль</td>
+      </tr>
+      {#each users as user}
+        <tr>
+          <td>
+            <a href="./">
+              <img src="/img/info.png" alt="info" />
+            </a>
+          </td>
+          <td>{user.name}</td>
+          <td>{user.surname}</td>
+          <td>{user.phone}</td>
+          <td>{user.email}</td>
+          <td>{_(user.role)}</td>
+        </tr>
+      {/each}
+    </table>
   </div>
-</div>
+</AdminPage>

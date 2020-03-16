@@ -24,8 +24,6 @@
 
   export let result_action, actionId, locale;
 
-  console.log(result_action)
-
   const fetcher = new Fetcher();
   let response,
     data = result_action.data,
@@ -53,7 +51,9 @@
     }
     actionsParams = localStorage.getItem("actionsParams")
     if(actionsParams === null)
-      actionsParams = "./"
+      actionsParams = "./actions"
+
+    console.log(actionsParams)
 
   });
 
@@ -72,7 +72,6 @@
 
     if (subscribeStatus.ok) alert("Вы успешно подписались на событие");
   }
-
 </script>
 
 <style lang="scss">

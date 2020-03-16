@@ -5,19 +5,11 @@
 <style lang="scss">
   @import "./styles/global.scss";
 
-  .admin-block {
-    background: $Light_Gray;
-    min-height: 100vh;
-  }
-
   .category-block {
     background: $Light_Black;
     width: 120px;
     height: 610px;
-  }
-
-  .form-width {
-    display: flex;
+    position: relative;
   }
 
   h1 {
@@ -45,6 +37,13 @@
     background: $Gray;
     color: $Light_Black;
     font-weight: bold;
+  }
+
+  .exit{
+    position: absolute;
+    bottom: 5px;
+    left: 50%;
+    transform: translateX(-50%);
   }
 </style>
 
@@ -90,5 +89,8 @@
     class:active-page={page === 7}
     href="./admin/options">
     Настройки
+  </a>
+  <a href="/" class="exit">
+    <img src="/img/exit.png" alt="exit" />
   </a>
 </div>

@@ -3,8 +3,6 @@
 
   export let userSubscribeds, _;
 
-  console.log(userSubscribeds)
-
   let section = "next";
 
   let secondActions = [],
@@ -44,13 +42,13 @@
       class:active={section === 'next'}
       on:click={() => setSection('next')}
       disabled={section === 'next'}>
-      Будущие события
+      {_("next_events")}
     </button>
     <button
       class:active={section === 'prev'}
       on:click={() => setSection('prev')}
       disabled={section === 'prev'}>
-      Прошедшие события
+      {_("prev_events")}
     </button>
   </div>
   {#if section === 'next'}
@@ -59,7 +57,7 @@
         <Action {...action} {_} />
       {/each}
     {:else}
-      <h2 class="not-found">Будущие события не найдены</h2>
+      <h2 class="not-found">{_("next_events_not_found")}</h2>
     {/if}
   {:else if section === 'prev'}
     {#if oldActions.length !== 0}
@@ -67,7 +65,7 @@
         <Action {...action} {_} />
       {/each}
     {:else}
-      <h2 class="not-found">Прошедшие события не найдены</h2>
+      <h2 class="not-found">{_("prev_events_not_found")}</h2>
     {/if}
   {/if}
 </div>

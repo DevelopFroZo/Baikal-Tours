@@ -4,7 +4,7 @@
   import Fetcher from "/helpers/fetcher.js";
   import { stores } from "@sapper/app";
 
-  export let userInfo, name, surname, phone, email, subjectsInfo;
+  export let userInfo, name, surname, phone, email, subjectsInfo, _;
 
   let userName = [name, surname].filter(el => el !== null).join(" ");
   let newData = {},
@@ -57,13 +57,13 @@
     if (Object.keys(newData).length !== 0) {
       let message = "";
       if (email !== null && !validateMail(email))
-        message = "Некорректный формат почты";
+        message = _("uncorrect_mail");
       else if (message === "" && oldPassword !== null) {
         if (newPassword === null || confirmNewPassword === null)
           message =
-            "Чтобы изменить пароль, введите текущий пароль, новый пароль и подтвердите новый пароль";
+            _("change_new_password_message");
         else if (newPassword !== confirmNewPassword)
-          message = "Новый пароль не совпадает с подтвержденным";
+          message = _("uncorrect_passwords");
       }
 
       if (message !== "") alert(message);
@@ -170,13 +170,13 @@
 <div>
   <div class="contacts-data">
     <div>
-      <h2>Контактные данные</h2>
+      <h2>{_("contact_details")}</h2>
       <div>
-        <label for="name">Имя Фамилия</label>
+        <label for="name">{_("name")} {_("surname")}</label>
         <input type="text" name="name" bind:value={userName} />
       </div>
       <div>
-        <label for="phone">Телефон</label>
+        <label for="phone">{_("phone")}</label>
         <input
           type="text"
           name="phone"
@@ -189,17 +189,17 @@
       </div>
     </div>
     <div>
-      <h2>Смена пароля</h2>
+      <h2>{_("password_change")}</h2>
       <div>
-        <label for="oldPassword">Текущий пароль</label>
+        <label for="oldPassword">{_("current_password")}</label>
         <input type="password" name="oldPassword" bind:value={oldPassword} />
       </div>
       <div>
-        <label for="newPassword">Новый пароль</label>
+        <label for="newPassword">{_("new_password")}</label>
         <input type="password" name="newPassword" bind:value={newPassword} />
       </div>
       <div>
-        <label for="confirmNewPassword">Подтвердите новый пароль</label>
+        <label for="confirmNewPassword">{_("confirm_new_password")}</label>
         <input
           type="password"
           name="confirmNewPassword"
@@ -207,12 +207,11 @@
       </div>
     </div>
   </div>
-  <h2>Дайджест событий</h2>
+  <h2>{_("event_digest")}</h2>
   <p class="digest-text">
-    Дайджест событий – это email рассылка о ближайших событиях по выбранным
-    тематикам
+    {_("digest_info")}
   </p>
-  <p class="question-text">Выберите тематики, которые Вам интересны</p>
+  <p class="question-text">{_("intresting_subjects")}</p>
   <div class="subjects-block">
     {#each subjectsInfo as subject}
     <label for="sport">
@@ -222,25 +221,25 @@
     {/each}
   </div>
   <p class="question-text">
-    С какой периодичностью Вы хотите получать дайджест событий?
+    {_("digest_interval")}
   </p>
   <div class="periodicity-block">
     <label for="periodicity">
       <input type="radio" name="periodicity" />
-      1 раз в месяц
+      {_("one_per_mounth")}
     </label>
     <label for="periodicity">
       <input type="radio" name="periodicity" />
-      1 раз в 2 месяца
+      {_("two_per_mounth")}
     </label>
     <label for="periodicity">
       <input type="radio" name="periodicity" />
-      1 раз в полгода
+      {_("one_per_half_a_year")}
     </label>
     <label for="periodicity">
       <input type="radio" name="periodicity" />
-      Не хочу получать дайджест
+      {_("cancel_digest")}
     </label>
   </div>
-  <button id="save" on:click={saveData}>СОХРАНИТЬ</button>
+  <button id="save" on:click={saveData}>{_("save").toUpperCase()}</button>
 </div>
