@@ -72,5 +72,11 @@ export default ( {
   forgot_password: "忘记密码?",
   not_registered: "尚未注册?",
   get_new_password: "获取新密码",
-  return_login_page: "返回登录页面"
+  return_login_page: "返回登录页面",
+
+  admin: "署长",
+  user: "用户",
+  settings: "设置",
+  actions: "活动",
+  organizer: "主办单位的网站"
 } );

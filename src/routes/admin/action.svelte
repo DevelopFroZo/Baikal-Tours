@@ -185,6 +185,10 @@
   }
 </style>
 
+<svelte:head>
+  <title>{result_action.title === null ? "Страница события" : result_action.title}</title>
+</svelte:head>
+
 <div class="admin-block">
   <div class="form-width">
     <HrefMenu page={0} />
@@ -362,8 +366,23 @@
             <div class="green">Оплата на сайте</div>
           {/if}
         </div>
-        <h2>Список зарегистрировавшихся</h2>
-        <!-- {#if result_action.subscribers.length !== 0}
+        <h2>Партнеры события</h2>
+        <div class="images-block">
+          {#each result_action.partners as partner}
+            <div class="img-block">
+              <div class="img">
+                <img
+                  src={partner.image_url}
+                  alt="image" />
+              </div>
+              {#if partner.name !== null}
+                <div class="imp-text">{partner.name}</div>
+              {/if}
+            </div>
+          {/each}
+        </div>
+        <!-- <h2>Список зарегистрировавшихся</h2>
+        {#if result_action.subscribers.length !== 0}
         <table>
           <tr>
             <td>*</td>

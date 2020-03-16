@@ -1,0 +1,42 @@
+@import "./styles/global.scss";
+
+.profile-type-block,
+.action-type-block {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 25px 0;
+  border: solid black;
+  border-width: 0 0 1px 0;
+
+  & > button {
+    padding: 3px 10px;
+    border-radius: 30px;
+    font-size: $Big_Font_Size;
+  }
+
+  & > button.active {
+    background: $Gray;
+  }
+}
+
+.form-width {
+  width: 680px;
+  font-size: $Medium_Font_Size;
+}
+
+h2 {
+  margin-top: 30px;
+  font-size: $Big_Font_Size;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.blue-button{
+  background: $Dark_Blue;
+  padding: 5px;
+  color: white;
+  font-size: $Medium_Font_Size;
+  display: block;
+  margin: 15px auto 0;
+}

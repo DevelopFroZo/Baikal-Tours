@@ -72,5 +72,11 @@ export default ( {
   forgot_password: "Забыли пароль?",
   not_registered: "Еще не зарегистрированы?",
   get_new_password: "Получить новый пароль",
-  return_login_page: "Вернуться на страницу входа"
+  return_login_page: "Вернуться на страницу входа",
+
+  admin: "Администратор",
+  user: "Пользователь",
+  settings: "Настройки",
+  actions: "События",
+  organizer: "Страница организатора"
 } );
