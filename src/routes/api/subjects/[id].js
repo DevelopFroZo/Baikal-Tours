@@ -1,10 +1,16 @@
 "use strict";
 
 import fetch from "node-fetch";
+import { toInt } from "/helpers/converters";
 import Translator from "/helpers/translator/index";
 import yandexEngineBuilder from "/helpers/translator/engines/yandex";
 
-export async function post( req, res ){
+export async function put( req, res ){
+  const id = toInt( req.params.id );
+
+  if( id === null || id < 1 )
+    return res.error( 9 );
+
   let translated = {};
 
   translated[ req.body.locale ] = req.body.name;
@@ -19,14 +25,14 @@ export async function post( req, res ){
     translated = { ...translated, ...translator.translated.name };
   }
 
-  res.json( await req.database.companions.create( translated ) );
+  res.json( await req.database.subjects.edit( id, translated ) );
 }
 
-export async function get( req, res ){
-  const role = req.session.role;
-  let locale = req.session.locale;
+export async function del( req, res ){
+  const id = toInt( req.params.id );
 
-  if( role === "admin" && req.query.locale ) locale = req.query.locale;
+  if( id === null || id < 1 )
+    return res.error( 9 );
 
-  res.json( await req.database.companions.getAll( locale ) );
+  res.json( await req.database.subjects.del( id ) );
 }

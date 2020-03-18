@@ -19,7 +19,7 @@ export async function post( req, res ){
     translated = { ...translated, ...translator.translated.name };
   }
 
-  res.json( await req.database.companions.create( translated ) );
+  res.json( await req.database.subjects.create( translated ) );
 }
 
 export async function get( req, res ){
@@ -28,5 +28,5 @@ export async function get( req, res ){
 
   if( role === "admin" && req.query.locale ) locale = req.query.locale;
 
-  res.json( await req.database.companions.getAll( locale ) );
+  res.json( await req.database.subjects.getAll( locale ) );
 }

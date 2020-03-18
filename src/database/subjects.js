@@ -7,12 +7,61 @@ export default class extends Foundation{
     super( modules, "Subjects" );
   }
 
-  async getAll(){
+  async create( data ){
+    const transaction = await super.transaction();
+
+    for( let locale in data )
+      await transaction.query(
+        `insert into subjects( id, name, locale )
+        values( (
+          select max( id ) + 1
+          from subjects
+          where locale = $1
+        ), $2, $1 )`,
+        [ locale, data[ locale ] ]
+      );
+
+    await transaction.end();
+
+    return super.success();
+  }
+
+  async getAll( locale ){
     const rows = ( await super.query(
-      `select *
-      from subjects`
+      `select id, name
+      from subjects
+      where locale = $1
+      order by id`,
+      [ locale ]
     ) ).rows;
 
     return super.success( 0, rows );
+  }
+
+  async edit( id, data ){
+    const transaction = await super.transaction();
+
+    for( let locale in data )
+      await transaction.query(
+        `insert into subjects( id, name, locale )
+        values( $1, $2, $3 )
+        on conflict ( id, locale ) do update
+        set name = excluded.name`,
+        [ id, data[ locale ], locale ]
+      );
+
+    await transaction.end();
+
+    return super.success();
+  }
+
+  async del( id ){
+    await super.query(
+      `delete from subjects
+      where id = $1`,
+      [ id ]
+    );
+
+    return super.success();
   }
 }

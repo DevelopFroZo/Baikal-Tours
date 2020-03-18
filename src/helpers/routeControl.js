@@ -51,4 +51,16 @@ export default ( server ) => {
   server.post( "/api/compiliations", secureAPI( "admin" ) );
   server.post( "/api/compiliations/:id/image", secureAPI( "admin" ), upload.single( "image" ) );
   // #fix добавить PUT
+
+  server.post( "/api/companions", secureAPI( "admin" ) );
+  server.put( "/api/companions/:id", secureAPI( "admin" ) );
+  server.delete( "/api/companions/:id", secureAPI( "admin" ) );
+
+  server.post( "/api/subjects", secureAPI( "admin" ) );
+  server.put( "/api/subjects/:id", secureAPI( "admin" ) );
+  server.delete( "/api/subjects/:id", secureAPI( "admin" ) );
+
+  server.post( "/api/transfers", secureAPI( "admin" ) );
+  server.put( "/api/transfers/:id", secureAPI( "admin" ) );
+  server.delete( "/api/transfers/:id", secureAPI( "admin" ) );
 };

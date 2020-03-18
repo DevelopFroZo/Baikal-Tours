@@ -4,7 +4,7 @@ import Foundation from "./helpers/foundation";
 
 export default class extends Foundation{
   constructor( modules ){
-    super( modules, "Companions" );
+    super( modules, "Transfers" );
   }
 
   async create( data ){
@@ -12,10 +12,10 @@ export default class extends Foundation{
 
     for( let locale in data )
       await transaction.query(
-        `insert into companions( id, name, locale )
+        `insert into transfers( id, name, locale )
         values( (
           select max( id ) + 1
-          from companions
+          from transfers
           where locale = $1
         ), $2, $1 )`,
         [ locale, data[ locale ] ]
@@ -29,7 +29,7 @@ export default class extends Foundation{
   async getAll( locale ){
     const rows = ( await super.query(
       `select id, name
-      from companions
+      from transfers
       where locale = $1
       order by id`,
       [ locale ]
@@ -43,7 +43,7 @@ export default class extends Foundation{
 
     for( let locale in data )
       await transaction.query(
-        `insert into companions( id, name, locale )
+        `insert into transfers( id, name, locale )
         values( $1, $2, $3 )
         on conflict ( id, locale ) do update
         set name = excluded.name`,
@@ -57,7 +57,7 @@ export default class extends Foundation{
 
   async del( id ){
     await super.query(
-      `delete from companions
+      `delete from transfers
       where id = $1`,
       [ id ]
     );
