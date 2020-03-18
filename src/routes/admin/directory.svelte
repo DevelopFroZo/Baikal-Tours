@@ -1,7 +1,7 @@
 <script context="module">
   import Fetcher from "/helpers/fetcher.js";
 
-  export async function preload(session, page) {
+  export async function preload(page, session) {
     const fetcher = new Fetcher(this.fetch);
 
     let locale = session.locale;
@@ -16,8 +16,13 @@
 
 <script>
   import AdminPage from "./_admin_page.svelte";
+  import i18n from "/helpers/i18n/index.js";
 
   export let locale, result_directories;
+
+  const fetcher = new Fetcher();
+  const _ = i18n(locale);
+
 </script>
 
 <style lang="scss">
@@ -72,12 +77,12 @@
   }
 </style>
 
-<AdminPage page={2}>
-  <h1>Справочники</h1>
+<AdminPage page={2} {fetcher} {_} {locale}>
+  <h1>{_("handbooks")}</h1>
   <div class="directories-line">
     <div class="directory">
       <div class="directory-header">
-        <h2>Локации</h2>
+        <h2>{_("locations")}</h2>
         <button>
           <img src="/img/edit_green.png" alt="edit" />
         </button>
@@ -93,7 +98,7 @@
     </div>
     <div class="directory">
       <div class="directory-header">
-        <h2>Тематики</h2>
+        <h2>{_("subjects")}</h2>
         <button>
           <img src="/img/edit_green.png" alt="edit" />
         </button>
@@ -108,7 +113,7 @@
     </div>
     <div class="directory">
       <div class="directory-header">
-        <h2>Трансферы</h2>
+        <h2>{_("transfers")}</h2>
         <button>
           <img src="/img/edit_green.png" alt="edit" />
         </button>

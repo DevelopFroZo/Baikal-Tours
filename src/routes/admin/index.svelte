@@ -442,25 +442,25 @@
 </style>
 
 <svelte:head>
-  <title>События</title>
+  <title>{_("actions")}</title>
 </svelte:head>
 
 <svelte:window on:click={hideAll} />
 
-<AdminPage page={0}>
+<AdminPage page={0} {fetcher} {_} {locale}>
   <div class="events-status-block">
     <div class="event-statuses">
-      <div class="events">События {result_count}</div>
-      <div>Активные {cardsCounts.active}</div>
-      <div>Скрытые {cardsCounts.hidden}</div>
-      <div>Архив {cardsCounts.archive}</div>
+      <div class="events">{_("actions")} {result_count}</div>
+      <div>{_("active")} {cardsCounts.active}</div>
+      <div>{_("hidden")} {cardsCounts.hidden}</div>
+      <div>{_("archive")} {cardsCounts.archive}</div>
     </div>
-    <a href="./admin/edit" class="new-event">Новое событие</a>
+    <a href="./admin/edit" class="new-event">{_("new_event")}</a>
   </div>
   <div class="filter-block">
     <input
       type="text"
-      placeholder="поиск по названию"
+      placeholder={_("search_by_name")}
       bind:value={filter[0][0].value}
       on:blur={checkSearchFilter}
       class="search-input" />
@@ -471,7 +471,7 @@
         on:click={() => {
           options[0].isVisible = true;
         }}>
-        Тематика
+        {_("thematics")}
       </button>
       <div
         class="option"
@@ -496,7 +496,7 @@
         on:click={() => {
           options[1].isVisible = true;
         }}>
-        Локация
+        {_("location")}
       </button>
       <div
         class="option"
@@ -553,10 +553,10 @@
             class:hidden-status={card.status === 'hidden'}>
             <div class="event-status-text">
               {#if card.status === 'active'}
-                Активное
+                {_("active")}
               {:else if card.status === 'hidden'}
-                Скрытое
-              {:else if card.stauts === 'archive'}Архив{/if}
+                {_("hidden")}
+              {:else if card.stauts === 'archive'}{_("archive")}{/if}
             </div>
           </div>
         </a>

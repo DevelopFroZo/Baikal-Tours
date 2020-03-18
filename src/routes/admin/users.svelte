@@ -20,6 +20,8 @@
 
   export let users, locale;
 
+  const fetcher = new Fetcher();
+
   const _ = i18n(locale);
 </script>
 
@@ -52,23 +54,23 @@
 </style>
 
 <svelte:head>
-  <title>Пользователи</title>
+  <title>{_("users")}</title>
 </svelte:head>
 
-<AdminPage page={1}>
+<AdminPage page={1} {fetcher} {locale} {_}>
   <div>
-    <h1>Пользователи - {users.length}</h1>
+    <h1>{_("users")} - {users.length}</h1>
 
-    <input type="text" placeholder="поиск" class="search-input" />
+    <input type="text" placeholder={_("search")} class="search-input" />
 
     <table>
       <tr>
         <td />
-        <td>Имя</td>
-        <td>Фамилия</td>
-        <td>Телефон</td>
+        <td>{_("name")}</td>
+        <td>{_("surname")}</td>
+        <td>{_("role")}</td>
         <td>E-mail</td>
-        <td>Роль</td>
+        <td>{_("role")}</td>
       </tr>
       {#each users as user}
         <tr>

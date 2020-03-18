@@ -114,6 +114,7 @@
     locale;
 
   const fetcher = new Fetcher();
+  const _ = i18n(locale);
 
   emails = edit.cloneArray(actionData.emails);
   phones = edit.cloneArray(actionData.phones);
@@ -545,9 +546,7 @@
         newSecondImages.push(img);
       } else
         alert(
-          "Изображение " +
-            img.name +
-            " не может быть загружено, так как превышает размер в 1МБ"
+          _("image_not_load").replace(/{img}/g, img.name)
         );
     }
 
@@ -691,9 +690,7 @@
         };
       } else
         alert(
-          "Изображение " +
-            img[0].name +
-            " не может быть загружено, так как превышает размер в 1МБ"
+          _("image_not_load").replace(/{img}/g, img[0].name)
         );
     }
 
@@ -1143,32 +1140,32 @@
 
 <svelte:window on:click={hideAll} />
 
-<AdminPage page={0}>
+<AdminPage page={0} {fetcher} {locale} {_}>
   <div class="line-center">
     <h2 class="title-h1">
       {#if actionId === undefined}
-        Создание события
-      {:else}Редактирование события{/if}
+        {_("creating_event")}
+      {:else}{_("editing_event")}{/if}
     </h2>
-    <button class="save" on:click={saveAction}>Сохранить</button>
+    <button class="save" on:click={saveAction}>{_("save")}</button>
   </div>
   <div class="edit-block">
     <label for="title">Title</label>
     <input type="text" name="title" bind:value={title} />
 
-    <label for="short-description">Короткое описание события</label>
+    <label for="short-description">{_("short_event_description")}</label>
     <input
       type="text"
       name="short-description"
       bind:value={short_description} />
 
-    <label for="name">Название события</label>
+    <label for="name">{_("event_name")}</label>
     <input type="text" name="name" bind:value={name} />
 
-    <label for="description">Описание события</label>
+    <label for="description">{_("event_description")}</label>
     <textarea name="description" bind:value={full_description} />
 
-    <label>Фотографии события</label>
+    <label>{_("event_photos")}</label>
     <div class="images-block">
 
       {#each images as img, i}
@@ -1181,7 +1178,7 @@
               on:click={() => changeActiveImg(i, img.id)} />
           </div>
           {#if img.is_main}
-            <div class="imp-text">Главная</div>
+            <div class="imp-text">{_("main")}</div>
           {/if}
         </div>
       {/each}
@@ -1196,14 +1193,14 @@
               on:click={() => changeNewActiveImg(i, img.id)} />
           </div>
           {#if i === mainImg}
-            <div class="imp-text">Главная</div>
+            <div class="imp-text">{_("main")}</div>
           {/if}
         </div>
       {/each}
 
     </div>
     <button class="upload-image-block">
-      Загрузить фотографии
+      {_("upload_images")}
       <input
         type="file"
         class="upload-image"
@@ -1219,65 +1216,65 @@
         <div class="date-block">
           <div>
             <label for="dateStart" class:hide-label={i !== 0}>
-              Дата начала
+              {_("date_start")}
             </label>
             <input type="date" name="dateStart" bind:value={date.dateStart} />
           </div>
 
           <div>
             <label for="timeStart" class:hide-label={i !== 0}>
-              Время начала
+              {_("time_start")}
             </label>
             <input type="time" name="timeStart" bind:value={date.timeStart} />
           </div>
 
           <div class="days-block">
-            <label class:hide-label={i !== 0}>Периодичность</label>
+            <label class:hide-label={i !== 0}>{_("periodicity")}</label>
             <div class="dates-line">
               <div>
-                пн
+                {_("monday.short")}
                 <input
                   type="checkbox"
                   checked={date.days !== null && date.days.indexOf(0) !== -1}
                   on:change={() => (date.days = edit.parseDataToIds(date.days, 0))} />
               </div>
               <div>
-                вт
+                {_("tuesday.short")}
                 <input
                   type="checkbox"
                   checked={date.days !== null && date.days.indexOf(1) !== -1}
                   on:change={() => (date.days = edit.parseDataToIds(date.days, 1))} />
               </div>
               <div>
-                ср
+                {_("wednesday.short")}
                 <input
                   type="checkbox"
                   checked={date.days !== null && date.days.indexOf(2) !== -1}
                   on:change={() => (date.days = edit.parseDataToIds(date.days, 2))} />
               </div>
               <div>
-                чт
+                {_("thursday.short")}
                 <input
                   type="checkbox"
                   checked={date.days !== null && date.days.indexOf(3) !== -1}
                   on:change={() => (date.days = edit.parseDataToIds(date.days, 3))} />
               </div>
               <div>
-                пт
+                {_("friday.short")}
                 <input
                   type="checkbox"
                   checked={date.days !== null && date.days.indexOf(4) !== -1}
                   on:change={() => (date.days = edit.parseDataToIds(date.days, 4))} />
               </div>
               <div>
-                сб
+                {_("saturday.short")}
                 <input
                   type="checkbox"
                   checked={date.days !== null && date.days.indexOf(5) !== -1}
                   on:change={() => (date.days = edit.parseDataToIds(date.days, 5))} />
               </div>
               <div>
-                вс
+                {_("sunday.short")}
                 <input
                   type="checkbox"
                   checked={date.days !== null && date.days.indexOf(6) !== -1}
@@ -1288,14 +1285,14 @@
 
           <div>
             <label for="dateEnd" class:hide-label={i !== 0}>
-              Дата окончания
+              {_("date_end")}
             </label>
             <input type="date" name="dateEnd" bind:value={date.dateEnd} />
           </div>
 
           <div>
             <label for="timeEnd" class:hide-label={i !== 0}>
-              Время окончания
+              {_("time_end")}
             </label>
             <input type="time" name="timeEnd" bind:value={date.timeEnd} />
           </div>
@@ -1310,7 +1307,7 @@
           </button>
 
           {#if i === dates.length - 1}
-            <button class="add-date" on:click={addDate}>+добавить даты</button>
+            <button class="add-date" on:click={addDate}>+{_("add_date")}</button>
           {/if}
         </div>
       {/each}
@@ -1320,7 +1317,7 @@
       {#each locations as location, i}
         <div class="location-block">
           <div class="location-select">
-            <label for="location" class:hide-label={i !== 0}>Локация</label>
+            <label for="location" class:hide-label={i !== 0}>{_("location")}</label>
             <select name="location" bind:value={location.id}>
               <option value={null} />
               {#each result_filters.locations as locationName}
@@ -1331,7 +1328,7 @@
 
           <div class="location-name">
             <label for="location-name" class:hide-label={i !== 0}>
-              Место проведения
+              {_("venue")}
             </label>
             <input type="text" bind:value={location.address} />
           </div>
@@ -1359,7 +1356,7 @@
     <div class="others-block">
 
       <div class="price-block">
-        <label for="price">Стоимость</label>
+        <label for="price">{_("cost")}</label>
         <div>
           <input
             type="text"
@@ -1374,12 +1371,12 @@
             name="free"
             checked={freePrice}
             on:change={() => (freePrice = !freePrice)} />
-          <label for="free">бесплатное</label>
+          <label for="free">{_("free").toLowerCase()}</label>
         </div>
       </div>
 
       <div>
-        <label for="subjects">Тематики</label>
+        <label for="subjects">{_("subjects")}</label>
         <div class="select-block">
           <button
             class="select"
@@ -1407,7 +1404,7 @@
       </div>
 
       <div>
-        <label for="transfer">Трансфер</label>
+        <label for="transfer">{_("transfer")}</label>
         <div class="select-block">
           <button
             class="select"
@@ -1435,7 +1432,7 @@
       </div>
 
       <div>
-        <label for="companions">С кем можно пойти</label>
+        <label for="companions">{_("who_can_i_go_with")}</label>
         <div class="select-block">
           <button
             class="select"
@@ -1467,13 +1464,13 @@
     <div class="organisators-block">
 
       <div>
-        <label for="organisator">Организатор</label>
+        <label for="organisator">{_("organizer")}</label>
         <input type="text" name="organisator" bind:value={organizer_name} />
       </div>
 
       <div>
         <label for="organisator-user">
-          Добавить организатора из пользователей
+          {_("organizer_from_user")}
         </label>
         <select name="organisation-user" bind:value={organizer_id}>
           <option value={null} />
@@ -1488,10 +1485,10 @@
     <div class="contacts-block">
 
       <div class="contacts-block-info">
-        <div class="block-name">Контакты</div>
+        <div class="block-name">{_("contacts")}</div>
 
         <div>
-          <label for="contact_face">Контактное лицо</label>
+          <label for="contact_face">{_("contact_face")}</label>
           <div>
             {#each contact_faces as contact_face, i}
               <div>
@@ -1523,7 +1520,7 @@
         </div>
 
         <div>
-          <label for="phone">Телефон</label>
+          <label for="phone">{_("phone")}</label>
           <div>
             {#each phones as phone, i}
               <div>
@@ -1580,7 +1577,7 @@
         </div>
 
         <div>
-          <label for="site">Сайт</label>
+          <label for="site">{_("site")}</label>
           <div>
             {#each websites as website, i}
               <div>
@@ -1609,25 +1606,25 @@
       </div>
 
       <div class="messengers-block-info">
-        <div class="block-name">Соц. сети</div>
+        <div class="block-name">{_("messangers")}</div>
 
         <div>
-          <label for="vk">Вконтакте</label>
+          <label for="vk">{_("VK")}</label>
           <input type="text" name="vk" bind:value={vk_link} />
         </div>
 
         <div>
-          <label for="fb">Фейсбук</label>
+          <label for="fb">{_("facebook")}</label>
           <input type="text" name="fb" bind:value={facebook_link} />
         </div>
 
         <div>
-          <label for="in">Инстаграм</label>
+          <label for="in">{_("instagram")}</label>
           <input type="text" name="in" bind:value={instagram_link} />
         </div>
 
         <div>
-          <label for="tw">Твиттер</label>
+          <label for="tw">{_("twitter")}</label>
           <input type="text" name="tw" bind:value={twitter_link} />
         </div>
       </div>
@@ -1636,7 +1633,7 @@
 
     <div class="pay-block">
 
-      <div class="block-name">Варианты участия</div>
+      <div class="block-name">{_("participations_options")}</div>
 
       <div>
         <input
@@ -1644,7 +1641,7 @@
           name="participation"
           bind:group={participation}
           value={'free'} />
-        <label for="participation">Бесплатное</label>
+        <label for="participation">{_("free2")}</label>
       </div>
 
       <div>
@@ -1653,10 +1650,10 @@
           name="participation"
           bind:group={participation}
           value={'organiser'} />
-        <label for="participation">Оплата через организатора</label>
+        <label for="participation">{_("pay_via_organizer")}</label>
         <input
           type="text"
-          placeholder="ссылка на страницу организатора"
+          placeholder={_("organizer_site_href")}
           bind:value={organizer_payment}
           disabled={participation !== 'organiser'} />
       </div>
@@ -1667,14 +1664,14 @@
           name="participation"
           bind:group={participation}
           value={'site'} />
-        <label for="participation">Оплата на сайте</label>
+        <label for="participation">{_("pay_in_site")}</label>
       </div>
 
     </div>
 
     <div class="partners-block">
 
-      <div class="block-name">Партнеры события</div>
+      <div class="block-name">{_("action_partners")}</div>
 
       <div class="partner">
 
@@ -1694,7 +1691,7 @@
             <input
               type="text"
               bind:value={partner.name}
-              placeholder="название партнера"
+              placeholder={_("partner_name")}
               on:blur={() => renamePartner(partner.id, partner.name)} />
           </div>
         {/each}
@@ -1715,7 +1712,7 @@
             <input
               type="text"
               bind:value={partner.name}
-              placeholder="название партнера"
+              placeholder={_("partner_name")}
               on:blur={() => renamePartner(partner.id, partner.name)} />
           </div>
         {/each}
@@ -1735,7 +1732,7 @@
           </button>
           <input
             type="text"
-            placeholder="название партнера"
+            placeholder={_("partner_name")}
             bind:value={newPartnerName} />
         </div>
 
@@ -1745,7 +1742,7 @@
 
     <div class="hotels-block">
 
-      <div class="block-name">Отели поблизости</div>
+      <div class="block-name">{_("hotels_nearby")}</div>
 
       <div class="hotels">
         {#each [0, 0, 0, 0] as bl}
@@ -1761,7 +1758,7 @@
 
     <div class="tours-block">
 
-      <div class="block-name">Экскурсии и туры поблизости</div>
+      <div class="block-name">{_("excursions_and_tours_nearby")}</div>
 
       <div class="tours">
         {#each [0, 0, 0, 0] as bl}

@@ -190,24 +190,24 @@
 
 <svelte:head>
   <title>
-    {result_action.title === null ? 'Страница события' : result_action.title}
+    {result_action.title === null ? _("event_page") : result_action.title}
   </title>
 </svelte:head>
 
-<AdminPage page={0}>
-  <a href="./admin" class="back-page">назад к списку событий</a>
+<AdminPage page={0} {fetcher} {locale} {_}>
+  <a href="./admin" class="back-page">{_("back_to_actions_page")}</a>
   <div class="event-block">
     <div class="event-edit">
       <select bind:value={result_action.status} on:change={changeStatus}>
-        <option value="active">Активное</option>
-        <option value="hidden">Скрытое</option>
-        <option value="archive">Архив</option>
+        <option value="active">{_("active")}</option>
+        <option value="hidden">{_("hidden")}</option>
+        <option value="archive">{_("archive")}</option>
       </select>
-      <a href={`/admin/edit?id=${actionId}`}>Редактировать</a>
+      <a href={`/admin/edit?id=${actionId}`}>{_("edit")}</a>
     </div>
     <h1>{result_action.name}</h1>
     <pre>{result_action.full_description}</pre>
-    <h2>Фотографии события</h2>
+    <h2>{_("event_photos")}</h2>
     <div class="images-block">
       {#each result_action.images as image}
         <div class="img-block">
@@ -215,7 +215,7 @@
             <img src={image.image_url} class:imp={image.is_main} alt="image" />
           </div>
           {#if image.is_main}
-            <div class="imp-text">Главная</div>
+            <div class="imp-text">{_("main")}</div>
           {/if}
         </div>
       {/each}
@@ -353,19 +353,19 @@
 
       </div>
     </div>
-    <h2>Варианты участия</h2>
+    <h2>{_("participations_options")}</h2>
     <div class="payment-block">
       {#if result_action.price_min == 0 && result_action.price_max === 0}
-        <div class="gray">Бесплатное</div>
+        <div class="gray">{_("free2")}</div>
       {/if}
       {#if result_action.organizer_payment !== null && result_action.organizer_payment !== ''}
-        <div class="blue">Оплата через организатора</div>
+        <div class="blue">{_("pay_via_organizer")}</div>
       {/if}
       {#if result_action.site_payment}
-        <div class="green">Оплата на сайте</div>
+        <div class="green">{_("pay_in_site")}</div>
       {/if}
     </div>
-    <h2>Партнеры события</h2>
+    <h2>{_("action_partners")}</h2>
     <div class="images-block">
       {#each result_action.partners as partner}
         <div class="img-block">
@@ -378,16 +378,16 @@
         </div>
       {/each}
     </div>
-    <h2>Список зарегистрировавшихся</h2>
+    <h2>{_("list_of_registered_users")}</h2>
     {#if result_action.subscribers.length !== 0}
       <table>
         <tr>
           <td>*</td>
-          <td>Имя</td>
-          <td>Фамилия</td>
-          <td>Телефон</td>
+          <td>{_("name")}</td>
+          <td>{_("surname")}</td>
+          <td>{_("phone")}</td>
           <td>E-mail</td>
-          <td>роль</td>
+          <td>{_("role").toLowerCase()}</td>
         </tr>
         {#each result_action.subscribers as subscriber}
           <tr>
@@ -397,11 +397,11 @@
             <td>{subscriber.phone}</td>
             <td>{subscriber.email}</td>
             <td>
-              {#if subscriber.is_admin}Администратор{:else}Пользователь{/if}
+              {#if subscriber.is_admin}{_("admin")}{:else}{_("user")}{/if}
             </td>
           </tr>
         {/each}
       </table>
-    {:else}Нет зарегистрированных пользователей{/if}
+    {:else}{_("no_registered_users")}{/if}
   </div>
 </AdminPage>
