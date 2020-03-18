@@ -56,18 +56,25 @@
       actionData = await fetcher.get("/api/actions/" + actionId, {
         credentials: "same-origin"
       });
-      actionData = actionData.data;
-      actionData.dates = setDataToCK(actionData.dates);
+      
+      if(actionData.ok)
+        actionData.data.dates = setDataToCK(actionData.data.dates);
     }
 
-    return {
-      ...actionData,
-      actionData,
-      actionId,
-      result_filters,
-      result_users,
-      locale
-    };
+    if(actionId === undefined || actionData.ok){
+      if(actionId !== undefined) actionData = actionData.data;
+      return {
+        ...actionData,
+        actionData,
+        actionId,
+        result_filters,
+        result_users,
+        locale
+      };
+    }
+      
+
+    this.error(404, "page not found");
   }
 </script>
 
@@ -152,9 +159,9 @@
     newData = {},
     newPartnerName = "";
 
-  if (price_min === 0 && price_max === 0) participation = "free";
-  else if (organizer_payment !== null) participation = "organiser";
+  if (organizer_payment !== null) participation = "organizer";
   else if (site_payment === true) participation = "site";
+  else if (price_min === 0 && price_max === 0) participation = "free";
 
   if (price_min === 0 && price_max === 0) price = "";
   else if (price_min === 0 && price_max !== 0) price = price_max;
@@ -181,6 +188,16 @@
       edit.setTextTranslation(title, locale, actionId),
       actionData.title,
       "title",
+      newData
+    );
+  }
+
+  //Tagline
+  $: {
+    newData = edit.validateNewtranslateData(
+      edit.setTextTranslation(tagline, locale, actionId),
+      actionData.tagline,
+      "tagline",
       newData
     );
   }
@@ -465,8 +482,8 @@
       freePrice = true;
       organizer_payment = null;
       site_payment = false;
-    } else if (participation === "organiser") {
-      organizer_payment = "";
+    } else if (participation === "organizer") {
+      organizer_payment = actionData.organizer_payment;
       freePrice = false;
       site_payment = false;
     } else if (participation === "site") {
@@ -481,7 +498,7 @@
     newData = edit.validateNewData(
       organizer_payment,
       actionData.organizer_payment,
-      "organiser_payment",
+      "organizer_payment",
       newData
     );
   }
@@ -542,12 +559,12 @@
     let newSecondImages = [],
       result;
     for (let img of uploadImg.files) {
-      if (img.size / 1024 / 1024 <= 1) {
+      let fileFormat = img.name.split(".").pop();
+      if (fileFormat !== "jpg" && fileFormat !== "jpeg" && fileFormat !== "png")
+        alert(_("images_types_message").replace(/{img}/g, img.name));
+      else if (img.size / 1024 / 1024 <= 1) {
         newSecondImages.push(img);
-      } else
-        alert(
-          _("image_not_load").replace(/{img}/g, img.name)
-        );
+      } else alert(_("image_not_load").replace(/{img}/g, img.name));
     }
 
     if (actionId !== undefined && newSecondImages.length !== 0) {
@@ -637,6 +654,45 @@
 
   async function saveAction() {
     let result;
+
+    let requiredFields = [
+      {
+        field: title,
+        name: "title"
+      },
+      {
+        field: tagline,
+        name: "tagline"
+      },
+      {
+        field: short_description,
+        name: "short_event_description"
+      },
+      {
+        field: name,
+        name: "event_name"
+      },
+      {
+        field: full_description,
+        name: "event_description"
+      },
+      {
+        field: organizer_name,
+        name: "organizer"
+      }
+    ];
+
+    for (let field of requiredFields)
+      if (field.field === "" || field.field === null) {
+        alert(_("required_field_message").replace(/{field}/g, _(field.name)));
+        return null;
+      }
+
+    if (participation === "organizer" && organizer_payment === "") {
+      alert(_("required_payment_message"));
+      return null;
+    }
+
     if (actionId === undefined) {
       actionId = Number((await fetcher.post("/api/actions")).data);
       if (newImages.length !== 0) {
@@ -683,15 +739,15 @@
       newPartner = {},
       result;
     if (img.length !== 0) {
-      if (img[0].size / 1024 / 1024 <= 1) {
+      let fileFormat = img.name.split(".").pop();
+      if (fileFormat !== "jpg" && fileFormat !== "jpeg" && fileFormat !== "png")
+        alert(_("images_types_message").replace(/{img}/g, img.name));
+      else if (img[0].size / 1024 / 1024 <= 1) {
         newPartner = {
           image_url: img[0],
           name: newPartnerName
         };
-      } else
-        alert(
-          _("image_not_load").replace(/{img}/g, img[0].name)
-        );
+      } else alert(_("image_not_load").replace(/{img}/g, img[0].name));
     }
 
     if (actionId !== undefined && Object.keys(newPartner).length !== 0) {
@@ -1144,28 +1200,31 @@
   <div class="line-center">
     <h2 class="title-h1">
       {#if actionId === undefined}
-        {_("creating_event")}
-      {:else}{_("editing_event")}{/if}
+        {_('creating_event')}
+      {:else}{_('editing_event')}{/if}
     </h2>
-    <button class="save" on:click={saveAction}>{_("save")}</button>
+    <button class="save" on:click={saveAction}>{_('save')}</button>
   </div>
   <div class="edit-block">
     <label for="title">Title</label>
     <input type="text" name="title" bind:value={title} />
 
-    <label for="short-description">{_("short_event_description")}</label>
+    <label for="tagline">Tagline</label>
+    <input type="text" name="tagline" bind:value={tagline} />
+
+    <label for="short-description">{_('short_event_description')}</label>
     <input
       type="text"
       name="short-description"
       bind:value={short_description} />
 
-    <label for="name">{_("event_name")}</label>
+    <label for="name">{_('event_name')}</label>
     <input type="text" name="name" bind:value={name} />
 
-    <label for="description">{_("event_description")}</label>
+    <label for="description">{_('event_description')}</label>
     <textarea name="description" bind:value={full_description} />
 
-    <label>{_("event_photos")}</label>
+    <label>{_('event_photos')}</label>
     <div class="images-block">
 
       {#each images as img, i}
@@ -1178,7 +1237,7 @@
               on:click={() => changeActiveImg(i, img.id)} />
           </div>
           {#if img.is_main}
-            <div class="imp-text">{_("main")}</div>
+            <div class="imp-text">{_('main')}</div>
           {/if}
         </div>
       {/each}
@@ -1193,14 +1252,14 @@
               on:click={() => changeNewActiveImg(i, img.id)} />
           </div>
           {#if i === mainImg}
-            <div class="imp-text">{_("main")}</div>
+            <div class="imp-text">{_('main')}</div>
           {/if}
         </div>
       {/each}
 
     </div>
     <button class="upload-image-block">
-      {_("upload_images")}
+      {_('upload_images')}
       <input
         type="file"
         class="upload-image"
@@ -1216,65 +1275,65 @@
         <div class="date-block">
           <div>
             <label for="dateStart" class:hide-label={i !== 0}>
-              {_("date_start")}
+              {_('date_start')}
             </label>
             <input type="date" name="dateStart" bind:value={date.dateStart} />
           </div>
 
           <div>
             <label for="timeStart" class:hide-label={i !== 0}>
-              {_("time_start")}
+              {_('time_start')}
             </label>
             <input type="time" name="timeStart" bind:value={date.timeStart} />
           </div>
 
           <div class="days-block">
-            <label class:hide-label={i !== 0}>{_("periodicity")}</label>
+            <label class:hide-label={i !== 0}>{_('periodicity')}</label>
             <div class="dates-line">
               <div>
-                {_("monday.short")}
+                {_('monday.short')}
                 <input
                   type="checkbox"
                   checked={date.days !== null && date.days.indexOf(0) !== -1}
                   on:change={() => (date.days = edit.parseDataToIds(date.days, 0))} />
               </div>
               <div>
-                {_("tuesday.short")}
+                {_('tuesday.short')}
                 <input
                   type="checkbox"
                   checked={date.days !== null && date.days.indexOf(1) !== -1}
                   on:change={() => (date.days = edit.parseDataToIds(date.days, 1))} />
               </div>
               <div>
-                {_("wednesday.short")}
+                {_('wednesday.short')}
                 <input
                   type="checkbox"
                   checked={date.days !== null && date.days.indexOf(2) !== -1}
                   on:change={() => (date.days = edit.parseDataToIds(date.days, 2))} />
               </div>
               <div>
-                {_("thursday.short")}
+                {_('thursday.short')}
                 <input
                   type="checkbox"
                   checked={date.days !== null && date.days.indexOf(3) !== -1}
                   on:change={() => (date.days = edit.parseDataToIds(date.days, 3))} />
               </div>
               <div>
-                {_("friday.short")}
+                {_('friday.short')}
                 <input
                   type="checkbox"
                   checked={date.days !== null && date.days.indexOf(4) !== -1}
                   on:change={() => (date.days = edit.parseDataToIds(date.days, 4))} />
               </div>
               <div>
-                {_("saturday.short")}
+                {_('saturday.short')}
                 <input
                   type="checkbox"
                   checked={date.days !== null && date.days.indexOf(5) !== -1}
                   on:change={() => (date.days = edit.parseDataToIds(date.days, 5))} />
               </div>
               <div>
-                {_("sunday.short")}
+                {_('sunday.short')}
                 <input
                   type="checkbox"
                   checked={date.days !== null && date.days.indexOf(6) !== -1}
@@ -1285,14 +1344,14 @@
 
           <div>
             <label for="dateEnd" class:hide-label={i !== 0}>
-              {_("date_end")}
+              {_('date_end')}
             </label>
             <input type="date" name="dateEnd" bind:value={date.dateEnd} />
           </div>
 
           <div>
             <label for="timeEnd" class:hide-label={i !== 0}>
-              {_("time_end")}
+              {_('time_end')}
             </label>
             <input type="time" name="timeEnd" bind:value={date.timeEnd} />
           </div>
@@ -1307,7 +1366,9 @@
           </button>
 
           {#if i === dates.length - 1}
-            <button class="add-date" on:click={addDate}>+{_("add_date")}</button>
+            <button class="add-date" on:click={addDate}>
+              +{_('add_date')}
+            </button>
           {/if}
         </div>
       {/each}
@@ -1317,7 +1378,9 @@
       {#each locations as location, i}
         <div class="location-block">
           <div class="location-select">
-            <label for="location" class:hide-label={i !== 0}>{_("location")}</label>
+            <label for="location" class:hide-label={i !== 0}>
+              {_('location')}
+            </label>
             <select name="location" bind:value={location.id}>
               <option value={null} />
               {#each result_filters.locations as locationName}
@@ -1328,7 +1391,7 @@
 
           <div class="location-name">
             <label for="location-name" class:hide-label={i !== 0}>
-              {_("venue")}
+              {_('venue')}
             </label>
             <input type="text" bind:value={location.address} />
           </div>
@@ -1356,7 +1419,7 @@
     <div class="others-block">
 
       <div class="price-block">
-        <label for="price">{_("cost")}</label>
+        <label for="price">{_('cost')}</label>
         <div>
           <input
             type="text"
@@ -1371,12 +1434,12 @@
             name="free"
             checked={freePrice}
             on:change={() => (freePrice = !freePrice)} />
-          <label for="free">{_("free").toLowerCase()}</label>
+          <label for="free">{_('free').toLowerCase()}</label>
         </div>
       </div>
 
       <div>
-        <label for="subjects">{_("subjects")}</label>
+        <label for="subjects">{_('subjects')}</label>
         <div class="select-block">
           <button
             class="select"
@@ -1404,7 +1467,7 @@
       </div>
 
       <div>
-        <label for="transfer">{_("transfer")}</label>
+        <label for="transfer">{_('transfer')}</label>
         <div class="select-block">
           <button
             class="select"
@@ -1432,7 +1495,7 @@
       </div>
 
       <div>
-        <label for="companions">{_("who_can_i_go_with")}</label>
+        <label for="companions">{_('who_can_i_go_with')}</label>
         <div class="select-block">
           <button
             class="select"
@@ -1464,14 +1527,12 @@
     <div class="organisators-block">
 
       <div>
-        <label for="organisator">{_("organizer")}</label>
+        <label for="organisator">{_('organizer')}</label>
         <input type="text" name="organisator" bind:value={organizer_name} />
       </div>
 
       <div>
-        <label for="organisator-user">
-          {_("organizer_from_user")}
-        </label>
+        <label for="organisator-user">{_('organizer_from_user')}</label>
         <select name="organisation-user" bind:value={organizer_id}>
           <option value={null} />
           {#each result_users as user}
@@ -1485,10 +1546,10 @@
     <div class="contacts-block">
 
       <div class="contacts-block-info">
-        <div class="block-name">{_("contacts")}</div>
+        <div class="block-name">{_('contacts')}</div>
 
         <div>
-          <label for="contact_face">{_("contact_face")}</label>
+          <label for="contact_face">{_('contact_face')}</label>
           <div>
             {#each contact_faces as contact_face, i}
               <div>
@@ -1520,7 +1581,7 @@
         </div>
 
         <div>
-          <label for="phone">{_("phone")}</label>
+          <label for="phone">{_('phone')}</label>
           <div>
             {#each phones as phone, i}
               <div>
@@ -1577,7 +1638,7 @@
         </div>
 
         <div>
-          <label for="site">{_("site")}</label>
+          <label for="site">{_('site')}</label>
           <div>
             {#each websites as website, i}
               <div>
@@ -1606,25 +1667,25 @@
       </div>
 
       <div class="messengers-block-info">
-        <div class="block-name">{_("messangers")}</div>
+        <div class="block-name">{_('messangers')}</div>
 
         <div>
-          <label for="vk">{_("VK")}</label>
+          <label for="vk">{_('VK')}</label>
           <input type="text" name="vk" bind:value={vk_link} />
         </div>
 
         <div>
-          <label for="fb">{_("facebook")}</label>
+          <label for="fb">{_('facebook')}</label>
           <input type="text" name="fb" bind:value={facebook_link} />
         </div>
 
         <div>
-          <label for="in">{_("instagram")}</label>
+          <label for="in">{_('instagram')}</label>
           <input type="text" name="in" bind:value={instagram_link} />
         </div>
 
         <div>
-          <label for="tw">{_("twitter")}</label>
+          <label for="tw">{_('twitter')}</label>
           <input type="text" name="tw" bind:value={twitter_link} />
         </div>
       </div>
@@ -1633,7 +1694,7 @@
 
     <div class="pay-block">
 
-      <div class="block-name">{_("participations_options")}</div>
+      <div class="block-name">{_('participations_options')}</div>
 
       <div>
         <input
@@ -1641,7 +1702,7 @@
           name="participation"
           bind:group={participation}
           value={'free'} />
-        <label for="participation">{_("free2")}</label>
+        <label for="participation">{_('free2')}</label>
       </div>
 
       <div>
@@ -1649,13 +1710,13 @@
           type="radio"
           name="participation"
           bind:group={participation}
-          value={'organiser'} />
-        <label for="participation">{_("pay_via_organizer")}</label>
+          value={'organizer'} />
+        <label for="participation">{_('pay_via_organizer')}</label>
         <input
           type="text"
-          placeholder={_("organizer_site_href")}
+          placeholder={_('organizer_site_href')}
           bind:value={organizer_payment}
-          disabled={participation !== 'organiser'} />
+          disabled={participation !== 'organizer'} />
       </div>
 
       <div>
@@ -1664,14 +1725,14 @@
           name="participation"
           bind:group={participation}
           value={'site'} />
-        <label for="participation">{_("pay_in_site")}</label>
+        <label for="participation">{_('pay_in_site')}</label>
       </div>
 
     </div>
 
     <div class="partners-block">
 
-      <div class="block-name">{_("action_partners")}</div>
+      <div class="block-name">{_('action_partners')}</div>
 
       <div class="partner">
 
@@ -1691,7 +1752,7 @@
             <input
               type="text"
               bind:value={partner.name}
-              placeholder={_("partner_name")}
+              placeholder={_('partner_name')}
               on:blur={() => renamePartner(partner.id, partner.name)} />
           </div>
         {/each}
@@ -1712,7 +1773,7 @@
             <input
               type="text"
               bind:value={partner.name}
-              placeholder={_("partner_name")}
+              placeholder={_('partner_name')}
               on:blur={() => renamePartner(partner.id, partner.name)} />
           </div>
         {/each}
@@ -1732,7 +1793,7 @@
           </button>
           <input
             type="text"
-            placeholder={_("partner_name")}
+            placeholder={_('partner_name')}
             bind:value={newPartnerName} />
         </div>
 
@@ -1742,7 +1803,7 @@
 
     <div class="hotels-block">
 
-      <div class="block-name">{_("hotels_nearby")}</div>
+      <div class="block-name">{_('hotels_nearby')}</div>
 
       <div class="hotels">
         {#each [0, 0, 0, 0] as bl}
@@ -1758,7 +1819,7 @@
 
     <div class="tours-block">
 
-      <div class="block-name">{_("excursions_and_tours_nearby")}</div>
+      <div class="block-name">{_('excursions_and_tours_nearby')}</div>
 
       <div class="tours">
         {#each [0, 0, 0, 0] as bl}

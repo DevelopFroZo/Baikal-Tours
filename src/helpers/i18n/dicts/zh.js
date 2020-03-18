@@ -216,5 +216,14 @@ export default ( {
   search:                         "搜索",
   locations:                      "地點", 
   transfers:                      "班车服务",
-  image_not_load:                 "图像{img}无法上传，因为它超过了1MB的大小"
+  image_not_load:                 "图像{img}无法上传，因为它超过了1MB的大小",
+
+  users_not_found:                "未找到用户",
+  required_field_message:         "此字段\"{field}\"是必填项",
+  tagline:                        "标语",
+  title:                          "标题",
+  required_payment_message:       "要通过组织者支付，您必须指定组织者页面的链接",
+  images_types_message:           "无法添加图像\"{img}\"，因为图像的格式必须为：\njpg\njpeg\npng",
+  no_images:                      "没有照片",
+  no_data:                        "没有数据"
 } );        

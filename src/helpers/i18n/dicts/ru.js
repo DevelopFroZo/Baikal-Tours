@@ -216,5 +216,14 @@ export default ( {
   search:                     "поиск",
   locations:                  "Локации",
   transfers:                  "Трансферы",
-  image_not_load:             "Изображение {img} не может быть загружено, так как превышает размер 1МБ"
+  image_not_load:             "Изображение {img} не может быть загружено, так как превышает размер 1МБ",
+
+  users_not_found:            "Пользователи не найдены",
+  required_field_message:     "Поле \"{field}\" является обязательным",
+  tagline:                    "Tagline",
+  title:                      "Title",
+  required_payment_message:   "Для оплаты через организатора необходимо указать ссылку на страницу организатора",
+  images_types_message:       "Изображение \"{img}\" не может быть добавлено, так как изображение должно иметь формат:\njpg\njpeg\npng",
+  no_images:                  "Нет фотографий",
+  no_data:                    "Нет данных"
 } );

@@ -1,18 +1,25 @@
 <script context = "module">
+  import Fetcher from "/helpers/fetcher.js";
+
   export async function preload(page, session) {
+    const fetcher = new Fetcher(this.fetch);
     let actionId = page.query.id;
-    let response = await this.fetch("/api/actions/" + actionId, {
-      credentials: "same-origin"
-    });
-    let result_action = await response.json();
     let locale = session.locale;
 
-    return { result_action, actionId, locale };
+    console.log(session)
+
+    let result_action = await fetcher.get(`/api/actions/${actionId}`, {
+      credentials: "same-origin"
+    });
+
+    if(result_action.ok)
+      return { result_action, actionId, locale }
+
+    this.error(404, "page not found");
   }
 </script>
 
 <script>
-  import Fetcher from "/helpers/fetcher.js";
   import BreadCrumbs from "/components/breadcrumbs.svelte";
   import { onMount } from "svelte";
   import Header from "/components/header.svelte";
@@ -52,9 +59,6 @@
     actionsParams = localStorage.getItem("actionsParams")
     if(actionsParams === null)
       actionsParams = "./actions"
-
-    console.log(actionsParams)
-
   });
 
   $: if (userName !== "" && userPhone !== "" && validateMail(userMail))
@@ -261,6 +265,8 @@
 
   <div class="info-block">
     <div class="left-side">
+    
+      {#if data.dates.length > 0}
       <div class="line">
         <div class="info-image">
           <img src="img/date.png" alt="date" />
@@ -273,6 +279,9 @@
           </ul>
         </div>
       </div>
+      {/if}
+
+      {#if data.locations.length > 0}
       <div class="line">
         <div class="info-image">
           <img src="img/place.png" alt="place" />
@@ -287,6 +296,8 @@
           </ul>
         </div>
       </div>
+      {/if}
+
       <div class="line">
         <div class="info-image">
           <img src="img/org.png" alt="organisation" />
@@ -302,12 +313,14 @@
           {/if}
         </div>
       </div>
+
       <div class="line">
         <div class="info-image">
           <img src="img/price.png" alt="price" />
         </div>
         <div class="info">{_("price")}: {second_price}</div>
       </div>
+
       {#if data.vk_link !== null || data.instagram_link !== null || data.facebook_link !== null || data.twitter_link !== null || data.websites !== null}
         <div class="line">
           <div class="info-image">
@@ -346,6 +359,8 @@
           </div>
         </div>
       {/if}
+
+      {#if data.transfers.length > 0}
       <div class="line">
         <div class="info-image">
           <img src="img/transfer.png" alt="transfer" />
@@ -359,6 +374,9 @@
           </ul>
         </div>
       </div>
+      {/if}
+
+      {#if data.subjects.length > 0}
       <div class="line">
         <div class="info-image">
           <img src="img/birk.png" alt="date" />
@@ -371,6 +389,8 @@
           </ul>
         </div>
       </div>
+      {/if}
+
     </div>
     <div class="right-side">{data.full_description}</div>
   </div>

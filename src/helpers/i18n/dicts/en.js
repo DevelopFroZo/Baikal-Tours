@@ -216,5 +216,14 @@ export default ({
   search:                     "search",
   locations:                  "Locations", 
   transfers:                  "Shuttles",
-  image_not_load:             "The image {img} cannot be uploaded because it exceeds the size of 1 MB"
+  image_not_load:             "The image {img} cannot be uploaded because it exceeds the size of 1 MB",
+
+  users_not_found:            "Users not found",
+  required_field_message:     "Field \"{field}\" is mandatory",
+  tagline:                    "Tagline",
+  title:                      "Title",
+  required_payment_message:   "To pay via the organizer, you must specify a link to the organizer's page",
+  images_types_message:       "Image \"{img}\" cannot be added, since the image must be in the format:\njpg\njpg\npng",
+  no_images:                  "No photos",
+  no_data:                    "No data",
 });

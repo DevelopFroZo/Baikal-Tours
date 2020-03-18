@@ -111,7 +111,8 @@
     showFilter;
 
   let options = [],
-    cards = result_cards;
+    cards = result_cards,
+    search = filter[0][0].value;
 
   $: {
     cards = result_cards;
@@ -225,13 +226,18 @@
   }
 
   function checkSearchFilter() {
-    var str = filter[0][0].value.replace(/\s+/g, " ");
+    var str = search.replace(/\s+/g, " ");
+    str = str.replace(/[^ \u4e00-\u520fa-zа-яё\d]/uig, "");
+    str = str.replace(/\ /g, ",");
 
     if (str.length !== 0) filter[0][0].active = true;
     else filter[0][0].active = false;
 
     filter[0][0].value = str;
+
     changeFilter();
+
+    filter[0][0].value = search;
   }
 
   async function changeFavorite(i) {
@@ -442,7 +448,7 @@
 </style>
 
 <svelte:head>
-  <title>{_("actions")}</title>
+  <title>{_('actions')}</title>
 </svelte:head>
 
 <svelte:window on:click={hideAll} />
@@ -450,20 +456,23 @@
 <AdminPage page={0} {fetcher} {_} {locale}>
   <div class="events-status-block">
     <div class="event-statuses">
-      <div class="events">{_("actions")} {result_count}</div>
-      <div>{_("active")} {cardsCounts.active}</div>
-      <div>{_("hidden")} {cardsCounts.hidden}</div>
-      <div>{_("archive")} {cardsCounts.archive}</div>
+      <div class="events">{_('actions')} {result_count}</div>
+      <div>{_('active')} {cardsCounts.active}</div>
+      <div>{_('hidden')} {cardsCounts.hidden}</div>
+      <div>{_('archive')} {cardsCounts.archive}</div>
     </div>
-    <a href="./admin/edit" class="new-event">{_("new_event")}</a>
+    <a href="./admin/edit" class="new-event">{_('new_event')}</a>
   </div>
   <div class="filter-block">
     <input
       type="text"
-      placeholder={_("search_by_name")}
-      bind:value={filter[0][0].value}
+      placeholder={_('search_by_name')}
+      bind:value={search}
       on:blur={checkSearchFilter}
-      class="search-input" />
+      class="search-input"
+      on:keyup={function(e) {
+        if (e.key === 'Enter') this.blur();
+      }} />
     <div class="select-block">
       <button
         class="select"
@@ -471,7 +480,7 @@
         on:click={() => {
           options[0].isVisible = true;
         }}>
-        {_("thematics")}
+        {_('thematics')}
       </button>
       <div
         class="option"
@@ -496,7 +505,7 @@
         on:click={() => {
           options[1].isVisible = true;
         }}>
-        {_("location")}
+        {_('location')}
       </button>
       <div
         class="option"
@@ -516,6 +525,7 @@
     </div>
   </div>
   <ActiveFilters
+    {search}
     {filter}
     {showFilter}
     min={-1}
@@ -553,10 +563,10 @@
             class:hidden-status={card.status === 'hidden'}>
             <div class="event-status-text">
               {#if card.status === 'active'}
-                {_("active")}
+                {_('active')}
               {:else if card.status === 'hidden'}
-                {_("hidden")}
-              {:else if card.stauts === 'archive'}{_("archive")}{/if}
+                {_('hidden')}
+              {:else if card.stauts === 'archive'}{_('archive')}{/if}
             </div>
           </div>
         </a>
