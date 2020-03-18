@@ -43,8 +43,9 @@ export async function del( req, res ){
 
   const { transaction, imageUrl } = await req.database.actionImages.delete( id );
 
-  // #fix путь может быть на внешний ресурс, тогда НЕ удалять из файлово системы
-  await unlink( `static/${imageUrl}` );
+  if( !imageUrl.startsWith( "http" ) )
+    await unlink( `static/${imageUrl}` );
+
   await transaction.end();
 
   res.success();

@@ -21,6 +21,7 @@ export default {
     12: "Access denied",
     13: "Missing required field",
     14: "Invalid image size",
-    15: "Invalid image extension"
+    15: "Invalid image extension",
+    16: "Invalid URL"
   }
 };
