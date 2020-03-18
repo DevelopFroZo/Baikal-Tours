@@ -94,7 +94,7 @@
 </script>
 
 <script>
-  import HrefMenu from "./_href_menu.svelte";
+  import AdminPage from "./_admin_page.svelte";
   import i18n from "/helpers/i18n/index.js";
   import { parseDateForCards } from "/helpers/parsers.js";
   import Pagination from "/components/pagination.svelte";
@@ -234,12 +234,12 @@
     changeFilter();
   }
 
-  async function changeFavorite(i){
+  async function changeFavorite(i) {
     cards[i].is_favorite = !cards[i].is_favorite;
 
     let test = await fetcher.put("/api/actions/" + cards[i].id, {
       isFavorite: cards[i].is_favorite
-    })
+    });
   }
 </script>
 
@@ -429,10 +429,10 @@
     background: $Light_Blue;
   }
 
-  .full-event-block{
+  .full-event-block {
     position: relative;
 
-    & > button{
+    & > button {
       position: absolute;
       top: 10px;
       left: 10px;
@@ -447,126 +447,121 @@
 
 <svelte:window on:click={hideAll} />
 
-<div class="admin-block">
-  <div class="form-width">
-    <HrefMenu page={0} />
-    <div class="admin-page">
-      <div class="events-status-block">
-        <div class="event-statuses">
-          <div class="events">События {result_count}</div>
-          <div>Активные {cardsCounts.active}</div>
-          <div>Скрытые {cardsCounts.hidden}</div>
-          <div>Архив {cardsCounts.archive}</div>
-        </div>
-        <a href="./admin/edit" class="new-event">Новое событие</a>
-      </div>
-      <div class="filter-block">
-        <input
-          type="text"
-          placeholder="поиск по названию"
-          bind:value={filter[0][0].value}
-          on:blur={checkSearchFilter} 
-          class="search-input"/>
-        <div class="select-block">
-          <button
-            class="select"
-            bind:this={options[0].btn}
-            on:click={() => {
-              options[0].isVisible = true;
-            }}>
-            Тематика
-          </button>
+<AdminPage page={0}>
+  <div class="events-status-block">
+    <div class="event-statuses">
+      <div class="events">События {result_count}</div>
+      <div>Активные {cardsCounts.active}</div>
+      <div>Скрытые {cardsCounts.hidden}</div>
+      <div>Архив {cardsCounts.archive}</div>
+    </div>
+    <a href="./admin/edit" class="new-event">Новое событие</a>
+  </div>
+  <div class="filter-block">
+    <input
+      type="text"
+      placeholder="поиск по названию"
+      bind:value={filter[0][0].value}
+      on:blur={checkSearchFilter}
+      class="search-input" />
+    <div class="select-block">
+      <button
+        class="select"
+        bind:this={options[0].btn}
+        on:click={() => {
+          options[0].isVisible = true;
+        }}>
+        Тематика
+      </button>
+      <div
+        class="option"
+        class:option-visible={options[0].isVisible}
+        bind:this={options[0].option}>
+        {#each filter[1] as subject}
           <div
-            class="option"
-            class:option-visible={options[0].isVisible}
-            bind:this={options[0].option}>
-            {#each filter[1] as subject}
-              <div
-                on:click={() => {
-                  subject.active = !subject.active;
-                  changeFilter();
-                }}>
-                <label>{subject.value}</label>
-                <input type="checkbox" bind:checked={subject.active} />
-              </div>
-            {/each}
-          </div>
-        </div>
-        <div class="select-block">
-          <button
-            class="select"
-            bind:this={options[1].btn}
             on:click={() => {
-              options[1].isVisible = true;
+              subject.active = !subject.active;
+              changeFilter();
             }}>
-            Локация
-          </button>
-          <div
-            class="option"
-            class:option-visible={options[1].isVisible}
-            bind:this={options[1].option}>
-            {#each filter[2] as location}
-              <div
-                on:click={() => {
-                  location.active = !location.active;
-                  changeFilter();
-                }}>
-                <label>{location.value}</label>
-                <input type="checkbox" bind:checked={location.active} />
-              </div>
-            {/each}
-          </div>
-        </div>
-      </div>
-      <ActiveFilters
-        {filter}
-        {showFilter}
-        min={-1}
-        max={3}
-        on:closeFilter={closeFilter}
-        {_} />
-      <div class="events-block">
-        {#each cards as card, i}
-          <div class="full-event-block">
-            <button on:click={() => changeFavorite(i)}>
-              {#if !card.is_favorite}
-                <img src="/img/star.png" />
-                {:else}
-                <img src="/img/favorite-star.png" />
-              {/if}
-            </button>
-            <a class="event-block" href={'./admin/action?id=' + card.id}>
-              <div class="event">
-                <div class="event-name-block">
-                  <img src="/img/star.png" />
-                  {card.name}
-                </div>
-                <div class="event-info-block">
-                  <div>{card.subjects.join('; ')}</div>
-                  <div>
-                    {parseDateForCards(card.date_starts, card.date_ends, _)}
-                  </div>
-                  <div>{card.locations.join('; ')}</div>
-                </div>
-              </div>
-              <div
-                class="event-status"
-                class:active-status={card.status === 'active'}
-                class:archive-status={card.status === 'archive'}
-                class:hidden-status={card.status === 'hidden'}>
-                <div class="event-status-text">
-                  {#if card.status === 'active'}
-                    Активное
-                  {:else if card.status === 'hidden'}
-                    Скрытое
-                  {:else if card.stauts === 'archive'}Архив{/if}
-                </div>
-              </div>
-            </a>
+            <label>{subject.value}</label>
+            <input type="checkbox" bind:checked={subject.active} />
           </div>
         {/each}
       </div>
-      <Pagination {pagData} on:clickPag={clickPag} />
+    </div>
+    <div class="select-block">
+      <button
+        class="select"
+        bind:this={options[1].btn}
+        on:click={() => {
+          options[1].isVisible = true;
+        }}>
+        Локация
+      </button>
+      <div
+        class="option"
+        class:option-visible={options[1].isVisible}
+        bind:this={options[1].option}>
+        {#each filter[2] as location}
+          <div
+            on:click={() => {
+              location.active = !location.active;
+              changeFilter();
+            }}>
+            <label>{location.value}</label>
+            <input type="checkbox" bind:checked={location.active} />
+          </div>
+        {/each}
+      </div>
     </div>
   </div>
-</div>
+  <ActiveFilters
+    {filter}
+    {showFilter}
+    min={-1}
+    max={3}
+    on:closeFilter={closeFilter}
+    {_} />
+  <div class="events-block">
+    {#each cards as card, i}
+      <div class="full-event-block">
+        <button on:click={() => changeFavorite(i)}>
+          {#if !card.is_favorite}
+            <img src="/img/star.png" />
+          {:else}
+            <img src="/img/favorite-star.png" />
+          {/if}
+        </button>
+        <a class="event-block" href={'./admin/action?id=' + card.id}>
+          <div class="event">
+            <div class="event-name-block">
+              <img src="/img/star.png" />
+              {card.name}
+            </div>
+            <div class="event-info-block">
+              <div>{card.subjects.join('; ')}</div>
+              <div>
+                {parseDateForCards(card.date_starts, card.date_ends, _)}
+              </div>
+              <div>{card.locations.join('; ')}</div>
+            </div>
+          </div>
+          <div
+            class="event-status"
+            class:active-status={card.status === 'active'}
+            class:archive-status={card.status === 'archive'}
+            class:hidden-status={card.status === 'hidden'}>
+            <div class="event-status-text">
+              {#if card.status === 'active'}
+                Активное
+              {:else if card.status === 'hidden'}
+                Скрытое
+              {:else if card.stauts === 'archive'}Архив{/if}
+            </div>
+          </div>
+        </a>
+      </div>
+    {/each}
+  </div>
+  <Pagination {pagData} on:clickPag={clickPag} />
+</AdminPage>

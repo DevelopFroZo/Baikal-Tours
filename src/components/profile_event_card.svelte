@@ -67,6 +67,15 @@
     .action-info > ul{
         margin-top: 5px;
     }
+
+    .buttons{
+      display: flex;
+      justify-content: space-around;
+    }
+
+    .green-button{
+      background: $Green !important;
+    }
 </style>
 
 <a class="action-block" href="/action?id={action_id}">
@@ -89,21 +98,27 @@
     </div>
     <div class="tickets-block">
       <ul>
-        Вaши билеты
+        {_("your_tickets")}
         <li>Взрослый - 1шт. - 1000 руб.</li>
         <li>Детский - 2шт. - 1000 руб.</li>
       </ul>
       <ul>
-        Дополнительно
+        {_("additionally")}
         <li>Питание - 1шт. - 1000 руб.</li>
         <li>Снаряжение - 2шт. - 1000 руб.</li>
       </ul>
     </div>
     <p class="status-text">
-      Вы зарегистрированы на событие!
+      {_("action_register_succes")}
       <br />
-      На вашу почту отправлено письмо с подтверждением
+      {_("action_register_mail")}
     </p>
-    <button class="blue-button">Отплатить событие</button>
+    <p class="status-text">
+      {_("action_confirm_pay")}
+    </p>
+    <div class="buttons">
+      <button class="blue-button">{_("cansel_reservation")}</button>
+      <button class="green-button blue-button">{_("pay_tickets")}</button>
+    </div>
   </div>
 </a>

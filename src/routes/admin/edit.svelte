@@ -72,7 +72,7 @@
 </script>
 
 <script>
-  import HrefMenu from "./_href_menu.svelte";
+  import AdminPage from "./_admin_page.svelte";
   import i18n from "/helpers/i18n/index.js";
   import { parseDate } from "/helpers/parsers.js";
   import * as edit from "/helpers/edit.js";
@@ -1143,652 +1143,637 @@
 
 <svelte:window on:click={hideAll} />
 
-<div class="admin-block">
-  <div class="form-width">
-    <HrefMenu page={0} />
-    <div class="admin-page">
-      <div class="line-center">
-        <h2 class="title-h1">
-          {#if actionId === undefined}
-            Создание события
-          {:else}Редактирование события{/if}
-        </h2>
-        <button class="save" on:click={saveAction}>Сохранить</button>
-      </div>
-      <div class="edit-block">
-        <label for="title">Title</label>
-        <input type="text" name="title" bind:value={title} />
+<AdminPage page={0}>
+  <div class="line-center">
+    <h2 class="title-h1">
+      {#if actionId === undefined}
+        Создание события
+      {:else}Редактирование события{/if}
+    </h2>
+    <button class="save" on:click={saveAction}>Сохранить</button>
+  </div>
+  <div class="edit-block">
+    <label for="title">Title</label>
+    <input type="text" name="title" bind:value={title} />
 
-        <label for="short-description">Короткое описание события</label>
-        <input
-          type="text"
-          name="short-description"
-          bind:value={short_description} />
+    <label for="short-description">Короткое описание события</label>
+    <input
+      type="text"
+      name="short-description"
+      bind:value={short_description} />
 
-        <label for="name">Название события</label>
-        <input type="text" name="name" bind:value={name} />
+    <label for="name">Название события</label>
+    <input type="text" name="name" bind:value={name} />
 
-        <label for="description">Описание события</label>
-        <textarea name="description" bind:value={full_description} />
+    <label for="description">Описание события</label>
+    <textarea name="description" bind:value={full_description} />
 
-        <label>Фотографии события</label>
-        <div class="images-block">
+    <label>Фотографии события</label>
+    <div class="images-block">
 
-          {#each images as img, i}
-            <div class="img-block">
-              <div class="img" class:imp={img.is_main}>
-                <button on:click={() => deleteImg(i, img.id)}>×</button>
-                <img
-                  src={img.image_url}
-                  alt="image"
-                  on:click={() => changeActiveImg(i, img.id)} />
-              </div>
-              {#if img.is_main}
-                <div class="imp-text">Главная</div>
-              {/if}
-            </div>
-          {/each}
-
-          {#each newImages as img, i}
-            <div class="img-block">
-              <div class="img" class:imp={i === mainImg}>
-                <button on:click={() => deleteNewImg(i, img.id)}>×</button>
-                <img
-                  src={URL.createObjectURL(img.src)}
-                  alt="image"
-                  on:click={() => changeNewActiveImg(i, img.id)} />
-              </div>
-              {#if i === mainImg}
-                <div class="imp-text">Главная</div>
-              {/if}
-            </div>
-          {/each}
-
+      {#each images as img, i}
+        <div class="img-block">
+          <div class="img" class:imp={img.is_main}>
+            <button on:click={() => deleteImg(i, img.id)}>×</button>
+            <img
+              src={img.image_url}
+              alt="image"
+              on:click={() => changeActiveImg(i, img.id)} />
+          </div>
+          {#if img.is_main}
+            <div class="imp-text">Главная</div>
+          {/if}
         </div>
-        <button class="upload-image-block">
-          Загрузить фотографии
-          <input
-            type="file"
-            class="upload-image"
-            accept=".jpg, .jpeg, .png"
-            multiple
-            bind:this={uploadImg}
-            on:change={changeImages}
-            name="uploadImg" />
-        </button>
+      {/each}
 
-        <div class="dates-block">
-          {#each dates as date, i}
-            <div class="date-block">
-              <div>
-                <label for="dateStart" class:hide-label={i !== 0}>
-                  Дата начала
-                </label>
-                <input
-                  type="date"
-                  name="dateStart"
-                  bind:value={date.dateStart} />
-              </div>
-
-              <div>
-                <label for="timeStart" class:hide-label={i !== 0}>
-                  Время начала
-                </label>
-                <input
-                  type="time"
-                  name="timeStart"
-                  bind:value={date.timeStart} />
-              </div>
-
-              <div class="days-block">
-                <label class:hide-label={i !== 0}>Периодичность</label>
-                <div class="dates-line">
-                  <div>
-                    пн
-                    <input
-                      type="checkbox"
-                      checked={date.days !== null && date.days.indexOf(0) !== -1}
-                      on:change={() => (date.days = edit.parseDataToIds(date.days, 0))} />
-                  </div>
-                  <div>
-                    вт
-                    <input
-                      type="checkbox"
-                      checked={date.days !== null && date.days.indexOf(1) !== -1}
-                      on:change={() => (date.days = edit.parseDataToIds(date.days, 1))} />
-                  </div>
-                  <div>
-                    ср
-                    <input
-                      type="checkbox"
-                      checked={date.days !== null && date.days.indexOf(2) !== -1}
-                      on:change={() => (date.days = edit.parseDataToIds(date.days, 2))} />
-                  </div>
-                  <div>
-                    чт
-                    <input
-                      type="checkbox"
-                      checked={date.days !== null && date.days.indexOf(3) !== -1}
-                      on:change={() => (date.days = edit.parseDataToIds(date.days, 3))} />
-                  </div>
-                  <div>
-                    пт
-                    <input
-                      type="checkbox"
-                      checked={date.days !== null && date.days.indexOf(4) !== -1}
-                      on:change={() => (date.days = edit.parseDataToIds(date.days, 4))} />
-                  </div>
-                  <div>
-                    сб
-                    <input
-                      type="checkbox"
-                      checked={date.days !== null && date.days.indexOf(5) !== -1}
-                      on:change={() => (date.days = edit.parseDataToIds(date.days, 5))} />
-                  </div>
-                  <div>
-                    вс
-                    <input
-                      type="checkbox"
-                      checked={date.days !== null && date.days.indexOf(6) !== -1}
-                      on:change={() => (date.days = edit.parseDataToIds(date.days, 6))} />
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <label for="dateEnd" class:hide-label={i !== 0}>
-                  Дата окончания
-                </label>
-                <input type="date" name="dateEnd" bind:value={date.dateEnd} />
-              </div>
-
-              <div>
-                <label for="timeEnd" class:hide-label={i !== 0}>
-                  Время окончания
-                </label>
-                <input type="time" name="timeEnd" bind:value={date.timeEnd} />
-              </div>
-
-              <button
-                class="delete"
-                on:click={() => {
-                  dates.splice(i, 1);
-                  dates = dates;
-                }}>
-                ×
-              </button>
-
-              {#if i === dates.length - 1}
-                <button class="add-date" on:click={addDate}>
-                  +добавить даты
-                </button>
-              {/if}
-            </div>
-          {/each}
+      {#each newImages as img, i}
+        <div class="img-block">
+          <div class="img" class:imp={i === mainImg}>
+            <button on:click={() => deleteNewImg(i, img.id)}>×</button>
+            <img
+              src={URL.createObjectURL(img.src)}
+              alt="image"
+              on:click={() => changeNewActiveImg(i, img.id)} />
+          </div>
+          {#if i === mainImg}
+            <div class="imp-text">Главная</div>
+          {/if}
         </div>
+      {/each}
 
-        <div class="locations-block">
-          {#each locations as location, i}
-            <div class="location-block">
-              <div class="location-select">
-                <label for="location" class:hide-label={i !== 0}>Локация</label>
-                <select name="location" bind:value={location.id}>
-                  <option value={null} />
-                  {#each result_filters.locations as locationName}
-                    <option value={locationName.id}>{locationName.name}</option>
-                  {/each}
-                </select>
-              </div>
+    </div>
+    <button class="upload-image-block">
+      Загрузить фотографии
+      <input
+        type="file"
+        class="upload-image"
+        accept=".jpg, .jpeg, .png"
+        multiple
+        bind:this={uploadImg}
+        on:change={changeImages}
+        name="uploadImg" />
+    </button>
 
-              <div class="location-name">
-                <label for="location-name" class:hide-label={i !== 0}>
-                  Место проведения
-                </label>
-                <input type="text" bind:value={location.address} />
-              </div>
-
-              <button>
-                <img src="/img/place.png" alt="place" />
-              </button>
-
-              <button
-                class="delete"
-                on:click={() => {
-                  locations.splice(i, 1);
-                  locations = locations;
-                }}>
-                ×
-              </button>
-
-              {#if i === locations.length - 1}
-                <button on:click={addLocation}>+</button>
-              {/if}
-            </div>
-          {/each}
-        </div>
-
-        <div class="others-block">
-
-          <div class="price-block">
-            <label for="price">Стоимость</label>
-            <div>
-              <input
-                type="text"
-                name="price"
-                bind:value={price}
-                disabled={freePrice} />
-              <div>₽</div>
-            </div>
-            <div class="free-block">
-              <input
-                type="checkbox"
-                name="free"
-                checked={freePrice}
-                on:change={() => (freePrice = !freePrice)} />
-              <label for="free">бесплатное</label>
-            </div>
-          </div>
-
+    <div class="dates-block">
+      {#each dates as date, i}
+        <div class="date-block">
           <div>
-            <label for="subjects">Тематики</label>
-            <div class="select-block">
-              <button
-                class="select"
-                bind:this={options[0].btn}
-                on:click={() => {
-                  options[0].isVisible = true;
-                }}>
-                {subjectsNames.join('; ')}
-              </button>
-              <div
-                class="option"
-                class:option-visible={options[0].isVisible}
-                bind:this={options[0].option}>
-                {#each result_filters.subjects as subject}
-                  <div
-                    on:click={() => (subjects = edit.parseDataToIds(subjects, subject.id))}>
-                    <label>{subject.name}</label>
-                    <input
-                      type="checkbox"
-                      checked={subjects.indexOf(subject.id) !== -1} />
-                  </div>
-                {/each}
-              </div>
-            </div>
-          </div>
-
-          <div>
-            <label for="transfer">Трансфер</label>
-            <div class="select-block">
-              <button
-                class="select"
-                bind:this={options[1].btn}
-                on:click={() => {
-                  options[1].isVisible = true;
-                }}>
-                {transfersNames.join('; ')}
-              </button>
-              <div
-                class="option"
-                class:option-visible={options[1].isVisible}
-                bind:this={options[1].option}>
-                {#each result_filters.transfers as transfer}
-                  <div
-                    on:click={() => (transfers = edit.parseDataToIds(transfers, transfer.id))}>
-                    <label>{transfer.name}</label>
-                    <input
-                      type="checkbox"
-                      checked={transfers.indexOf(transfer.id) !== -1} />
-                  </div>
-                {/each}
-              </div>
-            </div>
-          </div>
-
-          <div>
-            <label for="companions">С кем можно пойти</label>
-            <div class="select-block">
-              <button
-                class="select"
-                bind:this={options[2].btn}
-                on:click={() => {
-                  options[2].isVisible = true;
-                }}>
-                {companionsNames.join('; ')}
-              </button>
-              <div
-                class="option"
-                class:option-visible={options[2].isVisible}
-                bind:this={options[2].option}>
-                {#each result_filters.companions as companion}
-                  <div
-                    on:click={() => (companions = edit.parseDataToIds(companions, companion.id))}>
-                    <label>{companion.name}</label>
-                    <input
-                      type="checkbox"
-                      checked={companions.indexOf(companion.id) !== -1} />
-                  </div>
-                {/each}
-              </div>
-            </div>
-          </div>
-
-        </div>
-
-        <div class="organisators-block">
-
-          <div>
-            <label for="organisator">Организатор</label>
-            <input type="text" name="organisator" bind:value={organizer_name} />
-          </div>
-
-          <div>
-            <label for="organisator-user">
-              Добавить организатора из пользователей
+            <label for="dateStart" class:hide-label={i !== 0}>
+              Дата начала
             </label>
-            <select name="organisation-user" bind:value={organizer_id}>
+            <input type="date" name="dateStart" bind:value={date.dateStart} />
+          </div>
+
+          <div>
+            <label for="timeStart" class:hide-label={i !== 0}>
+              Время начала
+            </label>
+            <input type="time" name="timeStart" bind:value={date.timeStart} />
+          </div>
+
+          <div class="days-block">
+            <label class:hide-label={i !== 0}>Периодичность</label>
+            <div class="dates-line">
+              <div>
+                пн
+                <input
+                  type="checkbox"
+                  checked={date.days !== null && date.days.indexOf(0) !== -1}
+                  on:change={() => (date.days = edit.parseDataToIds(date.days, 0))} />
+              </div>
+              <div>
+                вт
+                <input
+                  type="checkbox"
+                  checked={date.days !== null && date.days.indexOf(1) !== -1}
+                  on:change={() => (date.days = edit.parseDataToIds(date.days, 1))} />
+              </div>
+              <div>
+                ср
+                <input
+                  type="checkbox"
+                  checked={date.days !== null && date.days.indexOf(2) !== -1}
+                  on:change={() => (date.days = edit.parseDataToIds(date.days, 2))} />
+              </div>
+              <div>
+                чт
+                <input
+                  type="checkbox"
+                  checked={date.days !== null && date.days.indexOf(3) !== -1}
+                  on:change={() => (date.days = edit.parseDataToIds(date.days, 3))} />
+              </div>
+              <div>
+                пт
+                <input
+                  type="checkbox"
+                  checked={date.days !== null && date.days.indexOf(4) !== -1}
+                  on:change={() => (date.days = edit.parseDataToIds(date.days, 4))} />
+              </div>
+              <div>
+                сб
+                <input
+                  type="checkbox"
+                  checked={date.days !== null && date.days.indexOf(5) !== -1}
+                  on:change={() => (date.days = edit.parseDataToIds(date.days, 5))} />
+              </div>
+              <div>
+                вс
+                <input
+                  type="checkbox"
+                  checked={date.days !== null && date.days.indexOf(6) !== -1}
+                  on:change={() => (date.days = edit.parseDataToIds(date.days, 6))} />
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label for="dateEnd" class:hide-label={i !== 0}>
+              Дата окончания
+            </label>
+            <input type="date" name="dateEnd" bind:value={date.dateEnd} />
+          </div>
+
+          <div>
+            <label for="timeEnd" class:hide-label={i !== 0}>
+              Время окончания
+            </label>
+            <input type="time" name="timeEnd" bind:value={date.timeEnd} />
+          </div>
+
+          <button
+            class="delete"
+            on:click={() => {
+              dates.splice(i, 1);
+              dates = dates;
+            }}>
+            ×
+          </button>
+
+          {#if i === dates.length - 1}
+            <button class="add-date" on:click={addDate}>+добавить даты</button>
+          {/if}
+        </div>
+      {/each}
+    </div>
+
+    <div class="locations-block">
+      {#each locations as location, i}
+        <div class="location-block">
+          <div class="location-select">
+            <label for="location" class:hide-label={i !== 0}>Локация</label>
+            <select name="location" bind:value={location.id}>
               <option value={null} />
-              {#each result_users as user}
-                <option value={user.id}>{user.name} {user.surname}</option>
+              {#each result_filters.locations as locationName}
+                <option value={locationName.id}>{locationName.name}</option>
               {/each}
             </select>
           </div>
 
+          <div class="location-name">
+            <label for="location-name" class:hide-label={i !== 0}>
+              Место проведения
+            </label>
+            <input type="text" bind:value={location.address} />
+          </div>
+
+          <button>
+            <img src="/img/place.png" alt="place" />
+          </button>
+
+          <button
+            class="delete"
+            on:click={() => {
+              locations.splice(i, 1);
+              locations = locations;
+            }}>
+            ×
+          </button>
+
+          {#if i === locations.length - 1}
+            <button on:click={addLocation}>+</button>
+          {/if}
+        </div>
+      {/each}
+    </div>
+
+    <div class="others-block">
+
+      <div class="price-block">
+        <label for="price">Стоимость</label>
+        <div>
+          <input
+            type="text"
+            name="price"
+            bind:value={price}
+            disabled={freePrice} />
+          <div>₽</div>
+        </div>
+        <div class="free-block">
+          <input
+            type="checkbox"
+            name="free"
+            checked={freePrice}
+            on:change={() => (freePrice = !freePrice)} />
+          <label for="free">бесплатное</label>
+        </div>
+      </div>
+
+      <div>
+        <label for="subjects">Тематики</label>
+        <div class="select-block">
+          <button
+            class="select"
+            bind:this={options[0].btn}
+            on:click={() => {
+              options[0].isVisible = true;
+            }}>
+            {subjectsNames.join('; ')}
+          </button>
+          <div
+            class="option"
+            class:option-visible={options[0].isVisible}
+            bind:this={options[0].option}>
+            {#each result_filters.subjects as subject}
+              <div
+                on:click={() => (subjects = edit.parseDataToIds(subjects, subject.id))}>
+                <label>{subject.name}</label>
+                <input
+                  type="checkbox"
+                  checked={subjects.indexOf(subject.id) !== -1} />
+              </div>
+            {/each}
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <label for="transfer">Трансфер</label>
+        <div class="select-block">
+          <button
+            class="select"
+            bind:this={options[1].btn}
+            on:click={() => {
+              options[1].isVisible = true;
+            }}>
+            {transfersNames.join('; ')}
+          </button>
+          <div
+            class="option"
+            class:option-visible={options[1].isVisible}
+            bind:this={options[1].option}>
+            {#each result_filters.transfers as transfer}
+              <div
+                on:click={() => (transfers = edit.parseDataToIds(transfers, transfer.id))}>
+                <label>{transfer.name}</label>
+                <input
+                  type="checkbox"
+                  checked={transfers.indexOf(transfer.id) !== -1} />
+              </div>
+            {/each}
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <label for="companions">С кем можно пойти</label>
+        <div class="select-block">
+          <button
+            class="select"
+            bind:this={options[2].btn}
+            on:click={() => {
+              options[2].isVisible = true;
+            }}>
+            {companionsNames.join('; ')}
+          </button>
+          <div
+            class="option"
+            class:option-visible={options[2].isVisible}
+            bind:this={options[2].option}>
+            {#each result_filters.companions as companion}
+              <div
+                on:click={() => (companions = edit.parseDataToIds(companions, companion.id))}>
+                <label>{companion.name}</label>
+                <input
+                  type="checkbox"
+                  checked={companions.indexOf(companion.id) !== -1} />
+              </div>
+            {/each}
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="organisators-block">
+
+      <div>
+        <label for="organisator">Организатор</label>
+        <input type="text" name="organisator" bind:value={organizer_name} />
+      </div>
+
+      <div>
+        <label for="organisator-user">
+          Добавить организатора из пользователей
+        </label>
+        <select name="organisation-user" bind:value={organizer_id}>
+          <option value={null} />
+          {#each result_users as user}
+            <option value={user.id}>{user.name} {user.surname}</option>
+          {/each}
+        </select>
+      </div>
+
+    </div>
+
+    <div class="contacts-block">
+
+      <div class="contacts-block-info">
+        <div class="block-name">Контакты</div>
+
+        <div>
+          <label for="contact_face">Контактное лицо</label>
+          <div>
+            {#each contact_faces as contact_face, i}
+              <div>
+                <input
+                  type="text"
+                  name="contact_face"
+                  bind:value={contact_face} />
+                <button
+                  class="delete"
+                  on:click={() => {
+                    contact_faces.splice(i, 1);
+                    contact_faces = contact_faces;
+                  }}>
+                  ×
+                </button>
+                {#if i === contact_faces.length - 1}
+                  <button
+                    on:click={() => {
+                      contact_faces.push('');
+                      contact_faces = contact_faces;
+                    }}>
+                    +
+                  </button>
+                {/if}
+              </div>
+            {/each}
+          </div>
+
         </div>
 
-        <div class="contacts-block">
-
-          <div class="contacts-block-info">
-            <div class="block-name">Контакты</div>
-
-            <div>
-              <label for="contact_face">Контактное лицо</label>
+        <div>
+          <label for="phone">Телефон</label>
+          <div>
+            {#each phones as phone, i}
               <div>
-                {#each contact_faces as contact_face, i}
-                  <div>
-                    <input
-                      type="text"
-                      name="contact_face"
-                      bind:value={contact_face} />
-                    <button
-                      class="delete"
-                      on:click={() => {
-                        contact_faces.splice(i, 1);
-                        contact_faces = contact_faces;
-                      }}>
-                      ×
-                    </button>
-                    {#if i === contact_faces.length - 1}
-                      <button
-                        on:click={() => {
-                          contact_faces.push('');
-                          contact_faces = contact_faces;
-                        }}>
-                        +
-                      </button>
-                    {/if}
-                  </div>
-                {/each}
+                <input type="text" name="phone" bind:value={phone} />
+                <button
+                  class="delete"
+                  on:click={() => {
+                    phones.splice(i, 1);
+                    phones = phones;
+                  }}>
+                  ×
+                </button>
+                {#if i === phones.length - 1}
+                  <button
+                    on:click={() => {
+                      phones.push('');
+                      phones = phones;
+                    }}>
+                    +
+                  </button>
+                {/if}
               </div>
-
-            </div>
-
-            <div>
-              <label for="phone">Телефон</label>
-              <div>
-                {#each phones as phone, i}
-                  <div>
-                    <input type="text" name="phone" bind:value={phone} />
-                    <button
-                      class="delete"
-                      on:click={() => {
-                        phones.splice(i, 1);
-                        phones = phones;
-                      }}>
-                      ×
-                    </button>
-                    {#if i === phones.length - 1}
-                      <button
-                        on:click={() => {
-                          phones.push('');
-                          phones = phones;
-                        }}>
-                        +
-                      </button>
-                    {/if}
-                  </div>
-                {/each}
-              </div>
-
-            </div>
-
-            <div>
-              <label for="email">E-mail</label>
-              <div>
-                {#each emails as email, i}
-                  <div>
-                    <input type="text" name="email" bind:value={email} />
-                    <button
-                      class="delete"
-                      on:click={() => {
-                        emails.splice(i, 1);
-                        emails = emails;
-                      }}>
-                      ×
-                    </button>
-                    {#if i === emails.length - 1}
-                      <button
-                        on:click={() => {
-                          emails.push('');
-                          emails = emails;
-                        }}>
-                        +
-                      </button>
-                    {/if}
-                  </div>
-                {/each}
-              </div>
-            </div>
-
-            <div>
-              <label for="site">Сайт</label>
-              <div>
-                {#each websites as website, i}
-                  <div>
-                    <input type="text" name="site" bind:value={website} />
-                    <button
-                      class="delete"
-                      on:click={() => {
-                        websites.splice(i, 1);
-                        websites = websites;
-                      }}>
-                      ×
-                    </button>
-                    {#if i === websites.length - 1}
-                      <button
-                        on:click={() => {
-                          websites.push('');
-                          websites = websites;
-                        }}>
-                        +
-                      </button>
-                    {/if}
-                  </div>
-                {/each}
-              </div>
-            </div>
-          </div>
-
-          <div class="messengers-block-info">
-            <div class="block-name">Соц. сети</div>
-
-            <div>
-              <label for="vk">Вконтакте</label>
-              <input type="text" name="vk" bind:value={vk_link} />
-            </div>
-
-            <div>
-              <label for="fb">Фейсбук</label>
-              <input type="text" name="fb" bind:value={facebook_link} />
-            </div>
-
-            <div>
-              <label for="in">Инстаграм</label>
-              <input type="text" name="in" bind:value={instagram_link} />
-            </div>
-
-            <div>
-              <label for="tw">Твиттер</label>
-              <input type="text" name="tw" bind:value={twitter_link} />
-            </div>
+            {/each}
           </div>
 
         </div>
 
-        <div class="pay-block">
-
-          <div class="block-name">Варианты участия</div>
-
+        <div>
+          <label for="email">E-mail</label>
           <div>
-            <input
-              type="radio"
-              name="participation"
-              bind:group={participation}
-              value={'free'} />
-            <label for="participation">Бесплатное</label>
+            {#each emails as email, i}
+              <div>
+                <input type="text" name="email" bind:value={email} />
+                <button
+                  class="delete"
+                  on:click={() => {
+                    emails.splice(i, 1);
+                    emails = emails;
+                  }}>
+                  ×
+                </button>
+                {#if i === emails.length - 1}
+                  <button
+                    on:click={() => {
+                      emails.push('');
+                      emails = emails;
+                    }}>
+                    +
+                  </button>
+                {/if}
+              </div>
+            {/each}
           </div>
+        </div>
 
+        <div>
+          <label for="site">Сайт</label>
           <div>
-            <input
-              type="radio"
-              name="participation"
-              bind:group={participation}
-              value={'organiser'} />
-            <label for="participation">Оплата через организатора</label>
+            {#each websites as website, i}
+              <div>
+                <input type="text" name="site" bind:value={website} />
+                <button
+                  class="delete"
+                  on:click={() => {
+                    websites.splice(i, 1);
+                    websites = websites;
+                  }}>
+                  ×
+                </button>
+                {#if i === websites.length - 1}
+                  <button
+                    on:click={() => {
+                      websites.push('');
+                      websites = websites;
+                    }}>
+                    +
+                  </button>
+                {/if}
+              </div>
+            {/each}
+          </div>
+        </div>
+      </div>
+
+      <div class="messengers-block-info">
+        <div class="block-name">Соц. сети</div>
+
+        <div>
+          <label for="vk">Вконтакте</label>
+          <input type="text" name="vk" bind:value={vk_link} />
+        </div>
+
+        <div>
+          <label for="fb">Фейсбук</label>
+          <input type="text" name="fb" bind:value={facebook_link} />
+        </div>
+
+        <div>
+          <label for="in">Инстаграм</label>
+          <input type="text" name="in" bind:value={instagram_link} />
+        </div>
+
+        <div>
+          <label for="tw">Твиттер</label>
+          <input type="text" name="tw" bind:value={twitter_link} />
+        </div>
+      </div>
+
+    </div>
+
+    <div class="pay-block">
+
+      <div class="block-name">Варианты участия</div>
+
+      <div>
+        <input
+          type="radio"
+          name="participation"
+          bind:group={participation}
+          value={'free'} />
+        <label for="participation">Бесплатное</label>
+      </div>
+
+      <div>
+        <input
+          type="radio"
+          name="participation"
+          bind:group={participation}
+          value={'organiser'} />
+        <label for="participation">Оплата через организатора</label>
+        <input
+          type="text"
+          placeholder="ссылка на страницу организатора"
+          bind:value={organizer_payment}
+          disabled={participation !== 'organiser'} />
+      </div>
+
+      <div>
+        <input
+          type="radio"
+          name="participation"
+          bind:group={participation}
+          value={'site'} />
+        <label for="participation">Оплата на сайте</label>
+      </div>
+
+    </div>
+
+    <div class="partners-block">
+
+      <div class="block-name">Партнеры события</div>
+
+      <div class="partner">
+
+        {#each partners as partner, i}
+          <div class="img-block">
+            <div class="img">
+              <button
+                on:click={() => {
+                  partners.splice(i, 1);
+                  partners = partners;
+                  deletePartner(partner.id);
+                }}>
+                ×
+              </button>
+              <img src={partner.image_url} alt="image" />
+            </div>
             <input
               type="text"
-              placeholder="ссылка на страницу организатора"
-              bind:value={organizer_payment}
-              disabled={participation !== 'organiser'} />
+              bind:value={partner.name}
+              placeholder="название партнера"
+              on:blur={() => renamePartner(partner.id, partner.name)} />
           </div>
+        {/each}
 
-          <div>
-            <input
-              type="radio"
-              name="participation"
-              bind:group={participation}
-              value={'site'} />
-            <label for="participation">Оплата на сайте</label>
-          </div>
-
-        </div>
-
-        <div class="partners-block">
-
-          <div class="block-name">Партнеры события</div>
-
-          <div class="partner">
-
-            {#each partners as partner, i}
-              <div class="img-block">
-                <div class="img">
-                  <button
-                    on:click={() => {
-                      partners.splice(i, 1);
-                      partners = partners;
-                      deletePartner(partner.id);
-                    }}>
-                    ×
-                  </button>
-                  <img src={partner.image_url} alt="image" />
-                </div>
-                <input
-                  type="text"
-                  bind:value={partner.name}
-                  placeholder="название партнера"
-                  on:blur={() => renamePartner(partner.id, partner.name)} />
-              </div>
-            {/each}
-
-            {#each newPartners as partner, i}
-              <div class="img-block">
-                <div class="img">
-                  <button
-                    on:click={() => {
-                      newPartners.splice(i, 1);
-                      newPartners = newPartners;
-                      deletePartner(partner.id);
-                    }}>
-                    ×
-                  </button>
-                  <img
-                    src={URL.createObjectURL(partner.image_url)}
-                    alt="image" />
-                </div>
-                <input
-                  type="text"
-                  bind:value={partner.name}
-                  placeholder="название партнера"
-                  on:blur={() => renamePartner(partner.id, partner.name)} />
-              </div>
-            {/each}
-
-            <div>
-              <button class="empty">
-                <div>
-                  <div>+</div>
-                </div>
-                <input
-                  type="file"
-                  class="upload-image"
-                  accept=".jpg, .jpeg, .png"
-                  bind:this={uploadPartners}
-                  on:change={changePartners}
-                  name="uploadImg" />
+        {#each newPartners as partner, i}
+          <div class="img-block">
+            <div class="img">
+              <button
+                on:click={() => {
+                  newPartners.splice(i, 1);
+                  newPartners = newPartners;
+                  deletePartner(partner.id);
+                }}>
+                ×
               </button>
-              <input
-                type="text"
-                placeholder="название партнера"
-                bind:value={newPartnerName} />
+              <img src={URL.createObjectURL(partner.image_url)} alt="image" />
             </div>
-
+            <input
+              type="text"
+              bind:value={partner.name}
+              placeholder="название партнера"
+              on:blur={() => renamePartner(partner.id, partner.name)} />
           </div>
+        {/each}
 
-        </div>
-
-        <div class="hotels-block">
-
-          <div class="block-name">Отели поблизости</div>
-
-          <div class="hotels">
-            {#each [0, 0, 0, 0] as bl}
-              <button class="empty">
-                <div>
-                  <div>+</div>
-                </div>
-              </button>
-            {/each}
-          </div>
-
-        </div>
-
-        <div class="tours-block">
-
-          <div class="block-name">Экскурсии и туры поблизости</div>
-
-          <div class="tours">
-            {#each [0, 0, 0, 0] as bl}
-              <button class="empty">
-                <div>
-                  <div>+</div>
-                </div>
-              </button>
-            {/each}
-          </div>
-
+        <div>
+          <button class="empty">
+            <div>
+              <div>+</div>
+            </div>
+            <input
+              type="file"
+              class="upload-image"
+              accept=".jpg, .jpeg, .png"
+              bind:this={uploadPartners}
+              on:change={changePartners}
+              name="uploadImg" />
+          </button>
+          <input
+            type="text"
+            placeholder="название партнера"
+            bind:value={newPartnerName} />
         </div>
 
       </div>
+
     </div>
+
+    <div class="hotels-block">
+
+      <div class="block-name">Отели поблизости</div>
+
+      <div class="hotels">
+        {#each [0, 0, 0, 0] as bl}
+          <button class="empty">
+            <div>
+              <div>+</div>
+            </div>
+          </button>
+        {/each}
+      </div>
+
+    </div>
+
+    <div class="tours-block">
+
+      <div class="block-name">Экскурсии и туры поблизости</div>
+
+      <div class="tours">
+        {#each [0, 0, 0, 0] as bl}
+          <button class="empty">
+            <div>
+              <div>+</div>
+            </div>
+          </button>
+        {/each}
+      </div>
+
+    </div>
+
   </div>
-</div>
+</AdminPage>

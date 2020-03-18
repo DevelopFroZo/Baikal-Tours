@@ -9,11 +9,21 @@ export default class extends Foundation{
     super( modules, "Users" );
   }
 
-  async get(){
+  async get( search ){
+    const params = [];
+
+    if( typeof search === "string" && search !== "" ){
+      params.push( `%${search}%` );
+      search = "where name || surname || phone || email ilike $1";
+    }
+    else search = "";
+
     const rows = ( await super.query(
       `select id, name, surname, phone, email, image_path, password_confirmed, role
       from users
-      order by id`
+      ${search}
+      order by id`,
+      params
     ) ).rows;
 
     return super.success( 0, rows );

@@ -15,6 +15,9 @@
           break;
         }
 
+    if(session.userId === undefined)
+      this.redirect(302, "/login");
+
     if (section === undefined || !bl)
       this.redirect(302, "/profile?section=settings");
 
@@ -72,25 +75,25 @@
 
 <Header {locale} little={true} />
 <div class="form-width">
-  <h1>Личный кабинет</h1>
+  <h1>{_("personal_account")}</h1>
   <div class="profile-type-block">
     <button
       class:active={section === 'settings'}
       on:click={() => setSection('settings')}
       disabled={section === 'settings'}>
-      Настройки аккаунта
+      {_("account_settings")}
     </button>
     <button
       class:active={section === 'actions'}
       on:click={() => setSection('actions')}
       disabled={section === 'actions'}>
-      Мои события
+      {_("my_events")}
     </button>
     <button
       class:active={section === 'organizer'}
       on:click={() => setSection('organizer')}
       disabled={section === 'organizer'}>
-      Кабинет организатора
+      {_("organizer_office")}
     </button>
   </div>
 
@@ -99,7 +102,7 @@
   {:else if section === 'actions'}
     <Actions {userSubscribeds} {_}/>
   {:else if section === 'organizer'}
-    <Organizer />
+    <Organizer {_}/>
   {/if}
 </div>
 
