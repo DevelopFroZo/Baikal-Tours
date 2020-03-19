@@ -36,10 +36,11 @@ export async function post( req, res ){
     if( !result.ok ) return res.json( result );
 
     req.session.isLogged = true;
+    req.session.name = result.data.name;
+    req.session.surname = result.data.surname;
+    req.session.email = result.data.email;
     req.session.userId = result.data.userId;
     req.session.role = result.data.role;
-    req.session.name = result.data.name;
-    req.session.email = result.data.email;
 
     return res.success();
   }

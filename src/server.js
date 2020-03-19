@@ -63,6 +63,10 @@ server.use( ( req, res, next ) => {
   req.mail = mail;
 
   if( typeof req.session.isLogged !== "boolean" ) req.session.isLogged = false;
+  if( !req.session.name ) req.session.name = "";
+  if( !req.session.surname ) req.session.surname = "";
+  if( !req.session.email ) req.session.email = "";
+  if( !req.session.userId ) req.session.userId = 0;
   if( !req.session.role ) req.session.role = "user";
   if( !req.session.locale ) req.session.locale = "ru";
 
@@ -83,8 +87,12 @@ server
     sapper.middleware( {
       session: ( req, res ) => ( {
         isLogged: req.session.isLogged,
-        locale: req.session.locale,
-        userId: req.session.userId
+        name: req.session.name,
+        surname: req.session.surname,
+        email: req.session.email,
+        userId: req.session.userId,
+        role: req.session.role,
+        locale: req.session.locale
       } )
     } )
   )
