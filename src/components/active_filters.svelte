@@ -1,7 +1,10 @@
 <script>
   import { createEventDispatcher } from "svelte";
 
-  export let filter, showFilter, date = "", price = "", min, max, _;
+  export let filter, showFilter, date = "", price = "", min, max, _, search = "";
+
+  $: if(search !== "")
+      filter[0][0].value = search;
 
   const dispatch = createEventDispatcher();
 

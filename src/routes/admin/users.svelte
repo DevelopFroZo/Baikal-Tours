@@ -20,7 +20,17 @@
 
   export let users, locale;
 
+  const fetcher = new Fetcher();
   const _ = i18n(locale);
+
+  let searchText = "",
+    usersLength = users.length;
+
+  async function searchUser() {
+    users = (await fetcher.get("/api/users", {
+      query: { search: searchText }
+    })).data;
+  }
 </script>
 
 <style lang="scss">
@@ -52,23 +62,32 @@
 </style>
 
 <svelte:head>
-  <title>Пользователи</title>
+  <title>{_('users')}</title>
 </svelte:head>
 
-<AdminPage page={1}>
+<AdminPage page={1} {fetcher} {locale} {_}>
   <div>
-    <h1>Пользователи - {users.length}</h1>
+    <h1>{_('users')} - {usersLength}</h1>
 
-    <input type="text" placeholder="поиск" class="search-input" />
+    <input
+      type="text"
+      placeholder={_('search')}
+      class="search-input"
+      on:blur={searchUser}
+      bind:value={searchText}
+      on:keyup={function(e) {
+        if (e.key === 'Enter') this.blur();
+      }} />
 
+    {#if users.length > 0}
     <table>
       <tr>
         <td />
-        <td>Имя</td>
-        <td>Фамилия</td>
-        <td>Телефон</td>
+        <td>{_('name')}</td>
+        <td>{_('surname')}</td>
+        <td>{_('role')}</td>
         <td>E-mail</td>
-        <td>Роль</td>
+        <td>{_('role')}</td>
       </tr>
       {#each users as user}
         <tr>
@@ -85,5 +104,8 @@
         </tr>
       {/each}
     </table>
+    {:else}
+      <div>{_("users_not_found")}</div>
+    {/if}
   </div>
 </AdminPage>

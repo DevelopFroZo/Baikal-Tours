@@ -1,5 +1,28 @@
 <script>
-  export let page;
+  export let page, fetcher, locale, _;
+
+  let languages = [
+    {
+      id: 1,
+      lang: "ru"
+    },
+    {
+      id: 2,
+      lang: "en"
+    },
+    {
+      id: 3,
+      lang: "zh"
+    }
+  ];
+
+  let secondLanguage = locale;
+
+  async function changeLanguage() {
+    let result = await fetcher.put("/api/locales/" + secondLanguage);
+
+    document.location.reload();
+  }
 </script>
 
 <style lang="scss">
@@ -39,58 +62,94 @@
     font-weight: bold;
   }
 
-  .exit{
+  .bottom {
     position: absolute;
     bottom: 5px;
     left: 50%;
     transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    & > .language {
+      text-transform: uppercase;
+      font-weight: bold;
+      border: 1px solid $Light_Black;
+      // background-image: url("../img/language.png");
+      // background-repeat: no-repeat;
+      // background-position: right 0.7em top 50%, 0 0;
+      //width: 45px;
+      -moz-appearance: none;
+      -webkit-appearance: none;
+      cursor: pointer;
+      margin-bottom: 10px;
+      color: white;
+
+      &::-ms-expand {
+        display: none;
+      }
+
+      & > option {
+        background: $Light_Black;
+        color: white;
+      }
+    }
   }
 </style>
 
 <div class="category-block">
-  <h1>Календарь событий</h1>
+  <h1>{_("event_calendar")}</h1>
   <a class="category-href" class:active-page={page === 0} href="./admin">
-    События
+    {_("actions")}
   </a>
   <a class="category-href" class:active-page={page === 1} href="./admin/users">
-    Пользователи
+    {_("users")}
   </a>
   <a
     class="category-href"
     class:active-page={page === 2}
     href="./admin/directory">
-    Справочники
+    {_("handbooks")}
   </a>
   <a
     class="category-href"
     class:active-page={page === 3}
     href="./admin/excursions">
-    Экскурсии
-    <br />
-    и туры
+    {_("excursions_and_tours")}
   </a>
   <a class="category-href" class:active-page={page === 4} href="./admin/hotels">
-    Отели
+    {_("hotels")}
   </a>
   <a
     class="category-href"
     class:active-page={page === 5}
     href="./admin/banners">
-    Баннеры
+    {_("banners")}
   </a>
   <a
     class="category-href"
     class:active-page={page === 6}
     href="./admin/collections">
-    Подборки
+    {_("selections")}
   </a>
   <a
     class="category-href"
     class:active-page={page === 7}
     href="./admin/options">
-    Настройки
+    {_("settings")}
   </a>
-  <a href="/" class="exit">
-    <img src="/img/exit.png" alt="exit" />
-  </a>
+  <div class="bottom">
+    <select
+      bind:value={secondLanguage}
+      on:change={changeLanguage}
+      class="language">
+      {#each languages as lang}
+        <option value={lang.lang}>{lang.lang}</option>
+      {/each}
+    </select>
+    <a href="/" class="exit">
+      <img src="/img/exit.png" alt="exit" />
+    </a>
+  </div>
+
 </div>

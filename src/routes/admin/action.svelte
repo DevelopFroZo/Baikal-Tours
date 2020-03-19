@@ -4,17 +4,21 @@
   export async function preload(page, session) {
     const fetcher = new Fetcher(this.fetch);
     let actionId = page.query.id;
+    let locale = session.locale;
+
     let result_action = await fetcher.get("/api/actions/" + actionId, {
       query: {
         getSubscribers: ""
       },
       credentials: "same-origin"
     });
-    let locale = session.locale;
 
-    result_action = result_action.data;
+    if (result_action.ok) {
+      result_action = result_action.data;
+      return { result_action, actionId, locale };
+    }
 
-    return { result_action, actionId, locale };
+    this.error(404, "page not found");
   }
 </script>
 
@@ -25,6 +29,8 @@
   import { contactsToString, dateToString } from "/helpers/converters.js";
 
   export let result_action, actionId, locale;
+
+  console.log(result_action);
 
   const _ = i18n(locale),
     fetcher = new Fetcher();
@@ -190,36 +196,41 @@
 
 <svelte:head>
   <title>
-    {result_action.title === null ? 'Страница события' : result_action.title}
+    {result_action.title === null ? _('event_page') : result_action.title}
   </title>
 </svelte:head>
 
-<AdminPage page={0}>
-  <a href="./admin" class="back-page">назад к списку событий</a>
+<AdminPage page={0} {fetcher} {locale} {_}>
+  <a href="./admin" class="back-page">{_('back_to_actions_page')}</a>
   <div class="event-block">
     <div class="event-edit">
       <select bind:value={result_action.status} on:change={changeStatus}>
-        <option value="active">Активное</option>
-        <option value="hidden">Скрытое</option>
-        <option value="archive">Архив</option>
+        <option value="active">{_('active')}</option>
+        <option value="hidden">{_('hidden')}</option>
+        <option value="archive">{_('archive')}</option>
       </select>
-      <a href={`/admin/edit?id=${actionId}`}>Редактировать</a>
+      <a href={`/admin/edit?id=${actionId}`}>{_('edit')}</a>
     </div>
     <h1>{result_action.name}</h1>
     <pre>{result_action.full_description}</pre>
-    <h2>Фотографии события</h2>
-    <div class="images-block">
-      {#each result_action.images as image}
-        <div class="img-block">
-          <div class="img">
-            <img src={image.image_url} class:imp={image.is_main} alt="image" />
+    <h2>{_('event_photos')}</h2>
+    {#if result_action.images.length > 0}
+      <div class="images-block">
+        {#each result_action.images as image}
+          <div class="img-block">
+            <div class="img">
+              <img
+                src={image.image_url}
+                class:imp={image.is_main}
+                alt="image" />
+            </div>
+            {#if image.is_main}
+              <div class="imp-text">{_('main')}</div>
+            {/if}
           </div>
-          {#if image.is_main}
-            <div class="imp-text">Главная</div>
-          {/if}
-        </div>
-      {/each}
-    </div>
+        {/each}
+      </div>
+    {:else}{_('no_images')}{/if}
     <div class="info-block">
       <div class="left-side">
 
@@ -228,11 +239,13 @@
             <img src="img/date.png" alt="date" />
           </div>
           <div class="info">
-            <ul>
-              {#each result_action.dates as date}
-                <li>{dateToString(date, _)}</li>
-              {/each}
-            </ul>
+            {#if result_action.dates.length > 0}
+              <ul>
+                {#each result_action.dates as date}
+                  <li>{dateToString(date, _)}</li>
+                {/each}
+              </ul>
+            {:else}{_('no_data')}{/if}
           </div>
         </div>
 
@@ -241,13 +254,15 @@
             <img src="img/place.png" alt="place" />
           </div>
           <div class="info">
-            <ul>
-              {#each result_action.locations as location}
-                <li>
-                  {location.name + (location.address === null ? '' : ', ' + location.address)}
-                </li>
-              {/each}
-            </ul>
+            {#if result_action.locations.length > 0}
+              <ul>
+                {#each result_action.locations as location}
+                  <li>
+                    {location.name + (location.address === null ? '' : ', ' + location.address)}
+                  </li>
+                {/each}
+              </ul>
+            {:else}{_('no_data')}{/if}
           </div>
         </div>
 
@@ -272,12 +287,13 @@
             <img src="img/transfer.png" alt="transfer" />
           </div>
           <div class="info">
-            {_('transfer')}
-            <ul>
-              {#each result_action.transfers as transfer}
-                <li>{transfer.name}</li>
-              {/each}
-            </ul>
+            {#if result_action.transfers.length > 0}
+              <ul>
+                {#each result_action.transfers as transfer}
+                  <li>{transfer.name}</li>
+                {/each}
+              </ul>
+            {:else}{_('no_data')}{/if}
           </div>
         </div>
 
@@ -290,13 +306,12 @@
           </div>
           <div class="info">{_('price')}: {second_price}</div>
         </div>
-
-        {#if result_action.vk_link !== null || result_action.instagram_link !== null || result_action.facebook_link !== null || result_action.twitter_link !== null || result_action.websites !== null}
-          <div class="line">
-            <div class="info-image">
-              <img src="img/pages.png" alt="pages" />
-            </div>
-            <div class="info">
+        <div class="line">
+          <div class="info-image">
+            <img src="img/pages.png" alt="pages" />
+          </div>
+          <div class="info">
+            {#if result_action.vk_link !== null || result_action.instagram_link !== null || result_action.facebook_link !== null || result_action.twitter_link !== null || result_action.websites !== null}
               <ul>
                 {#if result_action.websites !== null}
                   <li>
@@ -334,38 +349,42 @@
                   </li>
                 {/if}
               </ul>
-            </div>
+            {:else}{_('no_data')}{/if}
           </div>
-        {/if}
+        </div>
 
         <div class="line">
           <div class="info-image">
             <img src="img/birk.png" alt="date" />
           </div>
           <div class="info">
-            <ul>
-              {#each result_action.subjects as subjects}
-                <li>{subjects.name}</li>
-              {/each}
-            </ul>
+            {#if result_action.subjects.length > 0}
+              <ul>
+                {#each result_action.subjects as subjects}
+                  <li>{subjects.name}</li>
+                {/each}
+              </ul>
+            {:else}{_('no_data')}{/if}
           </div>
         </div>
 
       </div>
     </div>
-    <h2>Варианты участия</h2>
+    <h2>{_('participations_options')}</h2>
     <div class="payment-block">
       {#if result_action.price_min == 0 && result_action.price_max === 0}
-        <div class="gray">Бесплатное</div>
+        <div class="gray">{_('free2')}</div>
       {/if}
       {#if result_action.organizer_payment !== null && result_action.organizer_payment !== ''}
-        <div class="blue">Оплата через организатора</div>
+        <div class="blue">{_('pay_via_organizer')}</div>
       {/if}
       {#if result_action.site_payment}
-        <div class="green">Оплата на сайте</div>
+        <div class="green">{_('pay_in_site')}</div>
       {/if}
     </div>
-    <h2>Партнеры события</h2>
+
+    <h2>{_('action_partners')}</h2>
+    {#if result_action.partners.length > 0}
     <div class="images-block">
       {#each result_action.partners as partner}
         <div class="img-block">
@@ -378,16 +397,18 @@
         </div>
       {/each}
     </div>
-    <h2>Список зарегистрировавшихся</h2>
+    {:else}{_("no_data")}{/if}
+
+    <h2>{_('list_of_registered_users')}</h2>
     {#if result_action.subscribers.length !== 0}
       <table>
         <tr>
           <td>*</td>
-          <td>Имя</td>
-          <td>Фамилия</td>
-          <td>Телефон</td>
+          <td>{_('name')}</td>
+          <td>{_('surname')}</td>
+          <td>{_('phone')}</td>
           <td>E-mail</td>
-          <td>роль</td>
+          <td>{_('role').toLowerCase()}</td>
         </tr>
         {#each result_action.subscribers as subscriber}
           <tr>
@@ -397,11 +418,11 @@
             <td>{subscriber.phone}</td>
             <td>{subscriber.email}</td>
             <td>
-              {#if subscriber.is_admin}Администратор{:else}Пользователь{/if}
+              {#if subscriber.is_admin}{_('admin')}{:else}{_('user')}{/if}
             </td>
           </tr>
         {/each}
       </table>
-    {:else}Нет зарегистрированных пользователей{/if}
+    {:else}{_('no_registered_users')}{/if}
   </div>
 </AdminPage>
