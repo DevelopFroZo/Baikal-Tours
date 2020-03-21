@@ -63,4 +63,8 @@ export default ( server ) => {
   server.post( "/api/transfers", secureAPI( "admin" ) );
   server.put( "/api/transfers/:id", secureAPI( "admin" ) );
   server.delete( "/api/transfers/:id", secureAPI( "admin" ) );
+
+  server.post( "/api/favorites", secureAPI( "admin" ) );
+  server.put( "/api/favorites/:id", secureAPI( "admin" ) );
+  server.delete( "/api/favorites/:id", secureAPI( "admin" ) );
 };

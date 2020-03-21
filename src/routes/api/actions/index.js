@@ -10,9 +10,10 @@ export async function post( req, res ){
 export async function get( req, res ){
   const locale = req.session.locale;
   const allStatuses = req.query.allStatuses !== undefined && req.session.role === "admin";
-  const filter = req.query.filter;
+  const { filter } = req.query;
   const count = toInt( req.query.count );
   const offset = toInt( req.query.offset );
+  const favoritesOnly = req.query.favoritesOnly !== undefined ? true : false;
 
   let actions;
   let actionsCount;
@@ -22,7 +23,7 @@ export async function get( req, res ){
 
   // Errors: 6
   if( filter === undefined )
-    actions = ( await req.database.actions.getAll( allStatuses, locale, count, offset ) ).data;
+    actions = ( await req.database.actions.getAll( allStatuses, locale, count, offset, favoritesOnly ) ).data;
   else{
     // Filters is sended
     // Errors: 7, 8
@@ -58,7 +59,8 @@ export async function get( req, res ){
       priceMin,
       priceMax,
       count,
-      offset
+      offset,
+      favoritesOnly
     ) ).data;
   }
 

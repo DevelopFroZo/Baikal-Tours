@@ -22,6 +22,7 @@ export default {
     13: "Missing required field",
     14: "Invalid image size",
     15: "Invalid image extension",
-    16: "Invalid URL"
+    16: "Invalid URL",
+    17: "Count of favorites for sended subject >= 4"
   }
 };
