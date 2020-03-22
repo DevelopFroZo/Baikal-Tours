@@ -81,7 +81,8 @@
     font-size: $Medium_Font_Size;
   }
 
-  .right-side, .left-side {
+  .right-side,
+  .left-side {
     display: flex;
     align-items: center;
   }
@@ -94,17 +95,17 @@
     border: 1px solid $Gray;
     background-image: url("../img/language.png");
     background-repeat: no-repeat;
-    background-position: right .7em top 50%, 0 0;
+    background-position: right 0.7em top 50%, 0 0;
     width: 45px;
     -moz-appearance: none;
     -webkit-appearance: none;
     cursor: pointer;
 
-    &::-ms-expand{
+    &::-ms-expand {
       display: none;
     }
 
-    & > option{
+    & > option {
       background: $Gray;
     }
   }
@@ -112,20 +113,20 @@
   a {
     font-size: $LowMedium_Font_Size;
 
-    &[href="./login"] {
-      margin-left: 23px;
+    &[href="./login"],
+    &.logout {
+      margin-left: 15px;
+      background: #cacaca;
+      padding: 5px 8px;
+      border-radius: 5px;
     }
 
     &[href="./register"] {
-      margin-left: 15px;
+      margin-left: 23px;
       padding: 5px 8px;
       border-radius: 5px;
       background: white;
     }
-  }
-
-  .logout {
-    margin-left: 23px;
   }
 
   .language-img {
@@ -133,9 +134,6 @@
   }
 
   .my-page {
-    margin-left: 15px;
-    padding: 5px 8px;
-    border-radius: 5px;
     font-weight: bold;
   }
 
@@ -171,10 +169,12 @@
   <div class="right-side">
     <div class="user-info">
       {#if !$session.isLogged}
-        <a href="./login" id="login">{_('authorize')}</a>
         <a href="./register" id="register">{_('registration')}</a>
+        <a href="./login" id="login">{_('authorize')}</a>
       {:else}
-        <a href="./profile?section=settings" class="my-page">*твоя почта*</a>
+        <a href="./profile?section=settings" class="my-page">
+          {`${$session.name} ${$session.surname}`}
+        </a>
         <a class="logout" href="/logout">{_('logout')}</a>
       {/if}
     </div>

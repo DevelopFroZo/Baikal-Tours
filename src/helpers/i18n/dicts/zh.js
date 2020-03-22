@@ -225,5 +225,13 @@ export default ( {
   required_payment_message:       "要通过组织者支付，您必须指定组织者页面的链接",
   images_types_message:           "无法添加图像\"{img}\"，因为图像的格式必须为：\njpg\njpeg\npng",
   no_images:                      "没有照片",
-  no_data:                        "没有数据"
+  no_data:                        "没有数据",
+  how_to_get:                     "如何获得",
+
+  share:                          "分享",
+  ticket_categories:              "门票类别",
+  more_hotels:                    "查看更多预订",
+  excursions:                     "游览",
+  more_excursions:                "查看更多关于贝加尔湖的粉丝",
+  similar_events:                 "类似事件",
 } );        

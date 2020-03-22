@@ -225,5 +225,14 @@ export default ( {
   required_payment_message:   "Для оплаты через организатора необходимо указать ссылку на страницу организатора",
   images_types_message:       "Изображение \"{img}\" не может быть добавлено, так как изображение должно иметь формат:\njpg\njpeg\npng",
   no_images:                  "Нет фотографий",
-  no_data:                    "Нет данных"
+  no_data:                    "Нет данных",
+  how_to_get:                 "Как добраться",
+
+  share:                      "Поделиться",
+  ticket_categories:          "Категории билетов",
+  more_hotels:                "посмотреть больше на Booking",
+  excursions:                 "Экскурсии",
+  more_excursions:            "посмотреть больше на Фанат Байкала",
+  similar_events:             "Похожие события",
+  
 } );

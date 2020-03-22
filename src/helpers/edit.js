@@ -83,7 +83,7 @@ function formatDates(dates, actionData) {
     let newData = {
         create: [],
         edit: [],
-        delete: []
+        del: []
     };
 
     for (let i = 0; i < dates.length; i++) {
@@ -139,7 +139,7 @@ function formatDates(dates, actionData) {
             }
 
             if (bl) {
-                newData.delete.push(date.id);
+                newData.del.push(date.id);
             }
         }
 
@@ -165,7 +165,7 @@ function formatDates(dates, actionData) {
         if (data[i].id === undefined)
             newData.create.push(data[i]);
 
-    if (newData.delete.length === 0) delete newData.delete;
+    if (newData.del.length === 0) delete newData.del;
     if (newData.create.length === 0) delete newData.create;
     if (newData.edit.length === 0) delete newData.edit;
 
@@ -178,7 +178,7 @@ function formatLocations(locations, actionData) {
         newData = {
             create: [],
             edit: [],
-            delete: []
+            del: []
         }
 
     for (let i = 0; i < locations.length; i++) {
@@ -215,7 +215,7 @@ function formatLocations(locations, actionData) {
             }
 
             if (bl)
-                newData.delete.push(location.id);
+                newData.del.push(location.id);
         }
 
         for (let i = 0; i < actionData.locations.length; i++) {
@@ -253,7 +253,7 @@ function formatLocations(locations, actionData) {
         }
     }
 
-    if (newData.delete.length === 0) delete newData.delete;
+    if (newData.del.length === 0) delete newData.del;
     if (newData.create.length === 0) delete newData.create;
     if (newData.edit.length === 0) delete newData.edit;
 
@@ -263,7 +263,7 @@ function formatLocations(locations, actionData) {
 function formatIdsArrays(newObj, oldObj) {
     let newData = {
         create: [],
-        delete: []
+        del: []
     }
 
     if (oldObj !== null && oldObj !== undefined) {
@@ -276,7 +276,7 @@ function formatIdsArrays(newObj, oldObj) {
                 }
             }
             if (bl)
-                newData.delete.push(startId.id);
+                newData.del.push(startId.id);
         }
     }
 
@@ -296,7 +296,7 @@ function formatIdsArrays(newObj, oldObj) {
         }
     }
 
-    if (newData.delete.length === 0) delete newData.delete;
+    if (newData.del.length === 0) delete newData.del;
     if (newData.create.length === 0) delete newData.create;
 
     return newData;

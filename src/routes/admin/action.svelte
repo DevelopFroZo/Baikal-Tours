@@ -30,8 +30,6 @@
 
   export let result_action, actionId, locale;
 
-  console.log(result_action);
-
   const _ = i18n(locale),
     fetcher = new Fetcher();
 

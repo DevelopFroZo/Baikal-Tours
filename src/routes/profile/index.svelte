@@ -15,8 +15,8 @@
           break;
         }
 
-    if(session.userId === undefined)
-      this.redirect(302, "/login");
+    if(!session.isLogged)
+      this.redirect(302, "/login?redirect=/profile");
 
     if (section === undefined || !bl)
       this.redirect(302, "/profile?section=settings");

@@ -739,7 +739,7 @@
       newPartner = {},
       result;
     if (img.length !== 0) {
-      let fileFormat = img.name.split(".").pop();
+      let fileFormat = img[0].name.split(".").pop();
       if (fileFormat !== "jpg" && fileFormat !== "jpeg" && fileFormat !== "png")
         alert(_("images_types_message").replace(/{img}/g, img.name));
       else if (img[0].size / 1024 / 1024 <= 1) {

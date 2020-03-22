@@ -226,4 +226,12 @@ export default ({
   images_types_message:       "Image \"{img}\" cannot be added, since the image must be in the format:\njpg\njpg\npng",
   no_images:                  "No photos",
   no_data:                    "No data",
+  how_to_get:                 "How to get",
+
+  share:                      "Share",
+  ticket_categories:          "Categories of tickets",
+  more_hotels:                "view more on Booking",
+  excursions:                 "Excursions",
+  more_excursions:            "see more on a Fan of lake Baikal",
+  similar_events:             "Similar event",
 });

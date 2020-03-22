@@ -435,15 +435,8 @@
     background: $Light_Blue;
   }
 
-  .full-event-block {
-    position: relative;
-
-    & > button {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      z-index: 1;
-    }
+  .full-event-block{
+    margin-top: 15px;
   }
 </style>
 
@@ -535,17 +528,9 @@
   <div class="events-block">
     {#each cards as card, i}
       <div class="full-event-block">
-        <button on:click={() => changeFavorite(i)}>
-          {#if !card.is_favorite}
-            <img src="/img/star.png" />
-          {:else}
-            <img src="/img/favorite-star.png" />
-          {/if}
-        </button>
         <a class="event-block" href={'./admin/action?id=' + card.id}>
           <div class="event">
             <div class="event-name-block">
-              <img src="/img/star.png" />
               {card.name}
             </div>
             <div class="event-info-block">

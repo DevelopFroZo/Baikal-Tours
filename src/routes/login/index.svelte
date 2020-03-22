@@ -1,8 +1,12 @@
 <script context="module">
   export function preload(page, session){
     let locale = session.locale;
+    let preventPage = "/";
 
-    return { locale }
+    if(page.query.redirect !== undefined)
+      preventPage = page.query.redirect;
+    
+    return { locale, preventPage }
   }
 </script>
 
@@ -12,7 +16,7 @@
   import Fetcher from "/helpers/fetcher.js";
   import i18n from "/helpers/i18n/index.js";
   
-  export let locale;
+  export let locale, preventPage;
 
   const fetcher = new Fetcher();
   const _ = i18n( locale );
@@ -25,7 +29,7 @@
     let result = await fetcher.post('/api/signin', data)
     
     if(result.ok){
-      document.location.href = "./";
+      document.location.href = preventPage;
     }
     else{
       alert(result.message)

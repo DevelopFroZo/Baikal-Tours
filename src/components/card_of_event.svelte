@@ -116,22 +116,28 @@
     document.location.href = './action?id=' + id;
   }}>
   <h1>{name}</h1>
-  <div class="line">
-    <img src="img/date.png" alt="date" />
-    <div>{dates.join('; ')}</div>
-  </div>
+  {#if dates.length !== 0}
+    <div class="line">
+      <img src="img/date.png" alt="date" />
+      <div>{dates.join('; ')}</div>
+    </div>
+  {/if}
   <div class="image-and-price">
     <div class="image">
       <img src={image_url === null ? "img/logo.png" : image_url} alt="image of event" />
     </div>
     <div class="price">{second_price}</div>
   </div>
+  {#if subjects.length !== 0 && subjects[0] !== null}
   <div class="line category">
     <img src="img/category.png" alt="category" />
     <div>{subjects.join('; ')}</div>
   </div>
+  {/if}
+  {#if locations.length !== 0 && locations[0] !== null}
   <div class="line">
     <img src="img/place.png" alt="kategory" />
     <div>{locations.join('; ')}</div>
   </div>
+  {/if}
 </div>
