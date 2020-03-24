@@ -234,4 +234,6 @@ export default ({
   excursions:                 "Excursions",
   more_excursions:            "see more on a Fan of lake Baikal",
   similar_events:             "Similar event",
+
+  detailed:                   "More detailed"
 });

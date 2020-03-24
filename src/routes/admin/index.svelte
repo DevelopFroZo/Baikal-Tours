@@ -100,6 +100,7 @@
   import Pagination from "/components/pagination.svelte";
   import { goto } from "@sapper/app";
   import ActiveFilters from "/components/active_filters.svelte";
+  import { onMount } from "svelte";
 
   export let result_cards,
     result_filters,
@@ -109,7 +110,7 @@
     offset,
     result_count,
     showFilter;
-
+  
   let options = [],
     cards = result_cards,
     search = filter[0][0].value;
@@ -247,6 +248,10 @@
       isFavorite: cards[i].is_favorite
     });
   }
+
+  onMount(() => {
+    localStorage.removeItem("adminActionParams")
+  })
 </script>
 
 <style lang="scss">
@@ -528,7 +533,7 @@
   <div class="events-block">
     {#each cards as card, i}
       <div class="full-event-block">
-        <a class="event-block" href={'./admin/action?id=' + card.id}>
+        <a class="event-block" on:click={() => localStorage.setItem("adminActionParams", document.location.href)} href={'./admin/action?id=' + card.id}>
           <div class="event">
             <div class="event-name-block">
               {card.name}

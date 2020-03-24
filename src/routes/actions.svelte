@@ -1,6 +1,11 @@
 <script context="module">
   import Fetcher from "/helpers/fetcher.js";
-  import { parseFilterData, setFilterData, setFilterFromUrl, showActiveFilters } from "/helpers/filter.js";
+  import {
+    parseFilterData,
+    setFilterData,
+    setFilterFromUrl,
+    showActiveFilters
+  } from "/helpers/filter.js";
 
   export async function preload(page, session) {
     const fetcher = new Fetcher(this.fetch);
@@ -49,7 +54,12 @@
 
     let paramsKeys = Object.keys(params);
 
-    if (paramsKeys.length > 0 && paramsKeys[0] === "filter" && paramsKeys[1] !== "count" && paramsKeys[1] !== "offset") {
+    if (
+      paramsKeys.length > 0 &&
+      paramsKeys[0] === "filter" &&
+      paramsKeys[1] !== "count" &&
+      paramsKeys[1] !== "offset"
+    ) {
       showFilter = true;
       if (params.dateStart !== undefined) {
         filter[0][0].active = true;
@@ -128,6 +138,7 @@
   import { goto } from "@sapper/app";
   import { onMount } from "svelte";
   import ActiveFilters from "/components/active_filters.svelte";
+  import Selection from "/components/selection.svelte";
 
   export let result_cards,
     result_filters,
@@ -137,6 +148,8 @@
     offset,
     count,
     result_count;
+
+  let selectionsLength = [1, 2, 3, 4];
 
   const fetcher = new Fetcher();
   const _ = i18n(locale);
@@ -151,11 +164,14 @@
     leftRange = true,
     rightRange = true,
     parseFilter = {},
-    pagData;
+    pagData,
+    selectionsCarousel,
+    selectionsStart = false,
+    start = false;
 
   let url = {
     ...parseFilter,
-    offset: offset / count * pagCards,
+    offset: (offset / count) * pagCards,
     count: pagCards
   };
 
@@ -285,19 +301,34 @@
 
   onMount(() => {
     localStorage.removeItem("actionsParams");
+
+    start = true;
+    if (selectionsStart) startSelection();
   });
 
-  function closePrice(e){
-    priceStart = '';
-    priceEnd = '';
+  function closePrice(e) {
+    priceStart = "";
+    priceEnd = "";
 
     setPrice();
   }
 
-  function closeFilter(e){
+  function closeFilter(e) {
     filter = e.detail.filter;
 
     changeFilter();
+  }
+
+  function fLoad() {
+    selectionsStart = true;
+    if (start) startSelection();
+  }
+
+  function startSelection() {
+    new Flickity(selectionsCarousel, {
+      pageDots: false,
+      groupCells: 5
+    });
   }
 </script>
 
@@ -314,6 +345,7 @@
     grid-template-columns: repeat(3, 300px);
     justify-content: space-between;
     grid-row-gap: 41px;
+    margin-top: 30px;
   }
 
   input,
@@ -394,6 +426,83 @@
     visibility: hidden;
   }
 
+  .selection-carousel {
+    margin-top: 25px;
+    height: 150px;
+    opacity: 0;
+    transition: 0.3s;
+
+    & :global(.selection-block) {
+      margin-left: 30px;
+    }
+  }
+
+  .selection-carousel-loaded{
+    opacity: 1;
+  }
+
+  .selections-block {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: space-between;
+
+    & > a {
+      height: 230px;
+      position: relative;
+      overflow: hidden;
+      -webkit-box-shadow: inset 0px -75px 174px -13px rgba(0, 0, 0, 0.75);
+      -moz-box-shadow: inset 0px -75px 174px -13px rgba(0, 0, 0, 0.75);
+      box-shadow: inset 0px -75px 174px -13px rgba(0, 0, 0, 0.75);
+
+      & > img {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        min-width: 100%;
+        min-height: 100%;
+        filter: brightness(80%);
+        z-index: -1;
+      }
+
+      & > div{
+        position: absolute;
+        bottom: 15px;
+        left: 15px;
+        z-index: 1;
+
+        & > h2{
+          color: white;
+          font-size: 24px;
+        }
+
+        & > p{
+          color: white;
+          margin-top: 10px;
+          font-size: $Medium_Font_Size;
+        }
+      }
+    }
+
+    & > a:nth-child(1) {
+      width: calc(60% - 10px);
+    }
+
+    & > a:nth-child(2) {
+      width: calc(40% - 10px);
+    }
+
+    & > a:nth-child(3),
+    > a:nth-child(4) {
+      width: calc(100% / 2 - 10px);
+      margin-top: 20px;
+    }
+
+    & > .full-width {
+      width: 100% !important;
+    }
+  }
+
   @media only screen and (max-width: 768px) {
     .filters {
       flex-direction: column;
@@ -444,6 +553,13 @@
 
 <svelte:head>
   <title>{_('event_catalog')}</title>
+
+  <script src="./js/flickity.min.js" on:load={fLoad}>
+
+  </script>
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/flickity@2/dist/flickity.min.css" />
 </svelte:head>
 
 <svelte:window on:click={hideAll} />
@@ -452,6 +568,13 @@
 <!-- <BreadCrumbs path = {[{name: "Каталог событий", url: "./"}]} /> -->
 <div class="form-width">
   <h1>{_('event_catalog')}</h1>
+
+  <div class="selection-carousel" bind:this={selectionsCarousel} class:selection-carousel-loaded={start && selectionsStart}>
+    {#each [1, 1, 1, 1, 1, 1, 1, 1, 1, 1] as selection}
+      <Selection width={140} height={150} />
+    {/each}
+  </div>
+
   <div class="filters">
     <div class="two-input">
       <input
@@ -602,8 +725,29 @@
       </div>
     </div>
   </div>
-  
-  <ActiveFilters {filter} {showFilter} {date} {price} min={0} max={4} {_} on:closeFilter={closeFilter} on:closePrice={closePrice}/>
+
+  <ActiveFilters
+    {filter}
+    {showFilter}
+    {date}
+    {price}
+    min={0}
+    max={4}
+    {_}
+    on:closeFilter={closeFilter}
+    on:closePrice={closePrice} />
+
+  <div class="selections-block">
+    {#each selectionsLength as sel, i}
+      <a href="/compilation" class:full-width={i === selectionsLength.length - 1 && (i === 0 || i === 2)}>
+        <img src="/img/test.png" alt="selection" />
+        <div>
+          <h2>Иеждународный фестиваль "книгамарт"</h2>
+          <p>с 20.20.2020 до 30.30.3030</p>
+        </div>
+      </a>
+    {/each}
+  </div>
 
   <div class="cards-block">
     {#each cards as cardInfo (cardInfo.id)}

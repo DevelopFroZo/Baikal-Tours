@@ -234,4 +234,6 @@ export default ( {
   excursions:                     "游览",
   more_excursions:                "查看更多关于贝加尔湖的粉丝",
   similar_events:                 "类似事件",
+
+  detailed:                       "更详细"
 } );        

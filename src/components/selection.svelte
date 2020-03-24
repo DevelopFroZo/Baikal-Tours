@@ -33,7 +33,7 @@
 <a
   class="selection-block"
   style="width: {width}px; height: {height}px;"
-  href="/">
+  href="/compilation">
   <p>Культурные события Иркутской области</p>
   <img src="/img/test.png" alt="selection image" />
 </a>

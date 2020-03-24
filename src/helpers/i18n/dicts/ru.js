@@ -234,5 +234,7 @@ export default ( {
   excursions:                 "Экскурсии",
   more_excursions:            "посмотреть больше на Фанат Байкала",
   similar_events:             "Похожие события",
+
+  detailed:                   "Подробнее"
   
 } );

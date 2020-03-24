@@ -27,6 +27,7 @@
   import i18n from "/helpers/i18n/index.js";
   import { parsePrice } from "/helpers/parsers.js";
   import { contactsToString, dateToString } from "/helpers/converters.js";
+  import { onMount } from "svelte";
 
   export let result_action, actionId, locale;
 
@@ -42,13 +43,19 @@
       result_action.price_min,
       result_action.price_max,
       _
-    );
+    ),
+    adminActinonParams = "/admin";
 
   async function changeStatus() {
     await fetcher.put("/api/actions/" + actionId, {
       status: result_action.status
     });
   }
+
+  onMount(() => {
+    if(localStorage.getItem("adminActionParams") !== undefined)
+      adminActinonParams = localStorage.getItem("adminActionParams");
+  })
 </script>
 
 <style lang="scss">
@@ -199,7 +206,7 @@
 </svelte:head>
 
 <AdminPage page={0} {fetcher} {locale} {_}>
-  <a href="./admin" class="back-page">{_('back_to_actions_page')}</a>
+  <a href={adminActinonParams} class="back-page">{_('back_to_actions_page')}</a>
   <div class="event-block">
     <div class="event-edit">
       <select bind:value={result_action.status} on:change={changeStatus}>
