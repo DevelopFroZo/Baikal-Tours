@@ -24,10 +24,22 @@
       count = 15,
       params = page.query,
       result_cards,
-      showFilter = false;
+      showFilter = false,
+      group;
 
     if (params.offset !== undefined) offset = parseInt(params.offset);
     if (params.count !== undefined) count = parseInt(params.count);
+
+    if (params.group !== undefined) {
+      let groups = ["events", "active", "hidden", "archive"];
+      let bl = false;
+      for (let successGroup of groups) {
+        if (params.group === successGroup) {
+          group = successGroup;
+          break;
+        }
+      }
+    } else group = "events";
 
     let result_filters = await fetcher.get("/api/dataForFilters", {
       credentials: "same-origin"
@@ -42,7 +54,8 @@
       paramsKeys.length > 1 &&
       paramsKeys[0] === "filter" &&
       paramsKeys[2] !== "count" &&
-      paramsKeys[2] !== "offset"
+      paramsKeys[2] !== "offset" &&
+      paramsKeys[2] !== "group"
     ) {
       showFilter = true;
       if (params.search !== undefined) {
@@ -57,8 +70,6 @@
       }
 
       let query = parseFilterDataForAdmin(filter);
-      query.offset = offset;
-      query.count = count;
 
       result_cards = await fetcher.get("api/actions", {
         credentials: "same-origin",
@@ -68,8 +79,6 @@
       result_cards = await fetcher.get("api/actions", {
         credentials: "same-origin",
         query: {
-          count: count,
-          offset: offset,
           allStatuses: ""
         }
       });
@@ -88,7 +97,8 @@
       offset,
       count,
       result_count,
-      showFilter
+      showFilter,
+      group
     };
   }
 </script>
@@ -109,14 +119,34 @@
     count,
     offset,
     result_count,
-    showFilter;
-  
+    showFilter,
+    group;
+
   let options = [],
     cards = result_cards,
     search = filter[0][0].value;
 
+  let cardsCounts = {
+    active: 0,
+    hidden: 0,
+    archive: 0,
+    allCards: 0
+  };
+
+  let pagData;
+
   $: {
-    cards = result_cards;
+    for (let key of Object.keys(cardsCounts)) cardsCounts[key] = 0;
+
+    for (let i = 0; i < result_cards.length; i++) {
+      cardsCounts[result_cards[i].status]++;
+      cardsCounts.allCards++;
+    }
+
+    result_cards = result_cards.filter(el => !(group !== "events" && el.status !== group))
+    cards = result_cards.slice(offset, offset + count);
+    result_count = result_cards.length;
+
     pagData = {
       allPags: Math.ceil(result_count / pagCards),
       pag: offset / count
@@ -130,36 +160,12 @@
   let pagCards = count,
     parseFilter = {};
 
-  let cardsCounts = {
-    active: 0,
-    hidden: 0,
-    archive: 0
-  };
-
-  let pagData = {
-    allPags: Math.ceil(result_count / pagCards),
-    pag: offset / count
-  };
-
   let url = {
     ...parseFilter,
     offset: (offset / count) * pagCards,
-    count: pagCards
+    count: pagCards,
+    group: group
   };
-
-  for (let i = 0; i < result_cards.length; i++) {
-    switch (result_cards[i].status) {
-      case "active":
-        cardsCounts.active++;
-        break;
-      case "hidden":
-        cardsCounts.hidden++;
-        break;
-      case "archive":
-        cardsCounts.archive++;
-        break;
-    }
-  }
 
   const _ = i18n(locale);
 
@@ -199,7 +205,8 @@
     url = {
       ...parseFilter,
       offset: pagData.pag * pagCards,
-      count: pagCards
+      count: pagCards,
+      group: group
     };
 
     setURL();
@@ -228,7 +235,7 @@
 
   function checkSearchFilter() {
     var str = search.replace(/\s+/g, " ");
-    str = str.replace(/[^ \u4e00-\u520fa-zа-яё\d]/uig, "");
+    str = str.replace(/[^ \u4e00-\u520fa-zа-яё\d]/giu, "");
     str = str.replace(/\ /g, ",");
 
     if (str.length !== 0) filter[0][0].active = true;
@@ -250,8 +257,13 @@
   }
 
   onMount(() => {
-    localStorage.removeItem("adminActionParams")
-  })
+    localStorage.removeItem("adminActionParams");
+  });
+
+  function changeGroup(gr) {
+    url.group = gr;
+    setURL();
+  }
 </script>
 
 <style lang="scss">
@@ -266,7 +278,7 @@
   .event-statuses {
     display: flex;
 
-    & > div {
+    & > button {
       border: 1px solid $Light_Blue;
       border-radius: 5px;
       -webkit-box-shadow: inset 0px 0px 5px 0px $Light_Blue;
@@ -276,11 +288,11 @@
       font-size: $Big_Font_Size;
     }
 
-    & > div:not(:first-child) {
+    & > button:not(:first-child) {
       margin-left: 30px;
     }
 
-    & > .events {
+    & > .active {
       background: rgba(103, 182, 255, 1);
       color: white;
       font-weight: bold;
@@ -433,14 +445,14 @@
   }
 
   .archive-status {
-    background: $Gray;
+    background: $Dark_Gray;
   }
 
   .hidden-status {
     background: $Light_Blue;
   }
 
-  .full-event-block{
+  .full-event-block {
     margin-top: 15px;
   }
 </style>
@@ -454,10 +466,26 @@
 <AdminPage page={0} {fetcher} {_} {locale}>
   <div class="events-status-block">
     <div class="event-statuses">
-      <div class="events">{_('actions')} {result_count}</div>
-      <div>{_('active')} {cardsCounts.active}</div>
-      <div>{_('hidden')} {cardsCounts.hidden}</div>
-      <div>{_('archive')} {cardsCounts.archive}</div>
+      <button
+        class:active={group === 'events'}
+        on:click={() => changeGroup('events')}>
+        {_('actions')} {cardsCounts.allCards}
+      </button>
+      <button
+        class:active={group === 'active'}
+        on:click={() => changeGroup('active')}>
+        {_('active')} {cardsCounts.active}
+      </button>
+      <button
+        class:active={group === 'hidden'}
+        on:click={() => changeGroup('hidden')}>
+        {_('hidden')} {cardsCounts.hidden}
+      </button>
+      <button
+        class:active={group === 'archive'}
+        on:click={() => changeGroup('archive')}>
+        {_('archive')} {cardsCounts.archive}
+      </button>
     </div>
     <a href="./admin/edit" class="new-event">{_('new_event')}</a>
   </div>
@@ -533,11 +561,12 @@
   <div class="events-block">
     {#each cards as card, i}
       <div class="full-event-block">
-        <a class="event-block" on:click={() => localStorage.setItem("adminActionParams", document.location.href)} href={'./admin/action?id=' + card.id}>
+        <a
+          class="event-block"
+          on:click={() => localStorage.setItem('adminActionParams', document.location.href)}
+          href={'./admin/action?id=' + card.id}>
           <div class="event">
-            <div class="event-name-block">
-              {card.name}
-            </div>
+            <div class="event-name-block">{card.name}</div>
             <div class="event-info-block">
               <div>{card.subjects.join('; ')}</div>
               <div>
@@ -556,7 +585,7 @@
                 {_('active')}
               {:else if card.status === 'hidden'}
                 {_('hidden')}
-              {:else if card.stauts === 'archive'}{_('archive')}{/if}
+              {:else if card.status === 'archive'}{_('archive')}{/if}
             </div>
           </div>
         </a>
