@@ -8,7 +8,8 @@ import { toIntArray } from "/helpers/converters";
 export async function post( req, res ){
   const { file } = req;
 
-  const { url, actionIds, companionIds, subjectIds, title, name, tagline, description, dates } = req.body;
+  const { url, actionIds, title, name, tagline, description, dates } = req.body;
+  let { locationIds, subjectIds } = req.body;
 
   if(
     typeof url !== "string" || url === "" ||
@@ -31,7 +32,7 @@ export async function post( req, res ){
     translated[ locale ][ field ] = value;
   };
 
-  if( !Array.isArray( companionIds ) )
+  if( !Array.isArray( locationIds ) )
     companionIds = null;
 
   if( !Array.isArray( subjectIds ) )
@@ -70,8 +71,8 @@ export async function post( req, res ){
 
   const id = await req.database.compiliations.create( transaction, url, actionIds );
 
-  if( Array.isArray( companionIds ) )
-    promises.push( req.database.compiliationsCompanions.create( transaction, id, companionIds ) );
+  if( Array.isArray( locationIds ) )
+    promises.push( req.database.compiliationsLocations.create( transaction, id, locationIds ) );
 
   if( Array.isArray( subjectIds ) )
     promises.push( req.database.compiliationsSubjects.create( transaction, id, subjectIds ) );
@@ -98,9 +99,9 @@ export async function get( req, res ){
   if( filter === undefined )
     return res.json( await req.database.compiliations.get( locale ) );
 
-  const companionIds = toIntArray( req.query.companionIds );
+  const locationIds = toIntArray( req.query.locationIds );
   const subjectIds = toIntArray( req.query.subjectIds );
   const { dateStart, dateEnd } = req.query;
 
-  res.json( await req.database.compiliations.filter( locale, companionIds, subjectIds, dateStart, dateEnd ) );
+  res.json( await req.database.compiliations.filter( locale, locationIds, subjectIds, dateStart, dateEnd ) );
 }

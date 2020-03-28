@@ -35,14 +35,14 @@ export default class extends Foundation{
     return super.success( 0, rows );
   }
 
-  async filter( locale, companionIds, subjectIds, dateStart, dateEnd ){
+  async filter( locale, locationIds, subjectIds, dateStart, dateEnd ){
     let filters = [];
     const params = [ locale ];
     let i = 2;
 
-    if( Array.isArray( companionIds ) ){
-      filters.push( `cc.companion_id = any( $${i++} )` );
-      params.push( companionIds );
+    if( Array.isArray( locationIds ) ){
+      filters.push( `cl.location_id = any( $${i++} )` );
+      params.push( locationIds );
     }
 
     if( Array.isArray( subjectIds ) ){
@@ -67,8 +67,8 @@ export default class extends Foundation{
       `select c.id, c.url, c.image_url
       from
         compiliations as c
-        left join compiliations_companions as cc
-        on c.id = cc.compiliation_id
+        left join compiliations_locations as cl
+        on c.id = cl.compiliation_id
         left join compiliations_subjects as cs
         on c.id = cs.compiliation_id
         left join compiliation_dates as cd
@@ -118,9 +118,8 @@ export default class extends Foundation{
     promises.push( ( async () => {
       main.actions = [];
 
-      for( let actionId of main.action_ids ){
+      for( let actionId of main.action_ids )
         main.actions.push( ( await this.modules.actions.getOne( false, actionId, locale ) ).data );
-      }
     } )() );
 
     await Promise.all( promises );
