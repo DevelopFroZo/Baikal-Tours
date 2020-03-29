@@ -7,14 +7,14 @@ export default class extends Foundation{
     super( modules, "Compiliations" );
   }
 
-  async create( client, url, actionIds ){
+  async create( client, url ){
     url = url.toLowerCase();
 
     const id = ( await client.query(
-      `insert into compiliations( url, action_ids )
-      values( $1, $2::int[] )
+      `insert into compiliations( url )
+      values( $1 )
       returning id`,
-      [ url, actionIds ]
+      [ url ]
     ) ).rows[0].id;
 
     return id;
@@ -35,14 +35,14 @@ export default class extends Foundation{
     return super.success( 0, rows );
   }
 
-  async filter( locale, companionIds, subjectIds, dateStart, dateEnd ){
+  async filter( locale, locationIds, subjectIds, dateStart, dateEnd ){
     let filters = [];
     const params = [ locale ];
     let i = 2;
 
-    if( Array.isArray( companionIds ) ){
-      filters.push( `cc.companion_id = any( $${i++} )` );
-      params.push( companionIds );
+    if( Array.isArray( locationIds ) ){
+      filters.push( `cl.location_id = any( $${i++} )` );
+      params.push( locationIds );
     }
 
     if( Array.isArray( subjectIds ) ){
@@ -67,8 +67,8 @@ export default class extends Foundation{
       `select c.id, c.url, c.image_url
       from
         compiliations as c
-        left join compiliations_companions as cc
-        on c.id = cc.compiliation_id
+        left join compiliations_locations as cl
+        on c.id = cl.compiliation_id
         left join compiliations_subjects as cs
         on c.id = cs.compiliation_id
         left join compiliation_dates as cd
@@ -92,14 +92,20 @@ export default class extends Foundation{
     const promises = [];
 
     const main = ( await transaction.query(
-      `select c.*, ct.title, ct.name, ct.tagline, ct.description
+      `select
+        c.*, ct.title, ct.name, ct.tagline, ct.description,
+        array_agg( ca.action_id ) as action_ids
       from
         compiliations as c,
-        compiliations_translates as ct
+        compiliations_translates as ct,
+        compiliations_actions as ca
       where
         ct.locale = $1 and
         c.url = $2 and
-        c.id = ct.compiliation_id`,
+        ca.locale = ct.locale and
+        c.id = ct.compiliation_id and
+        c.id = ca.compiliation_id
+      group by c.id, c.url, c.image_url, ct.title, ct.name, ct.tagline, ct.description`,
       [ locale, url ]
     ) ).rows[0];
 
@@ -120,6 +126,15 @@ export default class extends Foundation{
 
       for( let actionId of main.action_ids ){
         main.actions.push( ( await this.modules.actions.getOne( false, actionId, locale ) ).data );
+        main.actions[ main.actions.length - 1 ].compiliationDescription = ( await transaction.query(
+          `select description
+          from compiliations_actions
+          where
+            compiliation_id = $1 and
+            action_id = $2 and
+            locale = $3`,
+          [ main.id, actionId, locale ]
+        ) ).rows[0].description;
       }
     } )() );
 

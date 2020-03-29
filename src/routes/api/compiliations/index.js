@@ -8,11 +8,12 @@ import { toIntArray } from "/helpers/converters";
 export async function post( req, res ){
   const { file } = req;
 
-  const { url, actionIds, companionIds, subjectIds, title, name, tagline, description, dates } = req.body;
+  const { url, actions, title, name, tagline, description, dates } = req.body;
+  let { locationIds, subjectIds } = req.body;
 
   if(
     typeof url !== "string" || url === "" ||
-    !Array.isArray( actionIds ) ||
+    !Array.isArray( actions ) ||
     typeof title !== "object" ||
     typeof name !== "object" ||
     typeof tagline !== "object" ||
@@ -31,8 +32,13 @@ export async function post( req, res ){
     translated[ locale ][ field ] = value;
   };
 
-  if( !Array.isArray( companionIds ) )
-    companionIds = null;
+  actions.forEach( action => {
+    if( action.description.autoTranslate === true )
+      translator.add( `action${action.id}`, action.description.text, action.description.locale, action.description.toLocales );
+  } );
+
+  if( !Array.isArray( locationIds ) )
+    locationIds = null;
 
   if( !Array.isArray( subjectIds ) )
     subjectIds = null;
@@ -68,10 +74,21 @@ export async function post( req, res ){
 
   await transaction.query( "begin" );
 
-  const id = await req.database.compiliations.create( transaction, url, actionIds );
+  const id = await req.database.compiliations.create( transaction, url );
 
-  if( Array.isArray( companionIds ) )
-    promises.push( req.database.compiliationsCompanions.create( transaction, id, companionIds ) );
+  actions.forEach( action => {
+    promises.push( req.database.compiliationsActions.create( transaction, id, action.id, action.description.locale, action.description.text ) );
+
+    if( action.description.autoTranslate === true ){
+      const key = `action${action.id}`;
+
+      for( let locale_ in translator.translated[ key ] )
+        promises.push( req.database.compiliationsActions.create( transaction, id, action.id, locale_, translator.translated[ key ][ locale_ ] ) );
+    }
+  } );
+
+  if( Array.isArray( locationIds ) )
+    promises.push( req.database.compiliationsLocations.create( transaction, id, locationIds ) );
 
   if( Array.isArray( subjectIds ) )
     promises.push( req.database.compiliationsSubjects.create( transaction, id, subjectIds ) );
@@ -88,7 +105,7 @@ export async function post( req, res ){
   await transaction.query( "commit" );
   await transaction.release();
 
-  res.success();
+  res.success( 0, id );
 }
 
 export async function get( req, res ){
@@ -98,9 +115,9 @@ export async function get( req, res ){
   if( filter === undefined )
     return res.json( await req.database.compiliations.get( locale ) );
 
-  const companionIds = toIntArray( req.query.companionIds );
+  const locationIds = toIntArray( req.query.locationIds );
   const subjectIds = toIntArray( req.query.subjectIds );
   const { dateStart, dateEnd } = req.query;
 
-  res.json( await req.database.compiliations.filter( locale, companionIds, subjectIds, dateStart, dateEnd ) );
+  res.json( await req.database.compiliations.filter( locale, locationIds, subjectIds, dateStart, dateEnd ) );
 }
