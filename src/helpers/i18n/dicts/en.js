@@ -235,5 +235,22 @@ export default ({
   more_excursions:            "see more on a Fan of lake Baikal",
   similar_events:             "Similar event",
 
-  detailed:                   "More detailed"
+  detailed:                   "More detailed",
+
+  new_compilation:            "A new collection",
+  compiliations_not_found:    "Selections not found",
+  title_of_collection:        "The title of the collection",
+  creating_compiliation:      "Creating a selection",
+  editing_compiliation:       "Editing a selection",
+  compiliation_photo:         "Selection photo",
+  compiliation_events:        "The events collection",
+  add_action:                 "Add event",
+  already_added_event:        "You have already added this event",
+  return_to_compiliations:    "Go back to the list of selections",
+  description_of_compiliation:"Description of the collection",
+  url:                        "URL",
+  required_description:       "The {action} event has no description",
+  none_actions:                "Add at least one event",
+  none_compiliation_image:    "A selection can't be without an image",
+  user_info:                  "User information"
 });

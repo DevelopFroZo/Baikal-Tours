@@ -235,5 +235,22 @@ export default ( {
   more_excursions:                "查看更多关于贝加尔湖的粉丝",
   similar_events:                 "类似事件",
 
-  detailed:                       "更详细"
+  detailed:                       "更详细",
+
+  new_compilation:                "一个新的集合",
+  compiliations_not_found:        "未找到选择",
+  title_of_collection:            "集合的标题",
+  creating_compiliation:          "创建选择",
+  editing_compiliation:           "编辑选择",
+  compiliation_photo:             "选择照片",
+  compiliation_events:            "事件集合",
+  add_action:                     "添加事件",
+  already_added_event:            "你已经添加了这个事件",
+  return_to_compiliations:        "返回选择列表",
+  description_of_compiliation:    "集合的说明",
+  url:                            "URL",
+  required_description:           "{Action}事件没有描述",
+  none_actions:                    "添加至少一个事件",
+  none_compiliation_image:        "一个选择不能没有图像",
+  user_info:                      "用户信息"
 } );        
