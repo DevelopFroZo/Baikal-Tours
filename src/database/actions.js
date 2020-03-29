@@ -415,7 +415,9 @@ export default class extends Foundation{
     const transaction = await super.transaction();
     let translated = {};
     const yandexEngine = yandexEngineBuilder( process.env.YANDEX_TRANSLATE_API_KEY, fetch );
+    const yandexEngineHTML = yandexEngineBuilder( process.env.YANDEX_TRANSLATE_API_KEY, fetch, { format: "html" } );
     const translator = new Translator( yandexEngine );
+    const translatorHTML = new Translator( yandexEngineHTML );
     const promises = [];
 
     if( status ){
@@ -552,7 +554,7 @@ export default class extends Foundation{
       translated[ locale ].full_description = full_description.text;
 
       if( full_description.autoTranslate === true )
-        translator.add( "full_description", full_description.text, locale, full_description.toLocales );
+        translatorHTML.add( "full_description", full_description.text, locale, full_description.toLocales );
     }
 
     if( organizer_name ){
@@ -596,13 +598,21 @@ export default class extends Foundation{
     }
 
     await translator.translate();
+    await translatorHTML.translate();
     translator.transform();
+    translatorHTML.transform();
 
     for( let key in translator.transformed )
       if( translated[ key ] !== undefined )
         translated[ key ] = { ...translated[ key ], ...translator.transformed[ key ] };
       else
         translated[ key ] = translator.transformed[ key ];
+
+    for( let key in translatorHTML.transformed )
+      if( translated[ key ] !== undefined )
+        translated[ key ] = { ...translated[ key ], ...translatorHTML.transformed[ key ] };
+      else
+        translated[ key ] = translatorHTML.transformed[ key ];
 
     promises.push( ( async () => {
       for( let key in translated )

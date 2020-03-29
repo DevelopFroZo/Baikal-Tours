@@ -64,7 +64,7 @@ export default class extends Foundation{
     else filters = `(${filters.join( " or " )}) and`;
 
     const rows = ( await super.query(
-      `select c.id, c.url, c.image_url
+      `select c.id, c.url, c.image_url, ct.name
       from
         compiliations as c
         left join compiliations_locations as cl
@@ -77,8 +77,7 @@ export default class extends Foundation{
       where
         ct.locale = $1 and
         ${filters}
-        c.id = ct.compiliation_id
-      group by c.id, c.url, c.image_url`,
+        c.id = ct.compiliation_id`,
       params
     ) ).rows;
 

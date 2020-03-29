@@ -50,7 +50,7 @@ export default ( server ) => {
 
   server.post( "/api/compiliations", secureAPI( "admin" ) );
   server.post( "/api/compiliations/:id/image", secureAPI( "admin" ), upload.single( "image" ) );
-  // #fix добавить PUT
+  // #fix добавить PUT, DELETE
 
   server.post( "/api/companions", secureAPI( "admin" ) );
   server.put( "/api/companions/:id", secureAPI( "admin" ) );
@@ -67,4 +67,8 @@ export default ( server ) => {
   server.post( "/api/favorites", secureAPI( "admin" ) );
   server.put( "/api/favorites/:id", secureAPI( "admin" ) );
   server.delete( "/api/favorites/:id", secureAPI( "admin" ) );
+
+  server.post( "/api/excursions", secureAPI( "admin" ) );
+  server.post( "/api/excursions/:id/image", secureAPI( "admin" ), upload.single( "image" ) );
+  // #fix добавить PUT, DELETE
 };
