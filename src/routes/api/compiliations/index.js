@@ -8,12 +8,12 @@ import { toIntArray } from "/helpers/converters";
 export async function post( req, res ){
   const { file } = req;
 
-  const { url, actionIds, title, name, tagline, description, dates } = req.body;
+  const { url, actions, title, name, tagline, description, dates } = req.body;
   let { locationIds, subjectIds } = req.body;
 
   if(
     typeof url !== "string" || url === "" ||
-    !Array.isArray( actionIds ) ||
+    !Array.isArray( actions ) ||
     typeof title !== "object" ||
     typeof name !== "object" ||
     typeof tagline !== "object" ||
@@ -32,8 +32,13 @@ export async function post( req, res ){
     translated[ locale ][ field ] = value;
   };
 
+  actions.forEach( action => {
+    if( action.description.autoTranslate === true )
+      translator.add( `action${action.id}`, action.description.text, action.description.locale, action.description.toLocales );
+  } );
+
   if( !Array.isArray( locationIds ) )
-    companionIds = null;
+    locationIds = null;
 
   if( !Array.isArray( subjectIds ) )
     subjectIds = null;
@@ -69,7 +74,18 @@ export async function post( req, res ){
 
   await transaction.query( "begin" );
 
-  const id = await req.database.compiliations.create( transaction, url, actionIds );
+  const id = await req.database.compiliations.create( transaction, url );
+
+  actions.forEach( action => {
+    promises.push( req.database.compiliationsActions.create( transaction, id, action.id, action.description.locale, action.description.text ) );
+
+    if( action.description.autoTranslate === true ){
+      const key = `action${action.id}`;
+
+      for( let locale_ in translator.translated[ key ] )
+        promises.push( req.database.compiliationsActions.create( transaction, id, action.id, locale_, translator.translated[ key ][ locale_ ] ) );
+    }
+  } );
 
   if( Array.isArray( locationIds ) )
     promises.push( req.database.compiliationsLocations.create( transaction, id, locationIds ) );
@@ -89,7 +105,7 @@ export async function post( req, res ){
   await transaction.query( "commit" );
   await transaction.release();
 
-  res.success();
+  res.success( 0, id );
 }
 
 export async function get( req, res ){
