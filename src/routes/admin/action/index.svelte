@@ -23,7 +23,7 @@
 </script>
 
 <script>
-  import AdminPage from "./_admin_page.svelte";
+  import AdminPage from "../_admin_page.svelte";
   import i18n from "/helpers/i18n/index.js";
   import { parsePrice } from "/helpers/parsers.js";
   import { contactsToString, dateToString } from "/helpers/converters.js";
@@ -44,7 +44,9 @@
       result_action.price_max,
       _
     ),
-    adminActinonParams = "/admin";
+    adminActinonParams = "/admin",
+    initEditor = false,
+    start = false;
 
   async function changeStatus() {
     await fetcher.put("/api/actions/" + actionId, {
@@ -53,17 +55,28 @@
   }
 
   onMount(() => {
-    if(localStorage.getItem("adminActionParams") !== undefined)
+    if (localStorage.getItem("adminActionParams") !== undefined)
       adminActinonParams = localStorage.getItem("adminActionParams");
-  })
+
+    start = true;
+    if(initEditor)
+      startEditor()
+  });
+
+  function startEditor(){
+    var editorText = new Quill("#description-block",{
+      readOnly: true
+    })
+    
+    editorText.setContents(editorText.clipboard.convert(result_action.full_description.replace(/\n/g, "</br>")))
+  }
 </script>
 
 <style lang="scss">
   @import "./styles/admin.scss";
 
-  .back-page {
-    color: $Dark_Gray;
-    font-size: $Medium_Font_Size;
+  pre {
+    white-space: pre-wrap;
   }
 
   .event-block {
@@ -93,8 +106,7 @@
     margin-top: 25px;
   }
 
-  pre {
-    white-space: pre-wrap;
+  .description-block {
     margin-top: 20px;
   }
 
@@ -197,12 +209,23 @@
       }
     }
   }
+
+  :global(.ql-editor){
+    padding: 0 !important;
+  }
 </style>
 
 <svelte:head>
   <title>
     {result_action.title === null ? _('event_page') : result_action.title}
   </title>
+
+  <script src="//cdn.quilljs.com/1.3.6/quill.js" on:load={() => {
+    initEditor = true;
+    if(start)
+      startEditor()
+  }}></script>
+  <link href="//cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
 </svelte:head>
 
 <AdminPage page={0} {fetcher} {locale} {_}>
@@ -214,10 +237,10 @@
         <option value="hidden">{_('hidden')}</option>
         <option value="archive">{_('archive')}</option>
       </select>
-      <a href={`/admin/edit?id=${actionId}`}>{_('edit')}</a>
+      <a href={`/admin/action/edit?id=${actionId}`}>{_('edit')}</a>
     </div>
     <h1>{result_action.name}</h1>
-    <pre>{result_action.full_description}</pre>
+    <div id="description-block"></div>
     <h2>{_('event_photos')}</h2>
     {#if result_action.images.length > 0}
       <div class="images-block">
@@ -390,19 +413,19 @@
 
     <h2>{_('action_partners')}</h2>
     {#if result_action.partners.length > 0}
-    <div class="images-block">
-      {#each result_action.partners as partner}
-        <div class="img-block">
-          <div class="img">
-            <img src={partner.image_url} alt="image" />
+      <div class="images-block">
+        {#each result_action.partners as partner}
+          <div class="img-block">
+            <div class="img">
+              <img src={partner.image_url} alt="image" />
+            </div>
+            {#if partner.name !== null}
+              <div class="imp-text">{partner.name}</div>
+            {/if}
           </div>
-          {#if partner.name !== null}
-            <div class="imp-text">{partner.name}</div>
-          {/if}
-        </div>
-      {/each}
-    </div>
-    {:else}{_("no_data")}{/if}
+        {/each}
+      </div>
+    {:else}{_('no_data')}{/if}
 
     <h2>{_('list_of_registered_users')}</h2>
     {#if result_action.subscribers.length !== 0}

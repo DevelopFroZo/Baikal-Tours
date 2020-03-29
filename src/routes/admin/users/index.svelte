@@ -15,7 +15,7 @@
 </script>
 
 <script>
-  import AdminPage from "./_admin_page.svelte";
+  import AdminPage from "../_admin_page.svelte";
   import i18n from "/helpers/i18n/index.js";
 
   export let users, locale;
@@ -85,14 +85,14 @@
         <td />
         <td>{_('name')}</td>
         <td>{_('surname')}</td>
-        <td>{_('role')}</td>
+        <td>{_('phone')}</td>
         <td>E-mail</td>
         <td>{_('role')}</td>
       </tr>
       {#each users as user}
         <tr>
           <td>
-            <a href="./">
+            <a href={`/admin/users/user?id=${user.id}`}>
               <img src="/img/info.png" alt="info" />
             </a>
           </td>

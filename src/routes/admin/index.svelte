@@ -248,14 +248,6 @@
     filter[0][0].value = search;
   }
 
-  async function changeFavorite(i) {
-    cards[i].is_favorite = !cards[i].is_favorite;
-
-    let test = await fetcher.put("/api/actions/" + cards[i].id, {
-      isFavorite: cards[i].is_favorite
-    });
-  }
-
   onMount(() => {
     localStorage.removeItem("adminActionParams");
   });
@@ -299,16 +291,6 @@
       box-shadow: inset 0px 0px 6px rgba(0, 0, 0, 0.25);
       // border-color: $Medium_Gray;
     }
-  }
-
-  .new-event {
-    border: 1px solid $Green;
-    border-radius: 5px;
-    padding: 10px;
-    font-size: $Big_Font_Size;
-    background: $Green;
-    color: white;
-    box-shadow: inset 0px 0px 6px #67b6ff;
   }
 
   .select-block {
@@ -369,14 +351,11 @@
   .filter-block {
     display: flex;
     justify-content: space-between;
+    margin-top: 25px;
   }
 
   .option-visible {
     visibility: visible;
-  }
-
-  .filter-block {
-    margin-top: 25px;
   }
 
   .event-block {
@@ -487,7 +466,7 @@
         {_('archive')} {cardsCounts.archive}
       </button>
     </div>
-    <a href="./admin/edit" class="new-event">{_('new_event')}</a>
+    <a href="./admin/action/edit" class="new-event">{_('new_event')}</a>
   </div>
   <div class="filter-block">
     <input

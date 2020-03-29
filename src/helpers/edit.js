@@ -11,7 +11,8 @@ export {
     validateEditData,
     validateNewData,
     validateNewtranslateData,
-    setTextTranslation
+    setTextTranslation,
+    validateActionData
 }
 
 function getIds(obj) {
@@ -332,9 +333,9 @@ function validateEditArray(newObj, oldObj, key, newData) {
     newObj = Object.assign(!Array.isArray(newObj) ? {} : [], newObj);
 
     let obj = newObj;
-    if(!Array.isArray(newObj))
+    if (!Array.isArray(newObj))
         obj = newObj.source;
-    
+
     let newObjArr = []
     for (let i = 0; i < obj.length; i++) {
         if (obj[i] === "" || obj[i] === null) {
@@ -368,11 +369,11 @@ function validateNewtranslateData(newObj, oldObj, key, newData) {
 function setTextTranslation(text, locale, actionId) {
     // let locales = ["ru", "en", "zh"];
     // let spliceLocales = [],
-        let data = {
-            locale: "ru",
-            autoTranslate: true,
-            toLocales: ["en", "zh"]
-        };
+    let data = {
+        locale: "ru",
+        autoTranslate: true,
+        toLocales: ["en", "zh"]
+    };
 
     // if (data.autoTranslate) {
     //     for (let local of locales)
@@ -401,3 +402,56 @@ function validateEditData(obj, key, newData) {
 
     return newData;
 }
+
+function validateActionData(newObj, oldObj) {
+    let newData = {
+        create: [],
+        edit: [],
+        del: []
+    }
+
+    if (oldObj !== null && oldObj.length > 0) {
+        //Удаление
+        let find = false;
+        for (let i = 0; i < oldObj.length; i++) {
+            for (let j = 0; j < newObj.length; j++) {
+                if (oldObj[i].id === newObj[j].id) {
+                    find = true;
+                    break;
+                }
+            }
+            if (!find) {
+                newData.del.push(newObj[i].id)
+            }
+        }
+
+        //Редактирование
+        for (let i = 0; i < oldObj.length; i++) {
+            for (let j = 0; j < newObj.length; j++) {
+                if (newObj[i].id === oldObj[j].id && newObj[j].description.text !== oldObj[i].description) {
+                    newData.edit.push(newObj[j])
+                    break;
+                }
+            }
+        }
+    }
+
+    //Добавление
+    let find = false;
+    for (let i = 0; i < newObj.length; i++) {
+        for (let j = 0; j < oldObj.length; j++) {
+            if (newObj[i].id === oldObj[j].id) {
+                find = true;
+                break;
+            }
+        }
+        if (!find)
+            newData.create.push(newObj[i])
+    }
+
+    if (newData.del.length === 0) delete newData.del;
+    if (newData.create.length === 0) delete newData.create;
+    if (newData.edit.length === 0) delete newData.edit;
+
+    return newData;
+}   

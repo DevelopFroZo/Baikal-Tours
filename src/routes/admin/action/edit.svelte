@@ -79,9 +79,10 @@
 </script>
 
 <script>
-  import AdminPage from "./_admin_page.svelte";
+  import AdminPage from "../_admin_page.svelte";
   import i18n from "/helpers/i18n/index.js";
   import { parseDate } from "/helpers/parsers.js";
+  import { onMount } from "svelte";
   import * as edit from "/helpers/edit.js";
 
   export let actionId,
@@ -157,7 +158,8 @@
     newPartners = [],
     mainImg = null,
     newData = {},
-    newPartnerName = "";
+    newPartnerName = "",
+    editorBlock;
 
   if (organizer_payment !== null) participation = "organizer";
   else if (site_payment === true) participation = "site";
@@ -779,6 +781,49 @@
     if (actionId !== undefined)
       await fetcher.delete(`/api/actionPartners/${partnerId}`);
   }
+
+  let initEditor = false;
+  let start = false;
+
+  onMount(() => {
+    start = true;
+    if(initEditor)
+      startEditor()
+  })
+
+  function startEditor(){
+    var toolbarOptions = [
+      ['bold', 'italic', 'underline', 'strike'],
+      ['blockquote'],
+      [{'header': 1}, {'header': 2}],
+      [{'list': 'ordered'}, {'list': 'bullet'}],
+      [{'script': 'sub'}, {'script': 'super'}],
+      [{'indent': '-1'}, {'indent': '+1'}],
+      [{'direction': 'rtl'}],
+      [{'size': ['small', false, 'large', 'huge']}],
+      ['link'],
+      [{'color': []}, {'background': []}],
+      [{'align': []}]
+      ];
+
+    var options = {
+      modules: {
+        toolbar: toolbarOptions
+      },
+      theme: 'snow'
+    };
+
+    var editor = new Quill('#editor', options);
+
+    editor.setContents(editor.clipboard.convert(full_description.replace(/\n/g, "</br>")));
+
+    full_description = document.querySelector(".ql-editor").innerHTML;
+
+    editor.on('text-change', function(delta, oldDelta, source){
+      full_description = document.querySelector(".ql-editor").innerHTML;
+    })
+
+  }
 </script>
 
 <style lang="scss">
@@ -800,14 +845,6 @@
   .line-center {
     display: flex;
     align-items: center;
-  }
-
-  .edit-block {
-    background: white;
-    margin-top: 10px;
-    padding: 10px 10px;
-    box-sizing: border-box;
-    box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.25);
   }
 
   label {
@@ -848,71 +885,6 @@
     font-weight: bold;
   }
 
-  .upload-image-block {
-    box-shadow: inset 0px 0px 6px rgba(0, 0, 0, 0.25);
-    border-radius: 5px;
-    padding: 5px;
-    font-weight: bold;
-    margin-top: 25px;
-    position: relative;
-    & > input[type="file"] {
-      opacity: 0;
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-    }
-  }
-
-  .dates-block {
-    margin-top: 35px;
-  }
-
-  .date-block {
-    display: flex;
-    align-items: flex-end;
-    margin-top: 15px;
-
-    & > div {
-      width: auto;
-
-      & > input {
-        width: 100px;
-      }
-    }
-
-    & > .days-block {
-      width: auto;
-    }
-
-    & > div:not(:first-child) {
-      margin-left: 25px;
-    }
-  }
-
-  .dates-line {
-    display: flex;
-
-    & > div {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    & > div:not(:first-child) {
-      margin-left: 5px;
-    }
-  }
-
-  .add-date {
-    background: $Light_Gray;
-    border-radius: 5px;
-    box-shadow: inset 0px 0px 4px rgba(0, 0, 0, 0.25);
-    padding: 5px;
-    margin-left: 25px;
-  }
-
   .locations-block {
     margin-top: 35px;
   }
@@ -948,47 +920,6 @@
     & > .delete {
       height: 30px;
       margin-left: 15px;
-    }
-  }
-
-  .others-block {
-    margin-top: 35px;
-    display: flex;
-
-    & > div:not(:first-child) {
-      margin-left: 50px;
-    }
-
-    & select {
-      width: 165px;
-    }
-
-    & > .price-block {
-      & > div {
-        display: flex;
-        align-items: flex-end;
-
-        & > input[type="text"] {
-          width: 122px;
-        }
-
-        & > div {
-          font-weight: bold;
-          margin-bottom: 3px;
-          margin-left: 5px;
-        }
-      }
-
-      & > .free-block {
-        display: flex;
-        align-items: center;
-        margin-top: 10px;
-
-        & > label {
-          margin: 0 0 0 5px;
-          font-weight: normal;
-        }
-      }
     }
   }
 
@@ -1156,42 +1087,33 @@
     }
   }
 
-  .select {
-    border: 1px solid $Gray;
-    margin-top: 8px;
-    width: 165px;
-    white-space: nowrap;
-    overflow: hidden;
-    padding-right: 20px;
-    text-overflow: ellipsis;
-  }
-
-  .option {
-    top: 35px;
-
-    & label {
-      margin: 0;
-      font-weight: normal;
-    }
-  }
-
   .hide-label {
     height: 0;
     overflow: hidden;
     margin: 0;
   }
 
-  .delete {
-    font-size: 30px;
-    height: 30px;
-    width: 20px;
+  :global(.edit-block .ql-editor){
+    min-height: 300px;
+  }
+
+  :global(.ql-toolbar){
+    margin-top: 10px;
   }
 </style>
 
 <svelte:head>
   <title>
-    {actionId === undefined ? 'Создание события' : 'Редактирование события'}
+    {actionId === undefined ? _("creating_event") : _("editing_event")}
   </title>
+
+  <script src="//cdn.quilljs.com/1.3.6/quill.js" on:load={() => {
+    initEditor = true;
+    if(start)
+      startEditor()
+  }}></script>
+  <link href="//cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+
 </svelte:head>
 
 <svelte:window on:click={hideAll} />
@@ -1222,8 +1144,8 @@
     <input type="text" name="name" bind:value={name} />
 
     <label for="description">{_('event_description')}</label>
-    <textarea name="description" bind:value={full_description} />
-
+    <div id="editor"></div>
+    
     <label>{_('event_photos')}</label>
     <div class="images-block">
 

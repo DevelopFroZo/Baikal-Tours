@@ -51,7 +51,8 @@
     start = false,
     vkHref,
     twitterHref = "",
-    facebookHref = "";
+    facebookHref = "",
+    initEditor = false;
 
   let transfers = [];
   for(let transfer of data.transfers)
@@ -69,7 +70,6 @@
     }
     actionsParams = localStorage.getItem("actionsParams");
     if (actionsParams === null) actionsParams = "./actions";
-    start = true;
 
     vkHref = VK.Share.button(false, {
       type: "custom",
@@ -85,6 +85,10 @@
 
     twitterHref = encodeURI(data.name + "\n\n" + document.location.href);
     facebookHref = document.location.href;
+
+    start = true;
+    if(initEditor)
+      startEditor();
   });
 
   $: if (userName !== "" && userPhone !== "" && validateMail(userMail))
@@ -104,6 +108,14 @@
     );
 
     if (subscribeStatus.ok) alert("Вы успешно подписались на событие");
+  }
+
+  function startEditor(){
+    var editorText = new Quill("#description-block",{
+      readOnly: true
+    })
+    
+    editorText.setContents(editorText.clipboard.convert(data.full_description.replace(/\n/g, "</br>")))
   }
 </script>
 
@@ -133,8 +145,7 @@
     font-style: italic;
   }
 
-  .description-block {
-    white-space: pre-wrap;
+  #description-block {
     margin-top: 35px;
   }
 
@@ -544,6 +555,10 @@
     margin: 25px 0 0 0;
   }
 
+  :global(.ql-editor){
+    padding: 0 !important;
+  }
+
   @media only screen and (max-width: 768px) {
     h1 {
       font-size: $Big_Font_Size;
@@ -553,7 +568,7 @@
       flex-direction: column-reverse;
     }
 
-    .description-block {
+    #description-block {
       padding: 0;
     }
 
@@ -585,6 +600,13 @@
   <link
     rel="stylesheet"
     href="https://unpkg.com/flickity@2/dist/flickity.min.css" />
+
+  <script src="//cdn.quilljs.com/1.3.6/quill.js" on:load={() => {
+    initEditor = true;
+    if(start)
+      startEditor()
+  }}></script>
+  <link href="//cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
 </svelte:head>
 
 <Header {locale} />
@@ -675,7 +697,7 @@
     </div>
   {/if}
 
-  <div class="description-block">{data.full_description}</div>
+  <div id="description-block"></div>
 
   <ul class="italic">
     <li>{_('organizer')}: {data.organizer_name}</li>

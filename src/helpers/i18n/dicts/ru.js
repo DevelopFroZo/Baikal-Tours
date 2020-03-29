@@ -235,6 +235,22 @@ export default ( {
   more_excursions:            "посмотреть больше на Фанат Байкала",
   similar_events:             "Похожие события",
 
-  detailed:                   "Подробнее"
-  
+  detailed:                   "Подробнее",
+
+  new_compilation:            "Новая подборка",
+  compiliations_not_found:    "Подборки не найдены",
+  title_of_collection:        "Загаловок подборки",
+  creating_compiliation:      "Создание подборки",
+  editing_compiliation:       "Редактирование подборки",
+  compiliation_photo:         "Фотография подборки",
+  compiliation_events:        "События подборки",
+  add_action:                 "Добавить событие",
+  already_added_event:        "Вы уже добавили это событие",
+  return_to_compiliations:    "Вернуться к списку подборок",
+  description_of_compiliation:"Описание подборки",
+  url:                        "URL",
+  required_description:       "Событие {action} не имеет описания",
+  none_actions:                "Добавьте хотя бы одно событие",
+  none_compiliation_image:    "Подборка не может быть без изображения",
+  user_info:                  "Информация о пользователе"
 } );
