@@ -3,9 +3,10 @@
 import fetch from "node-fetch";
 import Translator from "/helpers/translator/index";
 import yandexEngineBuilder from "/helpers/translator/engines/yandex";
+import { toIntArray } from "/helpers/converters";
 
 export async function post( req, res ){
-  const { name, site, date_start, date_end, locationId } = req.body;
+  const { name, site, date_start, date_end, locationIds } = req.body;
   let { price } = req.body;
   let translated = {};
 
@@ -14,7 +15,7 @@ export async function post( req, res ){
     typeof site !== "string" || site === "" ||
     typeof date_start !== "string" || date_start === "" ||
     typeof date_start !== "string" || date_end === "" ||
-    typeof locationId !== "number" || locationId < 1
+    !Array.isArray( locationIds )
   ) return res.error( 13 );
 
   translated[ name.locale ] = name.text;
@@ -32,7 +33,7 @@ export async function post( req, res ){
   if( typeof price !== "number" || price < 1 )
     price = null;
 
-  const { transaction, id } = await req.database.excursions.create( site, date_start, date_end, locationId, price );
+  const { transaction, id } = await req.database.excursions.create( site, date_start, date_end, locationIds, price );
 
   for( let locale in translated )
     await req.database.excursionsTranslates.create( transaction, id, locale, translated[ locale ] );
@@ -40,4 +41,17 @@ export async function post( req, res ){
   await transaction.end();
 
   res.success( 0, id );
+}
+
+export async function get( req, res ){
+  const locale = req.session.locale;
+  const { filter } = req.query;
+
+  if( filter === undefined )
+    return res.json( req.database.excursions.getAll( locale ) );
+
+  const { dateStart, dateEnd } = req.query;
+  const locationIds = toIntArray( req.query.locationIds );
+
+  res.json( await req.database.excursions.filter( locale, dateStart, dateEnd, locationIds ) );
 }
