@@ -48,6 +48,10 @@ export default ( server ) => {
   server.put( "/api/actionPartners/:id", secureAPI( "admin" ), upload.single( "image" ) );
   server.delete( "/api/actionPartners/:id", secureAPI( "admin" ) );
 
+  server.post( "/api/actionsExcursions", secureAPI( "admin" ) );
+  server.put( "/api/actionsExcursions", secureAPI( "admin" ) );
+  server.delete( "/api/actionsExcursions", secureAPI( "admin" ) );
+
   server.post( "/api/compiliations", secureAPI( "admin" ) );
   server.post( "/api/compiliations/:id/image", secureAPI( "admin" ), upload.single( "image" ) );
   // #fix добавить PUT, DELETE

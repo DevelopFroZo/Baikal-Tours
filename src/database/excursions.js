@@ -7,14 +7,14 @@ export default class extends Foundation{
     super( modules, "Excursions" );
   }
 
-  async create( site, date_start, date_end, locationIds, price ){
+  async create( site, dateStart, dateEnd, locationIds, price ){
     const transaction = await super.transaction();
 
     const id = ( await transaction.query(
       `insert into excursions( site, date_start, date_end, location_ids, price )
       values( $1, $2, $3, $4, $5 )
       returning id`,
-      [ site, date_start, date_end, locationIds, price ]
+      [ site, dateStart, dateEnd, locationIds, price ]
     ) ).rows[0].id;
 
     return { transaction, id };

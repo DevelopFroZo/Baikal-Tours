@@ -6,15 +6,15 @@ import yandexEngineBuilder from "/helpers/translator/engines/yandex";
 import { toIntArray } from "/helpers/converters";
 
 export async function post( req, res ){
-  const { name, site, date_start, date_end, locationIds } = req.body;
+  const { name, site, dateStart, dateEnd, locationIds } = req.body;
   let { price } = req.body;
   let translated = {};
 
   if(
     typeof name !== "object" || Array.isArray( name ) ||
     typeof site !== "string" || site === "" ||
-    typeof date_start !== "string" || date_start === "" ||
-    typeof date_start !== "string" || date_end === "" ||
+    typeof dateStart !== "string" || dateStart === "" ||
+    typeof dateEnd !== "string" || dateEnd === "" ||
     !Array.isArray( locationIds )
   ) return res.error( 13 );
 
@@ -33,7 +33,7 @@ export async function post( req, res ){
   if( typeof price !== "number" || price < 1 )
     price = null;
 
-  const { transaction, id } = await req.database.excursions.create( site, date_start, date_end, locationIds, price );
+  const { transaction, id } = await req.database.excursions.create( site, dateStart, dateEnd, locationIds, price );
 
   for( let locale in translated )
     await req.database.excursionsTranslates.create( transaction, id, locale, translated[ locale ] );
