@@ -21,6 +21,8 @@ import Excursions from "./excursions";
 import ExcursionsTranslates from "./excursionsTranslates";
 import Favorites from "./favorites";
 import Subjects from "./subjects";
+import Tours from "./tours";
+import ToursTranslates from "./toursTranslates";
 import Transfers from "./transfers";
 import DataForFilters from "./dataForFilters";
 import Users from "./users";
@@ -32,6 +34,7 @@ import ActionsCompanions from "./actionsCompanions";
 import ActionsExcursions from "./actionsExcursions";
 import ActionsLocations from "./actionsLocations";
 import ActionsSubjects from "./actionsSubjects";
+import ActionsTours from "./actionsTours";
 import ActionsTransfers from "./actionsTransfers";
 
 // Main pool
@@ -52,6 +55,8 @@ modules.excursions = new Excursions( modules );
 modules.excursionsTranslates = new ExcursionsTranslates( modules );
 modules.favorites = new Favorites( modules );
 modules.subjects = new Subjects( modules );
+modules.tours = new Tours( modules );
+modules.toursTranslates = new ToursTranslates( modules );
 modules.transfers = new Transfers( modules );
 modules.dataForFilters = new DataForFilters( modules );
 modules.users = new Users( modules );
@@ -63,6 +68,7 @@ modules.actionsCompanions = new ActionsCompanions( modules );
 modules.actionsExcursions = new ActionsExcursions( modules );
 modules.actionsLocations = new ActionsLocations( modules );
 modules.actionsSubjects = new ActionsSubjects( modules );
+modules.actionsTours = new ActionsTours( modules );
 modules.actionsTransfers = new ActionsTransfers( modules );
 
 // #fix вынести на глобальный уровень

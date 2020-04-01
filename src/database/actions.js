@@ -134,10 +134,7 @@ export default class extends Foundation{
 
       filters.push(
         `(
-          coalesce( ae.title, '' ) ||
           ae.name ||
-          ae.tagline ||
-          ae.short_description ||
           ae.full_description
         ) ilike any( $${i++}::character varying[] )`
       );

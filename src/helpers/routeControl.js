@@ -3,6 +3,7 @@
 import multer from "multer";
 
 const upload = multer();
+const dev = process.env.NODE_ENV === "development";
 
 function secureStatic( roles ){
   if( typeof roles === "string" )
@@ -33,6 +34,9 @@ export default ( server ) => {
   // server.get( "/img/actions/*", ( req, res, next ) => res.sendFile( req.path, { root: "./static" }, err => next() ) );
   server.get( "/admin*", secureStatic( "admin" ) );
 
+  // Documentation
+  if( !dev ) server.get( "/docs*", ( req, res ) => res.redirect( "/404" ) );
+
   // API
   server.get( "/api/users", secureAPI( "admin" ) );
   server.delete( "/api/users/:id", secureAPI( "admin" ) );
@@ -51,6 +55,10 @@ export default ( server ) => {
   server.post( "/api/actionsExcursions", secureAPI( "admin" ) );
   server.put( "/api/actionsExcursions", secureAPI( "admin" ) );
   server.delete( "/api/actionsExcursions", secureAPI( "admin" ) );
+
+  server.post( "/api/actionsTours", secureAPI( "admin" ) );
+  server.put( "/api/actionsTours", secureAPI( "admin" ) );
+  server.delete( "/api/actionsTours", secureAPI( "admin" ) );
 
   server.post( "/api/compiliations", secureAPI( "admin" ) );
   server.post( "/api/compiliations/:id/image", secureAPI( "admin" ), upload.single( "image" ) );
@@ -73,6 +81,10 @@ export default ( server ) => {
   server.delete( "/api/favorites/:id", secureAPI( "admin" ) );
 
   server.post( "/api/excursions", secureAPI( "admin" ) );
+  server.post( "/api/excursions/:id/image", secureAPI( "admin" ), upload.single( "image" ) );
+  // #fix добавить PUT, DELETE
+
+  server.post( "/api/tours", secureAPI( "admin" ) );
   server.post( "/api/excursions/:id/image", secureAPI( "admin" ), upload.single( "image" ) );
   // #fix добавить PUT, DELETE
 };

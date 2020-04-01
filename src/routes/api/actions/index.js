@@ -13,7 +13,7 @@ export async function get( req, res ){
   const { filter } = req.query;
   const count = toInt( req.query.count );
   const offset = toInt( req.query.offset );
-  const favoritesOnly = req.query.favoritesOnly !== undefined ? true : false;
+  const favoritesOnly = req.query.favoritesOnly !== undefined;
 
   let actions;
   let actionsCount;
