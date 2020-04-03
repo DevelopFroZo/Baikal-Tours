@@ -3,6 +3,7 @@
   import { createEventDispatcher } from "svelte";
   import Register from "./start_register.svelte";
   import ConfirmPassword from "./confirm_password.svelte";
+  import { parseUrlByPage } from "/helpers/parsers.js";
 
   export let _, fetcher, page;
 
@@ -37,7 +38,7 @@
 
     if (result.ok) {
       localStorage.removeItem("email");
-      document.location.href = page.path;
+      document.location.href = parseUrlByPage(page, ["window"], {});
     } else {
       alert(result.message);
     }

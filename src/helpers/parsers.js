@@ -4,6 +4,7 @@ export {
     parseDateForActiveFilter,
     parsePriceForActiveFilter,
     parseDateForCards,
+    parseUrlByPage
 }
 
 function parseDate(date) {
@@ -82,4 +83,36 @@ function parseDateForCards(date_starts, date_ends, _) {
     }
 
     return dates;
+}
+
+function parseUrlByPage(page, removeParams, newParams) {
+    let keys = Object.keys(page.query);
+    let newKeys = Object.keys(newParams);
+    console.log(keys.length, newKeys.length)
+    let url = page.path;
+    let querys = [];
+
+    if (keys.length > 0) {
+        for (let param of keys) {
+            let bl = true;
+            if (removeParams.length > 0) {
+                for (let removeParam of removeParams) {
+                    if (removeParam === param)
+                        bl = false;
+                    break;
+                }
+            }
+
+            if (bl)            
+                querys.push(param + (page.query[param].length > 0 ? "=" + page.query[param] : page.query[param]));
+        }
+    }
+
+    if(newKeys.length > 0)
+        for(let param of newKeys)
+            querys.push(param + (newParams[param].length > 0 ? "=" + newParams[param] : newParams[param]));
+
+    url = url + (querys.length > 0 ? "?" : "") + querys.join("&");
+
+    return url;
 }

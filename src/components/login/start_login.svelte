@@ -3,6 +3,7 @@
   import { goto } from "@sapper/app";
   import { createEventDispatcher } from "svelte";
   import BreadCrumbs from "/components/breadcrumbs.svelte";
+  import { parseUrlByPage } from "/helpers/parsers.js";
 
   export let _, page;
 
@@ -30,7 +31,7 @@
 <div class="body" transition:fade={{duration: 150}}>
   <div class="register-block">
     <div class="in-block">
-      <button class="close-window" on:click={() => goto(page.path)}>
+      <button class="close-window" on:click={() => goto(parseUrlByPage(page, ["window"], {}))}>
         <img src="/img/cross.svg" alt="cross" />
       </button>
       <h2>{_('authorize')}</h2>

@@ -138,10 +138,6 @@
     & :global(.selection-block) {
       margin-left: 15px;
     }
-
-    & :global(.flickity-viewport) {
-      overflow: visible;
-    }
   }
 
   .action-carousel {
@@ -149,10 +145,6 @@
 
     & :global(.card) {
       margin-left: 15px;
-    }
-
-    & :global(.flickity-viewport) {
-      overflow: visible;
     }
   }
 

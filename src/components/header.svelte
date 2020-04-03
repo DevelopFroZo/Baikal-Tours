@@ -5,6 +5,7 @@
   import ChangeLanguage from "/components/language_select.svelte";
   import Register from "./register/index.svelte";
   import Login from "./login/index.svelte";
+  import { parseUrlByPage } from "/helpers/parsers.js";
 
   export let locale;
 
@@ -170,14 +171,15 @@
   <div class="right-side">
     <div class="user-info">
       {#if !$session.isLogged}
-        <button class="login"
-        on:click={() => goto(`${$page.path}?window=login`)}>
+        <button
+          class="login"
+          on:click={() => goto(parseUrlByPage($page, [], {window: 'login'}))}>
           <img src="/img/log-in.svg" alt="login" />
           {_('authorize')}
         </button>
         <button
           class="register"
-          on:click={() => goto(`${$page.path}?window=register`)}>
+          on:click={() => goto(parseUrlByPage($page, [], {window: 'register'}))}>
           <img src="/img/user.svg" alt="user" />
           {_('registration')}
         </button>
@@ -195,13 +197,13 @@
   page={$page}
   {_}
   {fetcher}
-  on:confirmPassword={() => goto(`${$page.path}?window=confirm-password`)}
-  on:login={() => goto(`${$page.path}?window=login`)} />
+  on:confirmPassword={() => goto(parseUrlByPage($page, ["window"], {window: "confirm-password"}))}
+  on:login={() => goto(parseUrlByPage($page, ["window"], {window: 'login'}))} />
 
 <Login
   page={$page}
   {_}
   {fetcher}
-  on:forgotPassword={() => goto(`${$page.path}?window=forgot-password`)}
-  on:login={() => goto(`${$page.path}?window=login`)}
-  on:register={() => goto(`${$page.path}?window=register`)} />
+  on:forgotPassword={() => goto(parseUrlByPage($page, ["window"], {window: 'forgot-password'}))}
+  on:login={() => goto(parseUrlByPage($page, ["window"], {window: 'login'}))}
+  on:register={() => goto(parseUrlByPage($page, ["window"], {window: 'register'}))} />

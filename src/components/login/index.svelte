@@ -2,6 +2,7 @@
   import { createEventDispatcher } from "svelte";
   import StartLogin from "./start_login.svelte";
   import ForgotPassword from "./forgot_password.svelte";
+  import { parseUrlByPage } from "/helpers/parsers.js";
 
   export let _, fetcher, page;
 
@@ -20,7 +21,7 @@
 
     if (result.ok)
       document.location.href =
-        page.query.redirect === undefined ? page.path : page.query.redirect;
+        page.query.redirect === undefined ? page.path : parseUrlByPage(page, ["window"], {});
     else alert(result.message);
   }
 </script>
