@@ -834,8 +834,7 @@
 <!-- <BreadCrumbs
   path={[{ name: _('event_catalog'), url: actionsParams }, { name: data.name, url: './action?id=' + actionId }]} /> -->
 <div
-  class="main-block"
-  class:main-block-without-image={data.images.length === 0}>
+  class="main-block">
   {#if data.images.length > 0}
     <img
       src={data.images.filter(el => el.is_main)[0].image_url}
