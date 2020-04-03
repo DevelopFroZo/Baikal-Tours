@@ -1005,7 +1005,7 @@
           {#if data.twitter_link !== null}
             <div class="line contacts-flex">
               <div class="img-block twitter">
-                <img src="/img/twitter" alt="twitter">
+                <img src="/img/twitter.svg" alt="twitter">
               </div>
               <ul>
                 <li>
