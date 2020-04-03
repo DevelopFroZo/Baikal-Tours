@@ -139,6 +139,9 @@
   import { onMount } from "svelte";
   import ActiveFilters from "/components/active_filters.svelte";
   import Selection from "/components/selection.svelte";
+  import { slide } from "svelte/transition";
+  import * as animateScroll from "svelte-scrollto";
+  import SimilarEvent from "/components/similar_event.svelte";
 
   export let result_cards,
     result_filters,
@@ -167,8 +170,10 @@
     pagData,
     selectionsCarousel,
     selectionsStart = false,
-    start = false;
-
+    start = false,
+    head,
+    scrollY;
+    
   let url = {
     ...parseFilter,
     offset: (offset / count) * pagCards,
@@ -204,12 +209,14 @@
 
   function hideAll(e) {
     for (let i = 0; i < options.length; i++) {
-      e = e || event;
-      let target = e.target || e.srcElement;
-      const its_menu =
-        target == options[i].option || options[i].option.contains(target);
-      const its_btnMenu = target == options[i].btn;
-      if (!its_menu && !its_btnMenu) options[i].isVisible = false;
+      if (options[i].isVisible) {
+        e = e || event;
+        let target = e.target || e.srcElement;
+        const its_menu =
+          target == options[i].option || options[i].option.contains(target);
+        const its_btnMenu = target == options[i].btn;
+        if (!its_menu && !its_btnMenu) options[i].isVisible = false;
+      }
     }
   }
 
@@ -263,10 +270,21 @@
   }
 
   function setPrice() {
-    filter[4][0].value = priceStart;
-    filter[4][1].value = priceEnd;
+    animateScroll.scrollTo({offset: scrollY , duration: 300})
 
-    changeFilter();
+    let bl = false;
+
+    if (filter[4][0].value !== priceStart) {
+      filter[4][0].value = priceStart;
+      bl = true;
+    }
+
+    if (filter[4][1].value !== priceEnd) {
+      filter[4][1].value = priceEnd;
+      bl = true;
+    }
+
+    if (bl) changeFilter();
   }
 
   function setURL() {
@@ -277,11 +295,6 @@
   }
 
   function changePagAndURL(pagL) {
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth"
-    });
-
     pagData.pag = pagL;
 
     url = {
@@ -296,6 +309,8 @@
   async function clickPag(e) {
     let pagL = e.detail.pagL;
 
+    animateScroll.scrollTo({offset: head.offsetTop - 150, duration: 1500})
+
     changePagAndURL(pagL);
   }
 
@@ -307,6 +322,8 @@
   });
 
   function closePrice(e) {
+    animateScroll.scrollTo({offset: scrollY , duration: 300})
+
     priceStart = "";
     priceEnd = "";
 
@@ -315,6 +332,8 @@
 
   function closeFilter(e) {
     filter = e.detail.filter;
+
+    animateScroll.scrollTo({offset: scrollY , duration: 300})
 
     changeFilter();
   }
@@ -327,7 +346,7 @@
   function startSelection() {
     new Flickity(selectionsCarousel, {
       pageDots: false,
-      groupCells: 5
+      groupCells: 3
     });
   }
 </script>
@@ -342,33 +361,38 @@
 
   .cards-block {
     display: grid;
-    grid-template-columns: repeat(3, 300px);
+    grid-template-columns: repeat(3, auto);
     justify-content: space-between;
-    grid-row-gap: 41px;
-    margin-top: 30px;
+    grid-row-gap: 30px;
+    margin-top: 50px;
   }
 
-  input,
+  input:not([type="checkbox"]),
   .select {
-    border: 1px solid #7b7b7b66;
     background: white;
-    font-style: italic;
     padding: 0 3px;
-    font-size: 13px;
-    height: 23px;
-
-    &[type="date"] {
-      padding: 0;
-    }
+    font-size: $Big_Font_Size;
+    width: 130px;
+    padding: 25px 20px;
+    box-sizing: border-box;
+    color: #3b394a;
 
     &.date {
-      width: 70px;
       position: relative;
+
+      &:last-child {
+        margin-left: 30px;
+      }
     }
 
-    &[type="number"] {
-      width: 70px;
+    &::placeholder {
+      color: #3b394a;
     }
+  }
+
+  .select {
+    width: 170px;
+    height: 74px;
   }
 
   .date::-webkit-inner-spin-button,
@@ -385,22 +409,16 @@
     transform: translateY(-50%);
   }
 
-  #date-end,
-  #price-end {
-    margin-left: -5px;
-  }
-
-  h1 {
-    font-weight: normal;
-    font-size: $MaxBig_Font_Size;
-  }
-
   .filters {
-    background: $Light_Gray;
-    padding: 18px 20px;
-    margin: 20px 0 15px;
+    background: #f5f7fa;
+    padding: 45px 50px;
+    margin: 30px 0 70px;
     display: flex;
     justify-content: space-between;
+    box-shadow: 0px 0px 70px rgba(40, 39, 49, 0.1);
+    width: 1300px;
+    margin-left: -50px;
+    box-sizing: border-box;
   }
 
   .price-filter {
@@ -408,9 +426,9 @@
 
     & > div {
       position: absolute;
-      top: 20px;
+      bottom: -20px;
       left: 0;
-      width: calc(100% - 10px);
+      width: 100%;
 
       & > input {
         width: 100%;
@@ -427,79 +445,129 @@
   }
 
   .selection-carousel {
-    margin-top: 25px;
-    height: 150px;
+    margin-top: 235px;
     opacity: 0;
     transition: 0.3s;
 
     & :global(.selection-block) {
-      margin-left: 30px;
+      margin-left: 15px;
     }
   }
 
-  .selection-carousel-loaded{
+  .selection-carousel-loaded {
     opacity: 1;
   }
 
   .selections-block {
-    display: flex;
-    flex-flow: row wrap;
+    display: grid;
+    grid-template-columns: repeat(2, auto);
     justify-content: space-between;
+    grid-row-gap: 40px;
+    border-radius: 10px;
+    margin-top: 60px;
+  }
 
-    & > a {
-      height: 230px;
-      position: relative;
-      overflow: hidden;
-      -webkit-box-shadow: inset 0px -75px 174px -13px rgba(0, 0, 0, 0.75);
-      -moz-box-shadow: inset 0px -75px 174px -13px rgba(0, 0, 0, 0.75);
-      box-shadow: inset 0px -75px 174px -13px rgba(0, 0, 0, 0.75);
+  #price-end {
+    margin-left: 30px;
+  }
+
+  .two-input {
+    position: relative;
+
+    &::before {
+      position: absolute;
+      content: " ";
+      width: 20px;
+      height: 2px;
+      background: #34353f;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      display: block;
+    }
+  }
+
+  .select::before{
+    transform: rotate(90deg);
+    width: 15px;
+    height: 10px;
+    right: 20px;
+    background-image: url(../img/next.svg);
+  }
+
+  h2 {
+    margin-top: 235px;
+  }
+
+  h2,
+  h1 {
+    font-family: $Playfair;
+    color: #434343;
+    font-size: $UltraBig_Font_Size;
+
+    & > span {
+      font-family: inherit;
+      color: $Blue;
+    }
+  }
+
+  h1 {
+    margin-top: 100px;
+  }
+
+  .option {
+    border: none;
+    top: 100%;
+    left: 0;
+    width: 370px;
+    box-shadow: 0px 0px 70px rgba(40, 39, 49, 0.05);
+    visibility: visible;
+
+    & > div {
+      padding: 15px 20px;
+
+      & > label {
+        font-size: $Big_Font_Size;
+        font-family: $Gilroy;
+        color: #3b394a;
+        width: calc(100% - 40px);
+      }
 
       & > img {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        min-width: 100%;
-        min-height: 100%;
-        filter: brightness(80%);
-        z-index: -1;
+        opacity: 0.3;
+        height: 20px;
+        margin-right: 10px;
       }
+    }
+  }
 
-      & > div{
+  .more-events{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 115px;
+
+    & > h2{
+      font-size: 36px;
+      margin: 0;
+    }
+
+    & > button{
+      border-radius: 100px;
+      background: $Dark_Blue_Gradient;
+      box-shadow: 0px 23px 70px rgba(77, 80, 98, 0.1), inset 0px 0px 50px rgba(255, 255, 255, 0.15);
+      color: white;
+      padding: 15px 55px;
+      font-family: $Gilroy;
+      font-size: $LowBig_Font_Size;
+      position: relative;
+
+      & > img{
         position: absolute;
         bottom: 15px;
-        left: 15px;
-        z-index: 1;
-
-        & > h2{
-          color: white;
-          font-size: 24px;
-        }
-
-        & > p{
-          color: white;
-          margin-top: 10px;
-          font-size: $Medium_Font_Size;
-        }
+        right: 10px;
+        width: 40px;
       }
-    }
-
-    & > a:nth-child(1) {
-      width: calc(60% - 10px);
-    }
-
-    & > a:nth-child(2) {
-      width: calc(40% - 10px);
-    }
-
-    & > a:nth-child(3),
-    > a:nth-child(4) {
-      width: calc(100% / 2 - 10px);
-      margin-top: 20px;
-    }
-
-    & > .full-width {
-      width: 100% !important;
     }
   }
 
@@ -562,44 +630,42 @@
     href="https://unpkg.com/flickity@2/dist/flickity.min.css" />
 </svelte:head>
 
-<svelte:window on:click={hideAll} />
+<svelte:window on:click={hideAll} bind:scrollY/>
 
 <Header {locale} />
 <!-- <BreadCrumbs path = {[{name: "Каталог событий", url: "./"}]} /> -->
 <div class="form-width">
-  <h1>{_('event_catalog')}</h1>
 
-  <div class="selection-carousel" bind:this={selectionsCarousel} class:selection-carousel-loaded={start && selectionsStart}>
+  <div
+    class="selection-carousel"
+    bind:this={selectionsCarousel}
+    class:selection-carousel-loaded={start && selectionsStart}>
     {#each [1, 1, 1, 1, 1, 1, 1, 1, 1, 1] as selection}
-      <Selection width={140} height={150} />
+      <Selection width={390} height={250} />
     {/each}
   </div>
+
+  <h1>{_('event_catalog')}</h1>
 
   <div class="filters">
     <div class="two-input">
       <input
         placeholder={_('date_from')}
         class="date"
-        type="text"
+        type="date"
         bind:value={filter[0][0].value}
-        on:change={changeFilter}
-        on:focus={function(e) {
-          e.target.type = 'date';
-        }}
-        on:blur={function(e) {
-          e.target.type = 'text';
+        on:change={() => {
+          animateScroll.scrollTo({offset: scrollY , duration: 300});
+          changeFilter()
         }} />
       <input
         placeholder={_('date_by')}
         class="date"
-        type="text"
+        type="date"
         bind:value={filter[0][1].value}
-        on:change={changeFilter}
-        on:focus={function(e) {
-          e.target.type = 'date';
-        }}
-        on:blur={function(e) {
-          e.target.type = 'text';
+        on:change={() => {
+          animateScroll.scrollTo({offset: scrollY , duration: 300});
+          changeFilter()
         }}
         id="date-end" />
     </div>
@@ -612,21 +678,22 @@
         }}>
         {_('where')}
       </button>
-      <div
-        class="option"
-        class:option-visible={options[0].isVisible}
-        bind:this={options[0].option}>
-        {#each filter[1] as city, i}
-          <div
-            on:click={() => {
-              city.active = !city.active;
-              changeFilter();
-            }}>
-            <label>{city.value}</label>
-            <input type="checkbox" bind:checked={city.active} />
-          </div>
-        {/each}
-      </div>
+      {#if options[0].isVisible}
+        <div class="option" bind:this={options[0].option} transition:slide>
+          {#each filter[1] as city, i}
+            <div
+              on:click={() => {
+                city.active = !city.active;
+                animateScroll.scrollTo({offset: scrollY , duration: 300})
+                changeFilter();
+              }}>
+              <img src="/img/placeholder.svg" alt="place" />
+              <label>{city.value}</label>
+              <input type="checkbox" bind:checked={city.active} />
+            </div>
+          {/each}
+        </div>
+      {/if}
     </div>
     <div class="select-block">
       <button
@@ -637,21 +704,21 @@
         }}>
         {_('with_whom')}
       </button>
-      <div
-        class="option"
-        class:option-visible={options[1].isVisible}
-        bind:this={options[1].option}>
-        {#each filter[2] as companios}
-          <div
-            on:click={() => {
-              companios.active = !companios.active;
-              changeFilter();
-            }}>
-            <label>{companios.value}</label>
-            <input type="checkbox" checked={companios.active} />
-          </div>
-        {/each}
-      </div>
+      {#if options[1].isVisible}
+        <div class="option" bind:this={options[1].option} transition:slide>
+          {#each filter[2] as companios}
+            <div
+              on:click={() => {
+                companios.active = !companios.active;
+                animateScroll.scrollTo({offset: scrollY , duration: 300})
+                changeFilter();
+              }}>
+              <label>{companios.value}</label>
+              <input type="checkbox" checked={companios.active} />
+            </div>
+          {/each}
+        </div>
+      {/if}
     </div>
     <div class="select-block">
       <button
@@ -662,21 +729,21 @@
         }}>
         {_('thematics')}
       </button>
-      <div
-        class="option"
-        class:option-visible={options[2].isVisible}
-        bind:this={options[2].option}>
-        {#each filter[3] as subjects}
-          <div
-            on:click={() => {
-              subjects.active = !subjects.active;
-              changeFilter();
-            }}>
-            <label>{subjects.value}</label>
-            <input type="checkbox" bind:checked={subjects.active} />
-          </div>
-        {/each}
-      </div>
+      {#if options[2].isVisible}
+        <div class="option" bind:this={options[2].option} transition:slide>
+          {#each filter[3] as subjects}
+            <div
+              on:click={() => {
+                subjects.active = !subjects.active;
+                animateScroll.scrollTo({offset: scrollY , duration: 300})
+                changeFilter();
+              }}>
+              <label>{subjects.value}</label>
+              <input type="checkbox" bind:checked={subjects.active} />
+            </div>
+          {/each}
+        </div>
+      {/if}
     </div>
     <div class="prices two-input">
       <div class="price-filter">
@@ -687,6 +754,7 @@
           bind:value={priceStart}
           on:blur={setPrice}
           bind:this={options[3].btn}
+          class="price"
           on:click={() => {
             options[3].isVisible = true;
           }} />
@@ -709,6 +777,7 @@
           bind:value={priceEnd}
           on:blur={setPrice}
           bind:this={options[4].btn}
+          class="price"
           on:click={() => {
             options[4].isVisible = true;
           }} />
@@ -739,17 +808,19 @@
 
   <div class="selections-block">
     {#each selectionsLength as sel, i}
-      <a href="/compilation" class:full-width={i === selectionsLength.length - 1 && (i === 0 || i === 2)}>
-        <img src="/img/test.png" alt="selection" />
-        <div>
-          <h2>Иеждународный фестиваль "книгамарт"</h2>
-          <p>с 20.20.2020 до 30.30.3030</p>
-        </div>
-      </a>
+      <SimilarEvent {_}/>
     {/each}
   </div>
 
-  <div class="cards-block">
+  <div class="more-events">
+    <h2>{_("more_events")}</h2>
+    <button class="show-card">
+      {_("show_on_card")}
+      <img src="/img/placeholder-map.svg" alt="placeholder">
+    </button>
+  </div>
+
+  <div class="cards-block" bind:this={head}>
     {#each cards as cardInfo (cardInfo.id)}
       <Card {...cardInfo} {locale} />
     {/each}

@@ -1,13 +1,21 @@
 @import "./global.scss";
 
-.body{
-  background-color: $Dark_Gray;
+.body {
+  background-color: #00000088;
   position: relative;
   width: 100%;
   height: 100vh;
   overflow: hidden;
   padding: 0;
   margin: 0;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 4;
+
+  & > *{
+    color: #4D5062;
+  }
 }
 
 .register-block {
@@ -15,9 +23,9 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 334px;
+  width: 550px;
 
-  & > a{
+  & > a {
     color: white;
     text-align: center;
     display: block;
@@ -27,110 +35,130 @@
   }
 }
 
-.in-block{
-  background: white;
-  border-radius: 5px;
-  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
-  padding: 25px 27px;
-  width: 334px;
+.close-window{
+  position: absolute;
+  width: 45px;
+  height: 45px;
+  right: calc(45px / 2 * -1);
+  top: calc(45px / 2 * -1);
+  background: #F5F5F5;
+  border-radius: 100px;
+
+  & > img{
+    width: 15px;
+  }
+}
+
+.in-block {
+  background: #f5f7fa;
+  border-radius: 10px;
+  box-shadow: 0px 0px 70px rgba(40, 39, 49, 0.1);
+  padding: 50px 75px;
   box-sizing: border-box;
 }
 
-h1 {
-  font-size: $LowBig_Font_Size;
-  line-height: 19px;
-  padding-bottom: 17px;
+.description{
+  margin-top: 30px;
+  text-align: center;
+  font-weight: 600;
+  font-size: $Big_Font_Size;
+}
+
+h2 {
+  font-size: 30px;
+  text-align: center;
   font-weight: bold;
 }
 
 .input-block {
-  margin-top: 19px;
+  position: relative;
+  margin-top: 30px;
+
+  &:first-child{
+    margin-top: 40px;
+  }
 }
 
-.success-block {
-  display: flex;
-  align-items: center;
-  margin-top: 19px;
-  font-size: $Mini_Font_Size;
-}
+.img-block {
+  position: absolute;
+  top: 50%;
+  right: 20px;
+  transform: translateY(-50%);
+  width: 30px;
+  height: 30px;
+  background: $Orange_Gradient;
+  border-radius: 100px;
+  box-shadow: 0px 23px 70px rgba(77, 80, 98, 0.1), inset 0px 0px 50px rgba(255, 255, 255, 0.45);
 
-label {
-  font-size: $LowMedium_Font_Size;
+  & > img {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 15px;
+  }
 }
 
 input {
-  &[type="text"], &[type="password"] {
-    width: 100%;
-    border: 0.3px solid #00000055;
-    background: white;
-    font-size: $LowMedium_Font_Size;
-    padding: 5px;
-    box-sizing: border-box;
-    margin-top: 9px;
-  }
-
-  &[type="checkbox"] {
-    position: absolute;
-    top: 0;
-    left: 0;
-    opacity: 0;
-    z-index: 1;
-
-    &:checked ~ div {
-      opacity: 1;
-    }
-  }
-}
-
-.checkbox-block {
-  position: relative;
-  width: 13px;
-  height: 13px;
-  background: #ffffff;
-  border: 0.3px solid #000000;
+  width: 100%;
+  background: white;
+  font-size: $Big_Font_Size;
+  padding: 15px 70px 15px 25px;
   box-sizing: border-box;
-  box-shadow: inset 0px 0px 3px rgba(0, 0, 0, 0.25);
-  border-radius: 3px;
+  border-radius: 100px;
+  box-shadow: 0px 0px 20px rgba(229, 229, 229, 0.35);
 
-  & > div {
-    transition: 0.3s;
-    opacity: 0;
-    position: absolute;
-    top: -3px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: $LowMedium_Font_Size;
+  &::placeholder{
+    color: rgba(52, 53, 63, 0.3);
   }
 }
 
-.success-text {
-  margin-left: 6px;
-  line-height: 12px;
+.success-text, .forgot-password {
+  margin-top: 30px;
+  font-size: $Big_Font_Size;
+  color: #C1C1C1;
+  text-align: center;
 }
 
 .blue-button {
-  margin-top: 19px;
-  padding: 10px;
+  margin-top: 30px;
+  padding: 15px;
   width: 100%;
-  font-size: $Medium_Font_Size;
+  font-size: $LowBig_Font_Size;
   color: white;
-  background: $Pale_Blue;
-  border-radius: 5px;
+  background: $Blue;
+  border-radius: 100px;
   transition: 0.3s;
 
-  &:disabled{
-    opacity: 0.5;
+  &:disabled {
+    background: #E7E7E7;
+    color: #C1C1C1;
   }
 }
 
 .inter {
-  font-size: $Mini_Font_Size;
+  font-size: $Big_Font_Size;
   text-align: center;
-  margin-top: 19px;
+  margin-top: 10px;
+  font-weight: 600;
+
+  & > button{
+    text-decoration: underline;
+    margin-left: 20px;
+    font-size: inherit;
+    font-weight: inherit;
+  }
+}
+
+a, .forgot-password{
+  text-decoration: underline;
+  font-size: inherit;
+  color: inherit;
 }
 
 .forgot-password{
-  width: 100%;
-  margin-top: 11px;
-  font-size: $Mini_Font_Size;
+  display: block;
+  font-size: $Big_Font_Size;
+  color: #C1C1C1;
+  margin: 30px auto 0;
 }

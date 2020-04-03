@@ -26,6 +26,8 @@
   import { contactsToString, dateToString } from "/helpers/converters.js";
   import i18n from "/helpers/i18n/index.js";
   import { stores } from "@sapper/app";
+  import SimilarEvent from "/components/similar_event.svelte";
+  import * as animateScroll from "svelte-scrollto";
 
   export let result_action, actionId, locale;
 
@@ -39,6 +41,7 @@
     mounted = false,
     second_price,
     userName = "",
+    surname,
     userPhone = "",
     userMail = "",
     disabled = "disabled",
@@ -52,7 +55,8 @@
     vkHref,
     twitterHref = "",
     facebookHref = "",
-    initEditor = false;
+    initEditor = false,
+    registerBlock;
 
   let transfers = [];
   for(let transfer of data.transfers)
@@ -62,26 +66,28 @@
 
   onMount(() => {
     if (data.images.length > 0) {
-      var elem = document.querySelector(".main-carousel");
-      var flkty = new Flickity(elem, {
+      var images = document.querySelector(".main-carousel");
+      new Flickity(images, {
         percentPosition: false,
-        imagesLoaded: true
+        imagesLoaded: true,
+        pageDots: false
       });
+
+      var partners = document.querySelector(".partners-carousel");
+      new Flickity(partners, {
+        groupCells: 4,
+        pageDots: false,
+        draggable: data.partners.length > 4,
+        prevNextButtons: data.partners.length > 4
+      })
     }
     actionsParams = localStorage.getItem("actionsParams");
     if (actionsParams === null) actionsParams = "./actions";
 
     vkHref = VK.Share.button(false, {
       type: "custom",
-      text: '<img src="/img/vk.png"/>'
+      text: '<img src="/img/vk-grey.svg"/>'
     });
-
-    VK.init({
-      apiId:
-        "7f77ea337f77ea337f77ea33457f07802d77f777f77ea33210313055622a45877ebf0b0",
-      onlyWidgets: true
-    });
-    VK.Widgets.Comments("vk_comments", { limit: 10, attach: "*" });
 
     twitterHref = encodeURI(data.name + "\n\n" + document.location.href);
     facebookHref = document.location.href;
@@ -149,68 +155,102 @@
     margin-top: 35px;
   }
 
-  .line {
+  .register-center{
     display: flex;
-    align-items: flex-start;
-
-    & > .info-image {
-      margin-right: 15px;
-      min-width: 20px;
-
-      & > img {
-        max-width: 16px;
-      }
-    }
-
-    &:not(:first-child) {
-      margin-top: 17px;
-    }
+    justify-content: center;
   }
 
   .register-form {
-    margin: 55px auto 40px auto;
-    padding: 30px 20px 15px;
-    background: #f1f1f1;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.25);
+    margin-top: 100px;
+    background: #F5F7FA;
+    box-shadow: 0px 0px 70px rgba(40, 39, 49, 0.1);
     border-radius: 20px;
     box-sizing: border-box;
     display: inline-block;
     position: relative;
 
+    & > hr{
+      border-color: #E7E7E7;
+      margin: 0;
+    }
+
     & > .register-info-blocks {
       display: inline-flex;
+      padding: 85px 50px 30px;
 
       & > .inputs-block {
-        width: 275px;
-        padding-top: 25px;
+        width: 340px;
+        padding-top: 70px;
 
         & > .input-block:not(:first-child) {
-          margin-top: 16px;
+          margin-top: 30px;
+        }
+
+        & > .input-block{
+          position: relative;
+
+          input {
+            background: white;
+            box-sizing: border-box;
+            box-shadow: 0px 0px 20px rgba(229, 229, 229, 0.35);
+            border-radius: 100px;
+            width: 100%;
+            padding: 15px 50px 15px 20px; 
+            box-sizing: border-box;
+            width: 100%;
+            font-size: $Big_Font_Size;
+          }
+
+          & > .img-block{
+            position: absolute;
+            top: 50%;
+            right: 15px;
+            transform: translateY(-50%);
+            width: 30px;
+            height: 30px;
+            border-radius: 100px;
+            background: $Orange_Gradient;
+            box-shadow: 0px 23px 70px rgba(77, 80, 98, 0.1), inset 0px 0px 50px rgba(255, 255, 255, 0.45);
+
+            & > img{
+              position: absolute;
+              top: 50%;
+              left: 50%;
+              transform: translate(-50%, -50%);
+              height: 15px;
+            }
+          }
         }
       }
 
       & > .register-categoty-block {
-        border: solid $Gray;
-        border-width: 0 0 0 1px;
-        margin-left: 15px;
-        padding-left: 15px;
+        padding-left: 20px;
+        margin-left: 20px;
+        width: 360px;
+        box-sizing: border-box;
 
         & > h2 {
-          margin: 0;
-          font-size: $LowBig_Font_Size;
+          margin: 0 0 38px 0;
+          font-size: 24px;
+          font-family: $Playfair;
+          text-align: center;
         }
 
-        & > .ticket-block {
-          margin-top: 20px;
+        & .ticket-block {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          width: 200px;
-          font-weight: bold;
+
+          & > *{
+            font-size: 24px;
+          }
+
+          &:not(:first-child){
+            margin-top: 25px;
+          }
 
           & .ticket-price {
-            color: $Dark_Gray;
-            margin-top: 5px;
+            color: $Blue;
           }
 
           & > .counter {
@@ -218,15 +258,23 @@
             align-items: center;
 
             & > button {
-              width: 17px;
-              height: 17px;
-              background: white;
-              border-radius: 2px;
-              border: 1px solid $Gray;
+              width: 30px;
+              height: 30px;
+              border-radius: 100px;
+              font-size: $Big_Font_Size;
+
+              &:first-child{
+                background: linear-gradient(193.13deg, #FFFFFF 24.24%, #EFEFEF 90.54%);
+              }
+
+              &:last-child{
+                background: $Orange_Gradient;
+                box-shadow: 0px 0px 70px rgba(40, 39, 49, 0.1);
+              }
             }
 
             & > *:not(:first-child) {
-              margin-left: 5px;
+              margin-left: 20px;
             }
           }
         }
@@ -238,30 +286,15 @@
     font-weight: bold;
   }
 
-  input {
-    background: #ffffff99;
-    border: 0.5px solid #00000033;
-    box-sizing: border-box;
-    box-shadow: inset 0px 0px 2px rgba(0, 0, 0, 0.25);
-    border-radius: 5px;
-    width: 100%;
-    margin-top: 6px;
-    height: 25px;
-    padding-left: 10px;
-    box-sizing: border-box;
-  }
-
   .register-button {
     display: block;
-    margin: 29px auto 0;
-    background: #85da5d;
-    box-shadow: inset 0px 0px 7px rgba(0, 0, 0, 0.25);
+    background: $Blue_Gradient;
+    box-shadow: 0px 23px 70px rgba(77, 80, 98, 0.1), inset 0px 0px 50px rgba(255, 255, 255, 0.15);
     border-radius: 100px;
-    padding: 15px 9px;
+    padding: 15px 50px;
     color: white;
-    font-size: $Big_Font_Size;
+    font-size: $LowBig_Font_Size;
     transition: 0.3s;
-    min-width: 200px;
 
     &:disabled {
       opacity: 0.3;
@@ -273,13 +306,23 @@
   }
 
   .main-carousel {
-    margin-top: 20px;
+    margin-top: 90px;
+
+    & :global(.flickity-viewport){
+      overflow: visible;
+    }
   }
 
   .carousel-cell {
     & > img {
-      height: 250px;
-      max-width: 840px;
+      height: 350px;
+      max-width: 1200px;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    &:not(:first-child){
+      margin-left: 25px;
     }
   }
 
@@ -296,33 +339,25 @@
   }
 
   .main-block {
-    min-height: 385px;
+    min-height: 650px;
     position: relative;
-    -webkit-box-shadow: inset 0px -75px 174px -13px rgba(0, 0, 0, 0.75);
-    -moz-box-shadow: inset 0px -75px 174px -13px rgba(0, 0, 0, 0.75);
-    box-shadow: inset 0px -75px 174px -13px rgba(0, 0, 0, 0.75);
+    background: linear-gradient(126.58deg, rgba(255, 255, 255, 0.6) 50.56%, rgba(255, 255, 255, 0) 58.16%);
     overflow: hidden;
 
     & > .form-width {
-      padding: 100px 20px 35px;
-      display: flex;
-      align-items: flex-end;
-      min-height: 345px;
-      max-height: 345px;
+      padding-top: 235px;
+      padding-right: 40%;
+      box-sizing: border-box;
 
       & > h1 {
-        color: white;
-        font-size: $UltraBig_Font_Size;
-        width: 75%;
+        font-size: 36px;
+        font-family: $Playfair;
+        margin-top: 20px;
+        color: #34353F;
       }
 
-      & > div {
-        background: white;
-        border-radius: 14px;
-        box-shadow: inset 0px 0px 4px rgba(0, 0, 0, 0.25);
-        padding: 25px 30px 15px;
-        width: 20%;
-        font-style: italic;
+      & > button{
+        margin-top: 40px;
       }
     }
 
@@ -335,6 +370,7 @@
       min-height: 100%;
       z-index: -1;
       filter: brightness(80%);
+      background-blend-mode: lighten, normal;
     }
   }
 
@@ -356,38 +392,60 @@
     margin: 20px 0 25px;
   }
 
-  .inline-center {
-    display: flex;
-    justify-content: center;
-  }
-
   .total-price {
-    position: absolute;
-    right: 30px;
-    bottom: 30px;
-    font-size: $Big_Font_Size;
-    font-weight: bold;
+    font-size: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: #4D5062;
+
+    & > span{
+      color: $Blue;
+      font-size: 26px;
+    }
   }
 
   ul.italic > li:not(:first-child) {
     margin-top: 15px;
   }
 
-  .partners-block {
-    display: grid;
-    grid-template-columns: repeat(3, 200px);
-    justify-content: space-between;
-    grid-row-gap: 20px;
-    margin-top: 20px;
+  .partners-block{
+    margin-top: 100px;
 
-    & > .partner-block {
+    & > h3{
+      font-family: $Playfair;
+      margin: 0;
+      font-size: $UltraBig_Font_Size;
+      color: #34353F;
+    }
+  }
+
+  .partners-carousel {
+    margin-top: 40px;
+
+    & :global(.flickity-viewport){
+      overflow: visible;
+    }
+
+    & .partner-block {
       text-align: center;
-      width: 200px;
+      width: 280px;
+      height: 180px;
+      background: white;
+      box-shadow: 0px 0px 70px rgba(40, 39, 49, 0.1);
+      position: relative;
 
       & > img {
-        max-width: 100%;
-        max-height: 200px;
-        margin-bottom: 10px;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        max-width: 80%;
+        max-height: 80%;
+      }
+
+      &:not(:first-child){
+        margin-left: 25px;
       }
     }
   }
@@ -398,54 +456,72 @@
     justify-content: space-between;
 
     & > .contacts-block {
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
       padding-left: 20px;
       box-sizing: border-box;
-      width: calc(100% - 640px);
-
-      & > .contacts {
-        width: 155px;
-      }
+      width: calc(100% - 800px - 50px);
+      padding: 0;
 
       & h2 {
-        margin-bottom: 25px;
+        font-family: $Playfair;
+        margin: 0;
+        margin-top: -10px;
+        color: #34353F;
+        font-size: $UltraBig_Font_Size;
       }
 
       & li {
         margin: 0 !important;
       }
-
-      & > .share {
-        display: flex;
-        align-items: center;
-
-        & > a:first-child {
-          margin-left: 20px;
-        }
-
-        & > :global(a:not(:first-child)) {
-          margin-left: 5px;
-        }
-      }
     }
 
     & > .map-block {
-      & > h2 {
-        margin-bottom: 10px;
-      }
 
       & > .map {
-        width: 640px;
-        height: 330px;
+        width: 800px;
+        height: 350px;
         background: $Gray;
+        box-shadow: 0px 0px 70px rgba(40, 39, 49, 0.1);
+        border-radius: 10px;
+        overflow: hidden;
+        position: relative;
+
+        & h3{
+          position: absolute;
+          top: 30px;
+          left: 0;
+          background: linear-gradient(182.54deg, #FFFFFF 24.24%, #EFEFEF 90.54%);
+          box-shadow: 0px 0px 70px rgba(40, 39, 49, 0.05);
+          border-radius: 0px 10px 10px 0px;
+          padding: 15px 20px;
+          max-width: 425px;
+          z-index: 2;
+          font-size: $Big_Font_Size;
+          font-family: $Playfair;
+        }
       }
     }
   }
 
-  .banners-block {
+  .share {
+    display: flex;
+    align-items: center;
+    font-family: $Playfair;
+    font-size: $Big_Font_Size;
     margin-top: 35px;
+    font-weight: bold;
+    
+    & :global(img) {
+      margin-left: 20px;
+      height: 20px;
+    }
+
+    & :global(img:first-child){
+      margin-left: 30px;
+    }
+  }
+
+  .banners-block {
+    margin-top: 100px;
 
     & > .banners-info {
       display: flex;
@@ -453,34 +529,65 @@
       justify-content: space-between;
 
       & > h2 {
-        font-size: $Big_Font_Size;
+        font-size: $UltraBig_Font_Size;
+        color: #34353F;
+        font-family: $Playfair;
         margin: 0;
+      }
+
+      & > a{
+        font-size: $Big_Font_Size;
+        color: #34353F;
+        text-decoration: underline;
       }
     }
 
     & > .banners {
       display: grid;
-      grid-template-columns: repeat(4, 200px);
+      grid-template-columns: repeat(3, auto);
       justify-content: space-between;
-      padding-top: 20px;
+      margin-top: 40px;
 
-      & > div {
-        width: 200px;
-        text-align: center;
+      & > .banner-block {
+        position: relative;
+        width: 390px;
+        height: 250px;
+        overflow: hidden;
+        border-radius: 10px;
+        background: linear-gradient(180deg, rgba(59, 57, 74, 0) 61.98%, #3B394A 100%);
 
-        & > .img-block {
-          position: relative;
-          height: 100px;
-          overflow: hidden;
-          margin-bottom: 10px;
+        & > img {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          min-width: 100%;
+          min-height: 100%;
+          z-index: -1;
+        }
 
-          & > img {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            min-width: 100%;
-            min-height: 100%;
+        & > .banner-info{
+          position: absolute;
+          bottom: 20px;
+          left: 0;
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-end;
+          padding: 0 25px;
+          z-index: 1;
+
+          & > *{
+            max-width: 50%;
+            font-size: 24px;
+          }
+
+          & > h4{
+            color: white;
+            font-weight: normal;
+          }
+
+          & > .price{
+            color: $Orange;
           }
         }
       }
@@ -497,39 +604,20 @@
   }
 
   .similar-events-block {
-    margin: 30px auto 0;
-    width: 600px;
+    margin-top: 100px;
+    margin-bottom: 100px;
 
     & > h2 {
       margin: 0;
-      font-size: 24px;
+      font-size: $UltraBig_Font_Size;
+      font-family: $Playfair;
     }
 
     & > .similar-events {
-      margin-top: 20px;
+      margin-top: 45px;
       display: grid;
-      grid-template-columns: repeat(2, 280px);
+      grid-template-columns: repeat(2, auto);
       justify-content: space-between;
-
-      & > .similar-event {
-        width: 280px;
-
-        & > .img-block {
-          position: relative;
-          height: 150px;
-          overflow: hidden;
-          margin-bottom: 10px;
-
-          & > img {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            min-width: 100%;
-            min-height: 100%;
-          }
-        }
-      }
     }
   }
 
@@ -557,6 +645,142 @@
 
   :global(.ql-editor){
     padding: 0 !important;
+  }
+
+  .subjects-block{
+    display: flex;
+    align-items: center;
+
+    & > li{
+      display: flex;
+      align-items: center;
+      color: rgba(52, 53, 63, 0.7);
+      font-size: $Big_Font_Size;
+    }
+
+    & .point{
+      width: 7px;
+      height: 7px;
+      border-radius: 10px;
+      border: 1px solid rgba(52, 53, 63, 0.7);
+      box-sizing: border-box;
+      margin: 0 15px;
+    }
+  }
+
+  .locations-block{
+    margin-top: 20px;
+
+    & li{
+      color: rgba(52, 53, 63, 0.7);
+      font-weight: bold;
+      font-size: $Big_Font_Size;
+
+      &:not(:first-child){
+        margin-top: 10px;
+      }
+    }
+  }
+
+  .short-description{
+    width: 65%;
+    font-size: 24px;
+    font-weight: bold;
+    margin-top: 50px;
+  }
+
+  #description-block{
+    width: 800px;
+    margin: 140px auto 0;
+    font-size: 20px;
+  }
+
+  .contacts-block{
+    background: #F5F5F5;
+    padding: 100px 0;
+    margin-top: 100px;
+
+    & > .form-width{
+      min-height: auto;
+    }
+  }
+
+  .line {
+    display: flex;
+    align-items: flex-start;
+    margin-top: 30px;
+
+    & > .img-block {
+      margin-right: 15px;
+      min-width: 30px;
+      max-width: 30px;
+      height: 30px;
+      background: linear-gradient(315deg, #F8A822 26.87%, #FCD41F 91.87%);
+      position: relative;
+      border-radius: 100px;
+
+      & > img {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        height: 15px;
+      }
+
+      &.vk{
+        background: linear-gradient(315deg, #2177D2 26.87%, #0341C0 91.87%);
+        box-shadow: 0px 23px 70px rgba(77, 80, 98, 0.1);
+      }
+
+      &.facebook{
+        background: linear-gradient(315deg, #2177D2 26.87%, #0341C0 91.87%);
+        box-shadow: 0px 23px 70px rgba(77, 80, 98, 0.1);
+      }
+
+      &.twitter{
+        background: linear-gradient(315deg, #2177D2 26.87%, #0341C0 91.87%);
+        box-shadow: 0px 23px 70px rgba(77, 80, 98, 0.1);
+      }
+
+      &.instagram{
+        background: linear-gradient(315deg, #D33D93 26.87%, #FFCA52 91.87%);
+        box-shadow: 0px 23px 70px rgba(77, 80, 98, 0.1);
+      }
+    }
+
+    & li{
+      font-size: $Big_Font_Size;
+      color: #34353F;
+      width: 300px;
+
+      & > a{
+        color: #348EE0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        width: 300px;
+        display: block;
+      }
+    }
+
+    &.contacts-flex{
+      align-items: center;
+    }
+  }
+
+  .final-price-block{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    padding: 30px 50px 60px;
+
+    & > *{
+      width: 340px;
+    }
+
+    & > button{
+      margin-top: 30px;
+    }
   }
 
   @media only screen and (max-width: 768px) {
@@ -594,9 +818,6 @@
     charset="windows-1251">
 
   </script>
-  <script type="text/javascript" src="https://vk.com/js/api/openapi.js?167">
-
-  </script>
   <link
     rel="stylesheet"
     href="https://unpkg.com/flickity@2/dist/flickity.min.css" />
@@ -610,8 +831,8 @@
 </svelte:head>
 
 <Header {locale} />
-<BreadCrumbs
-  path={[{ name: _('event_catalog'), url: actionsParams }, { name: data.name, url: './action?id=' + actionId }]} />
+<!-- <BreadCrumbs
+  path={[{ name: _('event_catalog'), url: actionsParams }, { name: data.name, url: './action?id=' + actionId }]} /> -->
 <div
   class="main-block"
   class:main-block-without-image={data.images.length === 0}>
@@ -621,71 +842,38 @@
       alt={data.name} />
   {/if}
   <div class="form-width">
+    {#if data.subjects.length > 0}
+      <ul class="subjects-block">
+        {#each data.subjects as subjects, i}
+          <li>{subjects.name}
+            {#if data.subjects.length !== i + 1}
+              <div class="point" />
+            {/if}
+          </li>
+        {/each}
+      </ul>
+    {/if}
     <h1>{data.name}</h1>
-    <div class="main-info-block">
-
-      {#if data.dates.length > 0}
-        <div class="line">
-          <div class="info-image">
-            <img src="img/date.png" alt="date" />
-          </div>
-          <div class="info">
-            <ul>
-              {#each data.dates as date}
-                <li>{dateToString(date, _)}</li>
-              {/each}
-            </ul>
-          </div>
-        </div>
-      {/if}
-
+    <div class="locations-block">
       {#if data.locations.length > 0}
-        <div class="line">
-          <div class="info-image">
-            <img src="img/place.png" alt="place" />
-          </div>
-          <div class="info">
-            <ul>
-              {#each data.locations as location}
-                <li>
-                  {location.name + (location.address === null ? '' : ', ' + location.address)}
-                </li>
-              {/each}
-            </ul>
-          </div>
-        </div>
+        <ul>
+          {#each data.locations as location}
+            <li>
+              {location.name + (location.address === null ? '' : ', ' + location.address)}
+            </li>
+          {/each}
+        </ul>
       {/if}
-
-      {#if data.subjects.length > 0}
-        <div class="line">
-          <div class="info-image">
-            <img src="img/birk.png" alt="date" />
-          </div>
-          <div class="info">
-            <ul>
-              {#each data.subjects as subjects}
-                <li>{subjects.name}</li>
-              {/each}
-            </ul>
-          </div>
-        </div>
-      {/if}
-
-      <div class="line">
-        <div class="info-image">
-          <img src="img/price.png" alt="price" />
-        </div>
-        <div class="info">{_('price')}: {second_price}</div>
-      </div>
-
-      <button class="register-button">{_("register")}</button>
     </div>
+    <button class="register-button" on:click={() => {
+      animateScroll.scrollTo({offset: registerBlock.offsetTop - 150, duration: 1500})
+    }}>{_("register")}</button>
   </div>
 
 </div>
 <div class="form-width">
-  <p class="italic-bold">{data.tagline}</p>
-  <p class="italic">{data.short_description}</p>
+  <!-- <p class="italic-bold">{data.tagline}</p> -->
+  <p class="short-description">{data.short_description}</p>
 
   {#if data.images.length > 0}
     <div class="main-carousel">
@@ -699,216 +887,295 @@
 
   <div id="description-block"></div>
 
-  <ul class="italic">
+  <!-- <ul class="italic">
     <li>{_('organizer')}: {data.organizer_name}</li>
     <li>
       {_('how_to_get')}:
       {transfers.join("; ")}
     </li>
-  </ul>
+  </ul> -->
 
   {#if data.partners.length > 0}
-    <h2 class="italic-bold">{_('action_partners')}</h2>
-
     <div class="partners-block">
-      {#each data.partners as partner}
-        <div class="partner-block">
-          <img
-            src={partner.image_url}
-            alt={partner.name === null ? 'partner' : partner.name} />
-          {#if partner.name !== null}{partner.name}{/if}
-        </div>
-      {/each}
+      <h3>{_('action_partners')}</h3>
+
+      <div class="partners-carousel">
+        {#each data.partners as partner}
+          <div class="partner-block">
+            <img
+              src={partner.image_url}
+              alt={partner.name === null ? 'partner' : partner.name} />
+            <!-- {#if partner.name !== null}{partner.name}{/if} -->
+          </div>
+        {/each}
+      </div>
     </div>
   {/if}
+</div>
 
-  <div class="contacts-and-place">
+<div class="contacts-block">
+  <div class="form-width contacts-and-place">
     <div class="contacts-block">
       <div class="contacts">
-        <h2 class="italic-bold">{_('contacts')}</h2>
-        <ul class="italic">
-          {#if contactData.length > 0}
-            {#each contactData as contact}
-              <li>{contact}</li>
-            {/each}
+        <h2>{_('contacts')}</h2>
+
+          {#if data.emails !== null}
+          <div class="line" class:contacts-flex={data.emails.length > 0}>
+            <div class="img-block">
+              <img src="/img/mail.svg" alt="email">
+            </div>
+            <ul> 
+              {#each data.emails as email}
+                <li>
+                  {email}
+                </li>
+              {/each}
+            </ul>
+          </div>
           {/if}
+
+          {#if data.phones !== null}
+          <div class="line" class:contacts-flex={data.phones.length > 0}>
+            <div class="img-block">
+              <img src="/img/phone-call.svg" alt="phone">
+            </div>
+            <ul> 
+              {#each data.phones as phone}
+                <li>
+                  {phone}
+                </li>
+              {/each}
+            </ul>
+          </div>
+          {/if}
+
           {#if data.websites !== null}
-            <li>
-              <a href={data.websites[0]} target="_blank">
-                {_('official_site')}
-              </a>
-            </li>
+          <div class="line contacts-flex">
+            <div class="img-block">
+              <img src="/img/internet.svg" alt="site">
+            </div>
+            <ul>
+              <li>
+                <a href={data.websites[0]} target="_blank">
+                  {data.websites[0]}
+                </a>
+              </li>
+            </ul>
+          </div>
           {/if}
+
           {#if data.vk_link !== null}
-            <li>
-              <a href={data.vk_link} target="_blank">{_('VK_group')}</a>
-            </li>
+            <div class="line contacts-flex">
+              <div class="img-block vk">
+                <img src="/img/vk-white.svg" alt="vk">
+              </div>
+              <ul>
+                <li>
+                  <a href={data.vk_link} target="_blank">{data.vk_link}</a>
+                </li>
+              </ul>
+            </div>
           {/if}
+
           {#if data.instagram_link !== null}
-            <li>
-              <a href={data.instagram_link} target="_blank">{_('instagram')}</a>
-            </li>
+            <div class="line contacts-flex">
+              <div class="img-block instagram">
+                <img src="/img/insta-white.svg" alt="instagram">
+              </div>
+              <ul>
+                <li>
+                  <a href={data.instagram_link} target="_blank">{data.instagram_link}</a>
+                </li>
+              </ul>
+            </div>
           {/if}
+
           {#if data.facebook_link !== null}
-            <li>
-              <a href={data.facebook_link} target="_blank">{_('facebook')}</a>
-            </li>
+            <div class="line contacts-flex">
+              <div class="img-block facebook">
+                <img src="/img/facebook-white.svg" alt="facebook">
+              </div>
+              <ul>
+                <li>
+                  <a href={data.facebook_link} target="_blank">{data.facebook_link}</a>
+                </li>
+              </ul>
+            </div>
           {/if}
+
           {#if data.twitter_link !== null}
-            <li>
-              <a href={data.twitter_link} target="_blank">{_('twitter')}</a>
-            </li>
+            <div class="line contacts-flex">
+              <div class="img-block twitter">
+                <img src="/img/twitter" alt="twitter">
+              </div>
+              <ul>
+                <li>
+                  <a href={data.twitter_link} target="_blank">{data.twitter_link}</a>
+                </li>
+              </ul>
+            </div>
           {/if}
-        </ul>
       </div>
-      <div class="share italic">
+    </div>
+    <div class="map-block">
+      <div class="map">
+        <div class="location-block">
+          <h3>{_('venue')}: 
+          {#each data.locations as location}
+            <span>
+              {location.name + (location.address === null ? '' : ', ' + location.address)}
+            </span>
+          {/each}
+          </h3>
+        </div>
+      </div>
+      <div class="share">
         {_('share')}
         <a
           class="twitter-share-button"
           href="https://twitter.com/intent/tweet?text={twitterHref}"
           target="_blank">
-          <img src="/img/twitter.png" alt="twitter" />
+          <img src="/img/twitter-grey.svg" alt="twitter" />
         </a>
         <a
           href="https://www.facebook.com/sharer/sharer.php?u={facebookHref}"
           target="_blank">
-          <img src="/img/facebook.png" alt="twitter" />
+          <img src="/img/facebook-grey.svg" alt="facebook" />
         </a>
         {@html vkHref}
       </div>
     </div>
-    <div class="map-block">
-      <h2 class="italic-bold">{_('venue')}</h2>
-      <div class="map" />
-    </div>
   </div>
+</div>
 
+<div class="form-width" bind:this={registerBlock}>
   {#if $session.isLogged}
-    <div class="inline-center">
+    <div class="register-center">
       <div class="register-form">
         <div class="register-info-blocks">
-
           <div class="inputs-block">
             <div class="input-block">
-              <label for="name">{_('full_name')}</label>
-              <br />
-              <input type="text" name="name" bind:value={userName} />
+              <input type="text" bind:value={userName} placeholder={_("name")}/>
+              <div class="img-block">
+                <img src="/img/user-black.svg" alt="user">
+              </div>
             </div>
             <div class="input-block">
-              <label for="phone">{_('phone')}</label>
-              <br />
+              <input type="text" bind:value={userName} placeholder={_("surname")}/>
+              <div class="img-block">
+                <img src="/img/user-black.svg" alt="user">
+              </div>
+            </div>
+            <div class="input-block">
               <input
                 type="text"
-                name="phone"
                 bind:value={userPhone}
-                on:keydown={validatePhone} />
+                on:keydown={validatePhone} 
+                placeholder={_("phone")}/>
+              <div class="img-block">
+                <img src="/img/phone-call.svg" alt="phone">
+              </div>
             </div>
             <div class="input-block">
-              <label for="email">Email</label>
-              <br />
-              <input type="text" name="email" bind:value={userMail} />
+              <input type="text" bind:value={userMail} placeholder="e-mail"/>
+              <div class="img-block">
+                <img src="/img/mail.svg" alt="e-mail">
+              </div>
             </div>
           </div>
-
           <div class="register-categoty-block">
             <h2>{_('ticket_categories')}</h2>
-            <div class="ticket-block">
-              <div>
-                <div>Взрослый</div>
-                <div class="ticket-price">1000 {_('rub')}</div>
-              </div>
-              <div class="counter">
-                <button>-</button>
-                <div class="couter-value">1</div>
-                <button>+</button>
+            <div class="tickets-block">
+              <div class="ticket-block">
+                <div>
+                  <div>Взрослый</div>
+                  <div class="ticket-price">1000 {_('rub')}</div>
+                </div>
+                <div class="counter">
+                  <button>-</button>
+                  <div class="couter-value">1</div>
+                  <button>+</button>
+                </div>
               </div>
             </div>
+            
           </div>
-
           <div class="register-categoty-block">
             <h2>{_('additionally')}</h2>
-            <div class="ticket-block">
-              <div>
-                <div>Питание</div>
-                <div class="ticket-price">100 {_('rub')}</div>
-              </div>
-              <div class="counter">
-                <button>-</button>
-                <div class="couter-value">1</div>
-                <button>+</button>
+            <div class="tickets-block">
+              <div class="ticket-block">
+                <div>
+                  <div>Питание</div>
+                  <div class="ticket-price">100 {_('rub')}</div>
+                </div>
+                <div class="counter">
+                  <button>-</button>
+                  <div class="couter-value">1</div>
+                  <button>+</button>
+                </div>
               </div>
             </div>
+            
           </div>
-
         </div>
-        <button class="register-button" {disabled} on:click={subscribeUser}>
-          {_('register')}
-        </button>
-        <div class="total-price">3250 {_('rub')}</div>
+        <hr />
+        <div class="final-price-block">
+          <div class="total-price">{_("total")}<span>3250 {_('rub')}</span></div>
+          <button class="register-button" on:click={subscribeUser}>
+            {_('register')}
+          </button>
+        </div>
       </div>
     </div>
   {/if}
 
-  <!-- <div id="vk_comments" /> -->
-
   <div class="banners-block">
     <div class="banners-info">
       <h2>{_('hotels_nearby')}</h2>
-      <a href="/" target="_blank">
-        <i>{_('more_hotels')}</i>
-      </a>
+      <a href="/" target="_blank">{_('more_hotels')}</a>
     </div>
     <div class="banners">
-      <div>
-        <div class="img-block">
+      {#each [1,2,3] as bn}
+        <div class="banner-block">
           <img src="/img/test.png" alt="hotel" />
+          <div class="banner-info">
+            <h4>Гостиница Виктория</h4>
+            <span class="price">от 1500 {_("rub")}</span>
+          </div>
         </div>
-        Гостиница Ангара
-      </div>
+      {/each}
     </div>
   </div>
 
   <div class="banners-block">
     <div class="banners-info">
       <h2>{_('excursions')}</h2>
-      <a href="https://fanatbaikala.ru/excursions" target="_blank">
-        <i>{_('more_excursions')}</i>
-      </a>
+      <a href="https://fanatbaikala.ru/excursions" target="_blank">{_('more_excursions')}</a>
     </div>
     <div class="banners">
-      <div>
-        <div class="img-block">
+      {#each [1,2,3] as bn}
+        <div class="banner-block">
           <img src="/img/test.png" alt="hotel" />
+          <div class="banner-info">
+            <h4>Гостиница Виктория</h4>
+            <span class="price">от 1500 {_("rub")}</span>
+          </div>
         </div>
-        Знакомство с Иркутском
-      </div>
+      {/each}
+    </div>
+  </div>
+
+  <div class="similar-events-block">
+    <h2>{_('similar_events')}</h2>
+    <div class="similar-events">
+      {#each [1, 1] as sim}
+        <SimilarEvent {_}/>
+      {/each}
     </div>
   </div>
 </div>
 
-<hr />
-
-<div class="similar-events-block">
-  <h2 class="italic-bold">{_('similar_events')}</h2>
-  <div class="similar-events">
-    <div class="similar-event">
-      <div class="img-block">
-        <img src="img/test.png" alt="similar-action" />
-      </div>
-      <i>Фестиваль еды и музыки</i>
-    </div>
-    <div class="similar-event">
-      <div class="img-block">
-        <img src="img/test.png" alt="similar-action" />
-      </div>
-      <i>Фестиваль еды и музыки</i>
-    </div>
-  </div>
-</div>
-
-<hr class="little-margin" />
-
-<div class="footer-banners">
+<!-- <div class="footer-banners">
   <div class="form-width auto-height banners-block">
     <div class="banners">
       <div>
@@ -919,6 +1186,6 @@
       </div>
     </div>
   </div>
-</div>
+</div> -->
 
 <Footer {locale} />

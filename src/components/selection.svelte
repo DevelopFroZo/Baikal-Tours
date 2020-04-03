@@ -3,20 +3,23 @@
 </script>
 
 <style lang="scss">
+  @import "./styles/global.scss";
+
   .selection-block {
-    border-radius: 7px;
+    border-radius: 10px;
     overflow: hidden;
-    box-shadow: inset 0px 50px 77px -13px rgba(0, 0, 0, 0.75);
+    box-shadow: inset 0px -75px 100px -13px rgba(0, 0, 0, 1);
     position: relative;
   }
 
   p {
     color: white;
     position: absolute;
-    top: 10px;
+    bottom: 10px;
     left: 10px;
-    width: calc(100% / 2);
     z-index: 0;
+    font-size: 24px;
+    font-family: $Gilroy;
   }
 
   img{

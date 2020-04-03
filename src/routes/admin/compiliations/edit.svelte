@@ -514,7 +514,7 @@
 <AdminPage page={6} {fetcher} {locale} {_}>
   <div class="head-line">
     <h1>
-      
+      {compiliationId === undefined ? _('creating_compiliation') : _('editing_compiliation')}
     </h1>
     <button class="save" on:click={saveCompiliation}>{_('save')}</button>
   </div>

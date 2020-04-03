@@ -10,40 +10,40 @@
   @import "./styles/global.scss";
 
   * {
-    color: $Dark_Gray;
+    color: #34353F;
   }
 
   footer {
-    border: solid rgba(0, 0, 0, 0.2);
-    border-width: 2px 0 0 0;
-    padding: 15px 0 15px 0;
+    border: solid #E5E5E5;
+    border-width: 1px 0 0 0;
+    padding: 50px 0;
     box-sizing: border-box;
 
     & > .form-width {
-      padding: 0 115px;
       box-sizing: border-box;
       display: flex;
       align-items: flex-start;
       justify-content: center;
 
       & > div {
-        width: 200px;
+        min-width: 275px;
+        max-width: 275px;
       }
 
       & > .left-side {
         text-align: right;
-        font-size: $Mini_Font_Size;
+        font-size: $Big_Font_Size;
       }
 
       & > .center {
-        font-size: $LowMedium_Font_Size;
-        margin-left: 125px;
+        font-size: $Big_Font_Size;
+        margin: 0 165px;
       }
 
       & > .right-side {
-        font-size: $LowMedium_Font_Size;
-        width: 300px;
-        margin-left: 100px;
+        font-size: $Big_Font_Size;
+        min-width: 350px;
+        max-width: 350px;
       }
     }
   }
@@ -54,9 +54,10 @@
 
   .underline {
     text-decoration: underline;
-    margin-top: 15px;
+    margin-top: 45px;
     display: block;
-    font-size: $Mini_Font_Size;
+    font-size: $Big_Font_Size;
+    color: #34353F !important;
   }
 
   .hrefs > a:not(:first-child) {
@@ -64,9 +65,9 @@
     margin-top: 10px;
   }
 
-  h1 {
-    font-size: $LowMedium_Font_Size;
-    font-weight: bold;
+  h6 {
+    font-size: $Big_Font_Size;
+    font-weight: normal;
   }
 
   .mail {
@@ -78,12 +79,12 @@
 
     & > a {
       display: inline-block;
-      padding: 5px;
-      border-radius: 5px;
+      padding: 15px 25px;
+      border-radius: 10px;
       background: $Light_Gray;
       font-weight: bold;
       text-decoration: underline;
-      margin-top: 5px;
+      margin-top: 15px;
     }
   }
 
@@ -111,22 +112,22 @@
       <div>{_("event_calendar_info")}</div>
       <a href="./" class="underline">{_("user_agreement")}</a>
     </div>
-    <!-- <div class="center">
+    <div class="center">
       <div class="hrefs">
-        <a href="./">Главная</a>
-        <a href="./">Каталог событий</a>
-        <a href="./">Личный кабинет</a>
+        <a href="./">{_("main")}</a>
+        <a href="./actions">{_("event_catalog")}</a>
+        <a href="./profile">{_("personal_account")}</a>
       </div>
-      <a href="./" class="underline">Политика конфиденциальности</a>
-    </div> -->
+      <a href="./" class="underline">{_("privacy_policy")}</a>
+    </div>
     <div class="right-side">
-      <h1>{_("contacts")}</h1>
+      <h6>{_("contacts")}</h6>
       <div class="mail">events@calendar.com</div>
-      <!-- <div class="info">
-        Туристическая справочная информация
+      <div class="info">
+        {_("tourist_information")}
         <br />
-        <a href="./">скачать pdf</a>
-      </div> -->
+        <a href="./">{_("download_pdf")}</a>
+      </div>
     </div>
   </div>
 </footer>

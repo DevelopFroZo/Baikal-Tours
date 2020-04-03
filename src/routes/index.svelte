@@ -30,6 +30,8 @@
   import Card from "/components/card_of_event.svelte";
   import i18n from "/helpers/i18n/index.js";
   import { onMount } from "svelte";
+  import ChangeLanguage from "/components/language_select.svelte";
+
 
   export let locale, subjects, actions;
 
@@ -56,12 +58,20 @@
 
   function startFlickity() {
     new Flickity(selectionsBlock, {
-      groupCells: 2
+      groupCells: 3,
+      pageDots: false
     });
 
     new Flickity(actinosBlock, {
-      groupCells: 3
+      groupCells: 3,
+      pageDots: false
     });
+  }
+
+  async function setLocale(locale) {
+    let result = await fetcher.put("/api/locales/" + locale);
+
+    document.location.href = "/actions";
   }
 </script>
 
@@ -78,30 +88,30 @@
 
   .info-block {
     display: flex;
-    margin: 50px auto 0;
-    width: 830px;
-    text-align: center;
+    margin-top: 80px;
+    align-items: center;
 
     & > div {
-      flex: 0.4;
+      flex: 0.5;
+    }
 
-      & > h2 {
-        margin-bottom: 13px;
-      }
+    & > .about-calendar {
+      padding-right: 200px;
+      box-sizing: border-box;
 
-      & > p:not(:first-child) {
-        margin-top: 16px;
-      }
-
-      & > .new-section {
-        margin-top: 25px !important;
+      & > pre {
+        white-space: pre-wrap;
+        font-family: $Gilroy;
+        font-size: 20px;
+        margin-top: 25px;
+        color: #3b394a;
       }
     }
 
-    & > frame {
-      flex: 0.6;
-      width: 100%;
-      height: 100%;
+    & > .video-block {
+      height: 400px;
+      border-radius: 10px;
+      background: $Light_Gray;
     }
   }
 
@@ -123,19 +133,283 @@
   }
 
   .selection-carousel {
-    width: 675px;
-    margin: 25px auto 0;
+    margin-top: 70px;
 
     & :global(.selection-block) {
-      margin-left: 30px;
+      margin-left: 15px;
+    }
+
+    & :global(.flickity-viewport) {
+      overflow: visible;
     }
   }
 
   .action-carousel {
-    margin: 25px auto 0;
+    margin-top: 75px;
 
     & :global(.card) {
       margin-left: 15px;
+    }
+
+    & :global(.flickity-viewport) {
+      overflow: visible;
+    }
+  }
+
+  .top-block {
+    height: 800px;
+    position: relative;
+    overflow: hidden;
+
+    & > img {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      height: 100%;
+      transform: translate(-50%, -50%);
+      z-index: -1;
+      filter: brightness(90%);
+    }
+
+    & > h1 {
+      margin-top: 215px;
+      color: white;
+      text-transform: uppercase;
+      font-size: 20px;
+    }
+  }
+
+  h2 {
+    text-align: center;
+    font-size: 48px;
+    color: white;
+    font-family: $Playfair;
+    width: 1000px;
+    margin: auto;
+    white-space: pre-wrap;
+
+    & > span {
+      font-family: inherit;
+      color: $Blue;
+    }
+  }
+
+  h3 {
+    color: #3b394a;
+    font-family: $Playfair;
+    font-size: $UltraBig_Font_Size;
+    text-align: left;
+
+    & > span,
+    > pre {
+      color: $Blue;
+      font-family: $Playfair;
+    }
+
+    pre {
+      white-space: pre-wrap;
+    }
+  }
+
+  .compiliations-block {
+    margin-top: 135px;
+
+    & > h3 {
+      width: 750px;
+    }
+  }
+
+  .anticipated-block {
+    margin-top: 100px;
+
+    & > h3 {
+      width: 570px;
+    }
+  }
+
+  .translators-block {
+    background: #f5f5f5;
+    padding: 100px 0 65px;
+
+    & > a{
+      display: block;
+      width: 380px;
+      padding: 15px;
+      background: $Blue_Gradient;
+      border-radius: 100px;
+      margin: 65px auto 0;
+      text-align: center;
+      color: white;
+      font-family: $Gilroy;
+      font-size: $LowBig_Font_Size;
+    }
+
+    & > .form-width {
+      display: flex;
+      justify-content: space-between;
+      padding: 0;
+
+      & > button {
+        width: 380px;
+        height: 420px;
+        position: relative;
+        box-sizing: border-box;
+        background-size: 100% 100%;
+        border-radius: 10px;
+        box-shadow: 0px 0px 70px rgba(40, 39, 49, 0.1);
+
+        & > span {
+          width: 50%;
+          color: white;
+          font-size: $Big_Font_Size;
+          position: absolute;
+          top: 40px;
+          left: 40px;
+          z-index: 2;
+          text-align: left;
+        }
+
+        & > .quotes {
+          position: absolute;
+          top: 60px;
+          left: 0;
+          z-index: 1;
+          opacity: 0.1;
+          width: 250px;
+          height: 215px;
+        }
+
+        & > .language {
+          position: absolute;
+          bottom: 35px;
+          left: 0;
+          z-index: 1;
+          padding: 15px 25px;
+          background: white;
+          border-radius: 0 10px 10px 0;
+
+          & > img {
+            width: 25px;
+            height: 25px;
+          }
+        }
+
+        &.ru {
+          background-image: url(../img/ru-man.png);
+        }
+
+        &.us {
+          background-image: url(../img/us-man.png);
+        }
+
+        &.gr {
+          background-image: url(../img/gr-man.png);
+
+          & > span {
+            color: black;
+          }
+        }
+      }
+    }
+  }
+
+  .subscribe-block {
+    margin-top: 35px;
+    background: #f5f7fa;
+    box-shadow: 0px 0px 70px rgba(40, 39, 49, 0.1);
+    border-radius: 10px;
+    padding: 40px 50px;
+    width: 600px;
+    box-sizing: border-box;
+
+    & > .input-block {
+      position: relative;
+
+      & > input {
+        background: white;
+        padding: 15px 45px 15px 30px;
+        border-radius: 100px;
+        font-family: $Gilroy;
+        width: 100%;
+        font-size: $Big_Font_Size;
+        box-sizing: border-box;
+
+        &::placeholder {
+          color: #c4c4c4;
+        }
+      }
+
+      & > .mail-img {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: $Orange_Gradient;
+        box-shadow: 0px 23px 70px rgba(77, 80, 98, 0.1),
+          inset 0px 0px 50px rgba(255, 255, 255, 0.45);
+        width: 30px;
+        height: 30px;
+        border-radius: 100px;
+
+        & > img {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          width: 15px;
+          height: 20px;
+        }
+      }
+    }
+
+    & > .input-line {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 30px;
+
+      & > button {
+        background: $Blue_Gradient;
+        border-radius: 100px;
+        color: white;
+        font-size: $LowBig_Font_Size;
+        font-family: $Gilroy;
+        width: 200px;
+        padding: 15px 0;
+      }
+    }
+  }
+
+  .mail-block {
+    margin-top: 100px;
+    position: relative;
+    margin-bottom: 200px;
+
+    & > .lists {
+      position: absolute;
+      width: 749px;
+      height: 768px;
+      top: -60px;
+      right: 20px;
+      z-index: 2;
+    }
+
+    & > .back-texts{
+      position: absolute;
+      top: 200px;
+      left: 900px;
+      opacity: 0.1;
+      z-index: 1;
+      display: flex;
+
+      & > p{
+        font-family: $Gilroy;
+        font-size: 24px;
+        width: 300px;
+
+        &:last-child{
+          margin-left: 35px;
+        }
+      }
     }
   }
 </style>
@@ -151,47 +425,136 @@
 </svelte:head>
 
 <Header {locale} />
+<div class="top-block">
+  <img src="/img/index-top.png" alt={_('main_text')} />
+  <h1>{_('main_text')}</h1>
+  <h2>
+    {_('quiz_text')}
+    <span>{_('on_four_clicks')}</span>
+  </h2>
+</div>
 <div class="form-width">
-  <h1>{_("main_text")}</h1>
+
   <Quiz {_} {subjects} {fetcher} />
   <div class="info-block">
-    <div>
-      <h2>{_("event_calendar_baikal")}</h2>
-      <p>
-        <b>{_("event_calendar_text_1")}</b>
-      </p>
-      <p>
-        {_("event_calendar_text_2")}
-      </p>
-      <p class="new-section">
-        <b>{_("event_calendar_text_3")}</b>
-      </p>
-      <p>{_("event_calendar_text_4")}</p>
+    <div class="about-calendar">
+      <h3>
+        {_('event_calendar')}
+        <br />
+        <span>{_('on_baikal')}</span>
+      </h3>
+      <pre>{_('event_calendar_text')}</pre>
     </div>
-    <frame
-      src="https://www.youtube.com/watch?v=Ryh-7RNmC44"
-      name="video"
-      scrolling="no"
-      noresize />
+    <div class="video-block" />
   </div>
 
-  <h2>{_("selections_top")}</h2>
-  <div class="selections-block">
-    <Selection width={200} height={150} />
-    <Selection width={200} height={150} />
-    <Selection width={200} height={150} />
-  </div>
-  <div class="selection-carousel" bind:this={selectionsBlock}>
-    <Selection width={270} height={150} />
-    <Selection width={270} height={150} />
-    <Selection width={270} height={150} />
+  <div class="compiliations-block">
+    <h3>
+      {_('events_compiliations')}
+      <br />
+      <span>{_('events_compiliations_blue')}</span>
+    </h3>
+    <div class="selection-carousel" bind:this={selectionsBlock}>
+      <Selection width={390} height={250} />
+      <Selection width={390} height={250} />
+      <Selection width={390} height={250} />
+      <Selection width={390} height={250} />
+      <Selection width={390} height={250} />
+    </div>
   </div>
 
-  <h2>{_("actions_top")}</h2>
-  <div class="action-carousel" bind:this={actinosBlock}>
-    {#each actions as action}
-      <Card {...action} {locale} saveURL={false}/>
-    {/each}
+  <div class="anticipated-block">
+    <h3>
+      {_('most_anticipated')}
+      <br />
+      <span>{_('actions')}</span>
+    </h3>
+    <div class="action-carousel" bind:this={actinosBlock}>
+      {#each actions as action}
+        <Card {...action} {locale} saveURL={false} />
+      {/each}
+    </div>
+  </div>
+</div>
+
+<div class="translators-block">
+  <div class="form-width">
+    <button class="ru" on:click={() => setLocale('ru')}>
+      <span>
+        Привет, я Лиза!
+        <br />
+        <br />Каждую зиму мы с подругами берём купальники и едем кататься на лыжах.
+        Только представь, сотни людей в купальниках и на лыжах!
+      </span>
+      <img src="/img/left-quotes-sign.svg" alt="quotes" class="quotes" />
+      <div class="language">
+        <img src="/img/russia.svg" alt="ru" />
+      </div>
+    </button>
+
+    <button class="us" on:click={() => setLocale('en')}>
+      <span>
+        Hi, I’m Bill!
+        <br />
+        <br />last summer I watched the stars on the shore of Lake Baikal It was
+        unforgettable!
+      </span>
+      <img src="/img/left-quotes-sign.svg" alt="quotes" class="quotes" />
+      <div class="language">
+        <img src="/img/united-states.svg" alt="us" />
+      </div>
+    </button>
+
+    <button class="gr" on:click={() => setLocale('gr')}>
+      <span>
+        ich heiße Andrea
+        <br />
+        <br />Einmal habe ich auf dem Eisdes Baikalsees Golf gespielt. Ich möchte
+        wirklich wieder dorthin gehen
+      </span>
+      <img src="/img/left-quotes-sign.svg" alt="quotes" class="quotes" />
+      <div class="language">
+        <img src="/img/germany.svg" alt="gr" />
+      </div>
+    </button>
+  </div>
+  <a href="/actions">{_("find_your_adventure")}</a>
+</div>
+
+<div class="form-width mail-block">
+  <h3>
+    {_('without_internet')}
+    <br />
+    <pre>{_('neccessary_information')}</pre>
+    {_('under_hand')}
+  </h3>
+  <div class="subscribe-block">
+    <div class="input-block">
+      <input type="text" placeholder={_('inter_your_email')} />
+      <div class="mail-img">
+        <img src="/img/mail.svg" alt="mail" />
+      </div>
+    </div>
+    <div class="input-line">
+      <div class="language">
+        <ChangeLanguage {locale} white={true} />
+      </div>
+      <button class="send">{_('send')}</button>
+    </div>
+  </div>
+  <img src="/img/lists.png" alt="lists" class="lists" />
+  <div class="back-texts">
+    <p>
+      Где находится информационное бюро? Я транзитный пассажир до Иркутска. Я
+      успею сделать пересадку в тот же день? Сколько нужно времени на пересадку?
+      Можно мне заказать номер в гостиницу? Где я могу сесть на автобус в город?
+    </p>
+    <p>
+      Where is the tourist information office? I am a transit passenger to
+      Irkutsk. Can I make a connection on the same day? How long does it take to
+      make a connection? Can I reserve a hotel room here? Where can I catch the
+      shuttle bus?
+    </p>
   </div>
 </div>
 <Footer {locale} />
