@@ -1,4 +1,6 @@
 $Default_Font: "Roboto";
+$Gilroy: "Gilroy";
+$Playfair: "Playfair Display";
 
 $Micro_Font_Size: 8px;
 $Mini_Font_Size: 10px;
@@ -25,4 +27,14 @@ $UltraBig_Font_Size: 48px;
     font-family: "Roboto";
     src: url(../fonts/Roboto-Italic.ttf);
     font-style: italic;
+}
+
+@font-face{
+    font-family: "Gilroy";
+    src: url(../fonts/Gilroy-Regular.ttf);
+}
+
+@font-face{
+    font-family: "Playfair Display";
+    src: url(../fonts/PlayfairDisplaySC-Regular.ttf);
 }

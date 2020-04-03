@@ -5,38 +5,52 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 25px 0;
-  border: solid black;
-  border-width: 0 0 1px 0;
+  padding: 0 75px;
+  margin-top: 80px;
+  padding-bottom: 40px;
 
   & > button {
-    padding: 3px 10px;
+    padding: 15px 30px;
     border-radius: 30px;
-    font-size: $Big_Font_Size;
+    font-size: $LowBig_Font_Size;
+    font-weight: 600;
   }
 
   & > button.active {
-    background: $Gray;
+    background: linear-gradient(182.67deg, #ffffff 24.24%, #efefef 90.54%);
+    box-shadow: 0px 0px 70px rgba(40, 39, 49, 0.05);
   }
 }
 
-.form-width {
-  width: 680px;
-  font-size: $Medium_Font_Size;
+.action-type-block{
+  padding: 0 275px;
+  margin-top: 25px;
+  border: solid #e7e7e7;
+  border-width: 1px 0 0 0;
 }
 
 h2 {
   margin-top: 30px;
   font-size: $Big_Font_Size;
   font-weight: bold;
-  margin-bottom: 10px;
+  margin-bottom: 100px;
 }
 
-.blue-button{
-  background: $Dark_Blue;
-  padding: 5px;
+.blue-button {
+  background: $Blue;
+  padding: 15px 0;
   color: white;
-  font-size: $Medium_Font_Size;
+  font-size: $LowBig_Font_Size;
   display: block;
-  margin: 15px auto 0;
+  border-radius: 100px;
+  transition: 0.3s;
+
+  &:disabled{
+    background: #E7E7E7;
+    color: #C1C1C1;
+  }
+}
+
+.form-width{
+  padding-bottom: 100px !important;
 }

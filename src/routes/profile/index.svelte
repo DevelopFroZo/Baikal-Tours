@@ -15,8 +15,8 @@
           break;
         }
 
-    if(session.userId === undefined)
-      this.redirect(302, "/login");
+    if(!session.isLogged)
+      this.redirect(302, "./?redirect=/profile&window=login");
 
     if (section === undefined || !bl)
       this.redirect(302, "/profile?section=settings");
@@ -58,9 +58,9 @@
   @import "./styles/profile.scss";
 
   h1 {
-    font-weight: normal;
+    margin-top: 255px;
     font-size: $MaxBig_Font_Size;
-    margin: 20px 0;
+    font-family: $Playfair;
   }
 
   .form-width {

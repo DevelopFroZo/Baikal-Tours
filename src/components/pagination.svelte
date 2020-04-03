@@ -43,6 +43,10 @@
   .pag-block > button {
     margin-right: 5px;
   }
+
+  .pag-block{
+    margin-top: 10px;
+  }
 </style>
 
 {#if allPags !== 1}

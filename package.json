@@ -31,6 +31,7 @@
     "nodemailer": "^6.4.2",
     "pg": "^7.17.1",
     "sirv": "^0.4.2",
+    "timeUtils": "^2.0.0",
     "transliteration": "^2.1.8"
   },
   "devDependencies": {
@@ -39,6 +40,7 @@
     "@babel/plugin-transform-runtime": "^7.8.3",
     "@babel/preset-env": "^7.8.3",
     "@babel/runtime": "^7.8.3",
+    "@editorjs/editorjs": "^2.17.0",
     "@rollup/plugin-commonjs": "^11.0.1",
     "@rollup/plugin-node-resolve": "^6.1.0",
     "@rollup/plugin-replace": "^2.2.0",
@@ -52,9 +54,10 @@
     "rollup-plugin-root-import": "^1.0.0",
     "rollup-plugin-svelte": "^5.0.1",
     "rollup-plugin-terser": "^4.0.4",
-    "sapper": "^0.27.0",
+    "sapper": "^0.27.11",
     "sass": "^1.24.4",
     "svelte": "^3.17.1",
-    "svelte-preprocess": "^3.3.0"
+    "svelte-preprocess": "^3.3.0",
+    "svelte-scrollto": "^0.1.1"
   }
 }

@@ -1,6 +1,11 @@
 <script context="module">
   import Fetcher from "/helpers/fetcher.js";
-  import { parseFilterData, setFilterData, setFilterFromUrl, showActiveFilters } from "/helpers/filter.js";
+  import {
+    parseFilterData,
+    setFilterData,
+    setFilterFromUrl,
+    showActiveFilters
+  } from "/helpers/filter.js";
 
   export async function preload(page, session) {
     const fetcher = new Fetcher(this.fetch);
@@ -49,7 +54,12 @@
 
     let paramsKeys = Object.keys(params);
 
-    if (paramsKeys.length > 0 && paramsKeys[0] === "filter" && paramsKeys[1] !== "count" && paramsKeys[1] !== "offset") {
+    if (
+      paramsKeys.length > 0 &&
+      paramsKeys[0] === "filter" &&
+      paramsKeys[1] !== "count" &&
+      paramsKeys[1] !== "offset"
+    ) {
       showFilter = true;
       if (params.dateStart !== undefined) {
         filter[0][0].active = true;
@@ -128,6 +138,10 @@
   import { goto } from "@sapper/app";
   import { onMount } from "svelte";
   import ActiveFilters from "/components/active_filters.svelte";
+  import Selection from "/components/selection.svelte";
+  import { slide } from "svelte/transition";
+  import * as animateScroll from "svelte-scrollto";
+  import SimilarEvent from "/components/similar_event.svelte";
 
   export let result_cards,
     result_filters,
@@ -137,6 +151,8 @@
     offset,
     count,
     result_count;
+
+  let selectionsLength = [1, 2, 3, 4];
 
   const fetcher = new Fetcher();
   const _ = i18n(locale);
@@ -151,11 +167,16 @@
     leftRange = true,
     rightRange = true,
     parseFilter = {},
-    pagData;
-
+    pagData,
+    selectionsCarousel,
+    selectionsStart = false,
+    start = false,
+    head,
+    scrollY;
+    
   let url = {
     ...parseFilter,
-    offset: offset / count * pagCards,
+    offset: (offset / count) * pagCards,
     count: pagCards
   };
 
@@ -188,12 +209,14 @@
 
   function hideAll(e) {
     for (let i = 0; i < options.length; i++) {
-      e = e || event;
-      let target = e.target || e.srcElement;
-      const its_menu =
-        target == options[i].option || options[i].option.contains(target);
-      const its_btnMenu = target == options[i].btn;
-      if (!its_menu && !its_btnMenu) options[i].isVisible = false;
+      if (options[i].isVisible) {
+        e = e || event;
+        let target = e.target || e.srcElement;
+        const its_menu =
+          target == options[i].option || options[i].option.contains(target);
+        const its_btnMenu = target == options[i].btn;
+        if (!its_menu && !its_btnMenu) options[i].isVisible = false;
+      }
     }
   }
 
@@ -247,10 +270,21 @@
   }
 
   function setPrice() {
-    filter[4][0].value = priceStart;
-    filter[4][1].value = priceEnd;
+    animateScroll.scrollTo({offset: scrollY , duration: 300})
 
-    changeFilter();
+    let bl = false;
+
+    if (filter[4][0].value !== priceStart) {
+      filter[4][0].value = priceStart;
+      bl = true;
+    }
+
+    if (filter[4][1].value !== priceEnd) {
+      filter[4][1].value = priceEnd;
+      bl = true;
+    }
+
+    if (bl) changeFilter();
   }
 
   function setURL() {
@@ -261,11 +295,6 @@
   }
 
   function changePagAndURL(pagL) {
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth"
-    });
-
     pagData.pag = pagL;
 
     url = {
@@ -280,24 +309,45 @@
   async function clickPag(e) {
     let pagL = e.detail.pagL;
 
+    animateScroll.scrollTo({offset: head.offsetTop - 150, duration: 1500})
+
     changePagAndURL(pagL);
   }
 
   onMount(() => {
     localStorage.removeItem("actionsParams");
+
+    start = true;
+    if (selectionsStart) startSelection();
   });
 
-  function closePrice(e){
-    priceStart = '';
-    priceEnd = '';
+  function closePrice(e) {
+    animateScroll.scrollTo({offset: scrollY , duration: 300})
+
+    priceStart = "";
+    priceEnd = "";
 
     setPrice();
   }
 
-  function closeFilter(e){
+  function closeFilter(e) {
     filter = e.detail.filter;
 
+    animateScroll.scrollTo({offset: scrollY , duration: 300})
+
     changeFilter();
+  }
+
+  function fLoad() {
+    selectionsStart = true;
+    if (start) startSelection();
+  }
+
+  function startSelection() {
+    new Flickity(selectionsCarousel, {
+      pageDots: false,
+      groupCells: 3
+    });
   }
 </script>
 
@@ -311,32 +361,38 @@
 
   .cards-block {
     display: grid;
-    grid-template-columns: repeat(3, 300px);
+    grid-template-columns: repeat(3, auto);
     justify-content: space-between;
-    grid-row-gap: 41px;
+    grid-row-gap: 30px;
+    margin-top: 50px;
   }
 
-  input,
+  input:not([type="checkbox"]),
   .select {
-    border: 1px solid #7b7b7b66;
     background: white;
-    font-style: italic;
     padding: 0 3px;
-    font-size: 13px;
-    height: 23px;
-
-    &[type="date"] {
-      padding: 0;
-    }
+    font-size: $Big_Font_Size;
+    width: 130px;
+    padding: 25px 20px;
+    box-sizing: border-box;
+    color: #3b394a;
 
     &.date {
-      width: 70px;
       position: relative;
+
+      &:last-child {
+        margin-left: 30px;
+      }
     }
 
-    &[type="number"] {
-      width: 70px;
+    &::placeholder {
+      color: #3b394a;
     }
+  }
+
+  .select {
+    width: 170px;
+    height: 74px;
   }
 
   .date::-webkit-inner-spin-button,
@@ -353,22 +409,16 @@
     transform: translateY(-50%);
   }
 
-  #date-end,
-  #price-end {
-    margin-left: -5px;
-  }
-
-  h1 {
-    font-weight: normal;
-    font-size: $MaxBig_Font_Size;
-  }
-
   .filters {
-    background: $Light_Gray;
-    padding: 18px 20px;
-    margin: 20px 0 15px;
+    background: #f5f7fa;
+    padding: 45px 50px;
+    margin: 30px 0 70px;
     display: flex;
     justify-content: space-between;
+    box-shadow: 0px 0px 70px rgba(40, 39, 49, 0.1);
+    width: 1300px;
+    margin-left: -50px;
+    box-sizing: border-box;
   }
 
   .price-filter {
@@ -376,9 +426,9 @@
 
     & > div {
       position: absolute;
-      top: 20px;
+      bottom: -20px;
       left: 0;
-      width: calc(100% - 10px);
+      width: 100%;
 
       & > input {
         width: 100%;
@@ -392,6 +442,133 @@
 
   .hide-range {
     visibility: hidden;
+  }
+
+  .selection-carousel {
+    margin-top: 235px;
+    opacity: 0;
+    transition: 0.3s;
+
+    & :global(.selection-block) {
+      margin-left: 15px;
+    }
+  }
+
+  .selection-carousel-loaded {
+    opacity: 1;
+  }
+
+  .selections-block {
+    display: grid;
+    grid-template-columns: repeat(2, auto);
+    justify-content: space-between;
+    grid-row-gap: 40px;
+    border-radius: 10px;
+    margin-top: 60px;
+  }
+
+  #price-end {
+    margin-left: 30px;
+  }
+
+  .two-input {
+    position: relative;
+
+    &::before {
+      position: absolute;
+      content: " ";
+      width: 20px;
+      height: 2px;
+      background: #34353f;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      display: block;
+    }
+  }
+
+  .select::before{
+    transform: rotate(90deg);
+    width: 15px;
+    height: 10px;
+    right: 20px;
+    background-image: url(../img/next.svg);
+  }
+
+  h2 {
+    margin-top: 235px;
+  }
+
+  h2,
+  h1 {
+    font-family: $Playfair;
+    color: #434343;
+    font-size: $UltraBig_Font_Size;
+
+    & > span {
+      font-family: inherit;
+      color: $Blue;
+    }
+  }
+
+  h1 {
+    margin-top: 100px;
+  }
+
+  .option {
+    border: none;
+    top: 100%;
+    left: 0;
+    width: 370px;
+    box-shadow: 0px 0px 70px rgba(40, 39, 49, 0.05);
+    visibility: visible;
+
+    & > div {
+      padding: 15px 20px;
+
+      & > label {
+        font-size: $Big_Font_Size;
+        font-family: $Gilroy;
+        color: #3b394a;
+        width: calc(100% - 40px);
+      }
+
+      & > img {
+        opacity: 0.3;
+        height: 20px;
+        margin-right: 10px;
+      }
+    }
+  }
+
+  .more-events{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 115px;
+
+    & > h2{
+      font-size: 36px;
+      margin: 0;
+    }
+
+    & > button{
+      border-radius: 100px;
+      background: $Dark_Blue_Gradient;
+      box-shadow: 0px 23px 70px rgba(77, 80, 98, 0.1), inset 0px 0px 50px rgba(255, 255, 255, 0.15);
+      color: white;
+      padding: 15px 55px;
+      font-family: $Gilroy;
+      font-size: $LowBig_Font_Size;
+      position: relative;
+
+      & > img{
+        position: absolute;
+        bottom: 15px;
+        right: 10px;
+        width: 40px;
+      }
+    }
   }
 
   @media only screen and (max-width: 768px) {
@@ -444,39 +621,51 @@
 
 <svelte:head>
   <title>{_('event_catalog')}</title>
+
+  <script src="./js/flickity.min.js" on:load={fLoad}>
+
+  </script>
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/flickity@2/dist/flickity.min.css" />
 </svelte:head>
 
-<svelte:window on:click={hideAll} />
+<svelte:window on:click={hideAll} bind:scrollY/>
 
 <Header {locale} />
 <!-- <BreadCrumbs path = {[{name: "Каталог событий", url: "./"}]} /> -->
 <div class="form-width">
+
+  <div
+    class="selection-carousel"
+    bind:this={selectionsCarousel}
+    class:selection-carousel-loaded={start && selectionsStart}>
+    {#each [1, 1, 1, 1, 1, 1, 1, 1, 1, 1] as selection}
+      <Selection width={390} height={250} />
+    {/each}
+  </div>
+
   <h1>{_('event_catalog')}</h1>
+
   <div class="filters">
     <div class="two-input">
       <input
         placeholder={_('date_from')}
         class="date"
-        type="text"
+        type="date"
         bind:value={filter[0][0].value}
-        on:change={changeFilter}
-        on:focus={function(e) {
-          e.target.type = 'date';
-        }}
-        on:blur={function(e) {
-          e.target.type = 'text';
+        on:change={() => {
+          animateScroll.scrollTo({offset: scrollY , duration: 300});
+          changeFilter()
         }} />
       <input
         placeholder={_('date_by')}
         class="date"
-        type="text"
+        type="date"
         bind:value={filter[0][1].value}
-        on:change={changeFilter}
-        on:focus={function(e) {
-          e.target.type = 'date';
-        }}
-        on:blur={function(e) {
-          e.target.type = 'text';
+        on:change={() => {
+          animateScroll.scrollTo({offset: scrollY , duration: 300});
+          changeFilter()
         }}
         id="date-end" />
     </div>
@@ -489,21 +678,22 @@
         }}>
         {_('where')}
       </button>
-      <div
-        class="option"
-        class:option-visible={options[0].isVisible}
-        bind:this={options[0].option}>
-        {#each filter[1] as city, i}
-          <div
-            on:click={() => {
-              city.active = !city.active;
-              changeFilter();
-            }}>
-            <label>{city.value}</label>
-            <input type="checkbox" bind:checked={city.active} />
-          </div>
-        {/each}
-      </div>
+      {#if options[0].isVisible}
+        <div class="option" bind:this={options[0].option} transition:slide>
+          {#each filter[1] as city, i}
+            <div
+              on:click={() => {
+                city.active = !city.active;
+                animateScroll.scrollTo({offset: scrollY , duration: 300})
+                changeFilter();
+              }}>
+              <img src="/img/placeholder.svg" alt="place" />
+              <label>{city.value}</label>
+              <input type="checkbox" bind:checked={city.active} />
+            </div>
+          {/each}
+        </div>
+      {/if}
     </div>
     <div class="select-block">
       <button
@@ -514,21 +704,21 @@
         }}>
         {_('with_whom')}
       </button>
-      <div
-        class="option"
-        class:option-visible={options[1].isVisible}
-        bind:this={options[1].option}>
-        {#each filter[2] as companios}
-          <div
-            on:click={() => {
-              companios.active = !companios.active;
-              changeFilter();
-            }}>
-            <label>{companios.value}</label>
-            <input type="checkbox" checked={companios.active} />
-          </div>
-        {/each}
-      </div>
+      {#if options[1].isVisible}
+        <div class="option" bind:this={options[1].option} transition:slide>
+          {#each filter[2] as companios}
+            <div
+              on:click={() => {
+                companios.active = !companios.active;
+                animateScroll.scrollTo({offset: scrollY , duration: 300})
+                changeFilter();
+              }}>
+              <label>{companios.value}</label>
+              <input type="checkbox" checked={companios.active} />
+            </div>
+          {/each}
+        </div>
+      {/if}
     </div>
     <div class="select-block">
       <button
@@ -539,21 +729,21 @@
         }}>
         {_('thematics')}
       </button>
-      <div
-        class="option"
-        class:option-visible={options[2].isVisible}
-        bind:this={options[2].option}>
-        {#each filter[3] as subjects}
-          <div
-            on:click={() => {
-              subjects.active = !subjects.active;
-              changeFilter();
-            }}>
-            <label>{subjects.value}</label>
-            <input type="checkbox" bind:checked={subjects.active} />
-          </div>
-        {/each}
-      </div>
+      {#if options[2].isVisible}
+        <div class="option" bind:this={options[2].option} transition:slide>
+          {#each filter[3] as subjects}
+            <div
+              on:click={() => {
+                subjects.active = !subjects.active;
+                animateScroll.scrollTo({offset: scrollY , duration: 300})
+                changeFilter();
+              }}>
+              <label>{subjects.value}</label>
+              <input type="checkbox" bind:checked={subjects.active} />
+            </div>
+          {/each}
+        </div>
+      {/if}
     </div>
     <div class="prices two-input">
       <div class="price-filter">
@@ -564,6 +754,7 @@
           bind:value={priceStart}
           on:blur={setPrice}
           bind:this={options[3].btn}
+          class="price"
           on:click={() => {
             options[3].isVisible = true;
           }} />
@@ -586,6 +777,7 @@
           bind:value={priceEnd}
           on:blur={setPrice}
           bind:this={options[4].btn}
+          class="price"
           on:click={() => {
             options[4].isVisible = true;
           }} />
@@ -602,10 +794,33 @@
       </div>
     </div>
   </div>
-  
-  <ActiveFilters {filter} {showFilter} {date} {price} min={0} max={4} {_} on:closeFilter={closeFilter} on:closePrice={closePrice}/>
 
-  <div class="cards-block">
+  <ActiveFilters
+    {filter}
+    {showFilter}
+    {date}
+    {price}
+    min={0}
+    max={4}
+    {_}
+    on:closeFilter={closeFilter}
+    on:closePrice={closePrice} />
+
+  <div class="selections-block">
+    {#each selectionsLength as sel, i}
+      <SimilarEvent {_}/>
+    {/each}
+  </div>
+
+  <div class="more-events">
+    <h2>{_("more_events")}</h2>
+    <button class="show-card">
+      {_("show_on_card")}
+      <img src="/img/placeholder-map.svg" alt="placeholder">
+    </button>
+  </div>
+
+  <div class="cards-block" bind:this={head}>
     {#each cards as cardInfo (cardInfo.id)}
       <Card {...cardInfo} {locale} />
     {/each}

@@ -1,6 +1,6 @@
 @import "./fonts.scss", "./colors.scss";
 
-$form-width: 1000px;
+$form-width: 1200px;
 
 :global(body) {
   width: 100%;
@@ -12,7 +12,7 @@ $form-width: 1000px;
   padding: 0;
   background: transparent;
   border: none;
-  font-family: $Default_Font;
+  font-family: $Gilroy;
   text-decoration: none;
   color: black;
   outline: none;
@@ -55,9 +55,6 @@ li {
     }
   }
 
-  .select-block {
-    position: relative;
-  }
 
 .select-block {
   position: relative;
@@ -91,10 +88,6 @@ li {
 
 .option-visible {
   visibility: visible;
-}
-
-.short{
-  width: 680px;
 }
 
 @media only screen and (max-width: 768px) {

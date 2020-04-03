@@ -1,10 +1,16 @@
 <script>
   import { createEventDispatcher } from "svelte";
 
-  export let filter, showFilter, date = "", price = "", min, max, _, search = "";
+  export let filter,
+    showFilter,
+    date = "",
+    price = "",
+    min,
+    max,
+    _,
+    search = "";
 
-  $: if(search !== "")
-      filter[0][0].value = search;
+  $: if (search !== "") filter[0][0].value = search;
 
   const dispatch = createEventDispatcher();
 
@@ -20,32 +26,41 @@
 </script>
 
 <style lang="scss">
-    @import "./styles/global.scss";
+  @import "./styles/global.scss";
 
   .active-filter-block {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-    font-style: italic;
     font-size: $Medium_Font_Size;
-    margin-bottom: 28px;
 
     & > .filter-head {
-      margin-top: 5px;
+      font-size: $Big_Font_Size;
+      font-family: $Playfair;
+      font-weight: bold;
+      margin-top: 10px;
+      margin-right: 10px;
     }
   }
 
   .active-filter {
-    padding: 3px 7px;
-    background: $Medium_Gray;
-    border-radius: 20px;
+    padding: 15px 20px;
+    background: #eeeeee;
+    border-radius: 100px;
     display: flex;
     align-items: center;
-    margin-left: 8px;
-    margin-top: 5px;
+    margin-right: 20px;
+    margin-top: 20px;
+    font-family: $Gilroy;
+    font-size: $Big_Font_Size;
 
     & > button {
-      margin-left: 7px;
+      margin-left: 15px;
+
+      & > img {
+        width: 10px;
+        height: 10px;
+      }
     }
   }
 </style>
@@ -63,7 +78,7 @@
             filter[0][1].value = '';
             closeFilter();
           }}>
-          <img src="img/clear.png" alt="clear" />
+          <img src="img/cross-grey.svg" alt="clear" />
         </button>
       </div>
     {/if}
@@ -80,7 +95,7 @@
                   fl.active = false;
                   closeFilter();
                 }}>
-                <img src="img/clear.png" alt="clear" />
+                <img src="img/cross-grey.svg" alt="clear" />
               </button>
             </div>
           {/if}
@@ -96,7 +111,7 @@
           on:click={() => {
             closePrice();
           }}>
-          <img src="img/clear.png" alt="clear" />
+          <img src="img/cross-grey.svg" alt="clear" />
         </button>
       </div>
     {/if}
