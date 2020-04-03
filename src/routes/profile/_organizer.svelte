@@ -404,7 +404,7 @@
                 <button class="info">
                   <img src="/img/tooltip.png" alt="tooltip" />
                 </button>
-                <div class="info-hover">Ну кароче ты дурачек</div>
+                <div class="info-hover">*сообщение с ошибкой*</div>
               </div>
             </td>
           </tr>
