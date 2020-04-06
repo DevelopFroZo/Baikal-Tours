@@ -10,6 +10,10 @@
       credentials: "same-origin"
     })).data.subjects;
 
+    let compiliations_result = (await fetcher.get("/api/compiliations", {
+      credentials: "same-origin"
+    })).data;
+
     let actions = (await fetcher.get("/api/actions", {
       credentials: "same-origin",
       query: {
@@ -18,7 +22,7 @@
       }
     })).actions;
 
-    return { locale, subjects, actions };
+    return { locale, subjects, actions, compiliations_result };
   }
 </script>
 
@@ -31,9 +35,9 @@
   import i18n from "/helpers/i18n/index.js";
   import { onMount } from "svelte";
   import ChangeLanguage from "/components/language_select.svelte";
+  import Carousel from "/components/carousel.svelte";
 
-
-  export let locale, subjects, actions;
+  export let locale, subjects, actions, compiliations_result;
 
   const fetcher = new Fetcher();
 
@@ -41,37 +45,16 @@
 
   let selectionsBlock,
     actinosBlock,
-    isLoad = false,
-    flickityLoad = false;
+    isLoad = false;
 
   onMount(() => {
-    isLoad = true;
-    if (flickityLoad) startFlickity();
-
     localStorage.removeItem("actionsParams");
   });
-
-  function fLoad() {
-    flickityLoad = true;
-    if (isLoad) startFlickity();
-  }
-
-  function startFlickity() {
-    new Flickity(selectionsBlock, {
-      groupCells: 3,
-      pageDots: false
-    });
-
-    new Flickity(actinosBlock, {
-      groupCells: 3,
-      pageDots: false
-    });
-  }
 
   async function setLocale(locale) {
     let result = await fetcher.put("/api/locales/" + locale);
 
-    document.location.href = "/actions";
+    document.location.reload();
   }
 </script>
 
@@ -134,18 +117,12 @@
 
   .selection-carousel {
     margin-top: 70px;
-
-    & :global(.selection-block) {
-      margin-left: 15px;
-    }
+    overflow: hidden;
   }
 
   .action-carousel {
     margin-top: 75px;
-
-    & :global(.card) {
-      margin-left: 15px;
-    }
+    overflow: hidden;
   }
 
   .top-block {
@@ -223,7 +200,7 @@
     background: #f5f5f5;
     padding: 100px 0 65px;
 
-    & > a{
+    & > a {
       display: block;
       width: 380px;
       padding: 15px;
@@ -385,7 +362,7 @@
       z-index: 2;
     }
 
-    & > .back-texts{
+    & > .back-texts {
       position: absolute;
       top: 200px;
       left: 900px;
@@ -393,12 +370,12 @@
       z-index: 1;
       display: flex;
 
-      & > p{
+      & > p {
         font-family: $Gilroy;
         font-size: 24px;
         width: 300px;
 
-        &:last-child{
+        &:last-child {
           margin-left: 35px;
         }
       }
@@ -408,12 +385,6 @@
 
 <svelte:head>
   <title>{_('event_calendar')}</title>
-  <script src="./js/flickity.min.js" on:load={fLoad}>
-
-  </script>
-  <link
-    rel="stylesheet"
-    href="https://unpkg.com/flickity@2/dist/flickity.min.css" />
 </svelte:head>
 
 <Header {locale} />
@@ -447,11 +418,13 @@
       <span>{_('events_compiliations_blue')}</span>
     </h3>
     <div class="selection-carousel" bind:this={selectionsBlock}>
-      <Selection width={390} height={250} />
-      <Selection width={390} height={250} />
-      <Selection width={390} height={250} />
-      <Selection width={390} height={250} />
-      <Selection width={390} height={250} />
+      <Carousel
+        data={{ slidesPerView: 'auto', slidesPerView: 3, spaceBetween: 15, slidesPerGroup: 3, speed: 750, navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' }, watchOverflow: false }}
+        carouselData={compiliations_result}>
+        {#each compiliations_result as compiliation}
+          <Selection width={390} height={200} {...compiliation} />
+        {/each}
+      </Carousel>
     </div>
   </div>
 
@@ -462,9 +435,13 @@
       <span>{_('actions')}</span>
     </h3>
     <div class="action-carousel" bind:this={actinosBlock}>
-      {#each actions as action}
-        <Card {...action} {locale} saveURL={false} />
-      {/each}
+      <Carousel
+        data={{ slidesPerView: 'auto', slidesPerView: 3, spaceBetween: 30, slidesPerGroup: 3, speed: 750, navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' }, watchOverflow: false }}
+        carouselData={actions}>
+        {#each actions as action}
+          <Card {...action} {locale} saveUrl={false}/>
+        {/each}
+      </Carousel>
     </div>
   </div>
 </div>
@@ -475,7 +452,8 @@
       <span>
         Привет, я Лиза!
         <br />
-        <br />Каждую зиму мы с подругами берём купальники и едем кататься на лыжах.
+        <br />
+        Каждую зиму мы с подругами берём купальники и едем кататься на лыжах.
         Только представь, сотни людей в купальниках и на лыжах!
       </span>
       <img src="/img/left-quotes-sign.svg" alt="quotes" class="quotes" />
@@ -488,7 +466,8 @@
       <span>
         Hi, I’m Bill!
         <br />
-        <br />last summer I watched the stars on the shore of Lake Baikal It was
+        <br />
+        last summer I watched the stars on the shore of Lake Baikal It was
         unforgettable!
       </span>
       <img src="/img/left-quotes-sign.svg" alt="quotes" class="quotes" />
@@ -501,7 +480,8 @@
       <span>
         ich heiße Andrea
         <br />
-        <br />Einmal habe ich auf dem Eisdes Baikalsees Golf gespielt. Ich möchte
+        <br />
+        Einmal habe ich auf dem Eisdes Baikalsees Golf gespielt. Ich möchte
         wirklich wieder dorthin gehen
       </span>
       <img src="/img/left-quotes-sign.svg" alt="quotes" class="quotes" />
@@ -510,7 +490,7 @@
       </div>
     </button>
   </div>
-  <a href="/actions">{_("find_your_adventure")}</a>
+  <a href="/actions">{_('find_your_adventure')}</a>
 </div>
 
 <div class="form-width mail-block">

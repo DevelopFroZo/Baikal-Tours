@@ -22,6 +22,36 @@ $form-width: 1200px;
   color: $Pale_Blue;
 }
 
+.hideButtons{
+  visibility: hidden;
+}
+
+.swiper-button-prev, .swiper-button-next{
+  background: #FFFFFF88;
+  width: 50px;
+  height: 50px;
+  border-radius: 100px;
+  display: block;
+  transition: 0.3s;
+
+  &::after{
+    display: none;
+  }
+
+  & > .prev{
+    transform: rotate(180deg) translate(50%, 50%);;
+  }
+
+  & > img{
+    width: 30px;
+    height: 30px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+}
+
 .form-width {
   width: $form-width;
   margin: auto;

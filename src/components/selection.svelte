@@ -1,5 +1,5 @@
 <script>
-  export let width, height;
+  export let width, height, id, url, image_url, name;
 </script>
 
 <style lang="scss">
@@ -10,6 +10,7 @@
     overflow: hidden;
     box-shadow: inset 0px -75px 100px -13px rgba(0, 0, 0, 1);
     position: relative;
+    display: block;
   }
 
   p {
@@ -34,9 +35,9 @@
 </style>
 
 <a
-  class="selection-block"
+  class="selection-block swiper-slide"
   style="width: {width}px; height: {height}px;"
-  href="/compilation">
-  <p>Культурные события Иркутской области</p>
-  <img src="/img/test.png" alt="selection image" />
+  href={`/compiliation?url=${url}`}>
+  <p>{name}</p>
+  <img src={image_url} alt={name} />
 </a>

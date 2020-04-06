@@ -1319,7 +1319,7 @@
           </div>
 
           <button>
-            <img src="/img/place.png" alt="place" />
+            <img src="/img/admin-placeholder.png" alt="place" />
           </button>
 
           <button

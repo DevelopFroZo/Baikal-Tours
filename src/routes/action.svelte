@@ -28,6 +28,7 @@
   import { stores } from "@sapper/app";
   import SimilarEvent from "/components/similar_event.svelte";
   import * as animateScroll from "svelte-scrollto";
+  import Carousel from "/components/carousel.svelte";
 
   export let result_action, actionId, locale;
 
@@ -65,22 +66,6 @@
   const _ = i18n(locale);
 
   onMount(() => {
-    if (data.images.length > 0) {
-      var images = document.querySelector(".main-carousel");
-      new Flickity(images, {
-        percentPosition: false,
-        imagesLoaded: true,
-        pageDots: false
-      });
-
-      var partners = document.querySelector(".partners-carousel");
-      new Flickity(partners, {
-        groupCells: 4,
-        pageDots: false,
-        draggable: data.partners.length > 4,
-        prevNextButtons: data.partners.length > 4
-      })
-    }
     actionsParams = localStorage.getItem("actionsParams");
     if (actionsParams === null) actionsParams = "./actions";
 
@@ -307,27 +292,14 @@
 
   .main-carousel {
     margin-top: 90px;
-
-    & :global(.flickity-viewport){
-      overflow: visible;
-    }
   }
 
   .carousel-cell {
-    & > img {
-      height: 350px;
-      max-width: 1200px;
-      border-radius: 10px;
-      overflow: hidden;
-    }
-
-    &:not(:first-child){
-      margin-left: 25px;
-    }
-  }
-
-  .flickity-button {
-    height: 20px;
+    height: 350px;
+    max-width: 1200px;
+    border-radius: 10px;
+    overflow: hidden;
+    width: auto !important;
   }
 
   .contact-ul {
@@ -809,18 +781,11 @@
 
 <svelte:head>
   <title>{data.title === null ? data.name : data.title}</title>
-  <script src="./js/flickity.min.js">
 
-  </script>
   <script
     type="text/javascript"
     src="https://vk.com/js/api/share.js?95"
-    charset="windows-1251">
-
-  </script>
-  <link
-    rel="stylesheet"
-    href="https://unpkg.com/flickity@2/dist/flickity.min.css" />
+    charset="windows-1251"></script>
 
   <script src="//cdn.quilljs.com/1.3.6/quill.js" on:load={() => {
     initEditor = true;
@@ -876,11 +841,12 @@
 
   {#if data.images.length > 0}
     <div class="main-carousel">
-      {#each data.images as img}
-        <div class="carousel-cell">
-          <img src={img.image_url} alt="img" />
-        </div>
-      {/each}
+      <Carousel data={{slidesPerView: 'auto', centeredSlides: true, spaceBetween: 25, speed: 750, navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' }}}
+      carouselData={data.images}>
+        {#each data.images as img}
+          <img src={img.image_url} alt="img" class="carousel-cell swiper-slide"/>
+        {/each}       
+      </Carousel>
     </div>
   {/if}
 
@@ -899,14 +865,17 @@
       <h3>{_('action_partners')}</h3>
 
       <div class="partners-carousel">
-        {#each data.partners as partner}
-          <div class="partner-block">
-            <img
-              src={partner.image_url}
-              alt={partner.name === null ? 'partner' : partner.name} />
-            <!-- {#if partner.name !== null}{partner.name}{/if} -->
-          </div>
-        {/each}
+        <Carousel data={{slidesPerView: 'auto',spaceBetween: 25, speed: 750, navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' }}}
+        carouselData={data.partners}>
+          {#each data.partners as partner}
+            <div class="partner-block swiper-slide">
+              <img
+                src={partner.image_url}
+                alt={partner.name === null ? 'partner' : partner.name} />
+            </div>
+          {/each}
+        </Carousel>
+        
       </div>
     </div>
   {/if}

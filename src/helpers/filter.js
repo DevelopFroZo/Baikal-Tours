@@ -25,32 +25,45 @@ function setFilterData(res) {
 function parseFilterData(filter) {
     let params = {
         filter: "",
-    }, arrData, dateStart, dateEnd;
+    },
+    compiliationsParams = {
+        filter: "",
+    },
+    arrData, dateStart, dateEnd;
 
     if (filter[0][0].active) {
         dateStart = new Date(filter[0][0].value).toISOString();
         params.dateStart = parseDate(new Date(dateStart));
+        compiliationsParams.dateStart = parseDate(new Date(dateStart));
     }
 
     if (filter[0][1].active) {
         dateEnd = new Date(filter[0][1].value).toISOString();
         params.dateEnd = parseDate(new Date(dateEnd));
+        compiliationsParams.dateEnd = parseDate(new Date(dateEnd));
     }
 
     arrData = getActiveOption(filter[1]);
-    if (arrData.length !== 0) params.locations = arrData;
+    if (arrData.length !== 0){
+        params.locations = arrData;
+        compiliationsParams.locationIds = arrData;
+    }
 
     arrData = getActiveOption(filter[2]);
-    if (arrData.length !== 0) params.companions = arrData;
+    if (arrData.length !== 0)
+        params.companions = arrData;
 
     arrData = getActiveOption(filter[3]);
-    if (arrData.length !== 0) params.subjects = arrData;
+    if (arrData.length !== 0){
+        params.subjects = arrData;
+        compiliationsParams.subjectIds = arrData;
+    } 
 
     if (filter[4][0].active) params.priceMin = parseInt(filter[4][0].value);
 
     if (filter[4][1].active) params.priceMax = parseInt(filter[4][1].value);
 
-    return params;
+    return {params, compiliationsParams};
 }
 
 function parseFilterDataForAdmin(filter) {

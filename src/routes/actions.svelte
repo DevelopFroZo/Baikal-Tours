@@ -42,8 +42,11 @@
       count = 15;
 
     let result_filters = await fetcher.get("/api/dataForFilters", {
-      credentials: "same-origin"
-    });
+        credentials: "same-origin"
+      }),
+      result_compiliations,
+      query,
+      compiliationQuery;
 
     filter[1] = setFilterData(result_filters.data.locations);
     filter[2] = setFilterData(result_filters.data.companions);
@@ -87,7 +90,15 @@
         filter[4][1].value = params.priceMax;
       }
 
-      let query = parseFilterData(filter);
+      let filterParams = parseFilterData(filter);
+      query = filterParams.params;
+      compiliationQuery = filterParams.compiliationsParams;
+
+      result_compiliations = (await fetcher.get("/api/compiliations", {
+        credentials: "same-origin",
+        query: compiliationQuery
+      })).data;
+
       query.offset = offset;
       query.count = count;
 
@@ -103,6 +114,9 @@
           offset: offset
         }
       });
+      result_compiliations = (await fetcher.get("/api/compiliations", {
+        credentials: "same-origin"
+      })).data;
     }
 
     let result_count = result_cards.count;
@@ -118,7 +132,8 @@
       showFilter,
       offset,
       count,
-      result_count
+      result_count,
+      result_compiliations
     };
   }
 </script>
@@ -136,12 +151,13 @@
   } from "/helpers/parsers.js";
   import i18n from "/helpers/i18n/index.js";
   import { goto } from "@sapper/app";
-  import { onMount } from "svelte";
+  import { onMount, afterUpdate } from "svelte";
   import ActiveFilters from "/components/active_filters.svelte";
   import Selection from "/components/selection.svelte";
   import { slide } from "svelte/transition";
   import * as animateScroll from "svelte-scrollto";
   import SimilarEvent from "/components/similar_event.svelte";
+  import Carousel from "/components/carousel.svelte";
 
   export let result_cards,
     result_filters,
@@ -150,9 +166,8 @@
     showFilter,
     offset,
     count,
-    result_count;
-
-  let selectionsLength = [1, 2, 3, 4];
+    result_count,
+    result_compiliations;
 
   const fetcher = new Fetcher();
   const _ = i18n(locale);
@@ -169,11 +184,12 @@
     parseFilter = {},
     pagData,
     selectionsCarousel,
-    selectionsStart = false,
     start = false,
     head,
-    scrollY;
-    
+    scrollY,
+    compiliations,
+    swiper = null;
+
   let url = {
     ...parseFilter,
     offset: (offset / count) * pagCards,
@@ -201,7 +217,7 @@
 
   function checkActiveFilter() {
     if (showFilter) {
-      parseFilter = parseFilterData(filter);
+      parseFilter = parseFilterData(filter).params;
       date = parseDateForActiveFilter(filter);
       price = parsePriceForActiveFilter(filter, _);
     }
@@ -261,7 +277,7 @@
 
     price = parsePriceForActiveFilter(filter, _);
 
-    parseFilter = parseFilterData(filter);
+    parseFilter = parseFilterData(filter).params;
     parseFilter.count = pagCards;
     parseFilter.offset = pagData.pag * pagCards;
 
@@ -270,7 +286,7 @@
   }
 
   function setPrice() {
-    animateScroll.scrollTo({offset: scrollY , duration: 300})
+    animateScroll.scrollTo({ offset: scrollY, duration: 300 });
 
     let bl = false;
 
@@ -309,20 +325,17 @@
   async function clickPag(e) {
     let pagL = e.detail.pagL;
 
-    animateScroll.scrollTo({offset: head.offsetTop - 150, duration: 1500})
+    animateScroll.scrollTo({ offset: head.offsetTop - 150, duration: 1500 });
 
     changePagAndURL(pagL);
   }
 
   onMount(() => {
     localStorage.removeItem("actionsParams");
-
-    start = true;
-    if (selectionsStart) startSelection();
   });
 
   function closePrice(e) {
-    animateScroll.scrollTo({offset: scrollY , duration: 300})
+    animateScroll.scrollTo({ offset: scrollY, duration: 300 });
 
     priceStart = "";
     priceEnd = "";
@@ -333,7 +346,7 @@
   function closeFilter(e) {
     filter = e.detail.filter;
 
-    animateScroll.scrollTo({offset: scrollY , duration: 300})
+    animateScroll.scrollTo({ offset: scrollY, duration: 300 });
 
     changeFilter();
   }
@@ -341,13 +354,6 @@
   function fLoad() {
     selectionsStart = true;
     if (start) startSelection();
-  }
-
-  function startSelection() {
-    new Flickity(selectionsCarousel, {
-      pageDots: false,
-      groupCells: 3
-    });
   }
 </script>
 
@@ -421,6 +427,12 @@
     box-sizing: border-box;
   }
 
+  .selections-carousel {
+    margin-top: 235px;
+    overflow: hidden;
+    position: relative;
+  }
+
   .price-filter {
     position: relative;
 
@@ -487,7 +499,7 @@
     }
   }
 
-  .select::before{
+  .select::before {
     transform: rotate(90deg);
     width: 15px;
     height: 10px;
@@ -541,28 +553,29 @@
     }
   }
 
-  .more-events{
+  .more-events {
     display: flex;
     align-items: center;
     justify-content: space-between;
     margin-top: 115px;
 
-    & > h2{
+    & > h2 {
       font-size: 36px;
       margin: 0;
     }
 
-    & > button{
+    & > button {
       border-radius: 100px;
       background: $Dark_Blue_Gradient;
-      box-shadow: 0px 23px 70px rgba(77, 80, 98, 0.1), inset 0px 0px 50px rgba(255, 255, 255, 0.15);
+      box-shadow: 0px 23px 70px rgba(77, 80, 98, 0.1),
+        inset 0px 0px 50px rgba(255, 255, 255, 0.15);
       color: white;
       padding: 15px 55px;
       font-family: $Gilroy;
       font-size: $LowBig_Font_Size;
       position: relative;
 
-      & > img{
+      & > img {
         position: absolute;
         bottom: 15px;
         right: 10px;
@@ -621,29 +634,34 @@
 
 <svelte:head>
   <title>{_('event_catalog')}</title>
-
-  <script src="./js/flickity.min.js" on:load={fLoad}>
-
-  </script>
-  <link
-    rel="stylesheet"
-    href="https://unpkg.com/flickity@2/dist/flickity.min.css" />
+  <link rel="stylesheet" href="https://unpkg.com/swiper/css/swiper.css" />
 </svelte:head>
 
-<svelte:window on:click={hideAll} bind:scrollY/>
+<svelte:window on:click={hideAll} bind:scrollY />
 
 <Header {locale} />
 <!-- <BreadCrumbs path = {[{name: "Каталог событий", url: "./"}]} /> -->
 <div class="form-width">
 
-  <div
+  <!-- <div
     class="selection-carousel"
     bind:this={selectionsCarousel}
     class:selection-carousel-loaded={start && selectionsStart}>
-    {#each [1, 1, 1, 1, 1, 1, 1, 1, 1, 1] as selection}
-      <Selection width={390} height={250} />
+    {#each result_compiliations as compiliation}
+      <Selection width={390} height={250} {...compiliation} />
     {/each}
+  </div> -->
+
+  <div class="selections-carousel">
+    <Carousel
+      data={{ slidesPerView: 'auto', slidesPerView: 3, spaceBetween: 30, slidesPerGroup: 3, speed: 750, navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' }, watchOverflow: false }}
+      carouselData = {result_compiliations}>
+      {#each result_compiliations as compiliation}
+        <Selection width={390} height={200} {...compiliation} />
+      {/each}
+    </Carousel>
   </div>
+  
 
   <h1>{_('event_catalog')}</h1>
 
@@ -655,8 +673,8 @@
         type="date"
         bind:value={filter[0][0].value}
         on:change={() => {
-          animateScroll.scrollTo({offset: scrollY , duration: 300});
-          changeFilter()
+          animateScroll.scrollTo({ offset: scrollY, duration: 300 });
+          changeFilter();
         }} />
       <input
         placeholder={_('date_by')}
@@ -664,8 +682,8 @@
         type="date"
         bind:value={filter[0][1].value}
         on:change={() => {
-          animateScroll.scrollTo({offset: scrollY , duration: 300});
-          changeFilter()
+          animateScroll.scrollTo({ offset: scrollY, duration: 300 });
+          changeFilter();
         }}
         id="date-end" />
     </div>
@@ -684,7 +702,7 @@
             <div
               on:click={() => {
                 city.active = !city.active;
-                animateScroll.scrollTo({offset: scrollY , duration: 300})
+                animateScroll.scrollTo({ offset: scrollY, duration: 300 });
                 changeFilter();
               }}>
               <img src="/img/placeholder.svg" alt="place" />
@@ -710,7 +728,7 @@
             <div
               on:click={() => {
                 companios.active = !companios.active;
-                animateScroll.scrollTo({offset: scrollY , duration: 300})
+                animateScroll.scrollTo({ offset: scrollY, duration: 300 });
                 changeFilter();
               }}>
               <label>{companios.value}</label>
@@ -735,7 +753,7 @@
             <div
               on:click={() => {
                 subjects.active = !subjects.active;
-                animateScroll.scrollTo({offset: scrollY , duration: 300})
+                animateScroll.scrollTo({ offset: scrollY, duration: 300 });
                 changeFilter();
               }}>
               <label>{subjects.value}</label>
@@ -807,16 +825,16 @@
     on:closePrice={closePrice} />
 
   <div class="selections-block">
-    {#each selectionsLength as sel, i}
-      <SimilarEvent {_}/>
+    {#each [0, 1, 2, 3] as sel, i}
+      <SimilarEvent {_} />
     {/each}
   </div>
 
   <div class="more-events">
-    <h2>{_("more_events")}</h2>
+    <h2>{_('more_events')}</h2>
     <button class="show-card">
-      {_("show_on_card")}
-      <img src="/img/placeholder-map.svg" alt="placeholder">
+      {_('show_on_card')}
+      <img src="/img/placeholder-map.svg" alt="placeholder" />
     </button>
   </div>
 

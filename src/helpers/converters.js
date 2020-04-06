@@ -123,6 +123,7 @@ function dateToString( date, _ ){
   if( date.date_start ) result += `${upperFirst( _( "date_to_string.start" ) )} ${parseDate( date.date_start )}`;
 
   if( date.days ){
+    
     const parsedDays = parseDays( date.days, _ );
 
     if( result !== "" ) result += ` ${parsedDays}`;

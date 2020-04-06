@@ -137,7 +137,7 @@
       min-width: 20px;
 
       & > img {
-        max-width: 16px;
+        width: 30px;
       }
     }
 
@@ -264,7 +264,7 @@
 
         <div class="line">
           <div class="info-image">
-            <img src="img/date.png" alt="date" />
+            <img src="img/admin-date.png" alt="date" />
           </div>
           <div class="info">
             {#if result_action.dates.length > 0}
@@ -279,7 +279,7 @@
 
         <div class="line">
           <div class="info-image">
-            <img src="img/place.png" alt="place" />
+            <img src="img/admin-placeholder.png" alt="place" />
           </div>
           <div class="info">
             {#if result_action.locations.length > 0}
@@ -296,7 +296,7 @@
 
         <div class="line">
           <div class="info-image">
-            <img src="img/org.png" alt="organisation" />
+            <img src="img/admin-organizator.png" alt="organisation" />
           </div>
           <div class="info">
             {result_action.organizer_name}
@@ -312,7 +312,7 @@
 
         <div class="line">
           <div class="info-image">
-            <img src="img/transfer.png" alt="transfer" />
+            <img src="img/admin-transfer.png" alt="transfer" />
           </div>
           <div class="info">
             {#if result_action.transfers.length > 0}
@@ -330,13 +330,13 @@
 
         <div class="line">
           <div class="info-image">
-            <img src="img/price.png" alt="price" />
+            <img src="img/admin-price.png" alt="price" />
           </div>
           <div class="info">{_('price')}: {second_price}</div>
         </div>
         <div class="line">
           <div class="info-image">
-            <img src="img/pages.png" alt="pages" />
+            <img src="img/admin-hrefs.png" alt="pages" />
           </div>
           <div class="info">
             {#if result_action.vk_link !== null || result_action.instagram_link !== null || result_action.facebook_link !== null || result_action.twitter_link !== null || result_action.websites !== null}
@@ -383,7 +383,7 @@
 
         <div class="line">
           <div class="info-image">
-            <img src="img/birk.png" alt="date" />
+            <img src="img/admin-subjects.png" alt="date" />
           </div>
           <div class="info">
             {#if result_action.subjects.length > 0}

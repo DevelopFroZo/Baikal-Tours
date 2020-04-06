@@ -138,7 +138,7 @@
 </style>
 
 <div
-  class="card"
+  class="card swiper-slide"
   on:click={() => {
     if (saveURL) localStorage.setItem('actionsParams', document.location.href);
     document.location.href = './action?id=' + id;
