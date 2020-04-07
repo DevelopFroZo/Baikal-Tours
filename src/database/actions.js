@@ -25,21 +25,23 @@ export default class extends Foundation{
     const status = allStatuses ? "" : "a.status = 'active' and";
     const limit = count && count > 0 ? `limit ${count}` : "";
     const offset_ = offset && offset > -1 ? `offset ${offset}` : "";
+    let favoritesColumn = "";
     let favoritesTable = "";
     let favoritesWhere = "";
     let group = "";
     let order = "date_starts, a.id";
 
     if( favoritesOnly ){
+      favoritesColumn = "f.id as favorite_id,";
       favoritesTable = "favorites as f,";
       favoritesWhere = "f.action_id = a.id and";
-      group = ", f.subject_id, f.number";
+      group = ", f.subject_id, f.number, favorite_id";
       order = "f.subject_id, f.number";
     }
 
     const rows = ( await super.query(
       `select
-        a.id, a.status, at.name,
+        a.id, a.status, at.name, ${favoritesColumn}
         array_agg( distinct ad.date_start ) as date_starts,
         array_agg( distinct ad.date_end ) as date_ends,
         ai.image_url, a.price_min, a.price_max,
@@ -94,10 +96,10 @@ export default class extends Foundation{
     let order = "date_starts, tmp.id";
 
     if( favoritesOnly ){
-      favoritesColumns0 = "f.subject_id as fsi, f.number as fn,";
-      favoritesColumns1 = "fsi, fn,";
-      favoritesColumns2 = "ae.fsi, ae.fn,";
-      favoritesColumns3 = "tmp.fsi, tmp.fn,";
+      favoritesColumns0 = "f.id as favorite_id, f.subject_id as fsi, f.number as fn,";
+      favoritesColumns1 = "favorite_id, fsi, fn,";
+      favoritesColumns2 = "ae.favorite_id, ae.fsi, ae.fn,";
+      favoritesColumns3 = "tmp.favorite_id, tmp.fsi, tmp.fn,";
       favoritesTable = "favorites as f,";
       favoritesWhere = "f.action_id = a.id and";
       order = "tmp.fsi, tmp.fn";

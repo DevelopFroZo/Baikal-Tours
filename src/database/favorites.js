@@ -52,7 +52,8 @@ export default class extends Foundation{
 
     let sql =
       `insert into favorites( subject_id, action_id, number )
-      values ( $1, $2, {number} )`;
+      values ( $1, $2, {number} )
+      returning id`;
 
     if( typeof before === "number" && before > 0 )
       sql = sql.replace( "{number}", "$3" );
@@ -67,10 +68,10 @@ export default class extends Foundation{
         where subject_id = $1 )`
       );
 
-    await transaction.query( sql, params );
+    const id = ( await transaction.query( sql, params ) ).rows[0].id;
     await transaction.end();
 
-    return super.success();
+    return super.success( 0, id );
   }
 
   async edit( id, number, action ){
