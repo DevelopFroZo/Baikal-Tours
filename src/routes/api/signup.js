@@ -5,10 +5,18 @@ export async function post( req, res ){
   let result;
 
   if( req.query.action === "start" ){
+    const { name, surname } = req.body;
+
+    if( typeof name !== "string" )
+      name = "";
+
+    if( typeof surname !== "string" )
+      surname = "";
+
     // #fix проверки на корректность данных
     result = await req.database.auth.signup(
-      req.body.name,
-      req.body.surname,
+      name,
+      surname,
       req.body.phone,
       req.body.email
     );

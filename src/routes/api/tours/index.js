@@ -33,10 +33,10 @@ export async function post( req, res ){
   if( typeof price !== "number" || price < 1 )
     price = null;
 
-  const { transaction, id } = await req.database.excursions.create( site, dateStart, dateEnd, locationIds, price );
+  const { transaction, id } = await req.database.tours.create( site, dateStart, dateEnd, locationIds, price );
 
   for( let locale in translated )
-    await req.database.excursionsTranslates.create( transaction, id, locale, translated[ locale ] );
+    await req.database.toursTranslates.create( transaction, id, locale, translated[ locale ] );
 
   await transaction.end();
 
@@ -48,10 +48,10 @@ export async function get( req, res ){
   const { filter } = req.query;
 
   if( filter === undefined )
-    return res.json( req.database.excursions.getAll( locale ) );
+    return res.json( req.database.tours.getAll( locale ) );
 
   const { dateStart, dateEnd } = req.query;
   const locationIds = toIntArray( req.query.locationIds );
 
-  res.json( await req.database.excursions.filter( locale, dateStart, dateEnd, locationIds ) );
+  res.json( await req.database.tours.filter( locale, dateStart, dateEnd, locationIds ) );
 }

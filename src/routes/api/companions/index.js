@@ -7,16 +7,16 @@ import yandexEngineBuilder from "/helpers/translator/engines/yandex";
 export async function post( req, res ){
   let translated = {};
 
-  translated[ req.body.locale ] = req.body.name;
+  translated[ req.body.locale ] = req.body.text;
 
   if( req.body.autoTranslate === true ){
     const yandexEngine = yandexEngineBuilder( process.env.YANDEX_TRANSLATE_API_KEY, fetch );
     const translator = new Translator( yandexEngine );
 
-    translator.add( "name", req.body.name, req.body.locale, req.body.toLocales );
+    translator.add( "text", req.body.text, req.body.locale, req.body.toLocales );
     await translator.translate();
 
-    translated = { ...translated, ...translator.translated.name };
+    translated = { ...translated, ...translator.translated.text };
   }
 
   res.json( await req.database.companions.create( translated ) );

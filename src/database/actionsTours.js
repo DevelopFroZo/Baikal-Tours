@@ -4,35 +4,21 @@ import Foundation from "./helpers/foundation";
 
 export default class extends Foundation{
   constructor( modules ){
-    super( modules, "Favorites" );
+    super( modules, "Actions Tours" );
   }
 
-  async create( subjectId, actionId, before ){
+  async create( actionId, tourId, before ){
     const transaction = await super.transaction();
-
-    const check = ( await transaction.query(
-      `select count( 1 ) as count
-      from favorites
-      where subject_id = $1`,
-      [ subjectId ]
-    ) ).rows[0].count;
-
-    if( check > 3 ){
-      await transaction.end();
-
-      return super.error( 17 );
-    }
-
-    const params = [ subjectId, actionId ];
+    const params = [ actionId, tourId ];
 
     if( typeof before === "number" && before > 0 ){
       const before_ = ( await transaction.query(
         `select 1
-        from favorites
+        from actions_tours
         where
-          subject_id = $1 and
+          action_id = $1 and
           number = $2`,
-        [ subjectId, before ]
+        [ actionId, before ]
       ) ).rows[0];
 
       if( before_ === undefined )
@@ -41,19 +27,18 @@ export default class extends Foundation{
       params.push( before );
 
       await transaction.query(
-        `update favorites
+        `update actions_tours
         set number = number + 1
         where
-          subject_id = $1 and
+          action_id = $1 and
           number >= $2`,
-        [ subjectId, before ]
+        [ actionId, before ]
       );
     }
 
     let sql =
-      `insert into favorites( subject_id, action_id, number )
-      values ( $1, $2, {number} )
-      returning id`;
+      `insert into actions_tours( action_id, tour_id, number )
+      values ( $1, $2, {number} )`;
 
     if( typeof before === "number" && before > 0 )
       sql = sql.replace( "{number}", "$3" );
@@ -64,24 +49,26 @@ export default class extends Foundation{
             when max( number ) is null then 1
             else max( number + 1 )
           end
-        from favorites
-        where subject_id = $1 )`
+        from actions_tours
+        where action_id = $1 )`
       );
 
-    const id = ( await transaction.query( sql, params ) ).rows[0].id;
+    await transaction.query( sql, params );
     await transaction.end();
 
-    return super.success( 0, id );
+    return super.success();
   }
 
-  async edit( id, number, action ){
+  async edit( actionId, tourId, number, action ){
     const transaction = await super.transaction();
 
     const tuple = ( await transaction.query(
-      `select subject_id, number
-      from favorites
-      where id = $1`,
-      [ id ]
+      `select number
+      from actions_tours
+      where
+        action_id = $1 and
+        tour_id = $2`,
+      [ actionId, tourId ]
     ) ).rows[0];
 
     if( tuple === undefined ){
@@ -92,12 +79,12 @@ export default class extends Foundation{
 
     const check = ( await transaction.query(
       `select 1
-      from favorites
+      from actions_tours
       where
-        subject_id = $1 and
+        action_id = $1 and
         number = $2 and
         number != $3`,
-      [ tuple.subject_id, number, tuple.number ]
+      [ actionId, number, tuple.number ]
     ) );
 
     if( check.rowCount === 0 ){
@@ -108,7 +95,7 @@ export default class extends Foundation{
 
     let sign;
     let newNumber;
-    const params = [ tuple.subject_id ];
+    const params = [ actionId ];
 
     if( tuple.number > number ){
       sign = "+";
@@ -120,7 +107,7 @@ export default class extends Foundation{
 
       params.push( newNumber );
       params.push( tuple.number );
-    } else {
+    }  else {
       sign = "-";
       params.push( tuple.number + 1 );
 
@@ -133,34 +120,38 @@ export default class extends Foundation{
     }
 
     await transaction.query(
-      `update favorites
+      `update actions_tours
       set number = number ${sign} 1
       where
-        subject_id = $1 and
+        action_id = $1 and
         number between $2 and $3`,
       params
     );
 
     await transaction.query(
-      `update favorites
+      `update actions_tours
       set number = $1
-      where id = $2`,
-      [ newNumber, id ]
+      where
+        action_id = $2 and
+        tour_id = $3`,
+      [ newNumber, actionId, tourId ]
     );
 
     await transaction.end();
 
-    return super.success();
+    return super.error();
   }
 
-  async delete( id ){
+  async delete( actionId, tourId ){
     const transaction = super.transaction();
 
     const row = ( await transaction.query(
-      `delete from favorites
-      where id = $1
-      returning subject_id, number`,
-      [ id ]
+      `delete from actions_tours
+      where
+        action_id = $1 and
+        tour_id = $2
+      returning number`,
+      [ actionId, tourId ]
     ) ).rows[0];
 
     if( row === undefined ){
@@ -169,15 +160,13 @@ export default class extends Foundation{
       return super.success();
     }
 
-    const { subject_id: subjectId, number } = row;
-
     await transaction.query(
-      `update favorites
+      `update actions_tours
       set number = number - 1
       where
-        subject_id = $1 and
+        action_id = $1 and
         number > $2`,
-      [ subjectId, number ]
+      [ actionId, row.number ]
     );
 
     await transaction.end();

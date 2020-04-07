@@ -4,14 +4,14 @@ import Foundation from "./helpers/foundation";
 
 export default class extends Foundation{
   constructor( modules ){
-    super( modules, "Excursions" );
+    super( modules, "Tours" );
   }
 
   async create( site, dateStart, dateEnd, locationIds, price ){
     const transaction = await super.transaction();
 
     const id = ( await transaction.query(
-      `insert into excursions( site, date_start, date_end, location_ids, price )
+      `insert into tours( site, date_start, date_end, location_ids, price )
       values( $1, $2, $3, $4, $5 )
       returning id`,
       [ site, dateStart, dateEnd, locationIds, price ]
@@ -22,13 +22,13 @@ export default class extends Foundation{
 
   async getAll( locale ){
     const rows = ( await super.query(
-      `select e.id, e.image_url, e.price, et.name
+      `select t.id, t.image_url, t.price, tt.name
       from
-        excursions as e,
-        excursions_translates as et
+        excursions as t,
+        excursions_translates as tt
       where
-        et.locale = $1 and
-        e.id = et.excursion_id
+        tt.locale = $1 and
+        t.id = tt.excursion_id
       order by date_start`,
       [ locale ]
     ) ).rows;
@@ -42,17 +42,17 @@ export default class extends Foundation{
     let i = 2;
 
     if( typeof dateStart === "string" && dateStart !== "" ){
-      filters.push( `e.date_start >= $${i++}` );
+      filters.push( `t.date_start >= $${i++}` );
       params.push( dateStart );
     }
 
     if( typeof dateEnd === "string" && dateEnd !== "" ){
-      filters.push( `e.date_end <= $${i++}` );
+      filters.push( `t.date_end <= $${i++}` );
       params.push( dateEnd );
     }
 
     if( Array.isArray( locationIds ) ){
-      filters.push( `$${i++}::int[] && e.location_ids` );
+      filters.push( `$${i++}::int[] && t.location_ids` );
       params.push( locationIds );
     }
 
@@ -62,14 +62,14 @@ export default class extends Foundation{
       filters = "";
 
     const rows = ( await super.query(
-      `select e.id, e.image_url, e.price, et.name
+      `select t.id, t.image_url, t.price, tt.name
       from
-        excursions as e,
-        excursions_translates as et
+        excursions as t,
+        excursions_translates as tt
       where
-        et.locale = $1 and
+        tt.locale = $1 and
         ${filters}
-        e.id = et.excursion_id
+        t.id = tt.excursion_id
       order by date_start`,
       params
     ) ).rows;
