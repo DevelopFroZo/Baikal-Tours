@@ -22,7 +22,7 @@ export default class extends Foundation{
 
   async getAll( locale ){
     const rows = ( await super.query(
-      `select e.id, e.image_url, e.price, et.name
+      `select e.id, e.site, e.image_url, e.price, et.name
       from
         excursions as e,
         excursions_translates as et
@@ -62,7 +62,7 @@ export default class extends Foundation{
       filters = "";
 
     const rows = ( await super.query(
-      `select e.id, e.image_url, e.price, et.name
+      `select e.id, e.site, e.image_url, e.price, et.name
       from
         excursions as e,
         excursions_translates as et
