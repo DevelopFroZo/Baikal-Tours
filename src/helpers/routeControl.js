@@ -85,6 +85,6 @@ export default ( server ) => {
   // #fix добавить PUT, DELETE
 
   server.post( "/api/tours", secureAPI( "admin" ) );
-  server.post( "/api/excursions/:id/image", secureAPI( "admin" ), upload.single( "image" ) );
+  server.post( "/api/tours/:id/image", secureAPI( "admin" ), upload.single( "image" ) );
   // #fix добавить PUT, DELETE
 };
