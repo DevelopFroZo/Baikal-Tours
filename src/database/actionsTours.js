@@ -93,49 +93,69 @@ export default class extends Foundation{
       return super.error();
     }
 
-    let sign;
-    let newNumber;
-    const params = [ actionId ];
+    if( action === "swipe" ){
+      await transaction.query(
+        `update actions_tours
+        set number = $1
+        where
+          action_id = $2 and
+          number = $3`,
+        [ tuple.number, actionId, number ]
+      );
 
-    if( tuple.number > number ){
-      sign = "+";
+      await transaction.query(
+        `update actions_tours
+        set number = $1
+        where
+          action_id = $2 and
+          tour_id = $3`,
+        [ number, actionId, tourId ]
+      );
+    } else {
+      let sign;
+      let newNumber;
+      const params = [ actionId ];
 
-      if( action === "before" )
-        newNumber = number;
-      else
-        newNumber = number + 1;
+      if( tuple.number > number ){
+        sign = "+";
 
-      params.push( newNumber );
-      params.push( tuple.number );
-    }  else {
-      sign = "-";
-      params.push( tuple.number + 1 );
+        if( action === "before" )
+          newNumber = number;
+        else
+          newNumber = number + 1;
 
-      if( action === "before" )
-        newNumber = number - 1;
-      else
-        newNumber = number;
+        params.push( newNumber );
+        params.push( tuple.number );
+      }  else {
+        sign = "-";
+        params.push( tuple.number + 1 );
 
-      params.push( newNumber );
+        if( action === "before" )
+          newNumber = number - 1;
+        else
+          newNumber = number;
+
+        params.push( newNumber );
+      }
+
+      await transaction.query(
+        `update actions_tours
+        set number = number ${sign} 1
+        where
+          action_id = $1 and
+          number between $2 and $3`,
+        params
+      );
+
+      await transaction.query(
+        `update actions_tours
+        set number = $1
+        where
+          action_id = $2 and
+          tour_id = $3`,
+        [ newNumber, actionId, tourId ]
+      );
     }
-
-    await transaction.query(
-      `update actions_tours
-      set number = number ${sign} 1
-      where
-        action_id = $1 and
-        number between $2 and $3`,
-      params
-    );
-
-    await transaction.query(
-      `update actions_tours
-      set number = $1
-      where
-        action_id = $2 and
-        tour_id = $3`,
-      [ newNumber, actionId, tourId ]
-    );
 
     await transaction.end();
 

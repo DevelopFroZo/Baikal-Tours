@@ -11,7 +11,7 @@ export async function put( req, res ){
   const { number } = req.body;
   let { action } = req.body;
 
-  if( action !== "before" && action !== "after" )
+  if( ![ "before", "after", "swipe" ].includes( action ) )
     action = "before";
 
   res.json( await req.database.favorites.edit( id, number, action ) );

@@ -27,7 +27,7 @@ export async function put( req, res ){
     typeof number !== "number" || number < 1
   ) return res.error( 13 );
 
-  if( ![ "before", "after" ].includes( action ) )
+  if( ![ "before", "after", "swipe" ].includes( action ) )
     action = "before";
 
   res.json( await req.database.actionsTours.edit( actionId, tourId, number, action ) );
