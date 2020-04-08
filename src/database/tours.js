@@ -22,13 +22,13 @@ export default class extends Foundation{
 
   async getAll( locale ){
     const rows = ( await super.query(
-      `select t.id, t.image_url, t.price, tt.name
+      `select t.id, t.site, t.image_url, t.price, tt.name
       from
-        excursions as t,
-        excursions_translates as tt
+        tours as t,
+        tours_translates as tt
       where
         tt.locale = $1 and
-        t.id = tt.excursion_id
+        t.id = tt.tour_id
       order by date_start`,
       [ locale ]
     ) ).rows;
@@ -62,14 +62,14 @@ export default class extends Foundation{
       filters = "";
 
     const rows = ( await super.query(
-      `select t.id, t.image_url, t.price, tt.name
+      `select t.id, t.site, t.image_url, t.price, tt.name
       from
-        excursions as t,
-        excursions_translates as tt
+        tours as t,
+        tours_translates as tt
       where
         tt.locale = $1 and
         ${filters}
-        t.id = tt.excursion_id
+        t.id = tt.tour_id
       order by date_start`,
       params
     ) ).rows;
