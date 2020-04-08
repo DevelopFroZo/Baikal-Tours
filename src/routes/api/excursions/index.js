@@ -48,7 +48,7 @@ export async function get( req, res ){
   const { filter } = req.query;
 
   if( filter === undefined )
-    return res.json( req.database.excursions.getAll( locale ) );
+    return res.json( await req.database.excursions.getAll( locale ) );
 
   const { dateStart, dateEnd } = req.query;
   const locationIds = toIntArray( req.query.locationIds );

@@ -106,47 +106,65 @@ export default class extends Foundation{
       return super.error();
     }
 
-    let sign;
-    let newNumber;
-    const params = [ tuple.subject_id ];
+    if( action === "swipe" ){
+      await transaction.query(
+        `update favorites
+        set number = $1
+        where
+          subject_id = $2 and
+          number = $3`,
+        [ tuple.number, tuple.subject_id, number ]
+      );
 
-    if( tuple.number > number ){
-      sign = "+";
-
-      if( action === "before" )
-        newNumber = number;
-      else
-        newNumber = number + 1;
-
-      params.push( newNumber );
-      params.push( tuple.number );
+      await transaction.query(
+        `update favorites
+        set number = $1
+        where id = $2`,
+        [ number, id ]
+      );
     } else {
-      sign = "-";
-      params.push( tuple.number + 1 );
+      let sign;
+      let newNumber;
+      const params = [ tuple.subject_id ];
 
-      if( action === "before" )
-        newNumber = number - 1;
-      else
-        newNumber = number;
+      if( tuple.number > number ){
+        sign = "+";
 
-      params.push( newNumber );
+        if( action === "before" )
+          newNumber = number;
+        else
+          newNumber = number + 1;
+
+        params.push( newNumber );
+        params.push( tuple.number );
+      } else {
+        sign = "-";
+        params.push( tuple.number + 1 );
+
+        if( action === "before" )
+          newNumber = number - 1;
+        else
+          newNumber = number;
+
+        params.push( newNumber );
+      }
+
+      await transaction.query(
+        `update favorites
+        set number = number ${sign} 1
+        where
+          subject_id = $1 and
+          number between $2 and $3`,
+        params
+      );
+
+      await transaction.query(
+        `update favorites
+        set number = $1
+        where id = $2`,
+        [ newNumber, id ]
+      );
     }
-
-    await transaction.query(
-      `update favorites
-      set number = number ${sign} 1
-      where
-        subject_id = $1 and
-        number between $2 and $3`,
-      params
-    );
-
-    await transaction.query(
-      `update favorites
-      set number = $1
-      where id = $2`,
-      [ newNumber, id ]
-    );
 
     await transaction.end();
 
