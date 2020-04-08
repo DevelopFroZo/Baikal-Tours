@@ -65,7 +65,9 @@
   box-sizing: border-box;
 }
 
-.new-event, .new-compilation, .save {
+.new-event,
+.new-compilation,
+.save {
   border: 1px solid $Green;
   border-radius: 5px;
   padding: 10px;
@@ -217,4 +219,14 @@
 .back-page {
   color: $Dark_Gray;
   font-size: $Medium_Font_Size;
+}
+
+.green-button {
+  border: 1px solid #87d639;
+  border-radius: 5px;
+  padding: 10px;
+  font-size: 18px;
+  background: #87d639;
+  color: white;
+  box-shadow: inset 0px 0px 6px #67b6ff;
 }

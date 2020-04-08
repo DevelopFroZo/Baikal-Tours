@@ -29,6 +29,7 @@
   import { onMount } from "svelte";
   import { dateToString } from "/helpers/converters.js";
   import { parsePrice } from "/helpers/parsers.js";
+  import Image from "/components/imageCenter.svelte";
 
   export let locale, compiliation_result;
 
@@ -75,15 +76,8 @@
     );
     background-blend-mode: lighten, normal;
 
-    & > img {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      min-width: 100%;
-      min-height: 100%;
+    & > :global(img) {
       z-index: -1;
-      display: block;
     }
   }
 
@@ -270,7 +264,7 @@
 <Header {locale} />
 
 <div class="main-block">
-  <img src={compiliation_result.image_url} alt="test" />
+  <Image src={compiliation_result.image_url} alt="test" />
   <h1 class="form-width">{compiliation_result.name}</h1>
 </div>
 
@@ -313,7 +307,7 @@
     {#each compiliation_result.actions as action}
       <div class="event-block">
         <div class="img-block">
-          <img src={action.images.length === 0 ? "/img/logo.png" : action.images.filter(el => el.is_main)[0].image_url} alt="test" />
+          <Image src={action.images.length === 0 ? "/img/logo.png" : action.images.filter(el => el.is_main)[0].image_url} alt="test" />
         </div>
         <div class="event-info">
           <h3>{action.name}</h3>

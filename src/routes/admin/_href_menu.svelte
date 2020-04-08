@@ -115,7 +115,13 @@
     class="category-href"
     class:active-page={page === 3}
     href="./admin/excursions">
-    {_("excursions_and_tours")}
+    {_("excursions")}
+  </a>
+  <a
+    class="category-href"
+    class:active-page={page === 7}
+    href="./admin/tours">
+    {_("tours")}
   </a>
   <a class="category-href" class:active-page={page === 4} href="./admin/hotels">
     {_("hotels")}
@@ -131,6 +137,12 @@
     class:active-page={page === 6}
     href="./admin/compiliations">
     {_("selections")}
+  </a>
+  <a
+    class="category-href"
+    class:active-page={page === 8}
+    href="./admin/favorites">
+    {_("featured_events")}
   </a>
   <div class="bottom">
     <select

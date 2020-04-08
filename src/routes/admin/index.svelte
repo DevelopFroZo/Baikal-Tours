@@ -308,18 +308,7 @@
     border-radius: 5px;
     padding-left: 12px;
     box-sizing: border-box;
-
-    &::before {
-      position: absolute;
-      content: " ";
-      width: 10px;
-      height: 4px;
-      top: 50%;
-      right: 5px;
-      transform: translateY(-50%);
-      background-image: url(../img/change.png);
-      background-size: 100% 100%;
-    }
+    margin-top: 0;
   }
 
   .option {

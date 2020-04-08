@@ -157,7 +157,7 @@
 
 <header class="form-width line">
   <div class="left-side">
-    <a class="header-name" href="./">
+    <a class="header-name" href="./actions">
       <h1>{_('event_calendar')}</h1>
       <div>
         <img src="img/ot.png" alt="от" />
@@ -173,13 +173,15 @@
       {#if !$session.isLogged}
         <button
           class="login"
-          on:click={() => goto(parseUrlByPage($page, [], {window: 'login'}))}>
+          on:click={() => goto(parseUrlByPage($page, [], { window: 'login' }))}>
           <img src="/img/log-in.svg" alt="login" />
           {_('authorize')}
         </button>
         <button
           class="register"
-          on:click={() => goto(parseUrlByPage($page, [], {window: 'register'}))}>
+          on:click={() => goto(parseUrlByPage($page, [], {
+                window: 'register'
+              }))}>
           <img src="/img/user.svg" alt="user" />
           {_('registration')}
         </button>
@@ -197,13 +199,21 @@
   page={$page}
   {_}
   {fetcher}
-  on:confirmPassword={() => goto(parseUrlByPage($page, ["window"], {window: "confirm-password"}))}
-  on:login={() => goto(parseUrlByPage($page, ["window"], {window: 'login'}))} />
+  on:confirmPassword={() => goto(parseUrlByPage($page, ['window'], {
+        window: 'confirm-password'
+      }))}
+  on:login={() => goto(parseUrlByPage($page, ['window'], {
+        window: 'login'
+      }))} />
 
 <Login
   page={$page}
   {_}
   {fetcher}
-  on:forgotPassword={() => goto(parseUrlByPage($page, ["window"], {window: 'forgot-password'}))}
-  on:login={() => goto(parseUrlByPage($page, ["window"], {window: 'login'}))}
-  on:register={() => goto(parseUrlByPage($page, ["window"], {window: 'register'}))} />
+  on:forgotPassword={() => goto(parseUrlByPage($page, ['window'], {
+        window: 'forgot-password'
+      }))}
+  on:login={() => goto(parseUrlByPage($page, ['window'], { window: 'login' }))}
+  on:register={() => goto(parseUrlByPage($page, ['window'], {
+        window: 'register'
+      }))} />

@@ -1,6 +1,7 @@
 <script>
   import { parseDateForCards, parsePrice } from "/helpers/parsers.js";
   import i18n from "/helpers/i18n/index.js";
+  import Image from "/components/imageCenter.svelte";
 
   export let name,
     date_ends,
@@ -149,9 +150,10 @@
   {/if}
   <div class="image-and-price">
     <div class="image">
-      <img
+      <Image
         src={image_url === null ? 'img/logo.png' : image_url}
-        alt="image of event" />
+        alt="image of event" 
+        autoWidth={image_url === null}/>
     </div>
     <div class="price">{second_price}</div>
   </div>

@@ -1,4 +1,6 @@
 <script>
+  import Image from "/components/imageCenter.svelte";
+
   export let width, height, id, url, image_url, name;
 </script>
 
@@ -18,19 +20,9 @@
     position: absolute;
     bottom: 10px;
     left: 10px;
-    z-index: 0;
+    z-index: 1;
     font-size: 24px;
     font-family: $Gilroy;
-  }
-
-  img{
-      position: absolute;
-      min-width: 100%;
-      min-height: 100%;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      z-index: -1;
   }
 </style>
 
@@ -39,5 +31,5 @@
   style="width: {width}px; height: {height}px;"
   href={`/compiliation?url=${url}`}>
   <p>{name}</p>
-  <img src={image_url} alt={name} />
+  <Image src={image_url} alt={name} />
 </a>

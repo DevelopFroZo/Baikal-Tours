@@ -282,5 +282,24 @@ export default ( {
   of_user_agreement:          "Пользовательского соглашения",
   privacy_policy:             "Политика конфиденциальности",
   tourist_information:        "Туристическая справочная информация",
-  download_pdf:               "скачать pdf"
+  download_pdf:               "скачать pdf",
+
+  tours:                      "Туры",
+  featured_events:            "Избранные события",
+  no_favorite_events:         "Нет избранных событий",
+  new_excursion:              "Новая экскурсия",
+  date:                       "Дата",
+  creating_excursion:         "Создание экскурсии",
+  editing_excursion:          "Редактирование экскурсии",
+  excursion_image:            "Изображение экскурсии",
+  excursion_name:             "Название экскурсии",
+  excursion_site:             "Сайт экскурсии",
+  excursion_save:             "Сохранить экскурсию",
+  new_tour:                   "Новый тур",
+  creating_tour:              "Создание тура",
+  editing_tour:               "Редактирование тура",
+  tour_image:                 "Изображение тура",
+  tour_name:                  "Название тура",
+  tour_site:                  "Сайт тура",
+  tour_save:                  "Сохранить тур"
 } );

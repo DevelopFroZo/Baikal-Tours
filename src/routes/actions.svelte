@@ -46,7 +46,8 @@
       }),
       result_compiliations,
       query,
-      compiliationQuery;
+      compiliationQuery,
+      result_favorites;
 
     filter[1] = setFilterData(result_filters.data.locations);
     filter[2] = setFilterData(result_filters.data.companions);
@@ -119,6 +120,27 @@
       })).data;
     }
 
+    if(params.subjects !== undefined){
+      let subjects = params.subjects.split(",");
+
+      result_favorites = (await fetcher.get("/api/actions/", {
+        credentials: "same-origin",
+        query: {
+          filter: "",
+          favoritesOnly: "",
+          subjects
+        }
+      })).actions
+    }
+    else{
+      result_favorites = (await fetcher.get("/api/actions/", {
+        credentials: "same-origin",
+        query: {
+          favoritesOnly: "",
+        }
+      })).actions.slice(0, 4);
+    }
+
     let result_count = result_cards.count;
     result_cards = result_cards.actions;
 
@@ -133,7 +155,8 @@
       offset,
       count,
       result_count,
-      result_compiliations
+      result_compiliations,
+      result_favorites
     };
   }
 </script>
@@ -167,7 +190,8 @@
     offset,
     count,
     result_count,
-    result_compiliations;
+    result_compiliations,
+    result_favorites;
 
   const fetcher = new Fetcher();
   const _ = i18n(locale);
@@ -643,15 +667,6 @@
 <!-- <BreadCrumbs path = {[{name: "Каталог событий", url: "./"}]} /> -->
 <div class="form-width">
 
-  <!-- <div
-    class="selection-carousel"
-    bind:this={selectionsCarousel}
-    class:selection-carousel-loaded={start && selectionsStart}>
-    {#each result_compiliations as compiliation}
-      <Selection width={390} height={250} {...compiliation} />
-    {/each}
-  </div> -->
-
   <div class="selections-carousel">
     <Carousel
       data={{ slidesPerView: 'auto', slidesPerView: 3, spaceBetween: 30, slidesPerGroup: 3, speed: 750, navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' }, watchOverflow: false }}
@@ -825,8 +840,8 @@
     on:closePrice={closePrice} />
 
   <div class="selections-block">
-    {#each [0, 1, 2, 3] as sel, i}
-      <SimilarEvent {_} />
+    {#each result_favorites as favorite}
+      <SimilarEvent {_} {favorite} />
     {/each}
   </div>
 

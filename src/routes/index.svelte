@@ -17,8 +17,7 @@
     let actions = (await fetcher.get("/api/actions", {
       credentials: "same-origin",
       query: {
-        offset: 0,
-        count: 5
+        favoritesOnly: ""
       }
     })).actions;
 

@@ -1,5 +1,6 @@
 <script context="module">
   import Fetcher from "/helpers/fetcher.js";
+  import { parseDate } from "/helpers/parsers.js";
 
   export async function preload(page, session) {
     const fetcher = new Fetcher(this.fetch);
@@ -10,7 +11,24 @@
       credentials: "same-origin"
     });
 
-    if (result_action.ok) return { result_action, actionId, locale };
+    if (result_action.ok){
+      result_action = result_action.data;
+
+      let firstSimilarDate = new Date(result_action.dates[0].date_start);
+      firstSimilarDate.setDate(firstSimilarDate.getDate() + 1);
+      firstSimilarDate = parseDate(firstSimilarDate);
+
+      let similar_events = (await fetcher.get("/api/actions/", {
+        credentials: "same-origin",
+        query: {
+          filter: "",
+          dateStart: firstSimilarDate,
+          subjects: [result_action.subjects[0].id],
+          count: 2
+        }
+      })).actions;
+      return { result_action, actionId, locale, similar_events };
+    } 
 
     this.error(404, "page not found");
   }
@@ -29,65 +47,75 @@
   import SimilarEvent from "/components/similar_event.svelte";
   import * as animateScroll from "svelte-scrollto";
   import Carousel from "/components/carousel.svelte";
+  import Image from "/components/imageCenter.svelte";
 
-  export let result_action, actionId, locale;
+  export let result_action, actionId, locale, similar_events;
 
   const fetcher = new Fetcher();
   const { session } = stores();
+  const _ = i18n(locale);
 
   let response,
-    data = result_action.data,
     resp,
-    galaryReady = false,
-    mounted = false,
     second_price,
     userName = "",
-    surname,
+    surname = "",
     userPhone = "",
     userMail = "",
     disabled = "disabled",
-    contactData = contactsToString(
-      data.contact_faces,
-      data.emails,
-      data.phones
-    ),
     actionsParams,
     start = false,
     vkHref,
     twitterHref = "",
     facebookHref = "",
     initEditor = false,
-    registerBlock;
+    registerBlock,
+    transfers;
 
-  let transfers = [];
-  for(let transfer of data.transfers)
-    transfers.push(transfer.name);
-
-  const _ = i18n(locale);
-
-  onMount(() => {
-    actionsParams = localStorage.getItem("actionsParams");
-    if (actionsParams === null) actionsParams = "./actions";
-
-    vkHref = VK.Share.button(false, {
-      type: "custom",
-      text: '<img src="/img/vk-grey.svg"/>'
-    });
-
-    twitterHref = encodeURI(data.name + "\n\n" + document.location.href);
-    facebookHref = document.location.href;
-
-    start = true;
-    if(initEditor)
-      startEditor();
-  });
+  $: {
+    result_action;
+    changeAllData();
+  }
 
   $: if (userName !== "" && userPhone !== "" && validateMail(userMail))
     disabled = "";
   else disabled = "disabled";
 
-  second_price = parsePrice(data.price_min, data.price_max, _);
+  function changeAllData(){
+    transfers = [];
+    for(let transfer of result_action.transfers)
+      transfers.push(transfer.name);
 
+    second_price = parsePrice(result_action.price_min, result_action.price_max, _);
+
+    if(start){
+      setShare();
+      startEditor();
+    }
+    
+  }
+
+  onMount(() => {
+    actionsParams = localStorage.getItem("actionsParams");
+    if (actionsParams === null) actionsParams = "./actions";
+
+    start = true;
+    if(initEditor)
+      startEditor();
+
+    setShare();
+  });
+
+  function setShare(){
+    vkHref = VK.Share.button(false, {
+      type: "custom",
+      text: '<img src="/img/vk-grey.svg"/>'
+    });
+
+    twitterHref = encodeURI(result_action.name + "\n\n" + document.location.href);
+    facebookHref = document.location.href;
+  }
+  
   async function subscribeUser() {
     let subscribeStatus = await fetcher.post(
       "/api/actions/subscribe/" + actionId,
@@ -106,7 +134,7 @@
       readOnly: true
     })
     
-    editorText.setContents(editorText.clipboard.convert(data.full_description.replace(/\n/g, "</br>")))
+    editorText.setContents(editorText.clipboard.convert(result_action.full_description.replace(/\n/g, "</br>")))
   }
 </script>
 
@@ -296,10 +324,10 @@
 
   .carousel-cell {
     height: 350px;
-    max-width: 1200px;
+    width: 500px !important;
     border-radius: 10px;
     overflow: hidden;
-    width: auto !important;
+    position: relative;
   }
 
   .contact-ul {
@@ -333,30 +361,8 @@
       }
     }
 
-    & > img {
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      position: absolute;
-      min-width: 100%;
-      min-height: 100%;
+    & > :global(img) {
       z-index: -1;
-      filter: brightness(80%);
-      background-blend-mode: lighten, normal;
-    }
-  }
-
-  .main-block-without-image {
-    -webkit-box-shadow: none;
-    -moz-box-shadow: none;
-    box-shadow: none;
-
-    & > .form-width {
-      padding: 30px 0;
-
-      & > h1 {
-        color: black;
-      }
     }
   }
 
@@ -780,7 +786,7 @@
 </style>
 
 <svelte:head>
-  <title>{data.title === null ? data.name : data.title}</title>
+  <title>{result_action.title === null ? result_action.name : result_action.title}</title>
 
   <script
     type="text/javascript"
@@ -797,31 +803,31 @@
 
 <Header {locale} />
 <!-- <BreadCrumbs
-  path={[{ name: _('event_catalog'), url: actionsParams }, { name: data.name, url: './action?id=' + actionId }]} /> -->
+  path={[{ name: _('event_catalog'), url: actionsParams }, { name: result_action.name, url: './action?id=' + actionId }]} /> -->
 <div
   class="main-block">
-  {#if data.images.length > 0}
-    <img
-      src={data.images.filter(el => el.is_main)[0].image_url}
-      alt={data.name} />
+  {#if result_action.images.length > 0}
+    <Image
+      src={result_action.images.filter(el => el.is_main)[0].image_url}
+      alt={result_action.name} />
   {/if}
   <div class="form-width">
-    {#if data.subjects.length > 0}
+    {#if result_action.subjects.length > 0}
       <ul class="subjects-block">
-        {#each data.subjects as subjects, i}
+        {#each result_action.subjects as subjects, i}
           <li>{subjects.name}
-            {#if data.subjects.length !== i + 1}
+            {#if result_action.subjects.length !== i + 1}
               <div class="point" />
             {/if}
           </li>
         {/each}
       </ul>
     {/if}
-    <h1>{data.name}</h1>
+    <h1>{result_action.name}</h1>
     <div class="locations-block">
-      {#if data.locations.length > 0}
+      {#if result_action.locations.length > 0}
         <ul>
-          {#each data.locations as location}
+          {#each result_action.locations as location}
             <li>
               {location.name + (location.address === null ? '' : ', ' + location.address)}
             </li>
@@ -829,22 +835,26 @@
         </ul>
       {/if}
     </div>
-    <button class="register-button" on:click={() => {
-      animateScroll.scrollTo({offset: registerBlock.offsetTop - 150, duration: 1500})
-    }}>{_("register")}</button>
+    {#if $session.isLogged}
+      <button class="register-button" on:click={() => {
+        animateScroll.scrollTo({offset: registerBlock.offsetTop - 150, duration: 1500})
+      }}>{_("register")}</button>
+    {/if}
   </div>
 
 </div>
 <div class="form-width">
-  <!-- <p class="italic-bold">{data.tagline}</p> -->
-  <p class="short-description">{data.short_description}</p>
+  <!-- <p class="italic-bold">{result_action.tagline}</p> -->
+  <p class="short-description">{result_action.short_description}</p>
 
-  {#if data.images.length > 0}
+  {#if result_action.images.length > 0}
     <div class="main-carousel">
-      <Carousel data={{slidesPerView: 'auto', centeredSlides: true, spaceBetween: 25, speed: 750, navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' }}}
-      carouselData={data.images}>
-        {#each data.images as img}
-          <img src={img.image_url} alt="img" class="carousel-cell swiper-slide"/>
+      <Carousel data={{slidesPerView: 'auto', preloadImages: "false", centeredSlides: true, spaceBetween: 25, speed: 750, navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' }}}
+      carouselData={result_action.images}>
+        {#each result_action.images as img}
+          <div class="carousel-cell swiper-slide">
+            <Image src={img.image_url} alt={"img"}/>
+          </div>
         {/each}       
       </Carousel>
     </div>
@@ -853,21 +863,21 @@
   <div id="description-block"></div>
 
   <!-- <ul class="italic">
-    <li>{_('organizer')}: {data.organizer_name}</li>
+    <li>{_('organizer')}: {result_action.organizer_name}</li>
     <li>
       {_('how_to_get')}:
       {transfers.join("; ")}
     </li>
   </ul> -->
 
-  {#if data.partners.length > 0}
+  {#if result_action.partners.length > 0}
     <div class="partners-block">
       <h3>{_('action_partners')}</h3>
 
       <div class="partners-carousel">
         <Carousel data={{slidesPerView: 'auto',spaceBetween: 25, speed: 750, navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' }}}
-        carouselData={data.partners}>
-          {#each data.partners as partner}
+        carouselData={result_action.partners}>
+          {#each result_action.partners as partner}
             <div class="partner-block swiper-slide">
               <img
                 src={partner.image_url}
@@ -887,13 +897,13 @@
       <div class="contacts">
         <h2>{_('contacts')}</h2>
 
-          {#if data.emails !== null}
-          <div class="line" class:contacts-flex={data.emails.length > 0}>
+          {#if result_action.emails !== null}
+          <div class="line" class:contacts-flex={result_action.emails.length > 0}>
             <div class="img-block">
               <img src="/img/mail.svg" alt="email">
             </div>
             <ul> 
-              {#each data.emails as email}
+              {#each result_action.emails as email}
                 <li>
                   {email}
                 </li>
@@ -902,13 +912,13 @@
           </div>
           {/if}
 
-          {#if data.phones !== null}
-          <div class="line" class:contacts-flex={data.phones.length > 0}>
+          {#if result_action.phones !== null}
+          <div class="line" class:contacts-flex={result_action.phones.length > 0}>
             <div class="img-block">
               <img src="/img/phone-call.svg" alt="phone">
             </div>
             <ul> 
-              {#each data.phones as phone}
+              {#each result_action.phones as phone}
                 <li>
                   {phone}
                 </li>
@@ -917,68 +927,68 @@
           </div>
           {/if}
 
-          {#if data.websites !== null}
+          {#if result_action.websites !== null}
           <div class="line contacts-flex">
             <div class="img-block">
               <img src="/img/internet.svg" alt="site">
             </div>
             <ul>
               <li>
-                <a href={data.websites[0]} target="_blank">
-                  {data.websites[0]}
+                <a href={result_action.websites[0]} target="_blank">
+                  {result_action.websites[0]}
                 </a>
               </li>
             </ul>
           </div>
           {/if}
 
-          {#if data.vk_link !== null}
+          {#if result_action.vk_link !== null}
             <div class="line contacts-flex">
               <div class="img-block vk">
                 <img src="/img/vk-white.svg" alt="vk">
               </div>
               <ul>
                 <li>
-                  <a href={data.vk_link} target="_blank">{data.vk_link}</a>
+                  <a href={result_action.vk_link} target="_blank">{result_action.vk_link}</a>
                 </li>
               </ul>
             </div>
           {/if}
 
-          {#if data.instagram_link !== null}
+          {#if result_action.instagram_link !== null}
             <div class="line contacts-flex">
               <div class="img-block instagram">
                 <img src="/img/insta-white.svg" alt="instagram">
               </div>
               <ul>
                 <li>
-                  <a href={data.instagram_link} target="_blank">{data.instagram_link}</a>
+                  <a href={result_action.instagram_link} target="_blank">{result_action.instagram_link}</a>
                 </li>
               </ul>
             </div>
           {/if}
 
-          {#if data.facebook_link !== null}
+          {#if result_action.facebook_link !== null}
             <div class="line contacts-flex">
               <div class="img-block facebook">
                 <img src="/img/facebook-white.svg" alt="facebook">
               </div>
               <ul>
                 <li>
-                  <a href={data.facebook_link} target="_blank">{data.facebook_link}</a>
+                  <a href={result_action.facebook_link} target="_blank">{result_action.facebook_link}</a>
                 </li>
               </ul>
             </div>
           {/if}
 
-          {#if data.twitter_link !== null}
+          {#if result_action.twitter_link !== null}
             <div class="line contacts-flex">
               <div class="img-block twitter">
                 <img src="/img/twitter.svg" alt="twitter">
               </div>
               <ul>
                 <li>
-                  <a href={data.twitter_link} target="_blank">{data.twitter_link}</a>
+                  <a href={result_action.twitter_link} target="_blank">{result_action.twitter_link}</a>
                 </li>
               </ul>
             </div>
@@ -989,7 +999,7 @@
       <div class="map">
         <div class="location-block">
           <h3>{_('venue')}: 
-          {#each data.locations as location}
+          {#each result_action.locations as location}
             <span>
               {location.name + (location.address === null ? '' : ', ' + location.address)}
             </span>
@@ -1136,8 +1146,8 @@
   <div class="similar-events-block">
     <h2>{_('similar_events')}</h2>
     <div class="similar-events">
-      {#each [1, 1] as sim}
-        <SimilarEvent {_}/>
+      {#each similar_events as favorite}
+        <SimilarEvent {_} {favorite}/>
       {/each}
     </div>
   </div>

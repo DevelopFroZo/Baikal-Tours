@@ -1,5 +1,10 @@
 <script>
-  export let _;
+  import { parseDateForCards } from "/helpers/parsers.js";
+  import Image from "/components/imageCenter.svelte";
+
+  export let _, favorite;
+
+  let dates = parseDateForCards(favorite.date_starts, favorite.date_ends, _)
 </script>
 
 <style lang="scss">
@@ -7,7 +12,7 @@
 
   .similar-block {
     width: 580px;
-    height: 320px;
+    min-height: 320px;
     position: relative;
     overflow: hidden;
     box-shadow: 0px 0px 70px rgba(40, 39, 49, 0.1);
@@ -55,9 +60,12 @@
         width: 260px;
       }
 
-      & > p {
+      & > ul {
         margin-top: 15px;
-        font-size: $LowBig_Font_Size;
+        
+        & > li{
+          font-size: $LowBig_Font_Size;
+        }
       }
 
       & > a {
@@ -91,10 +99,16 @@
 </style>
 
 <div class="similar-block" href="/compilation">
-  <img src="/img/test.png" alt="selection" />
+  {#if favorite.image_url !== null}
+    <Image src={favorite.image_url} alt={favorite.name}/>
+  {/if}
   <div>
-    <h4>Иеждународный фестиваль "книгамарт"</h4>
-    <p>с 20.20.2020 до 30.30.3030</p>
-    <a href="/">{_('detailed')}</a>
+    <h4>{favorite.name}</h4>
+    <ul class="dates">
+      {#each dates as date}
+        <li>{date}</li>
+      {/each}
+    </ul>
+    <a href={`/action?id=${favorite.id}`}>{_('detailed')}</a>
   </div>
 </div>

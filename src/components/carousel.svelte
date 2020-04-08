@@ -6,16 +6,18 @@
   export let data, carouselData;
   let swiper = null, hideButtons = false, carouselBlock;
 
-  console.log(data)
-
   afterUpdate(() => {
+    changeUpdate();
+  });
+
+  function changeUpdate(){
     if (swiper !== null) {
       swiper.update();
       swiper.slideTo(0, 750);
     } else swiper = new Swiper(carouselBlock, data);
 
     hideButtons = carouselData.length < swiper.params.slidesPerGroup
-  });
+  }
 </script>
 
 <style lang="scss">

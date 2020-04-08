@@ -75,12 +75,12 @@ li {
     &::before {
       position: absolute;
       content: " ";
-      width: 10px;
-      height: 4px;
+      width: 20px;
+      height: 8px;
       top: 50%;
       right: 5px;
-      transform: translateY(-50%);
-      background-image: url(../img/change.png);
+      transform: translateY(-50%) rotate(90deg);
+      background-image: url(../img/next.svg);
       background-size: 100% 100%;
     }
   }
