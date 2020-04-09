@@ -376,6 +376,18 @@ export default class extends Foundation{
       [ id, locale ]
     ) ).rows;
 
+    main.tickets = ( await transaction.query(
+      `select at.id, at.price, act.name
+      from
+        action_tickets as at,
+        action_tickets_translates as act
+      where
+        at.action_id = $1 and
+        act.locale = $2 and
+        at.id = act.action_ticket_id`,
+      [ id, locale ]
+    ) ).rows;
+
     if( getSubscribers ){
       main.subscribers = ( await transaction.query(
         `select u.name, u.surname, u.phone, u.email, u.image_path, u.role
