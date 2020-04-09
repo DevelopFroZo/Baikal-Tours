@@ -348,6 +348,34 @@ export default class extends Foundation{
       [ id, locale ]
     ) ).rows;
 
+    main.excursions = ( await transaction.query(
+      `select e.*, et.name
+      from
+        actions_excursions as ae,
+        excursions as e,
+        excursions_translates as et
+      where
+        ae.action_id = $1 and
+        et.locale = $2 and
+        ae.excursion_id = e.id and
+        e.id = et.excursion_id;`,
+      [ id, locale ]
+    ) ).rows;
+
+    main.tours = ( await transaction.query(
+      `select t.*, tt.name
+      from
+        actions_tours as at,
+        tours as t,
+        tours_translates as tt
+      where
+        at.action_id = $1 and
+        tt.locale = $2 and
+        at.tour_id = t.id and
+        t.id = tt.tour_id;`,
+      [ id, locale ]
+    ) ).rows;
+
     if( getSubscribers ){
       main.subscribers = ( await transaction.query(
         `select u.name, u.surname, u.phone, u.email, u.image_path, u.role
