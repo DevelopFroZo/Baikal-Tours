@@ -159,7 +159,7 @@ export default class extends Foundation{
 
     await transaction.end();
 
-    return super.error();
+    return super.success();
   }
 
   async delete( actionId, tourId ){
