@@ -11,17 +11,15 @@ export async function get( req, res ){
 
   const role = req.session.role;
   let locale = req.session.locale;
-  let getSubscribers = false;
   let allStatuses = false;
 
   if( role === "admin" ){
     if( req.query.locale ) locale = req.query.locale;
-    if( req.query.getSubscribers !== undefined ) getSubscribers = true;
 
     allStatuses = true;
   }
 
-  res.json( await req.database.actions.getOne( allStatuses, id, locale, getSubscribers ) );
+  res.json( await req.database.actions.getOne( allStatuses, id, locale ) );
 }
 
 export async function put( req, res ){
