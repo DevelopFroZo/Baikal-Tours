@@ -33,11 +33,11 @@ export async function put( req, res ){
     }
 
     for( let locale in translated )
-      await req.database.actionTicketsTranslates.edit( transaction, id, locale, translated[ locale ] );
+      await req.database.actionBuyableTranslates.edit( transaction, id, locale, translated[ locale ] );
   }
 
   if( typeof price === "number" && price >= 0 )
-    await req.database.actionTickets.edit( transaction, id, price );
+    await req.database.actionBuyable.edit( transaction, id, price );
 
   await transaction.query( "commit" );
   await transaction.release();
@@ -51,5 +51,5 @@ export async function del( req, res ){
   if( id === null || id < 1 )
     return res.error( 9 );
 
-  res.json( await req.database.actionTickets.delete( id ) );
+  res.json( await req.database.actionBuyable.delete( id ) );
 }

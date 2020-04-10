@@ -5,10 +5,11 @@ import Translator from "/helpers/translator/index";
 import yandexEngineBuilder from "/helpers/translator/engines/yandex";
 
 export async function post( req, res ){
-  const { actionId, price, name } = req.body;
+  const { actionId, type, price, name } = req.body;
 
   if(
     typeof actionId !== "number" || actionId < 0 ||
+    ![ "ticket", "additional" ].includes( type ) ||
     typeof price !== "number" || price < 0 ||
     name === null || typeof name !== "object" || Array.isArray( name )
   ) res.error( 13 );
@@ -27,14 +28,12 @@ export async function post( req, res ){
     translated = { ...translated, ...translator.translated.name };
   }
 
-  const { transaction, id: actionTicketId } = await req.database.actionTickets.create( actionId, price );
+  const { transaction, id: actionBuyableId } = await req.database.actionBuyable.create( actionId, type, price );
 
   for( let locale in translated )
-    await req.database.actionTicketsTranslates.create( transaction, actionTicketId, locale, translated[ locale ] );
+    await req.database.actionBuyableTranslates.create( transaction, actionBuyableId, locale, translated[ locale ] );
 
   await transaction.end();
 
-  res.success( 0, actionTicketId );
-
-  res.error();
+  res.success( 0, actionBuyableId );
 }

@@ -376,15 +376,15 @@ export default class extends Foundation{
       [ id, locale ]
     ) ).rows;
 
-    main.tickets = ( await transaction.query(
-      `select at.id, at.price, act.name
+    main.buyable = ( await transaction.query(
+      `select ab.id, ab.type, ab.price, abt.name
       from
-        action_tickets as at,
-        action_tickets_translates as act
+        action_buyable as ab,
+        action_buyable_translates as abt
       where
-        at.action_id = $1 and
-        act.locale = $2 and
-        at.id = act.action_ticket_id`,
+        ab.action_id = $1 and
+        abt.locale = $2 and
+        ab.id = abt.action_buyable_id`,
       [ id, locale ]
     ) ).rows;
 

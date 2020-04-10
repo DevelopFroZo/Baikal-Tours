@@ -27,6 +27,8 @@ import Transfers from "./transfers";
 import DataForFilters from "./dataForFilters";
 import Users from "./users";
 import ActionsTranslates from "./actionsTranslates";
+import ActionBuyable from "./actionBuyable";
+import ActionBuyableTranslates from "./actionBuyableTranslates";
 import ActionDates from "./actionDates";
 import ActionImages from "./actionImages";
 import ActionPartners from "./actionPartners";
@@ -36,8 +38,6 @@ import ActionsLocations from "./actionsLocations";
 import ActionsSubjects from "./actionsSubjects";
 import ActionsTours from "./actionsTours";
 import ActionsTransfers from "./actionsTransfers";
-import ActionTickets from "./actionTickets";
-import ActionTicketsTranslates from "./actionTicketsTranslates";
 
 // Main pool
 modules.pool = new pg.Pool( !dev ? config.production : config.development );
@@ -63,6 +63,8 @@ modules.transfers = new Transfers( modules );
 modules.dataForFilters = new DataForFilters( modules );
 modules.users = new Users( modules );
 modules.actionsTranslates = new ActionsTranslates( modules );
+modules.actionBuyable = new ActionBuyable( modules );
+modules.actionBuyableTranslates = new ActionBuyableTranslates( modules );
 modules.actionDates = new ActionDates( modules );
 modules.actionImages = new ActionImages( modules );
 modules.actionPartners = new ActionPartners( modules );
@@ -72,8 +74,6 @@ modules.actionsLocations = new ActionsLocations( modules );
 modules.actionsSubjects = new ActionsSubjects( modules );
 modules.actionsTours = new ActionsTours( modules );
 modules.actionsTransfers = new ActionsTransfers( modules );
-modules.actionTickets = new ActionTickets( modules );
-modules.actionTicketsTranslates = new ActionTicketsTranslates( modules );
 
 // #fix вынести на глобальный уровень
 // Success & error functions
