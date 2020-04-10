@@ -247,7 +247,7 @@ export default class extends Foundation{
     return super.success( 0, rows );
   }
 
-  async getOne( allStatuses, id, locale, getSubscribers ){
+  async getOne( allStatuses, id, locale ){
     const status = allStatuses ? "" : "a.status = 'active' and";
     const transaction = await super.transaction();
 
@@ -358,7 +358,8 @@ export default class extends Foundation{
         ae.action_id = $1 and
         et.locale = $2 and
         ae.excursion_id = e.id and
-        e.id = et.excursion_id;`,
+        e.id = et.excursion_id
+      order by ae.number`,
       [ id, locale ]
     ) ).rows;
 
@@ -372,7 +373,8 @@ export default class extends Foundation{
         at.action_id = $1 and
         tt.locale = $2 and
         at.tour_id = t.id and
-        t.id = tt.tour_id;`,
+        t.id = tt.tour_id
+      order by at.number`,
       [ id, locale ]
     ) ).rows;
 
@@ -387,19 +389,6 @@ export default class extends Foundation{
         ab.id = abt.action_buyable_id`,
       [ id, locale ]
     ) ).rows;
-
-    if( getSubscribers ){
-      main.subscribers = ( await transaction.query(
-        `select u.name, u.surname, u.phone, u.email, u.image_path, u.role
-        from
-          actions_subscribers as asu,
-          users as u
-        where
-          action_id = $1 and
-          asu.user_id = u.id`,
-        [ id ]
-      ) ).rows;
-    }
 
     await transaction.end();
 
