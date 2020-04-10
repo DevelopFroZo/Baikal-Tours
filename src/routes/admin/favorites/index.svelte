@@ -42,6 +42,10 @@
   }
 </style>
 
+<svlete:head>
+  <title>{_('featured_events')}</title>
+</svlete:head>
+
 <AdminPage {_} {fetcher} {locale} page={8}>
   <h1>{_('featured_events')}</h1>
   <div class="subjects-block">

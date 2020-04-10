@@ -48,6 +48,8 @@
   import * as animateScroll from "svelte-scrollto";
   import Carousel from "/components/carousel.svelte";
   import Image from "/components/imageCenter.svelte";
+  import BannerBlock from "/components/bannerBlock.svelte";
+  import { slide } from "svelte/transition";
 
   export let result_action, actionId, locale, similar_events;
 
@@ -70,7 +72,18 @@
     facebookHref = "",
     initEditor = false,
     registerBlock,
-    transfers;
+    transfers,
+    total;
+
+  for(let ticket of result_action.buyable)
+    ticket.count = 0;
+
+  $: {
+    total = 0;
+
+    for(let ticket of result_action.buyable)
+      total += ticket.count * ticket.price;
+  }
 
   $: {
     result_action;
@@ -525,50 +538,6 @@
       grid-template-columns: repeat(3, auto);
       justify-content: space-between;
       margin-top: 40px;
-
-      & > .banner-block {
-        position: relative;
-        width: 390px;
-        height: 250px;
-        overflow: hidden;
-        border-radius: 10px;
-        background: linear-gradient(180deg, rgba(59, 57, 74, 0) 61.98%, #3B394A 100%);
-
-        & > img {
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
-          min-width: 100%;
-          min-height: 100%;
-          z-index: -1;
-        }
-
-        & > .banner-info{
-          position: absolute;
-          bottom: 20px;
-          left: 0;
-          display: flex;
-          justify-content: space-between;
-          align-items: flex-end;
-          padding: 0 25px;
-          z-index: 1;
-
-          & > *{
-            max-width: 50%;
-            font-size: 24px;
-          }
-
-          & > h4{
-            color: white;
-            font-weight: normal;
-          }
-
-          & > .price{
-            color: $Orange;
-          }
-        }
-      }
     }
   }
 
@@ -759,6 +728,10 @@
     & > button{
       margin-top: 30px;
     }
+  }
+
+  .only-inputs{
+    padding-top: 0px !important;
   }
 
   @media only screen and (max-width: 768px) {
@@ -1031,7 +1004,7 @@
     <div class="register-center">
       <div class="register-form">
         <div class="register-info-blocks">
-          <div class="inputs-block">
+          <div class="inputs-block" class:only-inputs={result_action.buyable.length === 0}>
             <div class="input-block">
               <input type="text" bind:value={userName} placeholder={_("name")}/>
               <div class="img-block">
@@ -1061,46 +1034,56 @@
               </div>
             </div>
           </div>
+          
+          {#if result_action.buyable.filter(el => el.type === "ticket").length > 0}
           <div class="register-categoty-block">
             <h2>{_('ticket_categories')}</h2>
             <div class="tickets-block">
-              <div class="ticket-block">
-                <div>
-                  <div>Взрослый</div>
-                  <div class="ticket-price">1000 {_('rub')}</div>
+              {#each result_action.buyable.filter(el => el.type === "ticket") as ticket}
+                <div class="ticket-block">
+                  <div>
+                    <div>{ticket.name}</div>
+                    <div class="ticket-price">{ticket.price} {_('rub')}</div>
+                  </div>
+                  <div class="counter">
+                    <button on:click={() => ticket.count = ticket.count - 1 < 0 ? 0 : ticket.count - 1 }>-</button>
+                    <div class="couter-value">{ticket.count}</div>
+                    <button on:click={() => ticket.count++}>+</button>
+                  </div>
                 </div>
-                <div class="counter">
-                  <button>-</button>
-                  <div class="couter-value">1</div>
-                  <button>+</button>
-                </div>
-              </div>
+              {/each}
             </div>
-            
           </div>
+          {/if}
+
+          {#if result_action.buyable.filter(el => el.type === "addition").length > 0}
           <div class="register-categoty-block">
             <h2>{_('additionally')}</h2>
             <div class="tickets-block">
-              <div class="ticket-block">
-                <div>
-                  <div>Питание</div>
-                  <div class="ticket-price">100 {_('rub')}</div>
+              {#each result_action.buyable.filter(el => el.type === "addition") as ticket}
+                <div class="ticket-block">
+                  <div>
+                    <div>{ticket.name}</div>
+                    <div class="ticket-price">{ticket.price} {_('rub')}</div>
+                  </div>
+                  <div class="counter">
+                    <button on:click={() => ticket.count = ticket.count - 1 < 0 ? 0 : ticket.count - 1}>-</button>
+                    <div class="couter-value">{ticket.count}</div>
+                    <button on:click={() => ticket.count++}>+</button>
+                  </div>
                 </div>
-                <div class="counter">
-                  <button>-</button>
-                  <div class="couter-value">1</div>
-                  <button>+</button>
-                </div>
-              </div>
+              {/each}
             </div>
-            
           </div>
+          {/if}
         </div>
         <hr />
         <div class="final-price-block">
-          <div class="total-price">{_("total")}<span>3250 {_('rub')}</span></div>
+          {#if total > 0}
+            <div class="total-price" transition:slide>{_("total")}<span>{total} {_('rub')}</span></div>
+          {/if}
           <button class="register-button" on:click={subscribeUser}>
-            {_('register')}
+            {total === 0 ? _('register') : _("buy_tickets")}
           </button>
         </div>
       </div>
@@ -1125,23 +1108,33 @@
     </div>
   </div>
 
+  {#if result_action.excursions.length > 0}
+    <div class="banners-block">
+      <div class="banners-info">
+        <h2>{_('excursions')}</h2>
+        <a href="https://fanatbaikala.ru/excursions" target="_blank">{_('more_excursions')}</a>
+      </div>
+      <div class="banners">
+        {#each result_action.excursions as excursion}
+          <BannerBlock {...excursion} {_} />
+        {/each}
+      </div>
+    </div>
+  {/if}
+
+  {#if result_action.tours.length > 0}
   <div class="banners-block">
     <div class="banners-info">
-      <h2>{_('excursions')}</h2>
-      <a href="https://fanatbaikala.ru/excursions" target="_blank">{_('more_excursions')}</a>
+      <h2>{_('tours')}</h2>
+      <a href="https://fanatbaikala.ru/tours" target="_blank">{_('more_excursions')}</a>
     </div>
     <div class="banners">
-      {#each [1,2,3] as bn}
-        <div class="banner-block">
-          <img src="/img/test.png" alt="hotel" />
-          <div class="banner-info">
-            <h4>Гостиница Виктория</h4>
-            <span class="price">от 1500 {_("rub")}</span>
-          </div>
-        </div>
+      {#each result_action.tours as tour}
+        <BannerBlock {...tour} {_} />
       {/each}
     </div>
   </div>
+  {/if}
 
   <div class="similar-events-block">
     <h2>{_('similar_events')}</h2>

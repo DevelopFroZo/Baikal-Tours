@@ -301,5 +301,18 @@ export default ( {
   tour_image:                 "Изображение тура",
   tour_name:                  "Название тура",
   tour_site:                  "Сайт тура",
-  tour_save:                  "Сохранить тур"
+  tour_save:                  "Сохранить тур",
+  tours_nearby:               "Туры поблизости",
+  excursions_nearby:          "Экскурсии поблизости",
+  already_added_tour:         "Вы уже добавили этот тур",
+  already_added_excursion:    "Вы уже добавили эту экскурсию",
+  add_tour:                   "Добавить тур",
+  add_excursion:              "Добавить экскурсию",
+  tickets:                    "Билеты",
+  ticket_name:                "Название билета",
+  ticket_price:               "Цена билета",
+  additionally_services:      "Дополнительные услуги",
+  service_name:               "Название услуги",
+  service_price:              "Цена услуги",
+  buy_tickets:                "Купить билеты"
 } );

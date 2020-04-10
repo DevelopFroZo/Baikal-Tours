@@ -38,7 +38,10 @@
         transfers: null,
         subjects: null,
         companions: null,
-        partners: []
+        partners: [],
+        tours: [],
+        excursions: [],
+        buyable: []
       };
 
     let result_filters = await fetcher.get("/api/dataForFilters", {
@@ -48,6 +51,14 @@
     let result_users = await fetcher.get("/api/users", {
       credentials: "same-origin"
     });
+
+    let allExcursions = (await fetcher.get("/api/excursions", {
+      credentials: "same-origin"
+    })).data;
+
+    let allTours = (await fetcher.get("/api/tours", {
+      credentials: "same-origin"
+    })).data;
 
     result_filters = result_filters.data;
     result_users = result_users.data;
@@ -62,18 +73,22 @@
     }
 
     if(actionId === undefined || actionData.ok){
-      if(actionId !== undefined) actionData = actionData.data;
+      if(actionId !== undefined){
+        actionData = actionData.data;
+        actionId = Number(actionId)
+      }
       return {
         ...actionData,
         actionData,
         actionId,
         result_filters,
         result_users,
-        locale
+        locale,
+        allExcursions,
+        allTours
       };
     }
       
-
     this.error(404, "page not found");
   }
 </script>
@@ -84,6 +99,10 @@
   import { parseDate } from "/helpers/parsers.js";
   import { onMount } from "svelte";
   import * as edit from "/helpers/edit.js";
+  import SortableList from "/components/sortableList.svelte";
+  import BannerBlock from "/components/bannerBlock.svelte";
+  import AdminCard from "/components/admin_card.svelte";
+  import Image from "/components/imageCenter.svelte";
 
   export let actionId,
     result_filters,
@@ -119,7 +138,12 @@
     subjects = null,
     companions = null,
     partners = [],
-    locale;
+    tours = [],
+    excursions = [],
+    allExcursions,
+    allTours,
+    locale,
+    buyable = [];
 
   const fetcher = new Fetcher();
   const _ = i18n(locale);
@@ -134,6 +158,7 @@
   transfers = edit.cloneArray(actionData.transfers);
   subjects = edit.cloneArray(actionData.subjects);
   companions = edit.cloneArray(actionData.companions);
+  buyable = edit.cloneArray(actionData.buyable);
 
   subjects = edit.getIds(subjects);
   transfers = edit.getIds(transfers);
@@ -159,7 +184,9 @@
     mainImg = null,
     newData = {},
     newPartnerName = "",
-    editorBlock;
+    editorBlock,
+    showTours = false,
+    showExcursions = false;
 
   if (organizer_payment !== null) participation = "organizer";
   else if (site_payment === true) participation = "site";
@@ -515,6 +542,18 @@
     );
   }
 
+  //Билеты
+  $: {
+    let tickets = buyable.filter(el => el.type === "ticket");
+    let additions = buyable.filter(el => el.type === "addition")  
+
+    if(!tickets.length)
+      addBuyable("ticket")
+    
+    if(!additions.length)
+      addBuyable("addition")
+  }
+
   let options = [];
 
   for (let i = 0; i < 3; i++)
@@ -729,7 +768,41 @@
           );
         }
       }
+      if(excursions.length !== 0)
+        for(let excursion of excursions)
+          result = await fetcher.post("/api/actionsExcursions", {
+            actionId,
+            excursionId: excursion.id
+          })
+      
+      if(tours.length !== 0)
+        for(let tour of tours)
+          result = await fetcher.post("/api/actionsTours", {
+            actionId,
+            tourId: tour.id
+          })
     }
+
+    let newTickets = edit.parseTickets(actionData.buyable, buyable, actionId, locale);
+
+    if(newTickets.del !== undefined)
+      for(let ticket of newTickets.del)
+        await fetcher.delete(`/api/actionBuyable/${ticket}`)
+    
+    if(newTickets.create !== undefined)
+      for(let ticket of newTickets.create)
+        await fetcher.post(`/api/actionBuyable`, {
+          actionId,
+          ...ticket
+        })
+    
+    if(newTickets.edit !== undefined)
+      for(let ticket of newTickets.edit)
+        await fetcher.put(`/api/actionBuyable/${ticket.id}`, {
+          name: ticket.name,
+          price: ticket.price
+        })
+      
 
     result = await fetcher.put(`/api/actions/${actionId}`, newData);
 
@@ -824,6 +897,148 @@
     })
 
   }
+
+  async function sortTours(e){
+    let newTours = e.detail, i = 0;
+
+    if(actionId !== undefined){
+      for (let tour of tours) {
+        if (tour.id !== newTours[i].id) {
+          let j = 0;
+          for(let newTour of newTours){
+            if(newTour.id === tour.id)
+              break;
+            j++;
+          }
+          let result = await fetcher.put(`/api/actionsTours/`, {
+            actionId,
+            tourId: tour.id,
+            number: j + 1,
+            action: "swipe"
+          });
+          if (result.ok) tours = newTours;
+          break;
+        }
+        i++;
+      }
+    }
+    else
+      tours = newTours;
+  }
+
+  async function sortExcursions(e){
+    let newExcursions = e.detail, i = 0;
+
+    if(actionId !== undefined){
+      for (let excursion of excursions) {
+        if (excursion.id !== newExcursions[i].id) {
+          let j = 0;
+          for(let newExcursion of newExcursions){
+            if(newExcursion.id === excursion.id)
+              break;
+            j++;
+          }
+            
+          // console.log(`first number: ${i + 1}\nfirst id: ${excursion.id}\nsecond number: ${j + 1}\nsecond id: ${newExcursions[i].id}`)
+
+          let result = await fetcher.put(`/api/actionsExcursions/`, {
+            actionId,
+            excursionId: excursion.id,
+            number: j + 1,
+            action: "swipe"
+          });
+          if (result.ok) excursions = newExcursions;
+          console.log(result)
+          break;
+        }
+        i++;
+      }
+    }
+    else
+      excursions = newExcursions;
+  }
+
+  async function addTour(e){
+    let newTour = e.detail;
+
+    for(let tour of tours)
+      if(tour.id === newTour.id){
+        alert(_("already_added_tour"))
+        return null;
+      }
+      
+
+    if(actionId !== undefined){
+      let result = await fetcher.post("/api/actionsTours", {
+        actionId,
+        tourId: newTour.id
+      })
+    }
+
+    tours.push(newTour);
+    tours = tours;
+    showTours = false;
+  }
+
+  async function addExcursion(e){
+    let newExcursion = e.detail;
+
+    for(let excursion of excursions)
+      if(excursion.id === newExcursion.id){
+        alert(_("already_added_tour"))
+        return null;
+      }
+      
+
+    if(actionId !== undefined){
+      let result = await fetcher.post("/api/actionsExcursions", {
+        actionId,
+        excursionId: newExcursion.id
+      })
+    }
+
+    excursions.push(newExcursion);
+    excursions = excursions;
+    showExcursions = false;
+  }
+
+  async function deleteTour(id, i){
+    if(actionId !== undefined){
+      let result = await fetcher.delete("/api/actionsTours", {
+        query: {
+          actionId,
+          tourId: id
+        }
+      })
+    }
+
+    tours.splice(i, 1);
+    tours = tours;
+  }
+
+  async function deleteExcursion(id, i){
+    if(actionId !== undefined){
+      let result = await fetcher.delete("/api/actionsExcursions", {
+        query: {
+          actionId,
+          excursionId: id
+        }
+      })
+    }
+
+    excursions.splice(i, 1);
+    excursions = excursions;
+  }
+
+  function addBuyable(type){
+    buyable.push({
+        type,
+        name: "",
+        price: ""
+    })
+
+    buyable = buyable;
+  }
 </script>
 
 <style lang="scss">
@@ -855,6 +1070,7 @@
 
   input[type="text"],
   textarea,
+  input[type="number"],
   input[type="date"],
   input[type="time"],
   select {
@@ -1076,17 +1292,6 @@
     }
   }
 
-  .hotels-block,
-  .tours-block {
-    margin-top: 35px;
-
-    & > .hotels,
-    .tours {
-      display: flex;
-      justify-content: space-between;
-    }
-  }
-
   .hide-label {
     height: 0;
     overflow: hidden;
@@ -1099,6 +1304,158 @@
 
   :global(.ql-toolbar){
     margin-top: 10px;
+  }
+
+  .all-tours-block{
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    z-index: 2;
+
+    & > button{
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #00000088;
+      z-index: 1;
+    }
+
+    & > div{
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 2;
+
+      & > h4{
+        font-size: 20px;
+      }
+      
+      & > div{
+        width: 1050px;
+        height: 800px;
+        background: white;
+        margin-top: 30px;
+        padding: 20px;
+        display: grid;
+        grid-template-columns: repeat(4, 225px);
+        justify-content: space-between;
+        grid-row-gap: 20px;
+        box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+        align-items: start;
+      }
+    }
+  }
+
+  .windows-block{
+    margin-top: 35px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+
+    & > div{
+      width: 250px;
+    }
+  }
+
+  .banner-block{
+    width: 225px;
+    height: 150px;
+    position: relative;
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+    overflow: hidden;
+
+    & > :global(img){
+      pointer-events: none;
+    }
+
+    & > .banner-data{
+      position: absolute;
+      bottom: 0px;
+      left: 0;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      padding: 20px;
+      background: linear-gradient(
+        180deg,
+      rgba(59, 57, 74, 0) 10%,
+      #3b394a 100%
+      );
+      box-sizing: border-box;
+
+      & > *{
+        color: white;
+      }
+    }
+  }
+
+  .add{
+    margin-top: 20px;
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+    padding: 20px;
+  }
+
+  .tours, .excursions {
+    & :global(li){
+      width: 225px;
+    }
+
+    & .delete{
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 20px;
+      height: 20px;
+      background: white;
+      border-radius: 100px;
+      box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+
+      & > img{
+        width: 12px;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
+    }
+  }
+
+  .tickets-block{
+    display: flex;
+    align-items: flex-start;
+    margin-top: 35px;
+
+    & > div:last-child{
+      margin-left: 40px;
+    }
+  }
+
+  .all-tickets{
+    & > div{
+      display: grid;
+      grid-template-columns: 150px 150px 20px 25px;
+      grid-column-gap: 15px;
+      margin-top: 10px;
+
+      & > input, label{
+        width: 150px;
+      }
+
+      & > .add-ticket{
+        font-size: 25px;
+        width: 25px;
+      }
+
+      & > .delete{
+        font-size: 30px;
+        width: 20px;
+      }
+    }
   }
 </style>
 
@@ -1339,27 +1696,6 @@
     </div>
 
     <div class="others-block">
-
-      <div class="price-block">
-        <label for="price">{_('cost')}</label>
-        <div>
-          <input
-            type="text"
-            name="price"
-            bind:value={price}
-            disabled={freePrice} />
-          <div>₽</div>
-        </div>
-        <div class="free-block">
-          <input
-            type="checkbox"
-            name="free"
-            checked={freePrice}
-            on:change={() => (freePrice = !freePrice)} />
-          <label for="free">{_('free').toLowerCase()}</label>
-        </div>
-      </div>
-
       <div>
         <label for="subjects">{_('subjects')}</label>
         <div class="select-block">
@@ -1614,6 +1950,54 @@
 
     </div>
 
+    <div class="tickets-block">
+      <div>
+        <div class="block-name">{_("tickets")}</div>
+        <div class="all-tickets">
+          <div>
+            <label for="ticket-name">{_("ticket_name")}</label>
+            <label for="ticket-price">{_("ticket_price")}</label>
+          </div>
+          {#each buyable.filter(el => el.type === "ticket") as ticket, i}
+            <div>
+              <input type="text" bind:value={ticket.name}>
+              <input type="number" bind:value={ticket.price}>
+              <button class="delete" on:click={() => {
+                buyable.splice(buyable.indexOf(ticket), 1);
+                buyable = buyable;
+                }}>×</button>
+              {#if i === buyable.filter(el => el.type === "ticket").length - 1}
+                <button class="add-ticket" on:click={() => addBuyable("ticket")}>+</button>
+              {/if}
+            </div>
+          {/each}
+        </div>
+      </div>
+
+      <div>
+        <div class="block-name">{_("additionally_services")}</div>
+        <div class="all-tickets">
+          <div>
+            <label for="ticket-name">{_("service_name")}</label>
+            <label for="ticket-price">{_("service_price")}</label>
+          </div>
+          {#each buyable.filter(el => el.type === "addition") as ticket, i}
+            <div>
+              <input type="text" bind:value={ticket.name}>
+              <input type="number" bind:value={ticket.price}>
+              <button class="delete" on:click={() => {
+                buyable.splice(buyable.indexOf(ticket), 1);
+                buyable = buyable;
+                }}>×</button>
+              {#if i === buyable.filter(el => el.type === "addition").length - 1}
+                <button class="add-ticket" on:click={() => addBuyable("addition")}>+</button>
+              {/if}
+            </div>
+          {/each}
+        </div>
+      </div>
+    </div>
+
     <div class="pay-block">
 
       <div class="block-name">{_('participations_options')}</div>
@@ -1723,37 +2107,83 @@
 
     </div>
 
-    <div class="hotels-block">
-
-      <div class="block-name">{_('hotels_nearby')}</div>
-
-      <div class="hotels">
-        {#each [0, 0, 0, 0] as bl}
-          <button class="empty">
-            <div>
-              <div>+</div>
+    <div class="windows-block">
+      <div class="tours-block">
+        <div class="block-name">{_('tours_nearby')}</div>
+        <div class="tours">
+          <SortableList
+            list={tours}
+            key="id"
+            on:sort={sortTours}
+            let:item
+            let:index>
+            <div class="banner-block">
+              <Image src={item.image_url} alt={item.name} />
+              <div class="banner-data">
+                <h4>{item.name}</h4>
+                <span class="price">{item.price} {_("rub")}</span>
+              </div>
+              <button class="delete" on:click={() => deleteTour(item.id, index)}> <img src="/img/cross.svg" alt="delete"> </button>
             </div>
-          </button>
-        {/each}
+          </SortableList>
+          {#if tours.length < 3}
+            <button class="add" on:click={() => showTours = true}>{_("add_tour")}</button>
+          {/if}
+        </div>
       </div>
 
-    </div>
-
-    <div class="tours-block">
-
-      <div class="block-name">{_('excursions_and_tours_nearby')}</div>
-
-      <div class="tours">
-        {#each [0, 0, 0, 0] as bl}
-          <button class="empty">
-            <div>
-              <div>+</div>
+      <div class="excursions-block">
+        <div class="block-name">{_('excursions_nearby')}</div>
+        <div class="excursions">
+          <SortableList
+            list={excursions}
+            key="id"
+            on:sort={sortExcursions}
+            let:item
+            let:index>
+            <div class="banner-block">
+              <Image src={item.image_url} alt={item.name} />
+              <div class="banner-data">
+                <h4>{item.name}</h4>
+                <span class="price">{item.price} {_("rub")} {item.id}</span>
+              </div>
+              <button class="delete" on:click={() => deleteExcursion(item.id, index)}> <img src="/img/cross.svg" alt="delete"> </button>
             </div>
-          </button>
-        {/each}
+          </SortableList>
+          {#if excursions.length < 3}
+            <button class="add" on:click={() => showExcursions = true}>{_("add_excursion")}</button>
+          {/if}
+        </div>
       </div>
-
     </div>
 
   </div>
 </AdminPage>
+
+{#if showTours}
+  <div class="all-tours-block">
+    <button on:click={() => showTours = false}/>
+    <div class="all-tours">
+      <h4>{_("tours")}</h4>
+      <div class="tours">
+        {#each allTours as tour}
+          <AdminCard {...tour} {_} on:change={addTour} isChange={true}/>
+        {/each}
+      </div>
+    </div>
+  </div>
+{/if}
+
+{#if showExcursions}
+  <div class="all-tours-block">
+    <button on:click={() => showExcursions = false}/>
+    <div class="all-tours">
+      <h4>{_("excursions")}</h4>
+      <div class="tours">
+        {#each allExcursions as excursion}
+          <AdminCard {...excursion} {_} on:change={addExcursion} isChange={true}/>
+        {/each}
+      </div>
+    </div>
+  </div>
+{/if}

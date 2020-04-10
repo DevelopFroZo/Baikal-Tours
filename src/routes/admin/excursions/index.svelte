@@ -20,8 +20,6 @@
 
     export let locale, excursions;
 
-    console.log(excursions)
-
     const fetcher = new Fetcher();
     const _ = i18n(locale);
 </script>
@@ -48,6 +46,10 @@
         margin-top: 40px;
     }
 </style>
+
+<svelte:head>
+    <title>{_("excursions")}</title>
+</svelte:head>
 
 <AdminPage {locale} {_} {fetcher} page={3}>
     <div class="head-line">

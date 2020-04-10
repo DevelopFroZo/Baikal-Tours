@@ -28,6 +28,7 @@
   import { parsePrice } from "/helpers/parsers.js";
   import { contactsToString, dateToString } from "/helpers/converters.js";
   import { onMount } from "svelte";
+  import AdminCard from "/components/admin_card.svelte";
 
   export let result_action, actionId, locale;
 
@@ -212,6 +213,26 @@
 
   :global(.ql-editor){
     padding: 0 !important;
+  }
+
+  .banner-line{
+    margin-top: 10px;
+    display: grid;
+    grid-template-columns: repeat(3, 225px);
+    justify-content: space-between;
+  }
+
+  .tickets-block{
+    display: flex;
+    align-items: flex-start;
+
+    & > div:last-child{
+      margin-left: 60px;
+    }
+
+    & ul{
+      margin-top: 15px;
+    }
   }
 </style>
 
@@ -398,6 +419,31 @@
 
       </div>
     </div>
+
+    <div class="tickets-block">
+      <div>
+        <h2>{_("tickets")}</h2>
+        <ul class="all-tickets">
+          {#if result_action.buyable.filter(el => el.type === "ticket").length > 0}
+            {#each result_action.buyable.filter(el => el.type === "ticket") as ticket}
+              <li>{ticket.name}, {ticket.price}{_("rub")}</li>
+            {/each}
+          {:else}{_("no_data")}{/if}
+        </ul>
+      </div>
+
+      <div>
+        <h2>{_("additionally_services")}</h2>
+        <ul class="all-tickets">
+          {#if result_action.buyable.filter(el => el.type === "addition").length > 0}
+            {#each result_action.buyable.filter(el => el.type === "addition") as ticket}
+              <li>{ticket.name}, {ticket.price}{_("rub")}</li>
+            {/each}
+          {:else}{_("no_data")}{/if}
+        </ul>
+      </div>
+    </div>
+
     <h2>{_('participations_options')}</h2>
     <div class="payment-block">
       {#if result_action.price_min == 0 && result_action.price_max === 0}
@@ -426,6 +472,24 @@
         {/each}
       </div>
     {:else}{_('no_data')}{/if}
+
+    <h2>{_("excursions_nearby")}</h2>
+    {#if result_action.excursions.length > 0}
+      <div class="banner-line">
+        {#each result_action.excursions as excursion}
+          <AdminCard {...excursion} {_} />
+        {/each}
+      </div>
+    {:else}{_("no_data")}{/if}
+
+    <h2>{_("tours_nearby")}</h2>
+    {#if result_action.tours.length > 0}
+      <div class="banner-line">
+        {#each result_action.tours as tour}
+          <AdminCard {...tour} {_} />
+        {/each}
+      </div>
+    {:else}{_("no_data")}{/if}
 
     <h2>{_('list_of_registered_users')}</h2>
     {#if result_action.subscribers.length !== 0}

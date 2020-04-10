@@ -1,7 +1,17 @@
 <script>
     import Image from "/components/imageCenter.svelte";
+    import { createEventDispatcher } from "svelte";
 
-    export let name, image_url, site,  price, href, _;
+    export let id, name, image_url, site, price, href, _, isChange = false, noEvents = false;
+
+    const dispatch = createEventDispatcher();
+
+    function change(){
+        if(isChange)
+            dispatch("change", {
+                name, image_url, site, price, id
+            })
+    }
 </script>
 
 <style lang="scss">
@@ -46,14 +56,24 @@
         width: 125px;
         text-align: center;
     }
+
+    .isChange{
+        cursor: pointer;
+    }
+
+    .noEvents{
+        pointer-events: none;
+    }
 </style>
 
-<div class="excursion-block">
+<div class="excursion-block" on:click={change} class:isChange>
   <h3>{name}</h3>
-  <div class="image-block">
-    <Image src={image_url} alt="test" />
+  <div class="image-block" class:noEvents>
+    <Image src={image_url} alt="test"/>
   </div>
-  <a href={site}>{site}</a>
+  {#if !noEvents}
+    <a href={site}>{site}</a>
+  {/if}
   <ul class="locations">
     <li>{_('price')}: {price}{_('rub')}</li>
   </ul>

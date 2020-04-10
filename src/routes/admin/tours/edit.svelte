@@ -328,6 +328,10 @@
 
 <svelte:window on:click={hideAll} />
 
+<svelte:head>
+  <title>{id === undefined ? _('creating_tour') : _('editing_tour')}</title>
+</svelte:head>
+
 <AdminPage {fetcher} {locale} {_} page={7}>
   <div class="line">
     <h2>

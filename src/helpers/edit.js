@@ -12,7 +12,8 @@ export {
     validateNewData,
     validateNewtranslateData,
     setTextTranslation,
-    validateActionData
+    validateActionData,
+    parseTickets
 }
 
 function getIds(obj) {
@@ -454,4 +455,61 @@ function validateActionData(newObj, oldObj) {
     if (newData.edit.length === 0) delete newData.edit;
 
     return newData;
-}   
+}
+
+function parseTickets(oldTickets, newTickets, id, locale) {
+    let newData = {
+        edit: [],
+        create: [],
+        del: [],
+    };
+
+    for(let ticket of newTickets)
+        if(ticket.price.length !== 0)
+            ticket.price = Number(ticket.price);
+
+    for (let ticket of newTickets) {
+        if (ticket.id === undefined && ticket.name.length !== 0 && ticket.price.length !== 0) {
+            ticket.name = setTextTranslation(ticket.name, locale, id);
+            newData.create.push(ticket)
+        }
+    }
+
+    for (let ticket of oldTickets) {
+        let bl = false;
+        for (let newTicket of newTickets) {
+            if (ticket.id === newTicket.id) {
+                bl = true;
+                break;
+            }
+        }
+        if (!bl)
+            newData.del.push(ticket.id);
+    }
+
+    for (let newTicket of newTickets) {
+        let data = {};
+        for (let oldTicket of oldTickets) {
+            if (oldTicket.id === newTicket.id) {
+                if (newTicket.name !== oldTicket.name && newTicket.name.length !== 0)
+                    data.name = setTextTranslation(newTicket.name, locale, id);
+
+                if (newTicket.price !== oldTicket.price && newTicket.price.length !== 0)
+                    data.price = newTicket.price;
+
+                break;
+            }
+        }
+
+        if(Object.keys(data).length !== 0){
+            data.id = newTicket.id;
+            newData.edit.push(data);
+        }
+    }
+
+    if(newData.create.length === 0) delete newData.create;
+    if(newData.edit.length === 0) delete newData.edit;
+    if(newData.del.length === 0) delete newData.del;
+
+    return newData;
+}

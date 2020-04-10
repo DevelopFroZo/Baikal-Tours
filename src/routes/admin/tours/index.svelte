@@ -49,6 +49,10 @@
     }
 </style>
 
+<svelte:head>
+    <title>{_("tours")}</title>
+</svelte:head>
+
 <AdminPage {locale} {_} {fetcher} page={7}>
     <div class="head-line">
         <h1>{_("tours")}</h1>

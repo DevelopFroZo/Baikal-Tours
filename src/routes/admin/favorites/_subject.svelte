@@ -40,14 +40,14 @@
 
     for (let event of events) {
       if (event.id !== newEvents[i].id) {
-        let prevNumber,
-          j = 0;
-        for (let newEvent of newEvents) {
-          if (newEvent.id === event.id) break;
+        let j = 0;
+        for(let newEvent of newEvents){
+          if(newEvent.id === event.id)
+            break;
           j++;
         }
-        let result = await fetcher.put(`/api/favorites/${newEvents[i].favorite_id}`, {
-          number: i + 1,
+        let result = await fetcher.put(`/api/favorites/${event.favorite_id}`, {
+          number: j + 1,
           action: "swipe"
         });
         if (result.ok) events = newEvents;
