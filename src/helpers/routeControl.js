@@ -11,7 +11,7 @@ function secureStatic( roles ){
 
   return ( req, res, next ) => {
     if( !roles.includes( req.session.role ) )
-      return res.redirect( `/login?redirect=${req.path}` );
+      return res.redirect( "/?window=login" );
 
     next();
   }

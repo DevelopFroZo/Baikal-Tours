@@ -86,6 +86,7 @@ server
     } ),
     sapper.middleware( {
       session: ( req, res ) => ( {
+        "user-agent": req.headers[ "user-agent" ],
         isLogged: req.session.isLogged,
         name: req.session.name,
         surname: req.session.surname,

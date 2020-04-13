@@ -12,7 +12,7 @@ export async function post( req, res ){
     ![ "ticket", "additional" ].includes( type ) ||
     typeof price !== "number" || price < 0 ||
     name === null || typeof name !== "object" || Array.isArray( name )
-  ) res.error( 13 );
+  ) return res.error( 13 );
 
   let translated = {};
 
