@@ -1,5 +1,6 @@
 <script context="module">
   import Fetcher from "/helpers/fetcher.js";
+  import { isMobile } from "/helpers/validators.js";
 
   export async function preload(page, session) {
     const fetcher = new Fetcher(this.fetch);
@@ -21,7 +22,9 @@
       }
     })).actions;
 
-    return { locale, subjects, actions, compiliations_result };
+    let mobile = isMobile(session["user-agent"]);
+
+    return { locale, subjects, actions, compiliations_result, mobile };
   }
 </script>
 
@@ -36,15 +39,11 @@
   import ChangeLanguage from "/components/language_select.svelte";
   import Carousel from "/components/carousel.svelte";
 
-  export let locale, subjects, actions, compiliations_result;
+  export let locale, subjects, actions, compiliations_result, mobile;
 
   const fetcher = new Fetcher();
 
   const _ = i18n(locale);
-
-  let selectionsBlock,
-    actinosBlock,
-    isLoad = false;
 
   onMount(() => {
     localStorage.removeItem("actionsParams");
@@ -380,13 +379,174 @@
       }
     }
   }
+
+  @media only screen and (max-width: 768px) {
+    h1 {
+      display: none;
+    }
+
+    .top-block {
+      background: linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.6) 69.79%,
+        rgba(255, 255, 255, 0) 83.33%
+      );
+      background-blend-mode: lighten, normal;
+      height: 650px;
+
+      & > h2 {
+        color: black;
+        margin-top: 180px;
+        font-size: 24px;
+        width: 100%;
+        padding: 0 20px;
+        box-sizing: border-box;
+      }
+    }
+
+    .info-block {
+      flex-direction: column;
+      margin-top: 60px;
+
+      & > div {
+        width: 100%;
+
+        &.about-calendar {
+          padding-right: 0;
+
+          & > pre {
+            font-size: $Medium_Font_Size;
+            margin-top: 10px;
+          }
+        }
+
+        & > .video-block {
+          height: 400px;
+          border-radius: 10px;
+          background: $Light_Gray;
+        }
+      }
+    }
+
+    h3 {
+      font-size: 24px;
+    }
+
+    .compiliations-block {
+      margin-top: 60px;
+
+      & > h3 {
+        width: 100%;
+      }
+    }
+
+    .anticipated-block {
+      margin-top: 60px;
+
+      & > h3 {
+        width: 100%;
+      }
+    }
+
+    .selection-carousel,
+    .action-carousel {
+      margin-top: 20px;
+      overflow: visible;
+    }
+
+    .translators-block {
+      padding: 30px 0;
+
+      & > .form-width {
+        flex-direction: column;
+        align-items: center;
+
+        & > button {
+          width: 300px;
+          height: 333px;
+
+          & > span {
+            font-weight: normal;
+            font-size: $Medium_Font_Size;
+            width: 125px;
+            top: 30px;
+            left: 20px;
+          }
+
+          &:not(:first-child) {
+            margin-top: 30px;
+          }
+        }
+      }
+
+      & > a {
+        width: calc(100% - 30px);
+        margin-top: 30px;
+        font-size: $LowBig_Font_Size;
+        box-sizing: border-box;
+      }
+    }
+
+    .mail-block {
+      margin-top: 60px;
+      margin-bottom: 0;
+      padding-bottom: 275px;
+      overflow: hidden;
+
+      & > .subscribe-block {
+        width: 100%;
+        padding: 30px 10px;
+
+        & > .input-line {
+          flex-direction: column;
+          align-items: flex-start;
+          margin-top: 0;
+
+          & > button {
+            width: 100%;
+          }
+
+          & > * {
+            margin-top: 20px;
+          }
+        }
+      }
+
+      & > img {
+        z-index: -1 !important;
+        left: 60px;
+        top: 140px !important;
+        width: 466px !important;
+        height: 478px !important;
+      }
+
+      & > .back-texts {
+        left: -30px;
+        z-index: -2;
+        top: 400px;
+
+        & > p {
+          font-size: $Medium_Font_Size;
+          width: 180px;
+        }
+      }
+    }
+
+    :global(.card) {
+      width: calc(100% - 50px) !important;
+    }
+
+    .all-info {
+      overflow: hidden;
+    }
+  }
 </style>
 
 <svelte:head>
   <title>{_('event_calendar')}</title>
 </svelte:head>
 
-<Header {locale} />
+<Header {locale} {mobile} />
 <div class="top-block">
   <img src="/img/index-top.png" alt={_('main_text')} />
   <h1>{_('main_text')}</h1>
@@ -395,9 +555,12 @@
     <span>{_('on_four_clicks')}</span>
   </h2>
 </div>
-<div class="form-width">
 
+<div class="form-width">
   <Quiz {_} {subjects} {fetcher} />
+</div>
+
+<div class="form-width all-info">
   <div class="info-block">
     <div class="about-calendar">
       <h3>
@@ -416,12 +579,15 @@
       <br />
       <span>{_('events_compiliations_blue')}</span>
     </h3>
-    <div class="selection-carousel" bind:this={selectionsBlock}>
+    <div class="selection-carousel">
       <Carousel
-        data={{ slidesPerView: 'auto', slidesPerView: 3, spaceBetween: 15, slidesPerGroup: 3, speed: 750, navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' }, watchOverflow: false }}
+        data={{ slidesPerView: mobile ? 'auto' : 3, spaceBetween: 15, slidesPerGroup: mobile ? 1 : 3, speed: 750, navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' } }}
         carouselData={compiliations_result}>
         {#each compiliations_result as compiliation}
-          <Selection width={390} height={200} {...compiliation} />
+          <Selection
+            width={mobile ? 210 : 390}
+            height={mobile ? 140 : 200}
+            {...compiliation} />
         {/each}
       </Carousel>
     </div>
@@ -433,12 +599,12 @@
       <br />
       <span>{_('actions')}</span>
     </h3>
-    <div class="action-carousel" bind:this={actinosBlock}>
+    <div class="action-carousel">
       <Carousel
-        data={{ slidesPerView: 'auto', slidesPerView: 3, spaceBetween: 30, slidesPerGroup: 3, speed: 750, navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' }, watchOverflow: false }}
+        data={{ slidesPerView: mobile ? 'auto' : 3, spaceBetween: 15, slidesPerGroup: mobile ? 1 : 3, speed: 750, navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' } }}
         carouselData={actions}>
         {#each actions as action}
-          <Card {...action} {locale} saveUrl={false}/>
+          <Card {...action} {locale} saveUrl={false} />
         {/each}
       </Carousel>
     </div>

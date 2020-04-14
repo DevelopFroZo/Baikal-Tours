@@ -230,6 +230,7 @@
       left: 0;
       height: 100%;
       transition: 0.3s;
+      border-radius: 100px;
     }
 
     & > .progress-number {
@@ -243,14 +244,15 @@
     }
   }
 
-  .buttons{
+  .buttons {
     display: flex;
     justify-content: center;
     margin-top: 35px;
     align-items: flex-start;
   }
 
-  .next-page, .back-page {
+  .next-page,
+  .back-page {
     display: block;
     background: $Blue_Gradient;
     border-radius: 100px;
@@ -275,29 +277,137 @@
     }
   }
 
-  .back-page{
-    background: linear-gradient(182.67deg, #FFFFFF 24.24%, #EFEFEF 90.54%);
+  .back-page {
+    background: linear-gradient(182.67deg, #ffffff 24.24%, #efefef 90.54%);
     width: 0;
     margin-left: 0;
     opacity: 0;
 
-    & > img{
+    & > img {
       margin-left: 0;
       margin-right: 15px;
       transform: rotate(0deg);
     }
 
-    & > span{
+    & > span {
       margin-left: 0;
       margin-right: 35px;
       color: black;
     }
   }
 
-  .visible-back{
+  .visible-back {
     width: 250px;
     margin-right: 20px;
     opacity: 1;
+  }
+
+  @media only screen and (max-width: 768px) {
+    .quiz {
+      margin-top: -200px;
+      width: 100%;
+      padding: 25px 20px;
+
+      & > h3 {
+        font-size: $Big_Font_Size;
+        margin-bottom: 10px;
+      }
+    }
+
+    .progress{
+      height: 30px;
+
+      & > .progress-number{
+        font-size: $Medium_Font_Size;
+      }
+    }
+
+    .quiz-first-page,
+    .quiz-second-page {
+      grid-template-columns: repeat(1, auto);
+      justify-content: center;
+
+      & > button {
+        width: 125px;
+        padding: 65px 0 15px;
+        font-size: $LowBig_Font_Size;
+        background-position: center 23px;
+
+        &.one {
+          background-image: url(../img/boy.svg);
+          background-size: 35px 26px;
+
+          &.change {
+            background-image: url(../img/boy-yellow.svg);
+          }
+        }
+
+        &.child {
+          background-size: 35px 32px;
+        }
+
+        &.group {
+          background-size: 52px 38px;
+        }
+
+        &.gym {
+          background-size: 35px 40px;
+        }
+
+        &.forums {
+          background-size: 35px 37px;
+        }
+
+        &.exhibitions {
+          background-size: 35px 43px;
+        }
+
+        &.gastronomy {
+          background-size: 35px 43px;
+        }
+
+        &.city-life {
+          background-size: 35px 43px;
+        }
+
+        &.festivals {
+          background-size: 35px 43px;
+        }
+
+        & > div {
+          width: 20px;
+          height: 20px;
+          top: 10px;
+          right: 15px;
+
+          & > img {
+            width: 10px;
+          }
+        }
+      }
+    }
+
+    .buttons {
+      flex-direction: column;
+
+      & > button {
+        width: 100% !important;
+      }
+
+      & > .back-page {
+        height: 0;
+        width: 100%;
+        padding: 0;
+      }
+    }
+
+    .visible-back {
+      height: 50px !important;
+      margin-bottom: 10px;
+      margin-right: 0;
+      opacity: 1;
+      padding: 15px 0 !important;
+    }
   }
 </style>
 
@@ -402,9 +512,9 @@
       <button
         class="back-page"
         class:visible-back={page !== 0}
-        on:click={() => (page = 0)} >
+        on:click={() => (page = 0)}>
         <img src="/img/right-arrow-grey.svg" alt="next" />
-        <span>{_("back")}</span>
+        <span>{_('back')}</span>
       </button>
       <button
         class="next-page"

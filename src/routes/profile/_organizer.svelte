@@ -132,18 +132,23 @@
     align-items: center;
     margin-top: 60px;
 
+    & > div {
+      display: flex;
+      align-items: center;
+
+      & > input {
+        margin: 0 30px;
+        width: 150px;
+      }
+
+      & > .ruble {
+        font-size: 40px;
+      }
+    }
+
     & > label {
       width: 150px;
       font-size: $Big_Font_Size;
-    }
-
-    & > input {
-      margin: 0 30px;
-      width: 150px;
-    }
-
-    & > .ruble {
-      font-size: 40px;
     }
 
     & > button {
@@ -156,7 +161,8 @@
 
   .price-list {
     margin-top: 50px;
-    width: 330px;
+    width: calc(100% + 200px);
+    margin-left: -100px;
     border-spacing: 0px;
 
     & > tr {
@@ -164,18 +170,21 @@
         color: black !important;
       }
 
-      &:not(:first-child) > td {
-        padding-top: 25px;
+      &:not(:last-child) > td {
+        border-bottom: 1px solid #efefef;
       }
 
       & > td {
-        width: 200px;
         position: relative;
         font-size: 20px;
         font-weight: 600;
+        padding: 12px 0;
 
         &:first-child {
           color: $Blue;
+          padding-left: 100px;
+          width: 180px;
+          max-width: 180px;
         }
 
         & > div {
@@ -212,8 +221,8 @@
     margin-top: 35px;
     box-shadow: 0px 0px 70px rgba(40, 39, 49, 0.1);
 
-    &:first-child{
-      margin-top: 50px
+    &:first-child {
+      margin-top: 50px;
     }
 
     & > h3 {
@@ -223,11 +232,9 @@
       letter-spacing: 0.1em;
     }
 
-    & > ul{
+    & > ul {
       margin-top: 10px;
     }
-
-
   }
 
   .tickets-block {
@@ -246,46 +253,50 @@
       & > table {
         width: 100%;
 
-        & td{
-            padding-top: 10px;
-            font-size: 20px;
-          }
-      }
-
-      &.services-block{
-        width: 350px;
-      }
-    }
-
-    & > .download-info-block {
-      width: 320px;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-start;
-
-      & > button {
-        background: linear-gradient(180deg, #FFC700 0%, rgba(255, 199, 0, 0.7) 100%);
-        display: flex;
-        align-items: center;
-        padding: 35px 15px;
-        color: white;
-        text-align: left;
-        box-sizing: border-box;
-        border-radius: 10px;
-        font-size: 20px;
-
-        & > img {
-          margin-right: 15px;
-          width: 50px;
+        & td {
+          padding-top: 10px;
+          font-size: 20px;
         }
+      }
+
+      &.services-block {
+        width: 350px;
       }
     }
   }
 
-  .user-events-block{
+  .download-info-block {
+    width: 320px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+
+    & > button {
+      background: linear-gradient(
+        180deg,
+        #ffc700 0%,
+        rgba(255, 199, 0, 0.7) 100%
+      );
+      display: flex;
+      align-items: center;
+      padding: 35px 15px;
+      color: white;
+      text-align: left;
+      box-sizing: border-box;
+      border-radius: 10px;
+      font-size: 20px;
+
+      & > img {
+        margin-right: 15px;
+        width: 50px;
+      }
+    }
+  }
+
+  .user-events-block {
     margin-top: 100px;
-    
-    & > h2{
+
+    & > h2 {
       margin: 0;
     }
   }
@@ -294,16 +305,16 @@
     font-size: 24px;
     font-weight: 600;
 
-    & > span{
+    & > span {
       color: $Blue;
       margin-left: 20px;
     }
   }
 
-  hr{
+  hr {
     width: calc(100% + 200px);
     margin: 35px 0 35px -100px;
-    border-top: 1px solid #E7E7E7;
+    border-top: 1px solid #e7e7e7;
   }
 
   .gray {
@@ -316,6 +327,218 @@
 
   .green {
     color: #8cc261;
+  }
+
+  .mobile-download {
+    display: none;
+  }
+
+  @media only screen and (max-width: 768px) {
+    .balance-block {
+      padding: 40px 10px;
+
+      & > .balance-info-block {
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: flex-start;
+
+        & > * {
+          font-size: $Big_Font_Size !important;
+        }
+
+        & > div {
+          margin-top: 15px;
+        }
+
+        & > h2 {
+          margin: 0;
+        }
+      }
+
+      & > .hide {
+        margin-top: 50px;
+
+        & > span {
+          font-size: $Medium_Font_Size;
+          margin-right: 15px;
+        }
+
+        & > img {
+          width: 10px;
+        }
+      }
+    }
+
+    .payment-block {
+      & > h3 {
+        font-size: $Medium_Font_Size;
+        margin-top: 25px;
+      }
+    }
+
+    .payment-info-block {
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: flex-start;
+
+      & > div {
+        width: 100%;
+
+        & > div {
+          flex-direction: column;
+          align-items: flex-start;
+          justify-content: flex-start;
+          height: auto;
+
+          &:not(:first-child) {
+            margin-top: 20px;
+          }
+
+          & > input {
+            width: 100%;
+            margin-top: 5px;
+            margin-left: 0;
+          }
+
+          & > label {
+            font-size: $Medium_Font_Size;
+            margin-left: 10px;
+          }
+        }
+
+        &:not(:first-child) {
+          width: 100% !important;
+
+          & > div {
+            margin-top: 20px;
+
+            &:first-child {
+              margin-top: 20px !important;
+            }
+
+            & > input {
+              width: 200px;
+            }
+          }
+        }
+      }
+    }
+
+    .price-block {
+      flex-direction: column;
+      align-items: flex-start;
+      margin-top: 30px;
+
+      & > label {
+        font-size: $Medium_Font_Size;
+      }
+
+      & > div {
+        margin-top: 5px;
+
+        & > input {
+          margin: 0 15px 0 0;
+          width: 200px;
+        }
+
+        & > .ruble {
+          font-size: 30px;
+        }
+      }
+
+      & > button {
+        width: 100%;
+        font-size: $Medium_Font_Size;
+        padding: 10px 0;
+        margin-left: 0;
+        margin-top: 45px;
+      }
+    }
+
+    .price-list-block {
+      width: 100%;
+
+      & > .price-list {
+        width: calc(100% + 30px);
+        margin-left: -15px;
+
+        & td:first-child {
+          padding-left: 15px !important;
+          width: auto !important;
+        }
+
+        & td {
+          font-size: $Medium_Font_Size !important;
+        }
+      }
+    }
+
+    .user-events-block {
+      margin-top: 60px;
+
+      & > h2 {
+        font-size: 24px;
+      }
+    }
+
+    .event {
+      padding: 25px 10px;
+
+      & * {
+        font-size: $Medium_Font_Size !important;
+      }
+
+      & > h3 {
+        font-size: $LowBig_Font_Size;
+      }
+
+      & > ul {
+        margin-top: 15px;
+      }
+
+      & > .tickets-block {
+        flex-direction: column;
+        justify-content: flex-start;
+        margin-top: 0;
+
+        & > div {
+          width: 100%;
+          margin-top: 30px;
+
+          & > table {
+            border-spacing: 0px;
+
+            & td:last-child {
+              text-align: right;
+            }
+          }
+        }
+
+        & > .download-info-block {
+          display: none;
+        }
+      }
+
+      & > hr {
+        width: calc(100% + 20px);
+        margin-left: -10px;
+      }
+    }
+
+    .payed{
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .mobile-download {
+      display: block;
+      margin-top: 30px;
+      width: 100%;
+      
+      & > button{
+        padding: 20px;
+      }
+    }
   }
 </style>
 
@@ -369,8 +592,10 @@
         </div>
         <div class="price-block">
           <label for="price">{_('amount')}</label>
-          <input type="text" name="price" />
-          <span class="ruble">₽</span>
+          <div>
+            <input type="text" name="price" />
+            <span class="ruble">₽</span>
+          </div>
           <button class="blue-button">{_('send_request')}</button>
         </div>
       </div>
@@ -470,7 +695,16 @@
           </div>
         </div>
         <hr />
-        <div class="payed">{_('paid2')} <span>29 500 {_('rub')}</span></div>
+        <div class="payed">
+          {_('paid2')}
+          <span>29 500 {_('rub')}</span>
+        </div>
+        <div class="download-info-block mobile-download">
+          <button>
+            <img src="/img/excel.svg" alt="excel" />
+            {_('download_registered_users')}
+          </button>
+        </div>
       </div>
     </div>
   </div>

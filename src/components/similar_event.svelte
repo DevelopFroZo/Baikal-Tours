@@ -12,7 +12,7 @@
 
   .similar-block {
     width: 580px;
-    min-height: 320px;
+    height: 320px;
     position: relative;
     overflow: hidden;
     box-shadow: 0px 0px 70px rgba(40, 39, 49, 0.1);
@@ -22,6 +22,7 @@
       rgba(255, 255, 255, 0) 99.59%
     );
     border-radius: 10px;
+    display: block;
 
     & * {
       transition: 0.3s;
@@ -43,7 +44,7 @@
       left: 0px;
       z-index: 1;
       color: #34353f;
-      width: 50%;
+      width: 100%;
       height: 100%;
       background: rgba(255, 255, 255, 0.6);
       box-shadow: 0px 0px 70px rgba(40, 39, 49, 0.1);
@@ -67,38 +68,26 @@
           font-size: $LowBig_Font_Size;
         }
       }
+    }
+  }
 
-      & > a {
-        text-align: center;
-        color: white;
-        font-size: $LowBig_Font_Size;
-        width: 200px;
-        padding: 15px 0;
-        border-radius: 100px;
-        border: 2px solid white;
-        margin-top: 15px;
-        opacity: 0;
-      }
+  @media only screen and (max-width: 768px){
+    .similar-block{
+      width: 100%;
+      height: 165px;
     }
 
-    &:hover {
-      & * {
-        color: white;
-      }
+    h4{
+      font-size: $LowBig_Font_Size !important;
+    }
 
-      & > div {
-        background: rgba(247, 159, 39, 0.5);
-        width: 100%;
-
-        & > a {
-          opacity: 1;
-        }
-      }
+    li{
+      font-size: $LowMedium_Font_Size;
     }
   }
 </style>
 
-<div class="similar-block" href="/compilation">
+<a class="similar-block" href={`/action?id=${favorite.id}`}>
   {#if favorite.image_url !== null}
     <Image src={favorite.image_url} alt={favorite.name}/>
   {/if}
@@ -109,6 +98,5 @@
         <li>{date}</li>
       {/each}
     </ul>
-    <a href={`/action?id=${favorite.id}`}>{_('detailed')}</a>
   </div>
-</div>
+</a>

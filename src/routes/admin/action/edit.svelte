@@ -545,13 +545,13 @@
   //Билеты
   $: {
     let tickets = buyable.filter(el => el.type === "ticket");
-    let additions = buyable.filter(el => el.type === "addition")  
+    let additions = buyable.filter(el => el.type === "additional")  
 
     if(!tickets.length)
       addBuyable("ticket")
     
     if(!additions.length)
-      addBuyable("addition")
+      addBuyable("additional")
   }
 
   let options = [];
@@ -1981,7 +1981,7 @@
             <label for="ticket-name">{_("service_name")}</label>
             <label for="ticket-price">{_("service_price")}</label>
           </div>
-          {#each buyable.filter(el => el.type === "addition") as ticket, i}
+          {#each buyable.filter(el => el.type === "additional") as ticket, i}
             <div>
               <input type="text" bind:value={ticket.name}>
               <input type="number" bind:value={ticket.price}>
@@ -1989,8 +1989,8 @@
                 buyable.splice(buyable.indexOf(ticket), 1);
                 buyable = buyable;
                 }}>×</button>
-              {#if i === buyable.filter(el => el.type === "addition").length - 1}
-                <button class="add-ticket" on:click={() => addBuyable("addition")}>+</button>
+              {#if i === buyable.filter(el => el.type === "additional").length - 1}
+                <button class="add-ticket" on:click={() => addBuyable("additional")}>+</button>
               {/if}
             </div>
           {/each}

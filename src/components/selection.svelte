@@ -24,6 +24,12 @@
     font-size: 24px;
     font-family: $Gilroy;
   }
+
+  @media only screen and (max-width: 768px){
+    p{
+      font-size: $Medium_Font_Size;
+    }
+  }
 </style>
 
 <a

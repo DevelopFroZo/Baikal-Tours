@@ -89,17 +89,21 @@
   }
 
   @media only screen and (max-width: 768px) {
+    *{
+      font-size: $LowMedium_Font_Size !important;
+    }
+
     .form-width{
       padding: 0 10px !important;
-      justify-content: space-between !important;
-    }
+      flex-direction: column;
 
-    .right-side{
-      margin-left: 0 !important;
-    }
-
-    .right-side, .left-side{
-      width: 130px !important;
+      & > div{
+        margin: 0;
+        width: 100%;
+        text-align: left;
+        min-width: auto;
+        max-width: auto;
+      }
     }
   }
 </style>

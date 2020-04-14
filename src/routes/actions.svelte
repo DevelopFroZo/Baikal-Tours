@@ -6,6 +6,7 @@
     setFilterFromUrl,
     showActiveFilters
   } from "/helpers/filter.js";
+  import { isMobile } from "/helpers/validators.js";
 
   export async function preload(page, session) {
     const fetcher = new Fetcher(this.fetch);
@@ -120,7 +121,7 @@
       })).data;
     }
 
-    if(params.subjects !== undefined){
+    if (params.subjects !== undefined) {
       let subjects = params.subjects.split(",");
 
       result_favorites = (await fetcher.get("/api/actions/", {
@@ -130,13 +131,12 @@
           favoritesOnly: "",
           subjects
         }
-      })).actions
-    }
-    else{
+      })).actions;
+    } else {
       result_favorites = (await fetcher.get("/api/actions/", {
         credentials: "same-origin",
         query: {
-          favoritesOnly: "",
+          favoritesOnly: ""
         }
       })).actions.slice(0, 4);
     }
@@ -145,6 +145,7 @@
     result_cards = result_cards.actions;
 
     let locale = session.locale;
+    let mobile = isMobile(session["user-agent"]);
 
     return {
       result_cards,
@@ -156,7 +157,8 @@
       count,
       result_count,
       result_compiliations,
-      result_favorites
+      result_favorites,
+      mobile
     };
   }
 </script>
@@ -191,7 +193,8 @@
     count,
     result_count,
     result_compiliations,
-    result_favorites;
+    result_favorites,
+    mobile;
 
   const fetcher = new Fetcher();
   const _ = i18n(locale);
@@ -612,46 +615,95 @@
     .filters {
       flex-direction: column;
 
-      & > div {
-        margin: 5px auto 0;
-        width: 200px;
-
-        & > input,
-        & > button {
-          width: 100%;
-        }
+      & > *:not(:first-child){
+        margin-top: 15px;
       }
     }
 
-    .two-input {
+    .two-input{
       display: flex;
+      justify-content: space-between;
 
-      & > input {
-        width: 50%;
-        padding: 0 3px;
-        box-sizing: border-box;
+      &:before{
+        width: 10px;
       }
 
-      & > div {
-        width: 50%;
-        box-sizing: border-box;
-
-        & > input {
-          width: 100%;
-          padding: 0 3px;
-          box-sizing: border-box;
-        }
+      & > input{
+        margin: 0 !important;
+        width: 125px;
+        font-size: $Medium_Font_Size !important;
+        padding: 15px 20px;
       }
     }
 
-    #price-end,
-    #date-end {
-      margin-left: -1px;
-      width: calc(100% + 1px);
+    #price-end, #price-start{
+      margin: 0 !important;
+      font-size: $Medium_Font_Size;
+      padding: 15px 20px;
+      width: 125px;
     }
+
+    .select{
+      padding: 15px 20px;
+      height: auto;
+
+      &:before{
+        top: calc(50% - 3px);
+      }
+    }
+
+    .option, .select{
+      width: 100%;
+      font-size: $Medium_Font_Size;
+
+      & label{
+        font-size: $Medium_Font_Size;
+      }
+    }
+
+
 
     .cards-block {
       grid-template-columns: repeat(1, 100%);
+    }
+
+    .selections-carousel {
+      margin-top: 160px;
+    }
+
+    h1 {
+      margin-top: 60px;
+      font-size: 24px;
+    }
+
+    .filters {
+      padding: 30px 10px;
+      margin: 30px 0 60px;
+      display: flex;
+      justify-content: space-between;
+      box-shadow: 0px 0px 70px rgba(40, 39, 49, 0.1);
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .selections-block{
+      grid-template-columns: repeat(1, 100%);
+      grid-row-gap: 15px;
+    }
+
+    .more-events{
+      flex-direction: column;
+
+      & > h2{
+        font-size: 24px;
+        width: 100%;
+      }
+
+      & > button{
+        margin-top: 25px;
+        display: block;
+        width: 100%;
+      }
     }
   }
 </style>
@@ -661,7 +713,7 @@
   <link rel="stylesheet" href="https://unpkg.com/swiper/css/swiper.css" />
 </svelte:head>
 
-<svelte:window on:click={hideAll} bind:scrollY />
+<svelte:window on:click={hideAll} on:touch={hideAll} bind:scrollY />
 
 <Header {locale} />
 <!-- <BreadCrumbs path = {[{name: "Каталог событий", url: "./"}]} /> -->
@@ -669,14 +721,16 @@
 
   <div class="selections-carousel">
     <Carousel
-      data={{ slidesPerView: 'auto', slidesPerView: 3, spaceBetween: 30, slidesPerGroup: 3, speed: 750, navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' }, watchOverflow: false }}
-      carouselData = {result_compiliations}>
+      data={{ slidesPerView: 'auto', slidesPerView: mobile ? 'auto' : 3, spaceBetween: mobile ? 10 : 30, slidesPerGroup: mobile ? 1 : 3, speed: 750, navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' }, watchOverflow: false }}
+      carouselData={result_compiliations}>
       {#each result_compiliations as compiliation}
-        <Selection width={390} height={200} {...compiliation} />
+        <Selection
+          width={mobile ? 210 : 390}
+          height={mobile ? 140 : 200}
+          {...compiliation} />
       {/each}
     </Carousel>
   </div>
-  
 
   <h1>{_('event_catalog')}</h1>
 

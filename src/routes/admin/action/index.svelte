@@ -435,8 +435,8 @@
       <div>
         <h2>{_("additionally_services")}</h2>
         <ul class="all-tickets">
-          {#if result_action.buyable.filter(el => el.type === "addition").length > 0}
-            {#each result_action.buyable.filter(el => el.type === "addition") as ticket}
+          {#if result_action.buyable.filter(el => el.type === "additional").length > 0}
+            {#each result_action.buyable.filter(el => el.type === "additional") as ticket}
               <li>{ticket.name}, {ticket.price}{_("rub")}</li>
             {/each}
           {:else}{_("no_data")}{/if}
@@ -491,7 +491,7 @@
       </div>
     {:else}{_("no_data")}{/if}
 
-    <h2>{_('list_of_registered_users')}</h2>
+    <!-- <h2>{_('list_of_registered_users')}</h2>
     {#if result_action.subscribers.length !== 0}
       <table>
         <tr>
@@ -515,6 +515,6 @@
           </tr>
         {/each}
       </table>
-    {:else}{_('no_registered_users')}{/if}
+    {:else}{_('no_registered_users')}{/if} -->
   </div>
 </AdminPage>

@@ -1,189 +1,287 @@
 <script>
-    import { parseDateForCards } from "/helpers/parsers.js";
-    export let action_id, name, locations, date_starts, date_ends, _, prev = false;
+  import { parseDateForCards } from "/helpers/parsers.js";
+  import Image from "/components/imageCenter.svelte";
 
-    let dates = parseDateForCards(date_starts, date_ends, _);
+  export let action_id,
+    name,
+    locations,
+    date_starts,
+    date_ends,
+    _,
+    prev = false;
+
+  let dates = parseDateForCards(date_starts, date_ends, _);
 </script>
 
 <style lang="scss">
-    @import "./styles/profile.scss";
+  @import "./styles/profile.scss";
 
-    .action-block{
-        margin-top: 50px;
-        background: white;
-        display: flex;
-        align-items: center;
-        box-shadow: 0px 0px 70px rgba(40, 39, 49, 0.1);
-        border-radius: 10px;
+  .action-block {
+    margin-top: 50px;
+    background: white;
+    display: flex;
+    align-items: center;
+    box-shadow: 0px 0px 70px rgba(40, 39, 49, 0.1);
+    border-radius: 10px;
+  }
+
+  .image-block {
+    position: relative;
+    min-width: 400px;
+    max-width: 400px;
+    height: 400px;
+    overflow: hidden;
+    width: 175px;
+    border-radius: 10px;
+
+    & > img {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      min-height: 100%;
+      min-width: 100%;
+    }
+  }
+
+  .action-info-block {
+    padding: 50px;
+  }
+
+  .tickets-block {
+    min-height: 10px;
+    margin-bottom: 70px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+
+    & * {
+      color: #434343;
+      font-size: 20px;
     }
 
-    .image-block{
-        position: relative;
-        min-width: 400px;
-        max-width: 400px;
-        height: 400px;
-        overflow: hidden;
-        width: 175px;
-        border-radius: 10px;
+    & > ul {
+      margin-top: 40px;
 
-        & > img{
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            min-height: 100%;
-            min-width: 100%;
-        }
+      & > li {
+        margin-top: 30px;
+      }
     }
+  }
 
-    .action-info-block{
-      padding: 50px;
-    }
+  ul {
+    font-weight: bold;
+    list-style-type: none;
+  }
 
-    .tickets-block{
-        min-height: 10px;
-        margin-bottom: 70px;
-        display: flex;
-        align-items: flex-start;
-        justify-content: space-between;
+  li {
+    font-weight: normal;
+    padding: 0;
+  }
 
-        & *{
-          color: #434343;
-          font-size: 20px;
-        }
+  .status-text {
+    font-size: 20px;
+  }
 
-        & > ul{
-          margin-top: 40px;
+  h3 {
+    margin: 0;
+    font-size: 24px;
+    font-family: $Playfair;
+    color: #34353f;
+  }
 
-          & > li{
-            margin-top: 30px;
-          }
-        }
-    }
+  .action-info {
+    margin-top: 20px;
 
-    ul{
-        font-weight: bold;
-        list-style-type: none;
-    }
-
-    li{
-        font-weight: normal;
-        padding: 0;
-    }
-
-    .status-text{
-        font-size: 20px;
-    }
-
-    h3{
-        margin: 0;
-        font-size: 24px;
-        font-family: $Playfair;
-        color: #34353F;
-    }
-
-    .action-info{
-        margin-top: 20px;
-
-        & > ul{
-
-          &:not(:first-child){
-            margin-top: 10px;
-          }
-
-          & > li{
-            color: #434343;
-            font-size: 20px;
-          }
-        }
-    }
-
-    .buttons{
-      display: flex;
-      margin-top: 50px;
-
-      & > button{
-        width: 250px;
-        padding-left: 10px;
-        padding-right: 10px;
-        box-sizing: border-box;
-        background: linear-gradient(114.29deg, #0A92DB 7.11%, #117BCD 78.9%);
-        box-shadow: 0px 23px 70px rgba(77, 80, 98, 0.1), inset 0px 0px 50px rgba(255, 255, 255, 0.15);
+    & > ul {
+      &:not(:first-child) {
+        margin-top: 10px;
       }
 
-      & > .cansel{
-        box-shadow: 0px 0px 70px rgba(40, 39, 49, 0.1);
-        background: linear-gradient(182.67deg, #FFFFFF 24.24%, #EFEFEF 90.54%);
+      & > li {
         color: #434343;
-      }
-
-      & > button:not(:first-child){
-        margin-left: 20px;
+        font-size: 20px;
       }
     }
+  }
 
-    .blue{
-      color: $Blue !important;
+  .buttons,
+  .mobile-buttons {
+    display: flex;
+    margin-top: 50px;
+
+    & > button {
+      width: 250px;
+      padding-left: 10px;
+      padding-right: 10px;
+      box-sizing: border-box;
+      background: linear-gradient(114.29deg, #0a92db 7.11%, #117bcd 78.9%);
+      box-shadow: 0px 23px 70px rgba(77, 80, 98, 0.1),
+        inset 0px 0px 50px rgba(255, 255, 255, 0.15);
     }
 
-    .bold{
-      font-weight: 600;
+    & > .cansel {
+      box-shadow: 0px 0px 70px rgba(40, 39, 49, 0.1);
+      background: linear-gradient(182.67deg, #ffffff 24.24%, #efefef 90.54%);
+      color: #434343;
     }
 
-    .prev{
-      background: rgba(52, 53, 63, 0.2);
+    & > button:not(:first-child) {
+      margin-left: 20px;
+    }
+  }
+
+  .blue {
+    color: $Blue !important;
+  }
+
+  .bold {
+    font-weight: 600;
+  }
+
+  .prev {
+    background: rgba(52, 53, 63, 0.2);
+  }
+
+  .red {
+    color: #ed2d33;
+  }
+
+  .mobile-buttons {
+    display: none;
+  }
+
+  @media only screen and (max-width: 768px) {
+    .action-block {
+      flex-direction: column;
+      padding: 30px 10px;
+
+      & > .action-info-block {
+        order: 0;
+      }
+
+      & > .image-block {
+        min-width: 100%;
+        max-width: 100%;
+        height: 180px;
+        order: 1;
+        margin-top: 15px;
+      }
     }
 
-    .red{
-      color: #ED2D33;
+    .action-info-block {
+      padding: 0;
+      width: 100%;
+
+      & * {
+        font-size: $Medium_Font_Size !important;
+      }
+
+      & > h3 {
+        font-size: $LowBig_Font_Size !important;
+      }
+
+      & > .tickets-block {
+        flex-direction: column;
+        margin-bottom: 30px;
+
+        & > ul {
+          margin-top: 30px;
+
+          & > li {
+            margin-top: 15px !important;
+          }
+        }
+      }
+
+      & > .buttons {
+        display: none;
+      }
     }
+
+    .mobile-buttons {
+      display: flex;
+      flex-direction: column;
+      margin-top: 20px;
+      order: 2;
+      justify-content: flex-start;
+      align-items: flex-start;
+      width: 100%;
+
+      & > button:last-child {
+        margin-top: 15px;
+        margin-left: 0;
+      }
+
+      & > button {
+        width: 100%;
+        font-size: $Medium_Font_Size;
+        padding: 10px 0;
+      }
+    }
+  }
 </style>
 
 <div class="action-block" class:prev>
   <div class="image-block">
-    <img src="/img/test.png" alt="image" />
+    <Image src="/img/test.png" alt="image" />
   </div>
   <div class="action-info-block">
-    <h2>{name}</h2>
-    <h3>Название</h3>
+    <h3>{name}</h3>
     <div class="action-info">
       <ul>
         {#each locations as location}
-            <li>{location}</li>
+          <li>{location}</li>
         {/each}
       </ul>
       <ul>
         {#each dates as date}
-            <li>{date}</li>
+          <li>{date}</li>
         {/each}
       </ul>
     </div>
     <div class="tickets-block">
       <ul>
-        {_("your_tickets")}
-        <li>Взрослый - 1шт. - <span class="blue">1000 руб.</span></li>
-        <li>Детский - 2шт. - <span class="blue">1000 руб.</span></li>
+        {_('your_tickets')}
+        <li>
+          Взрослый - 1шт. -
+          <span class="blue">1000 руб.</span>
+        </li>
+        <li>
+          Детский - 2шт. -
+          <span class="blue">1000 руб.</span>
+        </li>
       </ul>
       <ul>
-        {_("additionally")}
-        <li>Питание - 1шт. - <span class="blue">1000 руб.</span></li>
-        <li>Снаряжение - 2шт. - <span class="blue">1000 руб.</span></li>
+        {_('additionally')}
+        <li>
+          Питание - 1шт. -
+          <span class="blue">1000 руб.</span>
+        </li>
+        <li>
+          Снаряжение - 2шт. -
+          <span class="blue">1000 руб.</span>
+        </li>
       </ul>
     </div>
     <p class="status-text">
-      <span class="blue bold">{_("action_register_success")}</span>
+      <span class="blue bold">{_('action_register_success')}</span>
       <br />
-      {_("action_register_mail")}
+      {_('action_register_mail')}
     </p>
     <p class="status-text">
-      <span class="bold blue">{_("action_confirm_pay_blue")}</span>
+      <span class="bold blue">{_('action_confirm_pay_blue')}</span>
       <br />
-      {_("action_confirm_pay")}
+      {_('action_confirm_pay')}
     </p>
-    <p class="status-text red bold">{_("held_event")}</p>
+    <p class="status-text red bold">{_('held_event')}</p>
     <div class="buttons">
-      <button class="blue-button cansel">{_("cansel_reservation")}</button>
-      <button class="blue-button">{_("pay_ticket")}</button>
+      <button class="blue-button cansel">{_('cansel_reservation')}</button>
+      <button class="blue-button">{_('pay_ticket')}</button>
     </div>
+  </div>
+  <div class="mobile-buttons">
+    <button class="blue-button cansel">{_('cansel_reservation')}</button>
+    <button class="blue-button">{_('pay_ticket')}</button>
   </div>
 </div>

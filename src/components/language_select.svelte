@@ -111,7 +111,7 @@
   }
 </style>
 
-<svelte:window on:click={hideAll} />
+<svelte:window on:click={hideAll} on:touch={hideAll}/>
 
 <div class="language-block">
   <div

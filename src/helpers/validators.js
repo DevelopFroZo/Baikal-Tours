@@ -1,6 +1,7 @@
 export {
     validatePhone,
-    validateMail
+    validateMail,
+    isMobile
 }
 
 function validatePhone(e) {
@@ -26,3 +27,6 @@ function validateMail(mail){
     return re.test(String(mail).toLowerCase());
 }
 
+function isMobile(param){
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|BB|PlayBook|IEMobile|Windows Phone|Kindle|Silk|Opera Mini/i.test(param);
+}
