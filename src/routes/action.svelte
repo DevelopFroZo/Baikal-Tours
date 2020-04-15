@@ -1,6 +1,7 @@
 <script context="module">
   import Fetcher from "/helpers/fetcher.js";
   import { parseDate } from "/helpers/parsers.js";
+  import { isMobile } from "/helpers/validators.js";
 
   export async function preload(page, session) {
     const fetcher = new Fetcher(this.fetch);
@@ -27,7 +28,10 @@
           count: 2
         }
       })).actions;
-      return { result_action, actionId, locale, similar_events };
+
+      let mobile = isMobile(session["user-agent"]);
+
+      return { result_action, actionId, locale, similar_events, mobile };
     } 
 
     this.error(404, "page not found");
@@ -51,7 +55,7 @@
   import BannerBlock from "/components/bannerBlock.svelte";
   import { slide } from "svelte/transition";
 
-  export let result_action, actionId, locale, similar_events;
+  export let result_action, actionId, locale, similar_events, mobile;
 
   const fetcher = new Fetcher();
   const { session } = stores();
@@ -601,7 +605,7 @@
     & > li{
       display: flex;
       align-items: center;
-      color: rgba(52, 53, 63, 0.7);
+      color: $Blue;
       font-size: $Big_Font_Size;
     }
 
@@ -609,7 +613,7 @@
       width: 7px;
       height: 7px;
       border-radius: 10px;
-      border: 1px solid rgba(52, 53, 63, 0.7);
+      border: 1px solid $Blue;
       box-sizing: border-box;
       margin: 0 15px;
     }
@@ -755,6 +759,233 @@
       width: 100%;
       padding: 30px 50px;
     }
+
+    .main-block > .form-width{
+      width: 100%;
+      padding: 190px 15px 85px;
+
+      & > h1{
+        font-size: 24px;
+      }
+
+      & li{
+        font-size: $LowBig_Font_Size;
+
+        & > .point{
+          width: 5px;
+          height: 5px;
+        }
+      }
+
+      & > .locations-block li{
+        color: #34353F;
+      }
+
+      & > button{
+        width: 100%;
+      }
+    }
+
+    .short-description{
+      width: 100%;
+      font-size: $Big_Font_Size;
+    }
+
+    .carousel-cell{
+      width: 245px !important;
+      height: 190px;
+    }
+
+    .main-carousel{
+      margin-top: 40px;
+    }
+
+    #description-block{
+      width: 100%;
+      margin: 50px 0 0 0;
+      font-size: $Medium_Font_Size;
+    }
+
+    .partners-block{
+      margin-top: 60px;
+
+      & > h3{
+        font-size: 24px;
+      }
+    }
+
+    .partner-block{
+      width: 145px !important;
+      height: 90px !important;
+      margin-left: 0 !important;
+    }
+
+    .contacts-block{
+      padding-top: 40px;
+      width: 100%;
+      padding-bottom: 30px;
+
+      & > .contacts-and-place{
+        flex-direction: column;
+        justify-content: flex-start;
+        padding: 0 15px;
+        margin-top: 0;
+
+        & > .contacts-block{
+          padding-top: 0;
+          padding-bottom: 0;
+          width: 100%;
+          margin-top: 0;
+
+          & h2{
+            font-size: 24px;
+            margin: 0;
+          }
+
+          & .line{
+            & > div{
+              min-width: 25px;
+              max-width: 25px;
+              height: 25px;
+
+              & > img{
+                width: 12px;
+              }
+            }
+
+            & li{
+              font-size: $Medium_Font_Size;
+
+              & > a{
+                width: 240px;
+              }
+            }
+          }
+        }
+
+        & > .map-block{
+          width: 100%;
+          margin-top: 30px;
+
+          & > .map{
+            width: 100%;
+            height: 210px;
+
+            & h3{
+              font-size: $Medium_Font_Size;
+              padding: 10px 15px;
+            }
+          }
+
+          & > .share{
+            font-size: $Medium_Font_Size;
+          }
+        }
+      }
+    }
+
+    .register-form{
+      margin-top: 75px;
+      padding: 35px 15px;
+
+      & > .register-info-blocks{
+        flex-direction: column;
+        padding: 0;
+        width: 100%;
+
+        & > div{
+          padding: 0 !important;
+          min-width: 100% !important;
+          max-width: 100% !important;
+          margin-left: 0 !important;
+          
+          &:not(:first-child){
+            margin-top: 40px;
+          }
+        }
+
+        & input{
+          font-size: $Medium_Font_Size;
+        }
+        
+        & h2{
+          font-size: $Big_Font_Size;
+        }
+
+        & .ticket-block > *{
+          font-size: $Big_Font_Size !important;
+        }
+
+      }
+
+      & > hr{
+        margin-top: 30px;
+      }
+
+      & > .final-price-block{
+        padding: 0;
+        margin-top: 30px;
+
+        & > button{
+          width: 100%;
+          font-size: $Big_Font_Size;
+        }
+
+        & > .total-price{
+          width: 100%;
+          font-size: 20px;
+
+          & > span{
+            font-size: inherit;
+          }
+        }
+      }
+    }
+
+    .banners-block{
+      margin-top: 60px;
+
+      & > .banners-info{
+        flex-direction: column;
+
+        & > *{
+          width: 100%;
+        }
+
+        & > a{
+          margin-top: 10px;
+          font-size: $Medium_Font_Size;
+        }
+
+        & > h2{
+          font-size: 24px;
+        }
+      }
+
+      & > .banners{
+        overflow-x: scroll;
+        grid-column-gap: 10px;
+        justify-content: left;
+      }
+    }
+
+    .similar-events-block{
+      margin-top: 60px;
+
+      & > h2{
+        font-size: 24px;
+      }
+
+      & > .similar-events{
+        margin-top: 20px;
+        grid-template-columns: repeat(1, 100%);
+        grid-row-gap: 20px;
+      }
+    }
+
+    .form-width{
+      overflow: hidden;
+    }
   }
 </style>
 
@@ -848,7 +1079,7 @@
       <h3>{_('action_partners')}</h3>
 
       <div class="partners-carousel">
-        <Carousel data={{slidesPerView: 'auto',spaceBetween: 25, speed: 750, navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' }}}
+        <Carousel data={{slidesPerView: 'auto', spaceBetween: (mobile ? 10 : 25), speed: 750, navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' }}}
         carouselData={result_action.partners}>
           {#each result_action.partners as partner}
             <div class="partner-block swiper-slide">
@@ -1056,11 +1287,11 @@
           </div>
           {/if}
 
-          {#if result_action.buyable.filter(el => el.type === "addition").length > 0}
+          {#if result_action.buyable.filter(el => el.type === "additional").length > 0}
           <div class="register-categoty-block">
             <h2>{_('additionally')}</h2>
             <div class="tickets-block">
-              {#each result_action.buyable.filter(el => el.type === "addition") as ticket}
+              {#each result_action.buyable.filter(el => el.type === "additional") as ticket}
                 <div class="ticket-block">
                   <div>
                     <div>{ticket.name}</div>
@@ -1090,7 +1321,7 @@
     </div>
   {/if}
 
-  <div class="banners-block">
+  <!-- <div class="banners-block">
     <div class="banners-info">
       <h2>{_('hotels_nearby')}</h2>
       <a href="/" target="_blank">{_('more_hotels')}</a>
@@ -1106,7 +1337,7 @@
         </div>
       {/each}
     </div>
-  </div>
+  </div> -->
 
   {#if result_action.excursions.length > 0}
     <div class="banners-block">

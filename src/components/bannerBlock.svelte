@@ -6,6 +6,7 @@
 
 <style lang="scss">
     @import "./styles/colors.scss";
+    @import "./styles/fonts.scss";
 
   .banner-block {
     position: relative;
@@ -53,6 +54,26 @@
 
   .isWork{
       pointer-events: none;
+  }
+
+  @media only screen and (max-width: 768px){
+    .banner-block{
+      width: 210px;
+      height: 140px;
+    }
+
+    h4{
+      font-size: $LowBig_Font_Size !important;
+    }
+
+    .price{
+      font-size: $Medium_Font_Size !important;
+    }
+
+    .banner-info{
+      padding: 0 5px !important;
+      bottom: 10px !important;
+    }
   }
 </style>
 

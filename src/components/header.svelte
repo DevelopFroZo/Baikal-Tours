@@ -6,12 +6,15 @@
   import Register from "./register/index.svelte";
   import Login from "./login/index.svelte";
   import { parseUrlByPage } from "/helpers/parsers.js";
+  import { slide } from "svelte/transition";
 
-  export let locale;
+  export let locale, mobile;
 
   const fetcher = new Fetcher();
   const { session, page } = stores();
   const _ = i18n(locale);
+
+  let showMenu = false;
 
   async function changeLanguage(e) {
     let lang = e.detail.lang;
@@ -52,7 +55,7 @@
     }
   }
 
-  h1 {
+  h2 {
     color: $MaxDark_Gray;
     text-transform: uppercase;
     font-size: $LowBig_Font_Size;
@@ -144,7 +147,23 @@
     top: 5px;
   }
 
+  .menu > img {
+    width: 30px;
+  }
+
+  .navigate-block > button {
+    margin-left: 50px;
+  }
+
+  .navigate-block {
+    display: none;
+  }
+
   @media only screen and (max-width: 768px) {
+    .navigate-block {
+      display: block;
+    }
+
     .user-info {
       display: none;
     }
@@ -152,13 +171,76 @@
     .page-name {
       margin-left: 0;
     }
+
+    .form-width {
+      padding: 20px;
+      width: calc(100% - 30px);
+    }
+
+    h2 {
+      font-size: $LowMedium_Font_Size;
+      margin-bottom: 5px;
+    }
+
+    .menu > img {
+      width: 20px;
+    }
+
+    .menu-block {
+      position: fixed;
+      overflow: auto;
+      width: 100%;
+      height: 100vh;
+      background: white;
+      padding: 20px 35px;
+      z-index: 5;
+      box-sizing: border-box;
+      top: 0;
+      left: 0;
+    }
+
+    .language {
+      display: none;
+    }
+
+    .top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .close-menu {
+      margin-top: 10px;
+
+      & > img {
+        width: 20px;
+      }
+    }
+
+    .blue {
+      color: $Blue;
+
+      & > button {
+        color: inherit;
+        font-size: $Medium_Font_Size;
+      }
+    }
+
+    .menu-login {
+      margin-top: 20px;
+
+      & > .blue{
+        margin-top: 20px;
+        display: block;
+      }
+    }
   }
 </style>
 
 <header class="form-width line">
   <div class="left-side">
     <a class="header-name" href="./actions">
-      <h1>{_('event_calendar')}</h1>
+      <h2>{_('event_calendar')}</h2>
       <div>
         <img src="img/ot.png" alt="от" />
         <img src="img/logo.png" alt="logo" />
@@ -192,8 +274,54 @@
         <a class="logout" href="/logout">{_('logout')}</a>
       {/if}
     </div>
+    <div class="navigate-block">
+      <!-- <button class="search"></button> -->
+      <button class="menu" on:click={() => (showMenu = true)}>
+        <img src="/img/open-menu.svg" alt="menu" />
+      </button>
+    </div>
   </div>
 </header>
+
+{#if showMenu}
+  <div class="menu-block" transition:slide>
+    <div class="top">
+      <div class="mobile-language">
+        <ChangeLanguage {locale} on:changeLanguage={changeLanguage} />
+      </div>
+      <button class="close-menu" on:click={() => (showMenu = false)}>
+        <img src="/img/cross.svg" alt="close" />
+      </button>
+    </div>
+    <div class="menu-login">
+      {#if !$session.isLogged}
+        <div class="blue">
+          <button
+            on:click={() => {
+              goto(parseUrlByPage($page, [], { window: 'login' }));
+              showMenu = false;
+            }}>
+            {_('authorize')}
+          </button>
+          {' / '}
+          <button
+            on:click={() => {
+              goto(parseUrlByPage($page, [], { window: 'register' }));
+              showMenu = false;
+            }}>
+            {_('registration')}
+          </button>
+        </div>
+      {:else}
+        <a href="./profile?section=settings" class="my-page">
+          {`${$session.name} ${$session.surname}`}
+        </a>
+        <br />
+        <a class="blue" href="/logout">{_('logout')}</a>
+      {/if}
+    </div>
+  </div>
+{/if}
 
 <Register
   page={$page}

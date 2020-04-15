@@ -67,6 +67,13 @@
     min-height: calc(100vh - 210px);
     padding-bottom: 30px;
   }
+
+  @media only screen and (max-width: 768px){
+    h1{
+      margin-top: 160px;
+      font-size: 24px;
+    }
+  }
 </style>
 
 <svelte:head>

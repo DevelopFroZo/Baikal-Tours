@@ -297,6 +297,70 @@
       }
     }
   }
+
+  @media only screen and (max-width: 768px){
+    .contacts-data{
+      margin-top: 40px;
+      flex-direction: column;
+      justify-content: flex-start;
+
+      & > div{
+        padding: 40px 10px;
+        width: 100%;
+
+        & > div{
+          margin-top: 20px;
+        }
+
+        & input{
+          font-size: $Medium_Font_Size;
+        }
+
+        & > button{
+          font-size: $Medium_Font_Size;
+          margin-top: 30px;
+        }
+      }
+
+      & > div:last-child{
+        margin-top: 40px;
+      }
+    }
+
+    .digest-block{
+      width: 100%;
+      margin-top: 60px;
+
+      & > h2{
+        font-size: $Big_Font_Size;
+        width: 100%;
+      }
+
+      & > .digest-text{
+        font-size: $Medium_Font_Size;
+        width: 100%;
+      }
+    }
+
+    .edit-digest-block{
+      padding: 40px 10px;
+
+      & > h3{
+        font-size: $LowBig_Font_Size;
+      }
+
+      & > .subjects-block, .periodicity-block{
+        grid-template-columns: repeat(1, auto);
+      }
+    }
+
+    .blue-button{
+      font-size: $Medium_Font_Size;
+      padding: 10px 0;
+      width: 100% !important;
+      margin-top: 30px !important;
+    }
+  }
 </style>
 
 <div>

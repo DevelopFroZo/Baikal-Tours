@@ -162,3 +162,30 @@ a, .forgot-password{
   color: #C1C1C1;
   margin: 30px auto 0;
 }
+
+@media only screen and (max-width: 768px){
+  .register-block{
+    width: calc(100% - 60px);
+  }
+
+  .in-block{
+    padding: 20px;
+  }
+
+  *{
+    font-size: $Medium_Font_Size !important;
+  }
+
+  h2{
+    font-size: $Big_Font_Size !important;
+  }
+
+  .input-block, .blue-button, .forgot-password{
+    margin-top: 20px !important;
+  }
+
+  .inter > button{
+    margin: 5px auto 0 auto !important;
+    display: block !important;
+  }
+}

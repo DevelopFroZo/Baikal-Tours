@@ -49,6 +49,7 @@
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
+    margin-top: 10px;
   }
 
   .line {
@@ -104,7 +105,6 @@
 
   .image-and-price {
     position: relative;
-    margin-top: 30px;
     padding: 0 10px;
 
     & > .price {
@@ -130,10 +130,39 @@
   @media only screen and (max-width: 768px) {
     .card {
       width: 100%;
+
+      & > *{
+        padding: 0 10px !important;
+      }
     }
 
     .image {
       height: 200px;
+    }
+
+    h4{
+      font-size: $LowBig_Font_Size !important;
+    }
+
+    *{
+      font-size: $LowMedium_Font_Size !important;
+    }
+
+    .line{
+      & > .img{
+        min-width: 20px;
+        max-width: 20px;
+        height: 20px;
+        margin-left: 0 !important;
+
+        & > img{
+          width: 14px;
+        }
+      }
+
+      & > div{
+        margin-left: 10px !important;
+      }
     }
   }
 </style>
@@ -144,19 +173,19 @@
     if (saveURL) localStorage.setItem('actionsParams', document.location.href);
     document.location.href = './action?id=' + id;
   }}>
-  <h4>{name}</h4>
-  {#if dates.length !== 0}
-    <div class="date-block">{dates.join('; ')}</div>
-  {/if}
   <div class="image-and-price">
     <div class="image">
       <Image
         src={image_url === null ? 'img/logo.png' : image_url}
-        alt="image of event" 
-        autoWidth={image_url === null}/>
+        alt="image of event"
+        autoWidth={image_url === null} />
     </div>
     <div class="price">{second_price}</div>
   </div>
+  <h4>{name}</h4>
+  {#if dates.length !== 0}
+    <div class="date-block">{dates.join('; ')}</div>
+  {/if}
   {#if subjects.length !== 0 && subjects[0] !== null}
     <div class="line">
       <div class="img">

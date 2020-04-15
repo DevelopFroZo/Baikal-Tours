@@ -247,6 +247,106 @@
       }
     }
   }
+
+  @media only screen and (max-width: 768px) {
+    .main-block {
+      height: 400px;
+
+      & > h1 {
+        font-size: 24px;
+      }
+    }
+
+    .share {
+      font-size: $Medium_Font_Size;
+
+      & :global(img) {
+        margin-left: 20px;
+        height: 15px;
+      }
+    }
+
+    .line {
+      flex-direction: column;
+      margin-top: 30px;
+      align-items: flex-start;
+      justify-content: flex-start;
+
+      & > .main-date {
+        margin-top: 15px;
+
+        & li {
+          font-size: $LowMedium_Font_Size;
+        }
+
+        & > .mini-image-block {
+          width: 25px;
+          height: 25px;
+
+          & > img {
+            width: 16px;
+          }
+        }
+      }
+    }
+
+    h2 {
+      margin-top: 35px;
+      width: 100%;
+      font-size: $Big_Font_Size;
+    }
+
+    .description {
+      width: 100%;
+      font-size: $Medium_Font_Size;
+      margin-top: 10px;
+    }
+
+    .event-block {
+      flex-direction: column;
+      justify-content: flex-start;
+
+      & > .img-block {
+        order: 0 !important;
+        min-width: 100%;
+        max-width: 100%;
+        height: 290px !important;
+      }
+
+      & > .event-info {
+        min-width: 100%;
+        max-width: 100%;
+        margin-top: 20px;
+        padding-bottom: 0 !important;
+
+        & > a{
+          position: relative;
+          width: 100%;
+          margin-top: 20px;
+          top: 0;
+          left: 0;
+          display: block;
+        }
+      }
+
+      & h3 {
+        font-size: $Big_Font_Size;
+      }
+
+      & ul {
+        margin-top: 20px;
+      }
+
+      & .price,
+      .action-description {
+        margin-top: 30px !important;
+      }
+
+      & * {
+        font-size: $Medium_Font_Size !important;
+      }
+    }
+  }
 </style>
 
 <svelte:head>
@@ -307,7 +407,9 @@
     {#each compiliation_result.actions as action}
       <div class="event-block">
         <div class="img-block">
-          <Image src={action.images.length === 0 ? "/img/logo.png" : action.images.filter(el => el.is_main)[0].image_url} alt="test" />
+          <Image
+            src={action.images.length === 0 ? '/img/logo.png' : action.images.filter(el => el.is_main)[0].image_url}
+            alt="test" />
         </div>
         <div class="event-info">
           <h3>{action.name}</h3>
@@ -325,7 +427,9 @@
               </li>
             {/each}
           </ul>
-          <b class="price">{parsePrice(action.price_min, action.price_max, _)}</b>
+          <b class="price">
+            {parsePrice(action.price_min, action.price_max, _)}
+          </b>
           <div class="action-description">{action.compiliationDescription}</div>
           <a href={`/action?id=${action.id}`}>{_('detailed')}</a>
         </div>
