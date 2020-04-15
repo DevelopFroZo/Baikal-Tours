@@ -452,6 +452,10 @@
     .action-carousel {
       margin-top: 20px;
       overflow: visible;
+
+      & :global(.card) {
+        width: calc(100% - 50px) !important;
+      }
     }
 
     .translators-block {
@@ -530,10 +534,6 @@
           width: 180px;
         }
       }
-    }
-
-    :global(.card) {
-      width: calc(100% - 50px) !important;
     }
 
     .all-info {

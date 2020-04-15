@@ -314,5 +314,7 @@ export default ( {
   additionally_services:      "Дополнительные услуги",
   service_name:               "Название услуги",
   service_price:              "Цена услуги",
-  buy_tickets:                "Купить билеты"
+  buy_tickets:                "Купить билеты",
+
+  category:                   "Категории"
 } );

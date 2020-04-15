@@ -11,7 +11,7 @@
       actionData = {
         price_min: 0,
         price_max: 0,
-        organizer_id: null,
+        organizer_ids: null,
         site_payment: false,
         organizer_payment: null,
         emails: null,
@@ -110,7 +110,7 @@
     actionData,
     price_min = 0,
     price_max = 0,
-    organizer_id = null,
+    organizer_ids = null,
     site_payment = false,
     organizer_payment = null,
     emails = null,
@@ -145,6 +145,8 @@
     locale,
     buyable = [];
 
+  console.log(actionData);
+
   const fetcher = new Fetcher();
   const _ = i18n(locale);
 
@@ -159,6 +161,7 @@
   subjects = edit.cloneArray(actionData.subjects);
   companions = edit.cloneArray(actionData.companions);
   buyable = edit.cloneArray(actionData.buyable);
+  organizer_ids = edit.cloneArray(actionData.organizer_ids);
 
   subjects = edit.getIds(subjects);
   transfers = edit.getIds(transfers);
@@ -385,10 +388,15 @@
 
   //Организатор из пользователей
   $: {
-    newData = edit.validateNewData(
-      organizer_id,
-      actionData.organizer_id,
-      "organizer_id",
+    if(organizer_ids === null || organizer_ids.length === 0)
+      organizer_ids = [null];
+
+    console.log(organizer_ids, organizer_ids.filter(el => el !== null), actionData.organizer_ids)
+    
+    newData = edit.validateEditArray(
+      organizer_ids.filter(el => el !== null),
+      actionData.organizer_ids,
+      "organizer_ids",
       newData
     );
   }
@@ -1141,16 +1149,17 @@
 
   .organisators-block {
     display: flex;
-    justify-content: space-between;
     margin-top: 35px;
 
     & > div {
-      width: 45%;
-
       & select,
       input {
-        width: 100%;
+        width: 400px;
       }
+    }
+
+    & > div:last-child{
+      margin-left: 40px;
     }
   }
 
@@ -1455,6 +1464,26 @@
         font-size: 30px;
         width: 20px;
       }
+    }
+  }
+
+  .organizer-line{
+    display: flex;
+    align-items: center;
+    margin-top: 8px;
+    height: 24px;
+    overflow: hidden;
+
+    & > .add-оrganizer{
+      font-size: 25px;
+    }
+
+    & > button{
+      margin-left: 10px;
+    }
+
+    & > select{
+      margin-top: 0;
     }
   }
 </style>
@@ -1791,12 +1820,20 @@
 
       <div>
         <label for="organisator-user">{_('organizer_from_user')}</label>
-        <select name="organisation-user" bind:value={organizer_id}>
-          <option value={null} />
-          {#each result_users as user}
-            <option value={user.id}>{user.name} {user.surname}</option>
+          {#each organizer_ids as organizer, i}
+            <div class="organizer-line">
+              <select name="organisation-user" bind:value={organizer}>
+                <option value={null} />
+                {#each result_users as user}
+                  <option value={user.id}>{user.name} {user.surname}</option>
+                {/each}
+              </select>
+              <button class="delete" on:click={() => {organizer_ids.splice(i, 1); organizer_ids = organizer_ids}}>×</button>
+              {#if i === organizer_ids.length - 1}
+                <button class="add-оrganizer" on:click={() => {organizer_ids.push(null); organizer_ids = organizer_ids}}>+</button>
+              {/if}
+            </div>
           {/each}
-        </select>
       </div>
 
     </div>

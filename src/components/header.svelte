@@ -7,14 +7,22 @@
   import Login from "./login/index.svelte";
   import { parseUrlByPage } from "/helpers/parsers.js";
   import { slide } from "svelte/transition";
+  import { onMount } from "svelte";
+  import Image from "/components/imageCenter.svelte";
+  import ClickOutside from "svelte-click-outside";
 
-  export let locale, mobile;
+  export let locale,
+    mobile,
+    compiliations = [],
+    subjects = [];
 
   const fetcher = new Fetcher();
   const { session, page } = stores();
   const _ = i18n(locale);
 
-  let showMenu = false;
+  let showMenu = false,
+  menuButton,
+  menuBlock;
 
   async function changeLanguage(e) {
     let lang = e.detail.lang;
@@ -22,6 +30,11 @@
 
     document.location.reload();
   }
+
+  onMount(async () => {
+    compiliations = (await fetcher.get("/api/compiliations")).data.splice(0, 6);
+    subjects = (await fetcher.get("/api/dataForFilters")).data.subjects;
+  });
 </script>
 
 <style lang="scss">
@@ -155,18 +168,91 @@
     margin-left: 50px;
   }
 
-  .navigate-block {
+  .menu-block {
+    position: fixed;
+    top: 130px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 1200px;
+    padding: 45px 55px;
+    background: white;
+    z-index: 5;
+    box-shadow: 0px 23px 70px rgba(77, 80, 98, 0.1),
+      inset 0px 0px 50px rgba(255, 255, 255, 0.15);
+    border-radius: 10px;
+    box-sizing: border-box;
+  }
+
+  .menu-info {
+    display: grid;
+    grid-template-columns: repeat(2, auto);
+    justify-content: space-between;
+  }
+
+  h3 {
+    margin-bottom: 30px;
+    font-size: $LowBig_Font_Size;
+  }
+
+  .categories-block {
+    width: 240px;
+
+    & li {
+      font-size: $LowBig_Font_Size;
+      color: rgba(52, 53, 63, 0.5);
+
+      &:not(:first-child) {
+        margin-top: 20px;
+      }
+    }
+  }
+
+  .compiliations-block {
+    width: 810px;
+
+    & > ul {
+      display: grid;
+      justify-content: space-between;
+      grid-template-columns: repeat(3, 250px);
+      grid-row-gap: 30px;
+
+      & a {
+        display: flex;
+
+        & > .img {
+          position: relative;
+          border-radius: 10px;
+          overflow: hidden;
+          height: 120px;
+        }
+
+        & > h4 {
+          font-weight: normal;
+          font-size: $Medium_Font_Size;
+          margin: 0;
+          padding-left: 10px;
+          color: #34353f;
+          box-sizing: border-box;
+        }
+
+        & > * {
+          flex: 0.5;
+        }
+      }
+    }
+  }
+
+  .top,
+  .menu-login {
     display: none;
   }
 
   @media only screen and (max-width: 768px) {
-    .navigate-block {
-      display: block;
-    }
-
     .user-info {
       display: none;
     }
+
+    
 
     .page-name {
       margin-left: 0;
@@ -187,16 +273,15 @@
     }
 
     .menu-block {
-      position: fixed;
       overflow: auto;
       width: 100%;
       height: 100vh;
-      background: white;
       padding: 20px 35px;
-      z-index: 5;
-      box-sizing: border-box;
       top: 0;
       left: 0;
+      border-radius: 0;
+      transform: translateX(0);
+      box-shadow: none;
     }
 
     .language {
@@ -228,11 +313,47 @@
 
     .menu-login {
       margin-top: 20px;
+      display: block;
 
-      & > .blue{
+      & > .blue {
         margin-top: 20px;
         display: block;
       }
+    }
+
+    .menu-info {
+      margin-top: 30px;
+      grid-template-columns: repeat(1, 100%);
+      grid-row-gap: 30px;
+
+      & * {
+        font-size: 14px !important;
+      }
+    }
+
+    h3 {
+      margin-bottom: 20px;
+    }
+
+    .compiliations {
+      grid-template-columns: repeat(1, 100%) !important;
+      grid-row-gap: 20px !important;
+
+      & .img {
+        display: none;
+      }
+
+      & h4 {
+        padding-left: 0 !important;
+      }
+    }
+
+    .compiliations-block {
+      width: 100%;
+    }
+
+    .categories-block {
+      width: 100%;
     }
   }
 </style>
@@ -276,15 +397,16 @@
     </div>
     <div class="navigate-block">
       <!-- <button class="search"></button> -->
-      <button class="menu" on:click={() => (showMenu = true)}>
+      <button class="menu" on:click={() => (showMenu = true)} bind:this={menuButton}>
         <img src="/img/open-menu.svg" alt="menu" />
       </button>
     </div>
   </div>
 </header>
 
+<ClickOutside on:clickoutside={() => showMenu = false} exclude={[menuButton]}>
 {#if showMenu}
-  <div class="menu-block" transition:slide>
+  <div class="menu-block" transition:slide bind:this={menuBlock}>
     <div class="top">
       <div class="mobile-language">
         <ChangeLanguage {locale} on:changeLanguage={changeLanguage} />
@@ -320,8 +442,38 @@
         <a class="blue" href="/logout">{_('logout')}</a>
       {/if}
     </div>
+    <div class="menu-info">
+      <div class="categories-block">
+        <h3>{_('category')}</h3>
+        <ul class="categories">
+          {#each subjects as subject}
+            <li>
+              <a href={`actions?filter&subjects=${subject.id}`}>
+                {subject.name}
+              </a>
+            </li>
+          {/each}
+        </ul>
+      </div>
+      <div class="compiliations-block">
+        <h3>{_('selections')}</h3>
+        <ul class="compiliations">
+          {#each compiliations as compiliation}
+            <li>
+              <a href={`compiliation?url=${compiliation.url}`}>
+                <div class="img">
+                  <Image src={compiliation.image_url} alt={compiliation.name} />
+                </div>
+                <h4>{compiliation.name}</h4>
+              </a>
+            </li>
+          {/each}
+        </ul>
+      </div>
+    </div>
   </div>
 {/if}
+</ClickOutside>
 
 <Register
   page={$page}

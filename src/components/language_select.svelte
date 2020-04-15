@@ -1,8 +1,10 @@
 <script>
   import { slide } from "svelte/transition";
   import { createEventDispatcher } from "svelte";
+  import ClickOutside from "svelte-click-outside";
 
-  export let locale, white = false;
+  export let locale,
+    white = false;
 
   const dispatch = createEventDispatcher();
 
@@ -26,14 +28,6 @@
   let languageBlock,
     languageButton,
     languagesVisible = false;
-
-  function hideAll(e) {
-    e = e || event;
-    let target = e.target || e.srcElement;
-    const its_btnMenu =
-      target == languageButton || languageButton.contains(target);
-    if (!its_btnMenu) languagesVisible = false;
-  }
 
   function changeLanguage(lang) {
     secondLanguage = lang;
@@ -100,39 +94,41 @@
     transform: rotate(270deg) !important;
   }
 
-  .language-block{
-      width: 75px;
-      height: 39px;
-      position: relative;
+  .language-block {
+    width: 75px;
+    height: 39px;
+    position: relative;
   }
 
-  .white{
-      background: white;
+  .white {
+    background: white;
   }
 </style>
 
-<svelte:window on:click={hideAll} on:touch={hideAll}/>
-
-<div class="language-block">
-  <div
-    class="language"
-    bind:this={languageButton}
-    on:click={() => (languagesVisible = true)}
-    class:white>
-    <div class="language-line">
-      {secondLanguage}
-      <img src="/img/next.svg" alt="show" class:rotate={languagesVisible} />
-    </div>
-    {#if languagesVisible}
-      <div class="languages-block" bind:this={languageBlock} transition:slide>
-        {#each languages as lang}
-          {#if lang.lang !== secondLanguage}
-            <button on:click={() => changeLanguage(lang.lang)}>
-              {lang.lang}
-            </button>
-          {/if}
-        {/each}
+<ClickOutside
+  on:clickoutside={() => (languagesVisible = false)}
+  exclude={[languageButton]}>
+  <div class="language-block">
+    <div
+      class="language"
+      bind:this={languageButton}
+      on:click={() => (languagesVisible = true)}
+      class:white>
+      <div class="language-line">
+        {secondLanguage}
+        <img src="/img/next.svg" alt="show" class:rotate={languagesVisible} />
       </div>
-    {/if}
+      {#if languagesVisible}
+        <div class="languages-block" bind:this={languageBlock} transition:slide>
+          {#each languages as lang}
+            {#if lang.lang !== secondLanguage}
+              <button on:click={() => changeLanguage(lang.lang)}>
+                {lang.lang}
+              </button>
+            {/if}
+          {/each}
+        </div>
+      {/if}
+    </div>
   </div>
-</div>
+</ClickOutside>

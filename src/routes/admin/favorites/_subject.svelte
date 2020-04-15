@@ -9,7 +9,13 @@
 
   let showEvents = false,
     events = [],
-    allEvents = [];
+    allEvents = [],
+    search = "",
+    filterEvents = [];
+
+  $: {
+    filterEvents = allEvents.filter(el => el.name.indexOf(search) !== -1);
+  }
 
   async function addEvent(eventInfo) {
     let bl = true;
@@ -178,6 +184,14 @@
       }
     }
   }
+
+  input{
+    padding: 5px;
+    border: 3px;
+    border: 1px solid black;
+    font-size: $Medium_Font_Size;
+    margin-bottom: 20px;
+  }
 </style>
 
 <div>
@@ -222,7 +236,8 @@
   <div class="events-block">
     <button on:click={() => (showEvents = false)} />
     <div class="all-events-block">
-      {#each allEvents as event}
+      <input type="text" placeholder={_("search_by_name")} bind:value={search}>
+      {#each filterEvents as event}
         <button class="event-block" on:click={() => addEvent(event)}>
           <h3>{event.name}</h3>
           <div class="event-info">
