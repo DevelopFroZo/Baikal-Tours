@@ -253,13 +253,9 @@ export default class extends Foundation{
 
     const main = ( await transaction.query(
       `select
-        a.*,
-        u.email as organizer_email, u.phone as organizer_phone,
-        at.*
+        a.*, at.*
       from
-        actions as a
-        left join users as u
-        on a.organizer_id = u.id,
+        actions as a,
         actions_translates as at
       where
         ${status}
@@ -429,7 +425,7 @@ export default class extends Foundation{
   }
 
   async edit( id, {
-    status, price_min, price_max, organizer_id,
+    status, price_min, price_max, organizer_ids,
     site_payment, organizer_payment, emails, phones,
     websites, vk_link, facebook_link, instagram_link,
     twitter_link, title, name, tagline,
@@ -463,9 +459,9 @@ export default class extends Foundation{
       params.push( price_max );
     }
 
-    if( organizer_id === null || typeof organizer_id === "number" ){
-      set.push( `organizer_id = $${sc++}` );
-      params.push( organizer_id );
+    if( organizer_ids === null || Array.isArray( organizer_ids ) ){
+      set.push( `organizer_ids = $${sc++}::int[]` );
+      params.push( organizer_ids );
     }
 
     if( typeof site_payment === "boolean" ){
