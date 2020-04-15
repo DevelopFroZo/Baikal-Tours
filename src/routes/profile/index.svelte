@@ -29,11 +29,7 @@
       credentials: "same-origin"
     })).data.subjects;
 
-    let userSubscribeds = (await fetcher.get(`/api/users/${session.userId}/subscribed`, {
-      credentials: "same-origin"
-    })).data;
-
-    return { locale, section, userInfo, subjectsInfo, userSubscribeds};
+    return { locale, section, userInfo, subjectsInfo};
   }
 </script>
 
@@ -46,7 +42,7 @@
   import { goto } from "@sapper/app";
   import i18n from "/helpers/i18n/index.js";
 
-  export let locale, section, userInfo, subjectsInfo, userSubscribeds;
+  export let locale, section, userInfo, subjectsInfo;
   const _ = i18n( locale );
 
   function setSection(sectionType) {
@@ -107,7 +103,7 @@
   {#if section === 'settings'}
     <Settings {userInfo} {...userInfo} {subjectsInfo} {_}/>
   {:else if section === 'actions'}
-    <Actions {userSubscribeds} {_}/>
+    <Actions {_}/>
   {:else if section === 'organizer'}
     <Organizer {_}/>
   {/if}
