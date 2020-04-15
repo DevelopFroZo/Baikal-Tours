@@ -60,6 +60,10 @@ export default ( server ) => {
   server.put( "/api/actionsTours", secureAPI( "admin" ) );
   server.delete( "/api/actionsTours", secureAPI( "admin" ) );
 
+  server.post( "/api/actionBuyable", secureAPI( "admin" ) );
+  server.put( "/api/actionBuyable/:id", secureAPI( "admin" ) );
+  server.delete( "/api/actionBuyable/:id", secureAPI( "admin" ) );
+
   server.post( "/api/compiliations", secureAPI( "admin" ) );
   server.post( "/api/compiliations/:id/image", secureAPI( "admin" ), upload.single( "image" ) );
   // #fix добавить PUT, DELETE

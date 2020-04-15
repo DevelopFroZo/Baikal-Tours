@@ -1,6 +1,12 @@
 import { toInt } from "/helpers/converters";
 
 export async function get( req, res ){
+  if( !req.session.isLogged )
+    return res.json( {
+      ok: false,
+      message: "Unauthorized"
+    } );
+
   const id = toInt( req.params.id );
 
   if( id === null || id < 1 )
@@ -15,6 +21,12 @@ export async function get( req, res ){
 }
 
 export async function put( req, res ){
+  if( !req.session.isLogged )
+    return res.json( {
+      ok: false,
+      message: "Unauthorized"
+    } );
+
   const id = toInt( req.params.id );
 
   if( id === null || id < 1 )

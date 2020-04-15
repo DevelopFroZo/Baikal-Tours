@@ -23,6 +23,7 @@ export default {
     14: "Invalid image size",
     15: "Invalid image extension",
     16: "Invalid URL",
-    17: "Count of favorites for sended subject >= 4"
+    17: "Count of favorites for sended subject >= 4",
+    18: "Invalid date"
   }
 };
