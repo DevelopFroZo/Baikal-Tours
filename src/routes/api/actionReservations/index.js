@@ -6,7 +6,7 @@ import { toInt } from "/helpers/converters";
 
 export async function post( req, res ){
   const { userId, actionId, name, surname, phone, email } = req.body;
-  let { date } = req.body;
+  let { date, buyable } = req.body;
 
   if( !req.session.isLogged )
     return res.json( {
@@ -43,7 +43,13 @@ export async function post( req, res ){
       return res.error( 18 );
     }
 
-  const result = await create( req.database.pool, userId, actionId, name, surname, phone, email, date );
+  if(
+    !Array.isArray( buyable ) ||
+    buyable.length === 0 ||
+    !buyable.every( el => el !== null && !Array.isArray( el ) && typeof el === "object" )
+  ) buyable = null;
+
+  const result = await create( req.database.pool, userId, actionId, name, surname, phone, email, date, buyable );
 
   await transaction.query( "commit" );
   await transaction.release();
@@ -56,18 +62,18 @@ export async function get( {
   query,
   database: { pool }
 }, res ){
-  if( !isLogged ) return res.json( {
-    ok: false,
-    message: "Unauthorized"
-  } );
+  // if( !isLogged ) return res.json( {
+  //   ok: false,
+  //   message: "Unauthorized"
+  // } );
 
   const userId_ = toInt( query.userId );
 
   if( typeof userId_ !== "number" || userId_ < 1 )
     return res.error( 13 );
 
-  if( role !== "admin" && userId !== userId_ )
-    return res.error( 12 );
+  // if( role !== "admin" && userId !== userId_ )
+  //   return res.error( 12 );
 
   const transaction = await pool.connect();
 
@@ -77,9 +83,12 @@ export async function get( {
   const actionIds = [];
   const actionReservationsIds = [];
 
-  reservations.forEach( ( { action_id, action_reservation_id } ) => {
-    actionIds.push( action_id );
-    actionReservationsIds.push( action_reservation_id );
+  reservations.forEach( reservation => {
+    actionIds.push( reservation.action_id );
+    actionReservationsIds.push( reservation.action_reservation_id );
+    reservation.locations = [];
+    reservation.dates = [];
+    reservation.buyable = [];
   } );
 
   const { rows: locations } = await transaction.query(
@@ -127,19 +136,28 @@ export async function get( {
 
     if( map === undefined ){
       map = {};
-      obj0.forEach( ( field, i ) => map[ field[ byKey ] ] = i );
+
+      obj0.forEach( ( field, i ) => {
+        const mapKey = field[ byKey ];
+
+        if( !( mapKey in map ) )
+          map[ mapKey ] = [];
+
+        map[ mapKey ].push( i );
+      } );
     }
 
     obj1.forEach( field => {
-      const field_ = obj0[ map[ field[ byKey ] ] ];
+      const indexes = map[ field[ byKey ] ];
 
-      if( !( newKey in field_ ) )
-        field_[ newKey ] = [];
+      indexes.forEach( index => {
+        const field_ = obj0[ index ];
 
-      if( remove === true )
-        delete field[ byKey ];
+        // if( remove === true )
+        //   delete field[ byKey ];
 
-      field_[ newKey ].push( field );
+        field_[ newKey ].push( field );
+      } );
     } );
   };
 

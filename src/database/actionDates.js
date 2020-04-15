@@ -70,6 +70,17 @@ export default class extends Foundation{
     }
   }
 
+  async getByActionId( client, actionId ){
+    const { rows } = await client.query(
+      `select *
+      from action_dates
+      where action_id = $1`,
+      [ actionId ]
+    );
+
+    return rows;
+  }
+
   async edit( id, { dateStart, dateEnd, timeStart, timeEnd, days }, client ){
     let sets = [];
     let params = [ id ];
