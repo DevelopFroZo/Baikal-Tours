@@ -1,20 +1,20 @@
 <script>
   import Action from "/components/profile_event_card.svelte";
 
-  export let userSubscribeds, _;
+  export let _;
 
   let section = "next";
 
   let secondActions = [],
     oldActions = [];
 
-  for (let action of userSubscribeds)
-    if (
-      action.date_ends !== null &&
-      new Date(action.date_ends).getTime() <= new Date()
-    )
-      oldActions.push(action);
-    else secondActions.push(action);
+  // for (let action of userSubscribeds)
+  //   if (
+  //     action.date_ends !== null &&
+  //     new Date(action.date_ends).getTime() <= new Date()
+  //   )
+  //     oldActions.push(action);
+  //   else secondActions.push(action);
 
   function setSection(sectionType) {
     section = sectionType;
