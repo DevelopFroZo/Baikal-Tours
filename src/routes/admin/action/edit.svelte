@@ -145,8 +145,6 @@
     locale,
     buyable = [];
 
-  console.log(actionData);
-
   const fetcher = new Fetcher();
   const _ = i18n(locale);
 
@@ -390,8 +388,6 @@
   $: {
     if(organizer_ids === null || organizer_ids.length === 0)
       organizer_ids = [null];
-
-    console.log(organizer_ids, organizer_ids.filter(el => el !== null), actionData.organizer_ids)
     
     newData = edit.validateEditArray(
       organizer_ids.filter(el => el !== null),

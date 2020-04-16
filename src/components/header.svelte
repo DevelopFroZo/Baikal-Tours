@@ -9,7 +9,7 @@
   import { slide } from "svelte/transition";
   import { onMount } from "svelte";
   import Image from "/components/imageCenter.svelte";
-  import ClickOutside from "svelte-click-outside";
+  import ClickOutside from "/components/clickOutside.svelte";
 
   export let locale,
     mobile,

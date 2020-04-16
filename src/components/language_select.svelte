@@ -1,7 +1,7 @@
 <script>
   import { slide } from "svelte/transition";
   import { createEventDispatcher } from "svelte";
-  import ClickOutside from "svelte-click-outside";
+  import ClickOutside from "/components/clickOutside.svelte";
 
   export let locale,
     white = false;
