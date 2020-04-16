@@ -317,5 +317,14 @@ export default ({
   additionally_services:      "Additional services",
   service_name:               "Name services",
   service_price:              "Price of services",
-  buy_tickets:                "To buy tickets"
+  buy_tickets:                "To buy tickets",
+
+  category:                   "Categories",
+  saving_event:               "Saving the event",
+  saving_compiliation:        "Saving a selection",
+  excursions_not_found:       "Excursions not found",
+  tours_not_found:            "Tours not found",
+  saving_excursion:           "Saving the tour",
+  saving_tour:                "Saving a tour",
+  loading_favorite_events:    "Loading favorite events"
 });

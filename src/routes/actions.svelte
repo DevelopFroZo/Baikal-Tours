@@ -183,6 +183,7 @@
   import * as animateScroll from "svelte-scrollto";
   import SimilarEvent from "/components/similar_event.svelte";
   import Carousel from "/components/carousel.svelte";
+  import ClickOutside from "/components/clickOutside.svelte";
 
   export let result_cards,
     result_filters,
@@ -247,19 +248,6 @@
       parseFilter = parseFilterData(filter).params;
       date = parseDateForActiveFilter(filter);
       price = parsePriceForActiveFilter(filter, _);
-    }
-  }
-
-  function hideAll(e) {
-    for (let i = 0; i < options.length; i++) {
-      if (options[i].isVisible) {
-        e = e || event;
-        let target = e.target || e.srcElement;
-        const its_menu =
-          target == options[i].option || options[i].option.contains(target);
-        const its_btnMenu = target == options[i].btn;
-        if (!its_menu && !its_btnMenu) options[i].isVisible = false;
-      }
     }
   }
 
@@ -463,24 +451,25 @@
   .price-filter {
     position: relative;
 
-    & > div {
+    & > :global(div) {
       position: absolute;
       bottom: -20px;
       left: 0;
       width: 100%;
+    }
 
-      & > input {
-        width: 100%;
-      }
+    & input[type="range"] {
+      width: 100%;
+    }
+
+    &:last-child > :global(div) {
+      width: calc(100% - 30px);
+      left: 30px;
     }
   }
 
   .prices {
     display: flex;
-  }
-
-  .hide-range {
-    visibility: hidden;
   }
 
   .selection-carousel {
@@ -615,20 +604,20 @@
     .filters {
       flex-direction: column;
 
-      & > *:not(:first-child){
+      & > *:not(:first-child) {
         margin-top: 15px;
       }
     }
 
-    .two-input{
+    .two-input {
       display: flex;
       justify-content: space-between;
 
-      &:before{
+      &:before {
         width: 10px;
       }
 
-      & > input{
+      & > input {
         margin: 0 !important;
         width: 125px;
         font-size: $Medium_Font_Size !important;
@@ -636,32 +625,32 @@
       }
     }
 
-    #price-end, #price-start{
+    #price-end,
+    #price-start {
       margin: 0 !important;
       font-size: $Medium_Font_Size;
       padding: 15px 20px;
       width: 125px;
     }
 
-    .select{
+    .select {
       padding: 15px 20px;
       height: auto;
 
-      &:before{
+      &:before {
         top: calc(50% - 3px);
       }
     }
 
-    .option, .select{
+    .option,
+    .select {
       width: 100%;
       font-size: $Medium_Font_Size;
 
-      & label{
+      & label {
         font-size: $Medium_Font_Size;
       }
     }
-
-
 
     .cards-block {
       grid-template-columns: repeat(1, 100%);
@@ -686,23 +675,38 @@
       box-sizing: border-box;
     }
 
-    .selections-block{
+    .selections-block {
       grid-template-columns: repeat(1, 100%);
       grid-row-gap: 15px;
+      margin-top: 30px;
     }
 
-    .more-events{
+    .more-events {
       flex-direction: column;
+      margin-top: 60px;
 
-      & > h2{
+      & > h2 {
         font-size: 24px;
         width: 100%;
       }
 
-      & > button{
+      & > button {
         margin-top: 25px;
         display: block;
         width: 100%;
+      }
+    }
+
+    .price-filter {
+      & > :global(div) {
+        width: 100% !important;
+        top: 45px;
+        padding: 0;
+        left: 0 !important;
+      }
+
+      & input[type="range"]{
+        padding: 0;
       }
     }
   }
@@ -713,7 +717,7 @@
   <link rel="stylesheet" href="https://unpkg.com/swiper/css/swiper.css" />
 </svelte:head>
 
-<svelte:window on:click={hideAll} on:touch={hideAll} bind:scrollY />
+<svelte:window bind:scrollY />
 
 <Header {locale} />
 <!-- <BreadCrumbs path = {[{name: "Каталог событий", url: "./"}]} /> -->
@@ -765,22 +769,26 @@
         }}>
         {_('where')}
       </button>
-      {#if options[0].isVisible}
-        <div class="option" bind:this={options[0].option} transition:slide>
-          {#each filter[1] as city, i}
-            <div
-              on:click={() => {
-                city.active = !city.active;
-                animateScroll.scrollTo({ offset: scrollY, duration: 300 });
-                changeFilter();
-              }}>
-              <img src="/img/placeholder.svg" alt="place" />
-              <label>{city.value}</label>
-              <input type="checkbox" bind:checked={city.active} />
-            </div>
-          {/each}
-        </div>
-      {/if}
+      <ClickOutside
+        on:clickoutside={() => (options[0].isVisible = false)}
+        exclude={[options[0].btn]}>
+        {#if options[0].isVisible}
+          <div class="option" bind:this={options[0].option} transition:slide>
+            {#each filter[1] as city, i}
+              <div
+                on:click={() => {
+                  city.active = !city.active;
+                  animateScroll.scrollTo({ offset: scrollY, duration: 300 });
+                  changeFilter();
+                }}>
+                <img src="/img/placeholder.svg" alt="place" />
+                <label>{city.value}</label>
+                <input type="checkbox" bind:checked={city.active} />
+              </div>
+            {/each}
+          </div>
+        {/if}
+      </ClickOutside>
     </div>
     <div class="select-block">
       <button
@@ -791,21 +799,25 @@
         }}>
         {_('with_whom')}
       </button>
-      {#if options[1].isVisible}
-        <div class="option" bind:this={options[1].option} transition:slide>
-          {#each filter[2] as companios}
-            <div
-              on:click={() => {
-                companios.active = !companios.active;
-                animateScroll.scrollTo({ offset: scrollY, duration: 300 });
-                changeFilter();
-              }}>
-              <label>{companios.value}</label>
-              <input type="checkbox" checked={companios.active} />
-            </div>
-          {/each}
-        </div>
-      {/if}
+      <ClickOutside
+        on:clickoutside={() => (options[1].isVisible = false)}
+        exclude={[options[1].btn]}>
+        {#if options[1].isVisible}
+          <div class="option" bind:this={options[1].option} transition:slide>
+            {#each filter[2] as companios}
+              <div
+                on:click={() => {
+                  companios.active = !companios.active;
+                  animateScroll.scrollTo({ offset: scrollY, duration: 300 });
+                  changeFilter();
+                }}>
+                <label>{companios.value}</label>
+                <input type="checkbox" checked={companios.active} />
+              </div>
+            {/each}
+          </div>
+        {/if}
+      </ClickOutside>
     </div>
     <div class="select-block">
       <button
@@ -816,21 +828,25 @@
         }}>
         {_('thematics')}
       </button>
-      {#if options[2].isVisible}
-        <div class="option" bind:this={options[2].option} transition:slide>
-          {#each filter[3] as subjects}
-            <div
-              on:click={() => {
-                subjects.active = !subjects.active;
-                animateScroll.scrollTo({ offset: scrollY, duration: 300 });
-                changeFilter();
-              }}>
-              <label>{subjects.value}</label>
-              <input type="checkbox" bind:checked={subjects.active} />
-            </div>
-          {/each}
-        </div>
-      {/if}
+      <ClickOutside
+        on:clickoutside={() => (options[2].isVisible = false)}
+        exclude={[options[2].btn]}>
+        {#if options[2].isVisible}
+          <div class="option" bind:this={options[2].option} transition:slide>
+            {#each filter[3] as subjects}
+              <div
+                on:click={() => {
+                  subjects.active = !subjects.active;
+                  animateScroll.scrollTo({ offset: scrollY, duration: 300 });
+                  changeFilter();
+                }}>
+                <label>{subjects.value}</label>
+                <input type="checkbox" bind:checked={subjects.active} />
+              </div>
+            {/each}
+          </div>
+        {/if}
+      </ClickOutside>
     </div>
     <div class="prices two-input">
       <div class="price-filter">
@@ -845,16 +861,18 @@
           on:click={() => {
             options[3].isVisible = true;
           }} />
-        <div
-          class:hide-range={!options[3].isVisible}
-          bind:this={options[3].option}>
-          <input
-            type="range"
-            min={result_filters.data.prices[0].min}
-            max={priceEnd === '' ? result_filters.data.prices[0].max - 1 : priceEnd}
-            bind:value={priceStart}
-            on:change={setPrice} />
-        </div>
+        <ClickOutside
+          on:clickoutside={() => (options[3].isVisible = false)}
+          exclude={[options[3].btn]}>
+          {#if options[3].isVisible}
+            <input
+              type="range"
+              min={result_filters.data.prices[0].min}
+              max={priceEnd === '' ? result_filters.data.prices[0].max - 1 : priceEnd}
+              bind:value={priceStart}
+              on:change={setPrice} />
+          {/if}
+        </ClickOutside>
       </div>
       <div class="price-filter">
         <input
@@ -868,16 +886,18 @@
           on:click={() => {
             options[4].isVisible = true;
           }} />
-        <div
-          class:hide-range={!options[4].isVisible}
-          bind:this={options[4].option}>
-          <input
-            type="range"
-            min={priceStart}
-            max={result_filters.data.prices[0].max}
-            bind:value={priceEnd}
-            on:change={setPrice} />
-        </div>
+        <ClickOutside
+          on:clickoutside={() => (options[4].isVisible = false)}
+          exclude={[options[4].btn]}>
+          {#if options[4].isVisible}
+            <input
+              type="range"
+              min={priceStart}
+              max={result_filters.data.prices[0].max}
+              bind:value={priceEnd}
+              on:change={setPrice} />
+          {/if}
+        </ClickOutside>
       </div>
     </div>
   </div>

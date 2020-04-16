@@ -11,7 +11,8 @@
     events = [],
     allEvents = [],
     search = "",
-    filterEvents = [];
+    filterEvents = [],
+    find = false;
 
   $: {
     filterEvents = allEvents.filter(el => el.name.indexOf(search) !== -1);
@@ -47,9 +48,8 @@
     for (let event of events) {
       if (event.id !== newEvents[i].id) {
         let j = 0;
-        for(let newEvent of newEvents){
-          if(newEvent.id === event.id)
-            break;
+        for (let newEvent of newEvents) {
+          if (newEvent.id === event.id) break;
           j++;
         }
         let result = await fetcher.put(`/api/favorites/${event.favorite_id}`, {
@@ -80,6 +80,8 @@
         subjects: id
       }
     })).actions;
+
+    find = true;
   }
 
   async function deleteEvent(id, i) {
@@ -87,8 +89,7 @@
     if (result.ok) {
       events.splice(i, 1);
       events = events;
-    }
-    else console.log(result)
+    } else console.log(result);
   }
 </script>
 
@@ -185,12 +186,16 @@
     }
   }
 
-  input{
+  input {
     padding: 5px;
     border: 3px;
     border: 1px solid black;
     font-size: $Medium_Font_Size;
     margin-bottom: 20px;
+  }
+
+  .status{
+    font-weight: bold;
   }
 </style>
 
@@ -199,44 +204,52 @@
 
   <div class="subject-events-block">
 
-    <SortableList
-      list={events}
-      key="id"
-      on:sort={sortEvents}
-      let:item
-      let:index>
-      <div class="event-block">
-        <h3>{item.name}</h3>
-        <div class="event-info">
-          <span>{item.locations.join('; ')}</span>
-          <span>
-            {parseDateForCards(item.date_starts, item.date_ends, _).join('; ')}
-          </span>
-        </div>
-        <button class="delete" on:click={() => deleteEvent(item.favorite_id, index)}>
-          <img src="/img/cross.svg" alt="delete" />
+    {#if find}
+      {#if events.length > 0}
+        <SortableList
+          list={events}
+          key="id"
+          on:sort={sortEvents}
+          let:item
+          let:index>
+          <div class="event-block">
+            <h3>{item.name}</h3>
+            <div class="event-info">
+              <span>{item.locations.join('; ')}</span>
+              <span>
+                {parseDateForCards(item.date_starts, item.date_ends, _).join('; ')}
+              </span>
+            </div>
+            <button
+              class="delete"
+              on:click={() => deleteEvent(item.favorite_id, index)}>
+              <img src="/img/cross.svg" alt="delete" />
+            </button>
+          </div>
+        </SortableList>
+      {:else}
+        <h4>{_('no_favorite_events')}</h4>
+      {/if}
+      {#if events.length < 4}
+        <button class="add-event" on:click={() => (showEvents = true)}>
+          {_('add_action')}
         </button>
-      </div>
-    </SortableList>
-
-    {#if events.length === 0}
-      <h4>{_('no_favorite_events')}</h4>
+      {/if}
+    {:else}
+      <span class="status">{_("loading_favorite_events")}</span>
     {/if}
 
   </div>
-
-  {#if events.length < 4}
-    <button class="add-event" on:click={() => (showEvents = true)}>
-      {_('add_action')}
-    </button>
-  {/if}
 </div>
 
 {#if showEvents}
   <div class="events-block">
     <button on:click={() => (showEvents = false)} />
     <div class="all-events-block">
-      <input type="text" placeholder={_("search_by_name")} bind:value={search}>
+      <input
+        type="text"
+        placeholder={_('search_by_name')}
+        bind:value={search} />
       {#each filterEvents as event}
         <button class="event-block" on:click={() => addEvent(event)}>
           <h3>{event.name}</h3>

@@ -318,5 +318,14 @@ export default ( {
   additionally_services:          "附加服务",
   service_name:                   "名称服务",
   service_price:                  "服务价格",
-  buy_tickets:                    "买票"
+  buy_tickets:                    "买票",
+
+  category:                       "类别",
+  saving_event:                   "保存事件",
+  saving_compiliation:            "保存选择",
+  excursions_not_found:           "游览未找到",
+  tours_not_found:                "未找到旅游",
+  saving_excursion:               "拯救旅游",
+  saving_tour:                    "拯救旅游",
+  loading_favorite_events:        "加载喜爱的事件"
 } );        

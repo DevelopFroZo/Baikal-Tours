@@ -6,6 +6,7 @@
     setFilterFromUrl,
     showActiveFilters
   } from "/helpers/filter.js";
+  import Image from "/components/imageCenter.svelte";
 
   export async function preload(page, session) {
     const fetcher = new Fetcher(this.fetch);
@@ -45,6 +46,7 @@
   h3 {
     text-align: center;
     margin-top: 30px;
+    font-size: $Big_Font_Size;
   }
 
   .compiliations-block {
@@ -63,70 +65,15 @@
     padding: 10px;
   }
 
-  .select-block {
+  .img{
+    height: 200px;
     position: relative;
+    overflow: hidden;
   }
 
-  .select {
-    width: 190px;
-    height: 22px;
-    text-align: left;
-    position: relative;
-    color: #00000099;
-    background: white;
-    border: 1px solid black;
-    border-radius: 5px;
-    padding-left: 12px;
-    box-sizing: border-box;
-    margin-top: 0;
-
-    &::before {
-      position: absolute;
-      content: " ";
-      width: 10px;
-      height: 4px;
-      top: 50%;
-      right: 5px;
-      transform: translateY(-50%);
-      background-image: url(../img/change.png);
-      background-size: 100% 100%;
-    }
-  }
-
-  .option {
-    position: absolute;
-    top: 27px;
-    left: 0;
-    background: white;
-    border: 1px solid $Dark_Gray;
-    min-width: 100%;
-    box-sizing: border-box;
-    visibility: hidden;
-    z-index: 2;
-    max-height: 300px;
-    overflow: auto;
-
-    & > div {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      font-size: 13px;
-      padding: 0 5px;
-
-      & > input {
-        margin-left: 5px;
-      }
-    }
-  }
-
-  .filter-block {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 25px;
-  }
-
-  .option-visible {
-    visibility: visible;
+  h2{
+    font-size: $Big_Font_Size;
+    margin-top: 20px;
   }
 </style>
 
@@ -144,6 +91,9 @@
         <a
           href={`/admin/compiliations/compiliation?url=${compiliation.url}`}
           class="compiliation-block">
+          <div class="img">
+            <Image src={compiliation.image_url} alt={compiliation.name} />
+          </div>
           <h2>{compiliation.name}</h2>
         </a>
       {/each}

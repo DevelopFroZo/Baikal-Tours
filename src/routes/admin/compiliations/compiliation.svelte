@@ -28,7 +28,6 @@
 
   const _ = i18n(locale);
   const fetcher = new Fetcher();
-
 </script>
 
 <style lang="scss">
@@ -65,8 +64,8 @@
     margin: 20px auto 0;
 
     & > img {
-      min-width: 100%;
-      min-height: 100%;
+      max-width: 100%;
+      max-height: 100%;
     }
   }
 
@@ -78,13 +77,9 @@
     display: flex;
     align-items: flex-start;
 
-    & > .info-image {
+    & > img {
+      width: 25px;
       margin-right: 15px;
-      min-width: 20px;
-
-      & > img {
-        max-width: 16px;
-      }
     }
 
     &:not(:first-child) {
@@ -139,6 +134,10 @@
   }
 </style>
 
+<svelte:head>
+  <title>{compiliationInfo.title}</title>
+</svelte:head>
+
 <AdminPage {fetcher} {locale} {_} page={6}>
   <a href="/admin/compiliations" class="back-page">
     {_('return_to_compiliations')}
@@ -184,9 +183,7 @@
 
       <div class="info-block">
         <div class="line">
-          <div class="info-image">
-            <img src="img/date.png" alt="date" />
-          </div>
+          <img src="img/admin-date.png" alt="date" />
           <div class="info">
             {#if compiliationInfo.dates.length > 0}
               <ul>

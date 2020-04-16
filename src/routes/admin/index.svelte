@@ -111,6 +111,7 @@
   import { goto } from "@sapper/app";
   import ActiveFilters from "/components/active_filters.svelte";
   import { onMount } from "svelte";
+  import ClickOutside from "/components/clickOutside.svelte";
 
   export let result_cards,
     result_filters,
@@ -143,7 +144,9 @@
       cardsCounts.allCards++;
     }
 
-    result_cards = result_cards.filter(el => !(group !== "events" && el.status !== group))
+    result_cards = result_cards.filter(
+      el => !(group !== "events" && el.status !== group)
+    );
     cards = result_cards.slice(offset, offset + count);
     result_count = result_cards.length;
 
@@ -175,17 +178,6 @@
       option: null,
       btn: null
     });
-
-  function hideAll(e) {
-    for (let i = 0; i < options.length; i++) {
-      e = e || event;
-      let target = e.target || e.srcElement;
-      const its_menu =
-        target == options[i].option || options[i].option.contains(target);
-      const its_btnMenu = target == options[i].btn;
-      if (!its_menu && !its_btnMenu) options[i].isVisible = false;
-    }
-  }
 
   function setURL() {
     let URL = fetcher.makeQuery({ query: url });
@@ -319,7 +311,6 @@
     border: 1px solid $Dark_Gray;
     min-width: 100%;
     box-sizing: border-box;
-    visibility: hidden;
     z-index: 2;
     max-height: 300px;
     overflow: auto;
@@ -341,10 +332,6 @@
     display: flex;
     justify-content: space-between;
     margin-top: 25px;
-  }
-
-  .option-visible {
-    visibility: visible;
   }
 
   .event-block {
@@ -429,8 +416,6 @@
   <title>{_('actions')}</title>
 </svelte:head>
 
-<svelte:window on:click={hideAll} />
-
 <AdminPage page={0} {fetcher} {_} {locale}>
   <div class="events-status-block">
     <div class="event-statuses">
@@ -476,21 +461,24 @@
         }}>
         {_('thematics')}
       </button>
-      <div
-        class="option"
-        class:option-visible={options[0].isVisible}
-        bind:this={options[0].option}>
-        {#each filter[1] as subject}
-          <div
-            on:click={() => {
-              subject.active = !subject.active;
-              changeFilter();
-            }}>
-            <label>{subject.value}</label>
-            <input type="checkbox" bind:checked={subject.active} />
+      <ClickOutside
+        on:clickoutside={() => (options[0].isVisible = false)}
+        exclude={[options[0].btn]}>
+        {#if options[0].isVisible}
+          <div class="option" bind:this={options[0].option}>
+            {#each filter[1] as subject}
+              <div
+                on:click={() => {
+                  subject.active = !subject.active;
+                  changeFilter();
+                }}>
+                <label>{subject.value}</label>
+                <input type="checkbox" bind:checked={subject.active} />
+              </div>
+            {/each}
           </div>
-        {/each}
-      </div>
+        {/if}
+      </ClickOutside>
     </div>
     <div class="select-block">
       <button
@@ -501,21 +489,24 @@
         }}>
         {_('location')}
       </button>
-      <div
-        class="option"
-        class:option-visible={options[1].isVisible}
-        bind:this={options[1].option}>
-        {#each filter[2] as location}
-          <div
-            on:click={() => {
-              location.active = !location.active;
-              changeFilter();
-            }}>
-            <label>{location.value}</label>
-            <input type="checkbox" bind:checked={location.active} />
+      <ClickOutside
+        on:clickoutside={() => (options[1].isVisible = false)}
+        exclude={[options[1].btn]}>
+        {#if options[1].isVisible}
+          <div class="option" bind:this={options[1].option}>
+            {#each filter[2] as location}
+              <div
+                on:click={() => {
+                  location.active = !location.active;
+                  changeFilter();
+                }}>
+                <label>{location.value}</label>
+                <input type="checkbox" bind:checked={location.active} />
+              </div>
+            {/each}
           </div>
-        {/each}
-      </div>
+        {/if}
+      </ClickOutside>
     </div>
   </div>
   <ActiveFilters

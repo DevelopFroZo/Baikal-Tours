@@ -103,6 +103,8 @@
   import BannerBlock from "/components/bannerBlock.svelte";
   import AdminCard from "/components/admin_card.svelte";
   import Image from "/components/imageCenter.svelte";
+  import ClickOutside from "/components/clickOutside.svelte";
+  import Loading from "/components/adminLoadingWindow.svelte";
 
   export let actionId,
     result_filters,
@@ -187,7 +189,8 @@
     newPartnerName = "",
     editorBlock,
     showTours = false,
-    showExcursions = false;
+    showExcursions = false,
+    save;
 
   if (organizer_payment !== null) participation = "organizer";
   else if (site_payment === true) participation = "site";
@@ -566,17 +569,6 @@
       option: null,
       btn: null
     });
-
-  function hideAll(e) {
-    for (let i = 0; i < options.length; i++) {
-      e = e || event;
-      let target = e.target || e.srcElement;
-      const its_menu =
-        target == options[i].option || options[i].option.contains(target);
-      const its_btnMenu = target == options[i].btn;
-      if (!its_menu && !its_btnMenu) options[i].isVisible = false;
-    }
-  }
 
   function addDate() {
     dates.push({
@@ -1498,8 +1490,6 @@
 
 </svelte:head>
 
-<svelte:window on:click={hideAll} />
-
 <AdminPage page={0} {fetcher} {locale} {_}>
   <div class="line-center">
     <h2 class="title-h1">
@@ -1507,7 +1497,7 @@
         {_('creating_event')}
       {:else}{_('editing_event')}{/if}
     </h2>
-    <button class="save" on:click={saveAction}>{_('save')}</button>
+    <button class="save" on:click={() => save = saveAction()}>{_('save')}</button>
   </div>
   <div class="edit-block">
     <label for="title">Title</label>
@@ -1732,20 +1722,23 @@
             }}>
             {subjectsNames.join('; ')}
           </button>
-          <div
-            class="option"
-            class:option-visible={options[0].isVisible}
-            bind:this={options[0].option}>
-            {#each result_filters.subjects as subject}
-              <div
-                on:click={() => (subjects = edit.parseDataToIds(subjects, subject.id))}>
-                <label>{subject.name}</label>
-                <input
-                  type="checkbox"
-                  checked={subjects.indexOf(subject.id) !== -1} />
-              </div>
-            {/each}
-          </div>
+          <ClickOutside on:clickoutside={() => options[0].isVisible = false} exclude={[options[0].btn]}>
+          {#if options[0].isVisible}
+            <div
+              class="option"
+              bind:this={options[0].option}>
+              {#each result_filters.subjects as subject}
+                <div
+                  on:click={() => (subjects = edit.parseDataToIds(subjects, subject.id))}>
+                  <label>{subject.name}</label>
+                  <input
+                    type="checkbox"
+                    checked={subjects.indexOf(subject.id) !== -1} />
+                </div>
+              {/each}
+            </div>
+          {/if}
+          </ClickOutside>
         </div>
       </div>
 
@@ -1760,20 +1753,23 @@
             }}>
             {transfersNames.join('; ')}
           </button>
-          <div
-            class="option"
-            class:option-visible={options[1].isVisible}
-            bind:this={options[1].option}>
-            {#each result_filters.transfers as transfer}
-              <div
-                on:click={() => (transfers = edit.parseDataToIds(transfers, transfer.id))}>
-                <label>{transfer.name}</label>
-                <input
-                  type="checkbox"
-                  checked={transfers.indexOf(transfer.id) !== -1} />
-              </div>
-            {/each}
-          </div>
+          <ClickOutside on:clickoutside={() => options[1].isVisible = false} exclude={[options[1].btn]}>
+          {#if options[1].isVisible}
+            <div
+              class="option"
+              bind:this={options[1].option}>
+              {#each result_filters.transfers as transfer}
+                <div
+                  on:click={() => (transfers = edit.parseDataToIds(transfers, transfer.id))}>
+                  <label>{transfer.name}</label>
+                  <input
+                    type="checkbox"
+                    checked={transfers.indexOf(transfer.id) !== -1} />
+                </div>
+              {/each}
+            </div>
+          {/if}
+          </ClickOutside>
         </div>
       </div>
 
@@ -1788,20 +1784,23 @@
             }}>
             {companionsNames.join('; ')}
           </button>
-          <div
-            class="option"
-            class:option-visible={options[2].isVisible}
-            bind:this={options[2].option}>
-            {#each result_filters.companions as companion}
-              <div
-                on:click={() => (companions = edit.parseDataToIds(companions, companion.id))}>
-                <label>{companion.name}</label>
-                <input
-                  type="checkbox"
-                  checked={companions.indexOf(companion.id) !== -1} />
-              </div>
-            {/each}
-          </div>
+          <ClickOutside on:clickoutside={() => options[2].isVisible = false} exclude={[options[2].btn]}>
+          {#if options[2].isVisible}
+            <div
+              class="option"
+              bind:this={options[2].option}>
+              {#each result_filters.companions as companion}
+                <div
+                  on:click={() => (companions = edit.parseDataToIds(companions, companion.id))}>
+                  <label>{companion.name}</label>
+                  <input
+                    type="checkbox"
+                    checked={companions.indexOf(companion.id) !== -1} />
+                </div>
+              {/each}
+            </div>
+          {/if}
+          </ClickOutside>
         </div>
       </div>
 
@@ -2192,6 +2191,8 @@
 
   </div>
 </AdminPage>
+
+<Loading promice={save} message={_("saving_event")}/>
 
 {#if showTours}
   <div class="all-tours-block">

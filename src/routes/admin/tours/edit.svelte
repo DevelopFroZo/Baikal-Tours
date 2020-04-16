@@ -31,6 +31,8 @@
   import AdminPage from "../_admin_page.svelte";
   import i18n from "/helpers/i18n/index.js";
   import * as edit from "/helpers/edit.js";
+  import ClickOutside from "/components/clickOutside.svelte";
+  import Loading from "/components/adminLoadingWindow.svelte";
 
   export let locale,
     id,
@@ -53,7 +55,8 @@
     uploadImg,
     newImage = Object.keys(image).length === 0,
     options = [{ isVisible: false, option: null, btn: null }],
-    locationsNames = "";
+    locationsNames = "",
+    save;
 
   //Имя
   $: {
@@ -125,12 +128,7 @@
 
   //Дата окончания
   $: {
-    let data = edit.validateNewData(
-      dateEnd,
-      tour_data.dateEnd,
-      "dateEnd",
-      {}
-    );
+    let data = edit.validateNewData(dateEnd, tour_data.dateEnd, "dateEnd", {});
 
     if (id === undefined && data.dateEnd !== undefined)
       newData.dateEnd = data.dateEnd;
@@ -243,9 +241,7 @@
       }
 
     if (Object.keys(image).length === 0) {
-      alert(
-        _("required_field_message").replace(/{field}/g, _("tour_image"))
-      );
+      alert(_("required_field_message").replace(/{field}/g, _("tour_image")));
       return null;
     }
 
@@ -262,17 +258,6 @@
     }
 
     document.location.href = `/admin/tours`;
-  }
-
-  function hideAll(e) {
-    for (let i = 0; i < options.length; i++) {
-      e = e || event;
-      let target = e.target || e.srcElement;
-      const its_menu =
-        target == options[i].option || options[i].option.contains(target);
-      const its_btnMenu = target == options[i].btn;
-      if (!its_menu && !its_btnMenu) options[i].isVisible = false;
-    }
   }
 </script>
 
@@ -292,6 +277,10 @@
     box-sizing: border-box;
     height: 24px;
   }
+
+  input[type="file"]{
+     margin-top: 0;
+   }
 
   .img {
     width: 300px;
@@ -326,20 +315,14 @@
   }
 </style>
 
-<svelte:window on:click={hideAll} />
-
 <svelte:head>
   <title>{id === undefined ? _('creating_tour') : _('editing_tour')}</title>
 </svelte:head>
 
 <AdminPage {fetcher} {locale} {_} page={7}>
   <div class="line">
-    <h2>
-      {id === undefined ? _('creating_tour') : _('editing_tour')}
-    </h2>
-    <button class="green-button" on:click={savetour}>
-      {_('tour_save')}
-    </button>
+    <h2>{id === undefined ? _('creating_tour') : _('editing_tour')}</h2>
+    <button class="green-button" on:click={() => save = savetour()}>{_('tour_save')}</button>
   </div>
 
   <div class="edit-block">
@@ -400,23 +383,28 @@
             }}>
             {locationsNames.join('; ')}
           </button>
-          <div
-            class="option"
-            class:option-visible={options[0].isVisible}
-            bind:this={options[0].option}>
-            {#each locations as location}
-              <div
-                on:click={() => (locationIds = edit.parseDataToIds(locationIds, location.id))}>
-                <label>{location.name}</label>
-                <input
-                  type="checkbox"
-                  checked={locationIds.indexOf(location.id) !== -1} />
+          <ClickOutside
+            on:clickoutside={() => (options[0].isVisible = false)}
+            exclude={[options[0].btn]}>
+            {#if options[0].isVisible}
+              <div class="option" bind:this={options[0].option}>
+                {#each locations as location}
+                  <div
+                    on:click={() => (locationIds = edit.parseDataToIds(locationIds, location.id))}>
+                    <label>{location.name}</label>
+                    <input
+                      type="checkbox"
+                      checked={locationIds.indexOf(location.id) !== -1} />
+                  </div>
+                {/each}
               </div>
-            {/each}
-          </div>
+            {/if}
+          </ClickOutside>
         </div>
       </div>
 
     </div>
   </div>
 </AdminPage>
+
+<Loading promice={save} message={_("saving_tour")} />

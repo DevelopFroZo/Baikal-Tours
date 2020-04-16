@@ -69,6 +69,8 @@
   import { parseDateForCards } from "/helpers/parsers.js";
   import EventsBlock from "./_events_block.svelte";
   import tr from "transliteration";
+  import ClickOutside from "/components/clickOutside.svelte";
+  import Loading from "/components/adminLoadingWindow.svelte";
 
   export let locale,
     compiliationId,
@@ -95,7 +97,8 @@
     locationsNames = [],
     uploadImg,
     newImage = Object.keys(image).length !== 0,
-    showEvents = false;
+    showEvents = false,
+    save;
 
   dates = edit.cloneArray(compiliationData.dates);
   subjectIds = edit.cloneArray(compiliationData.subjectIds);
@@ -134,7 +137,12 @@
 
   //URL
   $: {
-    newData = edit.validateNewData(slugify(url), compiliationData.url, "url", newData);
+    newData = edit.validateNewData(
+      slugify(url),
+      compiliationData.url,
+      "url",
+      newData
+    );
   }
 
   //Описание
@@ -250,17 +258,6 @@
       btn: null
     });
 
-  function hideAll(e) {
-    for (let i = 0; i < options.length; i++) {
-      e = e || event;
-      let target = e.target || e.srcElement;
-      const its_menu =
-        target == options[i].option || options[i].option.contains(target);
-      const its_btnMenu = target == options[i].btn;
-      if (!its_menu && !its_btnMenu) options[i].isVisible = false;
-    }
-  }
-
   function addDate() {
     dates.push({
       dateStart: null,
@@ -365,19 +362,18 @@
     }
 
     if (compiliationId === undefined) {
-      compiliationId = 
-        (await fetcher.post(`/api/compiliations`, newData)).data
+      compiliationId = (await fetcher.post(`/api/compiliations`, newData)).data;
 
       if (newImage) {
         result = await fetcher.post(
           `/api/compiliations/${compiliationId}/image`,
-          {image: image.image_url},
+          { image: image.image_url },
           { bodyType: "formData" }
         );
       }
     }
 
-    document.location.href = `/admin/compiliations/compiliation?url=${url}`;
+    document.location.href = `/admin/compiliations/compiliation?url=${newData.url}`;
   }
 </script>
 
@@ -505,10 +501,10 @@
   }
 </style>
 
-<svelte:window on:click={hideAll} />
-
 <svelte:head>
-  <title>{compiliationId === undefined ? _('creating_compiliation') : _('editing_compiliation')}</title>
+  <title>
+    {compiliationId === undefined ? _('creating_compiliation') : _('editing_compiliation')}
+  </title>
 </svelte:head>
 
 <AdminPage page={6} {fetcher} {locale} {_}>
@@ -516,7 +512,7 @@
     <h1>
       {compiliationId === undefined ? _('creating_compiliation') : _('editing_compiliation')}
     </h1>
-    <button class="save" on:click={saveCompiliation}>{_('save')}</button>
+    <button class="save" on:click={() => save = saveCompiliation()}>{_('save')}</button>
   </div>
   <div class="edit-block">
     <label for="name" class="big-label">
@@ -680,20 +676,26 @@
             }}>
             {subjectsNames.join('; ')}
           </button>
-          <div
-            class="option"
-            class:option-visible={options[0].isVisible}
-            bind:this={options[0].option}>
-            {#each result_filters.subjects as subject}
+          <ClickOutside
+            on:clickoutside={() => (options[0].isVisible = false)}
+            exclude={[options[0].btn]}>
+            {#if options[0].isVisible}
               <div
-                on:click={() => (subjectIds = edit.parseDataToIds(subjectIds, subject.id))}>
-                <label>{subject.name}</label>
-                <input
-                  type="checkbox"
-                  checked={subjectIds.indexOf(subject.id) !== -1} />
+                class="option"
+                class:option-visible={options[0].isVisible}
+                bind:this={options[0].option}>
+                {#each result_filters.subjects as subject}
+                  <div
+                    on:click={() => (subjectIds = edit.parseDataToIds(subjectIds, subject.id))}>
+                    <label>{subject.name}</label>
+                    <input
+                      type="checkbox"
+                      checked={subjectIds.indexOf(subject.id) !== -1} />
+                  </div>
+                {/each}
               </div>
-            {/each}
-          </div>
+            {/if}
+          </ClickOutside>
         </div>
       </div>
 
@@ -708,20 +710,26 @@
             }}>
             {locationsNames.join('; ')}
           </button>
-          <div
-            class="option"
-            class:option-visible={options[1].isVisible}
-            bind:this={options[1].option}>
-            {#each result_filters.locations as location}
+          <ClickOutside
+            on:clickoutside={() => (options[1].isVisible = false)}
+            exclude={[options[1].btn]}>
+            {#if options[1].isVisible}
               <div
-                on:click={() => (locationIds = edit.parseDataToIds(locationIds, location.id))}>
-                <label>{location.name}</label>
-                <input
-                  type="checkbox"
-                  checked={locationIds.indexOf(location.id) !== -1} />
+                class="option"
+                class:option-visible={options[1].isVisible}
+                bind:this={options[1].option}>
+                {#each result_filters.locations as location}
+                  <div
+                    on:click={() => (locationIds = edit.parseDataToIds(locationIds, location.id))}>
+                    <label>{location.name}</label>
+                    <input
+                      type="checkbox"
+                      checked={locationIds.indexOf(location.id) !== -1} />
+                  </div>
+                {/each}
               </div>
-            {/each}
-          </div>
+            {/if}
+          </ClickOutside>
         </div>
       </div>
 
@@ -756,9 +764,9 @@
         {_('add_action')}
       </button>
     </div>
-
   </div>
 </AdminPage>
+
 <EventsBlock
   {_}
   {parseDateForCards}
@@ -769,3 +777,5 @@
   {fetcher}
   on:changeAction={changeAction}
   on:hideActionWindow={e => (showEvents = false)} />
+
+<Loading promice={save} message={_("saving_compiliation")} />

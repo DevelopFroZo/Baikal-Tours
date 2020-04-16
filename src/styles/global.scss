@@ -98,7 +98,6 @@ li {
   border: 1px solid #7b7b7b;
   min-width: 100%;
   box-sizing: border-box;
-  visibility: hidden;
   z-index: 2;
   max-height: 300px;
   overflow: auto;
@@ -114,10 +113,6 @@ li {
       margin-left: 5px;
     }
   }
-}
-
-.option-visible {
-  visibility: visible;
 }
 
 @media only screen and (max-width: 768px) {

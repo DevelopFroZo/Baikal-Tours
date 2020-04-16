@@ -6,6 +6,7 @@
     parseFilterDataForAdmin,
     showActiveFilters
   } from "/helpers/filter.js";
+  import ClickOutside from "/components/clickOutside.svelte";
 
   export let _,
     result_filters,
@@ -18,16 +19,17 @@
   const dispatch = createEventDispatcher();
 
   let filter = [
-    [
-      {
-        value: "",
-        active: false
-      }
+      [
+        {
+          value: "",
+          active: false
+        }
+      ],
+      [],
+      []
     ],
-    [],
-    []
-  ],
-  parseFilter, showFilter = false;
+    parseFilter,
+    showFilter = false;
 
   let search = filter[0][0].value;
   filter[1] = setFilterData(result_filters.subjects);
@@ -62,14 +64,14 @@
     changeFilter();
   }
 
-  async function changeFilter(){
-      parseFilter = parseFilterDataForAdmin(filter);
-      showFilter = showActiveFilters(filter);
-      delete parseFilter.allStatuses;
+  async function changeFilter() {
+    parseFilter = parseFilterDataForAdmin(filter);
+    showFilter = showActiveFilters(filter);
+    delete parseFilter.allStatuses;
 
-      result_actions = (await fetcher.get("/api/actions",{
-          query: parseFilter
-      })).actions
+    result_actions = (await fetcher.get("/api/actions", {
+      query: parseFilter
+    })).actions;
   }
 
   function changeAction(action) {
@@ -87,17 +89,6 @@
 
   function hideActionsWindow() {
     dispatch("hideActionWindow");
-  }
-
-  function hideAll(e) {
-    for (let i = 0; i < options.length; i++) {
-      e = e || event;
-      let target = e.target || e.srcElement;
-      const its_menu =
-        target == options[i].option || options[i].option.contains(target);
-      const its_btnMenu = target == options[i].btn;
-      if (!its_menu && !its_btnMenu) options[i].isVisible = false;
-    }
   }
 </script>
 
@@ -170,8 +161,6 @@
   }
 </style>
 
-<svelte:window on:click={hideAll} />
-
 <div class="events-window" class:showEvents>
   <button class="close-window" on:click={hideActionsWindow} />
   <div class="events-block">
@@ -195,21 +184,24 @@
             }}>
             {_('thematics')}
           </button>
-          <div
-            class="option"
-            class:option-visible={options[0].isVisible}
-            bind:this={options[0].option}>
-            {#each filter[1] as subject}
-              <div
-                on:click={() => {
-                  subject.active = !subject.active;
-                  changeFilter();
-                }}>
-                <label>{subject.value}</label>
-                <input type="checkbox" bind:checked={subject.active} />
+          <ClickOutside
+            on:clickoutside={() => (options[0].isVisible = false)}
+            exclude={[options[0].btn]}>
+            {#if options[0].isVisible}
+              <div class="option" bind:this={options[0].option}>
+                {#each filter[1] as subject}
+                  <div
+                    on:click={() => {
+                      subject.active = !subject.active;
+                      changeFilter();
+                    }}>
+                    <label>{subject.value}</label>
+                    <input type="checkbox" bind:checked={subject.active} />
+                  </div>
+                {/each}
               </div>
-            {/each}
-          </div>
+            {/if}
+          </ClickOutside>
         </div>
         <div class="select-block">
           <button
@@ -220,21 +212,26 @@
             }}>
             {_('location')}
           </button>
-          <div
-            class="option"
-            class:option-visible={options[1].isVisible}
-            bind:this={options[1].option}>
-            {#each filter[2] as location}
+          <ClickOutside
+            on:clickoutside={() => (options[1].isVisible = false)}
+            exclude={[options[1].btn]}>
+            {#if options[1].isVisible}
               <div
-                on:click={() => {
-                  location.active = !location.active;
-                  changeFilter();
-                }}>
-                <label>{location.value}</label>
-                <input type="checkbox" bind:checked={location.active} />
+                class="option"
+                bind:this={options[1].option}>
+                {#each filter[2] as location}
+                  <div
+                    on:click={() => {
+                      location.active = !location.active;
+                      changeFilter();
+                    }}>
+                    <label>{location.value}</label>
+                    <input type="checkbox" bind:checked={location.active} />
+                  </div>
+                {/each}
               </div>
-            {/each}
-          </div>
+            {/if}
+          </ClickOutside>
         </div>
       </div>
     </div>

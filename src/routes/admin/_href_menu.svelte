@@ -123,15 +123,9 @@
     href="./admin/tours">
     {_("tours")}
   </a>
-  <a class="category-href" class:active-page={page === 4} href="./admin/hotels">
+  <!-- <a class="category-href" class:active-page={page === 4} href="./admin/hotels">
     {_("hotels")}
-  </a>
-  <a
-    class="category-href"
-    class:active-page={page === 5}
-    href="./admin/banners">
-    {_("banners")}
-  </a>
+  </a> -->
   <a
     class="category-href"
     class:active-page={page === 6}

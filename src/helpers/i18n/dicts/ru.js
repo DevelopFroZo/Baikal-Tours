@@ -316,5 +316,12 @@ export default ( {
   service_price:              "Цена услуги",
   buy_tickets:                "Купить билеты",
 
-  category:                   "Категории"
+  category:                   "Категории",
+  saving_event:               "Сохраняем событие",
+  saving_compiliation:        "Сохраняем подборку",
+  excursions_not_found:       "Экскурсии не найдены",
+  tours_not_found:            "Туры не найдены",
+  saving_excursion:           "Сохранение экскурсии",
+  saving_tour:                "Сохранение тура",
+  loading_favorite_events:    "Загрузка избранных событий"
 } );

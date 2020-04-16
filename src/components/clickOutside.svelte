@@ -11,7 +11,7 @@
     var parent = target;
 
     while (parent) {
-      if ((exclude.indexOf(parent) >= 0 && !excludeActive) || parent === child) {
+      if (exclude.indexOf(parent) >= 0 || parent === child) {
         return true;
       }
 
@@ -28,7 +28,7 @@
   }
 </script>
 
-<svelte:body on:click={onClickOutside} />
+<svelte:window on:click={onClickOutside} on:touch={onClickOutside}/>
 <div bind:this={child}>
   <slot></slot>
 </div>
