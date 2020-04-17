@@ -1,13 +1,6 @@
 "use strict";
 
-export {
-  toInt,
-  toIntArray,
-  contactsToString,
-  dateToString
-};
-
-function toInt( st ){
+export function toInt( st ){
   if( st === undefined || st === "" )
     return null;
 
@@ -22,7 +15,22 @@ function toInt( st ){
   return int;
 }
 
-function toIntArray( st ){
+export function toFloat( st ){
+  if( st === undefined || st === "" )
+    return null;
+
+  if( typeof st === "number" )
+    return st;
+
+  const float = parseFloat( st.replace( / +/g, "" ) );
+
+  if( isNaN( float ) || typeof float !== "number" )
+    return null;
+
+  return float;
+}
+
+export function toIntArray( st ){
   if( st === undefined || st === "" )
     return null;
 
@@ -43,7 +51,7 @@ function toIntArray( st ){
   return arr;
 }
 
-function contactsToString( contact_faces, emails, phones ){
+export function contactsToString( contact_faces, emails, phones ){
   contact_faces = contact_faces ? contact_faces : [];
   emails = emails ? emails : [];
   phones = phones ? phones : [];
@@ -114,7 +122,7 @@ function upperFirst( st ){
   return st[0].toUpperCase() + st.slice( 1, st.length );
 }
 
-function dateToString( date, _ ){
+export function dateToString( date, _ ){
   let result = "";
 
   // #fix убрать
@@ -123,7 +131,7 @@ function dateToString( date, _ ){
   if( date.date_start ) result += `${upperFirst( _( "date_to_string.start" ) )} ${parseDate( date.date_start )}`;
 
   if( date.days ){
-    
+
     const parsedDays = parseDays( date.days, _ );
 
     if( result !== "" ) result += ` ${parsedDays}`;

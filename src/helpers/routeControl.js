@@ -91,4 +91,9 @@ export default ( server ) => {
   server.post( "/api/tours", secureAPI( "admin" ) );
   server.post( "/api/tours/:id/image", secureAPI( "admin" ), upload.single( "image" ) );
   // #fix добавить PUT, DELETE
+
+  // #fix написать создание
+  // server.post( "/api/hotels", secureAPI( "admin" ) );
+  server.put( "/api/hotels/:id", secureAPI( "admin" ) );
+  server.delete( "/api/hotels/:id", secureAPI( "admin" ) );
 };
