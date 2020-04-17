@@ -1,6 +1,6 @@
 "use strict";
 
-export default class{
+module.exports = class{
   constructor( fetch_ ){
     // #fix добавить возможность определять базовый путь
     this.baseUrl = "";
@@ -29,10 +29,28 @@ export default class{
 
       const serialized = [];
 
-      for( let key in options )
-        if( typeof options[ key ] === "object" ) serialized.push( `${key}=${options[ key ].join( "," )}` );
-        else if( options[ key ] === "" ) serialized.push( key );
-        else serialized.push( `${key}=${options[ key ]}` );
+      for( let key in options ){
+        const field = options[ key ];
+
+        if( typeof field === "object" ){
+          if( Array.isArray( field ) )
+            serialized.push( `${key}=${field.join( "," )}` );
+          else for( let key2 in field ){
+            const field2 = field[ key2 ];
+
+            if( typeof field2 === "object" && Array.isArray( field2 ) )
+              serialized.push( `${key}[${key2}]=${field2.join( "," )}` );
+            else if( field2 === "" )
+              serialized.push( `${key}[${key2}]` );
+            else
+              serialized.push( `${key}[${key2}]=${field2}` );
+          }
+        }
+        else if( field === "" )
+          serialized.push( key );
+        else
+          serialized.push( `${key}=${field}` );
+      }
 
       return "?" + serialized.join( "&" );
     }
