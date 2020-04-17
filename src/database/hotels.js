@@ -60,7 +60,8 @@ export async function getAll( client, count, offset, search, locationIds, bookin
   };
 }
 
-export async function edit( client, id, { bookingUrl, bookingLocationId, locationId, name, imageUrl, price, rating } ){
+// #fix изменить фотографию
+export async function edit( client, id, { bookingUrl, bookingLocationId, locationId, name, price, rating } ){
   let sets = [];
   const params = [ id ];
   let i = 2;
@@ -79,7 +80,7 @@ export async function edit( client, id, { bookingUrl, bookingLocationId, locatio
     params.push( bookingLocationId );
   }
 
-  if( locationId !== null ){
+  if( locationId !== null && locationId > 0 ){
     sets.push( `location_id = $${i++}` );
     params.push( locationId );
   }
@@ -89,17 +90,12 @@ export async function edit( client, id, { bookingUrl, bookingLocationId, locatio
     params.push( name );
   }
 
-  if( typeof imageUrl === "string" && imageUrl !== "" ){
-    sets.push( `image_url = $${i++}` );
-    params.push( imageUrl );
-  }
-
-  if( price !== null ){
+  if( price !== null && price > 0 ){
     sets.push( `price = $${i++}` );
     params.push( price );
   }
 
-  if( rating !== null ){
+  if( rating !== null && rating >= 1 && rating <= 10 ){
     sets.push( `rating = $${i++}` );
     params.push( rating );
   }

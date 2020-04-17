@@ -12,6 +12,7 @@ export async function put( {
   if( id === null || id < 1 )
     return res.error( 9 );
 
+  // #fix изменить фотографию
   await edit( pool, id, body );
 
   return res.success();
