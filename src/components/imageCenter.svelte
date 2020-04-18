@@ -11,6 +11,7 @@
 
   afterUpdate(() => {
     if (src !== null) {
+      console.log(src)
       let width = image.parentElement.clientWidth;
       let height = image.parentElement.clientHeight;
 
@@ -18,6 +19,7 @@
 
       img.onload = function() {
         if (this.width / width < this.height / height) vertical = true;
+        else vertical = false;
         start = true;
       };
 

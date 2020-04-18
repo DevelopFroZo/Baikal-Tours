@@ -4,7 +4,8 @@ export {
     parseDateForActiveFilter,
     parsePriceForActiveFilter,
     parseDateForCards,
-    parseUrlByPage
+    parseUrlByPage,
+    parseStringToWords
 }
 
 function parseDate(date) {
@@ -13,6 +14,13 @@ function parseDate(date) {
 
 function dateFormat(date) {
     return date.length === 1 ? "0" + date : date;
+}
+
+function parseStringToWords(search){
+    let str = search.replace(/[^ \u4e00-\u520fa-zа-яё\d]/giu, "");
+    str = str.replace(/\s+/g, ",");
+    
+    return str;
 }
 
 function parsePrice(price_min, price_max, _) {

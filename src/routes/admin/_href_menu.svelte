@@ -123,9 +123,9 @@
     href="./admin/tours">
     {_("tours")}
   </a>
-  <!-- <a class="category-href" class:active-page={page === 4} href="./admin/hotels">
+  <a class="category-href" class:active-page={page === 4} href="./admin/hotels">
     {_("hotels")}
-  </a> -->
+  </a>
   <a
     class="category-href"
     class:active-page={page === 6}

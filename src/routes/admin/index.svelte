@@ -516,6 +516,7 @@
     min={-1}
     max={3}
     on:closeFilter={closeFilter}
+    white={true}
     {_} />
   <div class="events-block">
     {#each cards as card, i}

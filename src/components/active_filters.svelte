@@ -8,7 +8,8 @@
     min,
     max,
     _,
-    search = "";
+    search = "",
+    white = false;
 
   $: if (search !== "") filter[0][0].value = search;
 
@@ -63,13 +64,17 @@
       }
     }
   }
+
+  .white{
+    background: white !important;
+  }
 </style>
 
 {#if showFilter}
   <div class="active-filter-block">
     <div class="filter-head">{_('you_have_chosen')}</div>
     {#if date !== ''}
-      <div class="active-filter">
+      <div class="active-filter" class:white>
         {date}
         <button
           class="delete-filter"
@@ -87,7 +92,7 @@
       {#if i > min && i < max}
         {#each filt as fl, j}
           {#if fl.active}
-            <div class="active-filter">
+            <div class="active-filter" class:white>
               {fl.value}
               <button
                 class="delete-filter"
@@ -104,7 +109,7 @@
     {/each}
 
     {#if price !== ''}
-      <div class="active-filter">
+      <div class="active-filter" class:white>
         {price}
         <button
           class="delete-filter"

@@ -326,5 +326,17 @@ export default ({
   tours_not_found:            "Tours not found",
   saving_excursion:           "Saving the tour",
   saving_tour:                "Saving a tour",
-  loading_favorite_events:    "Loading favorite events"
+  loading_favorite_events:    "Loading favorite events",
+
+  hotels_not_found:           "Hotels not found",
+  creating_hotel:             "Creating a hotel",
+  editing_hotel:              "Editing a hotel",
+  hotel_save:                 "Save hotel",
+  hotel_name:                 "Name of the hotel",
+  hotel_url:                  "Hotel page on booking",
+  booking_location_id:        "IDI locations on booking",
+  hotel_location:             "Hotel location from the directory",
+  hotel_price:                "Hotel price",
+  hotel_rating:               "Hotel rating",
+  saving_hotel:               "Saving a hotel"
 });

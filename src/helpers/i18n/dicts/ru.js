@@ -323,5 +323,17 @@ export default ( {
   tours_not_found:            "Туры не найдены",
   saving_excursion:           "Сохранение экскурсии",
   saving_tour:                "Сохранение тура",
-  loading_favorite_events:    "Загрузка избранных событий"
+  loading_favorite_events:    "Загрузка избранных событий",
+
+  hotels_not_found:           "Отели не найдены",
+  creating_hotel:             "Создание отеля",
+  editing_hotel:              "Редактирование отеля",
+  hotel_save:                 "Сохранить отель",
+  hotel_name:                 "Название отеля",
+  hotel_url:                  "Страница отеля на booking",
+  booking_location_id:        "Айди локации на букинге",
+  hotel_location:             "Локация отеля из справочника",
+  hotel_price:                "Цена отеля",
+  hotel_rating:               "Рейтинг отеля",
+  saving_hotel:               "Сохранение отеля"
 } );

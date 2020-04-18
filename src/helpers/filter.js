@@ -5,7 +5,8 @@ export {
     parseFilterData,
     setFilterData,
     setFilterFromUrl,
-    showActiveFilters
+    showActiveFilters,
+    parseFilterDataForHotels
 }
 
 function setFilterData(res) {
@@ -26,10 +27,10 @@ function parseFilterData(filter) {
     let params = {
         filter: "",
     },
-    compiliationsParams = {
-        filter: "",
-    },
-    arrData, dateStart, dateEnd;
+        compiliationsParams = {
+            filter: "",
+        },
+        arrData, dateStart, dateEnd;
 
     if (filter[0][0].active) {
         dateStart = new Date(filter[0][0].value).toISOString();
@@ -44,7 +45,7 @@ function parseFilterData(filter) {
     }
 
     arrData = getActiveOption(filter[1]);
-    if (arrData.length !== 0){
+    if (arrData.length !== 0) {
         params.locations = arrData;
         compiliationsParams.locationIds = arrData;
     }
@@ -54,16 +55,16 @@ function parseFilterData(filter) {
         params.companions = arrData;
 
     arrData = getActiveOption(filter[3]);
-    if (arrData.length !== 0){
+    if (arrData.length !== 0) {
         params.subjects = arrData;
         compiliationsParams.subjectIds = arrData;
-    } 
+    }
 
     if (filter[4][0].active) params.priceMin = parseInt(filter[4][0].value);
 
     if (filter[4][1].active) params.priceMax = parseInt(filter[4][1].value);
 
-    return {params, compiliationsParams};
+    return { params, compiliationsParams };
 }
 
 function parseFilterDataForAdmin(filter) {
@@ -73,13 +74,29 @@ function parseFilterDataForAdmin(filter) {
         allStatuses: ""
     }, arrData;
 
-    if(filter[0][0].active) params.search = encodeURIComponent(filter[0][0].value)
+    if (filter[0][0].active) params.search = encodeURIComponent(filter[0][0].value);
 
     arrData = getActiveOption(filter[1])
     if (arrData.length !== 0) params.subjects = arrData;
 
     arrData = getActiveOption(filter[2]);
     if (arrData.length !== 0) params.locations = arrData;
+
+    return params;
+}
+
+function parseFilterDataForHotels(filter) {
+
+    let params = { filter: "" };
+    let arrData;
+
+    if (filter.search.active || filter.search.value.length > 0) params.search = encodeURIComponent(filter.search.value);
+
+    arrData = getActiveOption(filter.locationIds);
+    if (arrData.length) params.locationIds = arrData;
+
+    if(Object.keys(params).length === 1)
+        params = {};
 
     return params;
 }
@@ -105,13 +122,18 @@ function setFilterFromUrl(params, filter) {
     return filter;
 }
 
-function showActiveFilters(filter){
-    for (let i = 0; i < filter.length; i++) {
-      for (let j = 0; j < filter[i].length; j++) {
-        if (filter[i][j].active) {
-          return true;
-        }
-      }
+function showActiveFilters(filter) {
+    let data = filter;
+    if (!Array.isArray(filter)) data = Object.keys(filter);
+
+    for (let i = 0; i < data.length; i++) {
+        if (!Array.isArray(filter))
+            if (data[i].active)
+                return true;
+            else
+                for (let j = 0; j < data[i].length; j++)
+                    if (data[i][j].active)
+                        return true;
     }
 
     return false;

@@ -327,5 +327,17 @@ export default ( {
   tours_not_found:                "未找到旅游",
   saving_excursion:               "拯救旅游",
   saving_tour:                    "拯救旅游",
-  loading_favorite_events:        "加载喜爱的事件"
+  loading_favorite_events:        "加载喜爱的事件",
+
+  hotels_not_found:               "酒店未找到",
+  creating_hotel:                 "创建一个酒店",
+  editing_hotel:                  "编辑酒店",
+  hotel_save:                     "保存酒店",
+  hotel_name:                     "酒店名称",
+  hotel_url:                      "预订酒店页面",
+  booking_location_id:            "预订时的IDI位置",
+  hotel_location:                 "从目录酒店位置",
+  hotel_price:                    "酒店价格",
+  hotel_rating:                   "酒店评级",
+  saving_hotel:                   "拯救酒店"
 } );        
