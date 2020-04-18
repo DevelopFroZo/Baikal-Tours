@@ -27,7 +27,7 @@ export async function getAll( client, count, offset, search, locationIds, bookin
   }
 
   if( filters.length > 0 )
-    filters = `${filters.join( " and ")} and`;
+    filters = `where ${filters.join( " and ")}`;
   else
     filters = "";
 
@@ -38,11 +38,10 @@ export async function getAll( client, count, offset, search, locationIds, bookin
       bl.name as booking_location_name,
       count( 1 ) over ()
     from
-      hotels as h,
-      booking_locations as bl
-    where
-      ${filters}
-      h.booking_location_id = bl.id
+      hotels as h
+      left join booking_locations as bl
+      on h.booking_location_id = bl.id
+    ${filters}
     order by id
     ${count}
     ${offset}`,
@@ -58,6 +57,24 @@ export async function getAll( client, count, offset, search, locationIds, bookin
     hotels: rows,
     count: count_
   };
+}
+
+export async function getById( client, id ){
+  const { rows: [ row ] } = await client.query(
+    `select
+      h.booking_url, h.location_id, h.name, h.image_url, h.price, h.rating,
+      bl.id as booking_location_id,
+      bl.name as booking_location_name
+    from
+      hotels as h
+      left join booking_locations as bl
+      on h.booking_location_id = bl.id
+    where
+      h.id = $1`,
+    [ id ]
+  );
+
+  return row;
 }
 
 // #fix изменить фотографию
