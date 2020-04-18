@@ -11,7 +11,6 @@
 
   afterUpdate(() => {
     if (src !== null) {
-      console.log(src)
       let width = image.parentElement.clientWidth;
       let height = image.parentElement.clientHeight;
 
