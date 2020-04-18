@@ -1,11 +1,13 @@
 "use strict";
 
+import { transliterate } from "transliteration";
 import { toInt, toIntArray, toFloat } from "/helpers/converters";
 import { getAll } from "/database/hotels";
 
 export async function get( {
   query,
-  database: { pool }
+  database: { pool },
+  session: { locale }
 }, res ){
   let count = toInt( query.count );
   let offset = toInt( query.offset );
@@ -18,5 +20,14 @@ export async function get( {
   else
     search = null;
 
-  res.json( await getAll( pool, count, offset, search, locationIds, bookingLocationIds ) );
+  const data = await getAll( pool, count, offset, search, locationIds, bookingLocationIds );
+
+  if( locale !== "ru" ) data.hotels = data.hotels.map( el => {
+    el.name = transliterate( el.name );
+    el.booking_location_name = transliterate( el.booking_location_name );
+
+    return el;
+  } );
+
+  res.json( data );
 }
