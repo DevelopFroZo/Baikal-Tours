@@ -3,6 +3,7 @@
 import isValidActionDate from "/helpers/isValidActionDate";
 import { create, getByUserId } from "/database/actionReservations";
 import { toInt } from "/helpers/converters";
+import { createMap, mergeSingle, mergeMultiple } from "/helpers/merger";
 
 export async function post( req, res ){
   const { userId, actionId, name, surname, phone, email } = req.body;
@@ -35,19 +36,28 @@ export async function post( req, res ){
 
   const actionDates = await req.database.actionDates.getByActionId( transaction, actionId );
 
-  for( let actionDate of actionDates )
-    if( !isValidActionDate( actionDate, date ) ){
-      await transaction.query( "rollback" );
-      await transaction.release();
-
-      return res.error( 18 );
-    }
+  if( !actionDates.some( actionDate => isValidActionDate( actionDate, date ) ) )
+    return res.error( 18 );
 
   if(
     !Array.isArray( buyable ) ||
     buyable.length === 0 ||
-    !buyable.every( el => el !== null && !Array.isArray( el ) && typeof el === "object" )
-  ) buyable = null;
+    !buyable.every( el => el !== null && typeof el === "object" && !Array.isArray( el ) )
+  ){
+    const { rowCount } = await transaction.query(
+      `select 1
+      from action_buyable
+      where action_id = $1`,
+      [ actionId ]
+    );
+
+    if( rowCount > 0 ) return res.json( {
+      ok: false,
+      message: "Tickets/additional (buyable) must be sended for this action"
+    } );
+
+    buyable = null;
+  };
 
   const result = await create( req.database.pool, userId, actionId, name, surname, phone, email, date, buyable );
 
@@ -62,34 +72,49 @@ export async function get( {
   query,
   database: { pool }
 }, res ){
-  // if( !isLogged ) return res.json( {
-  //   ok: false,
-  //   message: "Unauthorized"
-  // } );
+  if( !isLogged ) return res.json( {
+    ok: false,
+    message: "Unauthorized"
+  } );
 
   const userId_ = toInt( query.userId );
 
   if( typeof userId_ !== "number" || userId_ < 1 )
     return res.error( 13 );
 
-  // if( role !== "admin" && userId !== userId_ )
-  //   return res.error( 12 );
+  if( role !== "admin" && userId !== userId_ )
+    return res.error( 12 );
 
   const transaction = await pool.connect();
 
   await transaction.query( "begin" );
 
   const reservations = await getByUserId( transaction, userId_ );
-  const actionIds = [];
+  const map = createMap( reservations, "action_id" );
+  const actionIds = Object.keys( map );
   const actionReservationsIds = [];
 
   reservations.forEach( reservation => {
-    actionIds.push( reservation.action_id );
-    actionReservationsIds.push( reservation.action_reservation_id );
-    reservation.locations = [];
-    reservation.dates = [];
-    reservation.buyable = [];
+    if( !actionIds.includes( reservation.action_id ) )
+      actionIds.push( reservation.action_id );
+
+    if( !actionReservationsIds.includes( reservation.action_reservation_id ) )
+      actionReservationsIds.push( reservation.action_reservation_id );
+
+    reservation.image_url = null;
+    reservation.locations = null;
+    reservation.dates = null;
+    reservation.buyable = null;
   } );
+
+  const { rows: images } = await transaction.query(
+    `select action_id, image_url
+    from action_images
+    where
+      action_id = any( $1 ) and
+      is_main = true`,
+    [ actionIds ]
+  );
 
   const { rows: locations } = await transaction.query(
     `select al.action_id, l.name, al.address
@@ -124,49 +149,13 @@ export async function get( {
     [ locale, actionReservationsIds ]
   );
 
-  const merge = ( obj0, obj1, byKey, newKey, options ) => {
-    if(
-      options === null ||
-      Array.isArray( options ) ||
-      typeof options !== "object"
-    ) options = {};
-
-    let { map } = options;
-    const { remove } = options;
-
-    if( map === undefined ){
-      map = {};
-
-      obj0.forEach( ( field, i ) => {
-        const mapKey = field[ byKey ];
-
-        if( !( mapKey in map ) )
-          map[ mapKey ] = [];
-
-        map[ mapKey ].push( i );
-      } );
-    }
-
-    obj1.forEach( field => {
-      const indexes = map[ field[ byKey ] ];
-
-      indexes.forEach( index => {
-        const field_ = obj0[ index ];
-
-        // if( remove === true )
-        //   delete field[ byKey ];
-
-        field_[ newKey ].push( field );
-      } );
-    } );
-  };
-
-  merge( reservations, locations, "action_id", "locations", { remove: true } );
-  merge( reservations, dates, "action_id", "dates", { remove: true } );
-  merge( reservations, buyable, "action_reservation_id", "buyable", { remove: true } );
-
   await transaction.query( "commit" );
   await transaction.release();
+
+  mergeSingle( reservations, images, "action_id", "image_url", { field: ".", map } );
+  mergeMultiple( reservations, locations, "action_id", "locations", { remove: true, map } );
+  mergeMultiple( reservations, dates, "action_id", "dates", { remove: true, map } );
+  mergeMultiple( reservations, buyable, "action_reservation_id", "buyable", { remove: true } );
 
   res.success( 0, reservations );
 }
