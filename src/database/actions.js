@@ -47,6 +47,8 @@ export default class extends Foundation{
         ai.image_url, a.price_min, a.price_max,
         array_agg( distinct s.name ) as subjects,
         array_agg( distinct l.name ) as locations,
+        coalesce( min( ab.price ), 0 ) as price_min_,
+        coalesce( max( ab.price ), 0 ) as price_max_,
         count( 1 ) over ()
       from
         ${favoritesTable}
@@ -62,7 +64,9 @@ export default class extends Foundation{
         left join actions_locations as al
         on a.id = al.action_id
         left join locations as l
-        on al.location_id = l.id and l.locale = $1,
+        on al.location_id = l.id and l.locale = $1
+        left join action_buyable as ab
+        on a.id = ab.action_id and ab.type = 'ticket',
         actions_translates as at
       where
         ${favoritesWhere}
@@ -105,17 +109,18 @@ export default class extends Foundation{
       order = "tmp.fsi, tmp.fn";
     }
 
-    // #fix добавить фильтр на цену
-    // if( priceMin ){
-    //   filters.push( `a.price >= $${i++}` );
-    //   params.push( priceMin );
-    //   i++;
-    // }
-    // if( priceMax ){
-    //   filters.push( `a.price <= $${i++}` );
-    //   params.push( priceMax );
-    //   i++;
-    // }
+    if( typeof priceMin === "number" && priceMin >= 0 ){
+      filters.push( `ae.price_min_ >= $${i++}` );
+      params.push( priceMin );
+      i++;
+    }
+
+    if( typeof priceMax === "number" && priceMax <= 0 ){
+      filters.push( `ae.price_max_ <= $${i++}` );
+      params.push( priceMax );
+      i++;
+    }
+
     if( locations ){
       filters.push( `ae.locations_ids @> $${i++}::int[]` );
       params.push( locations );
@@ -164,13 +169,19 @@ export default class extends Foundation{
     const rows = ( await super.query(
       `with actions_extended as (
         select
-          a.id, a.status, at.locale, at.title, at.name, at.tagline, at.short_description, at.full_description, a.price_min, a.price_max,
+          a.id, a.status, at.locale, at.title,
+          at.name, at.tagline, at.short_description,
+          at.full_description, a.price_min, a.price_max,
           ${favoritesColumns0}
           array_agg( l.id ) as locations_ids,
-          array_agg( l.name ) as locations
+          array_agg( l.name ) as locations,
+          coalesce( min( ab.price ), 0 ) as price_min_,
+          coalesce( max( ab.price ), 0 ) as price_max_
         from
           ${favoritesTable}
-          actions as a,
+          actions as a
+          left join action_buyable as ab
+          on a.id = ab.action_id and ab.type = 'ticket',
           actions_translates as at,
           actions_locations as al,
           locations as l
