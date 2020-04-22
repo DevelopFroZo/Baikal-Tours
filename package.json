@@ -35,7 +35,8 @@
     "svelte-sortable-list": "^1.1.0",
     "swiper": "^5.3.6",
     "timeUtils": "^2.0.0",
-    "transliteration": "^2.1.8"
+    "transliteration": "^2.1.8",
+    "xlsx": "^0.15.6"
   },
   "devDependencies": {
     "@babel/core": "^7.8.3",
