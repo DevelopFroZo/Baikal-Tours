@@ -33,7 +33,7 @@ export async function create( client, userId, actionId, name, surname, phone, em
 export async function getByUserId( client, userId ){
   const { rows } = await client.query(
     `select
-      ar.id as action_reservation_id, ar.paid,
+      ar.id as action_reservation_id, ar.paid, ar.date,
       at.action_id, at.name
     from
       action_reservations as ar,

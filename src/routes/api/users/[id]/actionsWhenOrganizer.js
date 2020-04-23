@@ -6,7 +6,6 @@ import { createMap, mergeSingle, mergeMultiple } from "/helpers/merger";
 export async function get( {
   session: { isLogged, locale, role, userId },
   params,
-  body: { userId: userId_ },
   database: { pool }
 }, res ){
   if( !isLogged ) return res.json( {
