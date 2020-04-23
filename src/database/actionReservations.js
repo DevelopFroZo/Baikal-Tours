@@ -30,7 +30,7 @@ export async function create( client, userId, actionId, name, surname, phone, em
   return id;
 }
 
-export async function getByUserId( client, userId ){
+export async function getByUserId( client, locale, userId ){
   const { rows } = await client.query(
     `select
       ar.id as action_reservation_id, ar.paid, ar.date,
@@ -39,8 +39,11 @@ export async function getByUserId( client, userId ){
       action_reservations as ar,
       actions_translates as at
     where
-      at.locale = 'ru' and
-      ar.action_id = at.action_id`
+      at.locale = $1 and
+      ar.user_id = $2 and
+      ar.action_id = at.action_id
+    order by ar.date`,
+    [ locale, userId ]
   );
 
   return rows;
