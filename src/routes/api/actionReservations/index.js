@@ -47,13 +47,15 @@ export async function post( req, res ){
     const { rowCount } = await transaction.query(
       `select 1
       from action_buyable
-      where action_id = $1`,
+      where
+        action_id = $1 and
+        type = 'ticket'`,
       [ actionId ]
     );
 
     if( rowCount > 0 ) return res.json( {
       ok: false,
-      message: "Tickets/additional (buyable) must be sended for this action"
+      message: "Tickets must be sended for this action"
     } );
 
     buyable = null;
