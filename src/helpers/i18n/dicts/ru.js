@@ -45,7 +45,6 @@ export default ( {
   logout: "Выход",
   event_calendar: "Календарь событий",
   free: "Бесплатно",
-  event_calendar_info: "Календарь событий от \"Фанат байкала\" ©2019",
   user_agreement: "Пользовательское соглашение",
   contacts: "Контакты",
   price: "Цена",
@@ -335,5 +334,11 @@ export default ( {
   hotel_location:             "Локация отеля из справочника",
   hotel_price:                "Цена отеля",
   hotel_rating:               "Рейтинг отеля",
-  saving_hotel:               "Сохранение отеля"
+  saving_hotel:               "Сохранение отеля",
+
+  check_intered_data:         "Проверьте введенные данные",
+  piece_short:                "шт.",
+  pay:                        "Оплатить",
+  date_not_correct:           "Событие не проходит в выбранный день",
+  event_calendar_info:        "При поддержке Агентства по туризму Иркутской области и Центра кластерного развития",
 } );

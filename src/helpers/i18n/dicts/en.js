@@ -45,7 +45,6 @@ export default ({
   logout: "LogOut",
   event_calendar: "Event calendar",
   free: "Free",
-  event_calendar_info: "Calendar of events from \"Fan of Baikal\" ©2019",
   user_agreement: "User agreement",
   contacts: "Contacts",
   price: "Price",
@@ -338,5 +337,11 @@ export default ({
   hotel_location:             "Hotel location from the directory",
   hotel_price:                "Hotel price",
   hotel_rating:               "Hotel rating",
-  saving_hotel:               "Saving a hotel"
+  saving_hotel:               "Saving a hotel",
+
+  check_intered_data:         "Check the entered data",
+  piece_short:                "PCs",
+  pay:                        "Pay",
+  date_not_correct:           "The event does not take place on the selected day",
+  event_calendar_info:        "With the support of the tourism Agency of the Irkutsk region and the center for cluster development",
 });
