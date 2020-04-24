@@ -106,7 +106,6 @@ export async function get( {
 
     reservation.image_url = null;
     reservation.locations = null;
-    reservation.dates = null;
     reservation.buyable = null;
   } );
 
@@ -131,13 +130,6 @@ export async function get( {
     [ locale, actionIds ]
   );
 
-  const { rows: dates } = await transaction.query(
-    `select action_id, date_start, date_end, time_start, time_end, days
-    from action_dates
-    where action_id = any( $1 )`,
-    [ actionIds ]
-  );
-
   const { rows: buyable } = await transaction.query(
     `select arb.action_reservation_id, arb.count, ab.price, ab.type, abt.name
     from
@@ -157,7 +149,6 @@ export async function get( {
 
   mergeSingle( reservations, images, "action_id", "image_url", { field: ".", map } );
   mergeMultiple( reservations, locations, "action_id", "locations", { remove: true, map } );
-  mergeMultiple( reservations, dates, "action_id", "dates", { remove: true, map } );
   mergeMultiple( reservations, buyable, "action_reservation_id", "buyable", { remove: true } );
 
   res.success( 0, reservations );

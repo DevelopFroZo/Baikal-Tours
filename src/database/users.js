@@ -58,6 +58,7 @@ export default class extends Foundation{
     let sets = [];
     const params = [ id ];
     let i = 2;
+    let errors = [];
 
     if( typeof name === "string" && name !== "" ){
       sets.push( `name = $${i++}` );
@@ -79,23 +80,25 @@ export default class extends Foundation{
       params.push( email );
     }
 
-    if(
-      typeof oldPassword === "string" &&
-      typeof newPassword === "string" && newPassword !== ""
-    ){
-      const { hash: oldHash } = saltNHash( oldPassword, {
-        salt: dbSalt,
-        hashAlgorithm: process.env.HASH_ALGORITHM
-      } );
-
-      if( oldHash === dbHash ){
-        const { hashAndSalt: newHashAndSalt } = saltNHash( newPassword, {
-          saltLength: process.env.SALT_LENGTH,
+    if( typeof newPassword === "string" && newPassword !== "" ){
+      if( typeof oldPassword !== "string" || oldPassword === "" )
+        errors.push( "Invalid old password" );
+      else{
+        const { hash: oldHash } = saltNHash( oldPassword, {
+          salt: dbSalt,
           hashAlgorithm: process.env.HASH_ALGORITHM
         } );
 
-        sets.push( `password = $${i++}` );
-        params.push( newHashAndSalt );
+        if( oldHash === dbHash ){
+          const { hashAndSalt: newHashAndSalt } = saltNHash( newPassword, {
+            saltLength: process.env.SALT_LENGTH,
+            hashAlgorithm: process.env.HASH_ALGORITHM
+          } );
+
+          sets.push( `password = $${i++}` );
+          params.push( newHashAndSalt );
+        }
+        else errors.push( "Invalid old password" );
       }
     }
 
@@ -115,7 +118,7 @@ export default class extends Foundation{
       );
     }
 
-    return true;
+    return errors;
   }
 
   async del( id ){

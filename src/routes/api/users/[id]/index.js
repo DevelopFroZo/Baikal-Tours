@@ -41,7 +41,13 @@ export async function put( req, res ){
     delete req.body.role;
   }
 
-  const result = await req.database.users.edit( id, req.body );
+  const errors = await req.database.users.edit( id, req.body );
+
+  if( errors.length > 0 )
+    return res.json( {
+      ok: false,
+      errors
+    } );
 
   if( id === userId ){
     if( req.body.name )

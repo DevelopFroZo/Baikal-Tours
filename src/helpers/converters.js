@@ -1,48 +1,61 @@
 "use strict";
 
-export function toInt( st ){
-  if( st === undefined || st === "" )
+export function toNumber( el, type ){
+  if( type !== "int" && type !== "float" )
     return null;
 
-  if( typeof st === "number" )
-    return st;
+  if( typeof el === "number" )
+    return el;
 
-  const int = parseInt( st.replace( / +/g, "" ) );
-
-  if( isNaN( int ) || typeof int !== "number" )
+  if( typeof el !== "string" )
     return null;
 
-  return int;
+  el = el.replace( / +/g, "" );
+
+  if( el === "" )
+    return null;
+
+  el = type === "int" ? parseInt( el ) : parseFloat( el );
+
+  if( typeof el !== "number" || isNaN( el ) )
+    return null;
+
+  return el;
 }
 
-export function toFloat( st ){
-  if( st === undefined || st === "" )
-    return null;
-
-  if( typeof st === "number" )
-    return st;
-
-  const float = parseFloat( st.replace( / +/g, "" ) );
-
-  if( isNaN( float ) || typeof float !== "number" )
-    return null;
-
-  return float;
+export function toInt( el ){
+  return toNumber( el, "int" );
 }
 
-export function toIntArray( st ){
-  if( st === undefined || st === "" )
-    return null;
+export function toFloat( el ){
+  return toNumber( el, "float" );
+}
+
+export function toIntArray( el, splitter ){
+  if( Array.isArray( el ) && el.every( el_ => Number.isInteger( el_ ) ) )
+    return el;
 
   let arr;
 
-  if( typeof st === "string" )
-    arr = st.replace( / +/g, "" ).split( "," );
-  else
-    arr = [ ...st ];
+  if( typeof el === "string" ){
+    el = el.replace( / +/g, "" );
+
+    if( el === "" )
+      return null;
+
+    if( typeof splitter !== "string" || splitter === "" )
+      splitter = ",";
+
+    arr = el.split( splitter );
+  } else {
+    if( !Array.isArray( el ) )
+      return null;
+
+    arr = [ ...el ];
+  }
 
   for( let i = 0; i < arr.length; i++ ){
-    arr[i] = toInt( arr[i] );
+    arr[i] = toNumber( arr[i], "int" );
 
     if( arr[i] === null )
       return null;
