@@ -6,6 +6,8 @@
     let locale = session.locale,
       section = page.query.section;
 
+    let userId = session.userId;
+
     let sections = ["settings", "actions", "organizer"],
       bl = false;
     if (section !== undefined)
@@ -29,7 +31,12 @@
       credentials: "same-origin"
     })).data.subjects;
 
-    return { locale, section, userInfo, subjectsInfo};
+    let reservations = (await fetcher.get(`/api/actionReservations`,{
+      credentials: "same-origin",
+      query: {userId}
+    })).data
+
+    return { locale, section, userInfo, subjectsInfo, reservations};
   }
 </script>
 
@@ -42,7 +49,8 @@
   import { goto } from "@sapper/app";
   import i18n from "/helpers/i18n/index.js";
 
-  export let locale, section, userInfo, subjectsInfo;
+  export let locale, section, userInfo, subjectsInfo, reservations;
+
   const _ = i18n( locale );
 
   function setSection(sectionType) {
@@ -103,7 +111,7 @@
   {#if section === 'settings'}
     <Settings {userInfo} {...userInfo} {subjectsInfo} {_}/>
   {:else if section === 'actions'}
-    <Actions {_}/>
+    <Actions {_} {reservations}/>
   {:else if section === 'organizer'}
     <Organizer {_}/>
   {/if}

@@ -1,20 +1,20 @@
 <script>
   import Action from "/components/profile_event_card.svelte";
 
-  export let _;
+  export let _, reservations;
 
   let section = "next";
 
   let secondActions = [],
     oldActions = [];
 
-  // for (let action of userSubscribeds)
-  //   if (
-  //     action.date_ends !== null &&
-  //     new Date(action.date_ends).getTime() <= new Date()
-  //   )
-  //     oldActions.push(action);
-  //   else secondActions.push(action);
+  for (let action of reservations)
+    if (
+      action.date !== null &&
+      new Date(action.date).getTime() <= new Date()
+    )
+      oldActions.push(action);
+    else secondActions.push(action);
 
   function setSection(sectionType) {
     section = sectionType;
@@ -62,7 +62,7 @@
   {:else if section === 'prev'}
     {#if oldActions.length !== 0}
       {#each oldActions as action}
-        <Action {...action} {_} />
+        <Action {...action} {_} prev={true}/>
       {/each}
     {:else}
       <h2 class="not-found">{_("prev_events_not_found")}</h2>

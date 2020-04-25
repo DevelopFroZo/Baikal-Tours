@@ -1,16 +1,25 @@
 <script>
-  import { parseDateForCards } from "/helpers/parsers.js";
+  import { parseDate } from "/helpers/parsers.js";
   import Image from "/components/imageCenter.svelte";
 
-  export let action_id,
+  export let action_reservation_id,
+    action_id,
+    image_url,
     name,
     locations,
-    date_starts,
-    date_ends,
+    dates,
+    date,
+    buyable,
+    paid,
     _,
     prev = false;
 
-  let dates = parseDateForCards(date_starts, date_ends, _);
+  if(!buyable) buyable = [];
+
+  let tickets = buyable.filter(el => el.type === "ticket");
+  let additions = buyable.filter(el => el.type === "additional");
+
+  date = parseDate(new Date(date));
 </script>
 
 <style lang="scss">
@@ -46,6 +55,7 @@
 
   .action-info-block {
     padding: 50px;
+    width: calc(100% - 400px);
   }
 
   .tickets-block {
@@ -88,6 +98,10 @@
     font-size: 24px;
     font-family: $Playfair;
     color: #34353f;
+
+    & > a{
+      font-family: inherit;
+    }
   }
 
   .action-info {
@@ -224,64 +238,72 @@
 
 <div class="action-block" class:prev>
   <div class="image-block">
-    <Image src="/img/test.png" alt="image" />
+    <Image src={image_url} alt="image" />
   </div>
   <div class="action-info-block">
-    <h3>{name}</h3>
+    <h3> <a href={`/action?id=${action_id}`}>{name}</a></h3>
     <div class="action-info">
       <ul>
         {#each locations as location}
-          <li>{location}</li>
+          <li>{location.name}</li>
         {/each}
       </ul>
-      <ul>
-        {#each dates as date}
-          <li>{date}</li>
-        {/each}
-      </ul>
+      <ul>{date}</ul>
     </div>
     <div class="tickets-block">
-      <ul>
-        {_('your_tickets')}
-        <li>
-          Взрослый - 1шт. -
-          <span class="blue">1000 руб.</span>
-        </li>
-        <li>
-          Детский - 2шт. -
-          <span class="blue">1000 руб.</span>
-        </li>
-      </ul>
-      <ul>
-        {_('additionally')}
-        <li>
-          Питание - 1шт. -
-          <span class="blue">1000 руб.</span>
-        </li>
-        <li>
-          Снаряжение - 2шт. -
-          <span class="blue">1000 руб.</span>
-        </li>
-      </ul>
+      {#if tickets.length}
+        <ul>
+          {_('your_tickets')}
+          {#each tickets as ticket}
+            <li>
+              {ticket.name} - {ticket.count}{_('piece_short')}. -
+              <span class="blue">{ticket.count * ticket.price} {_('rub')}</span>
+            </li>
+          {/each}
+        </ul>
+      {/if}
+      {#if additions.length}
+        <ul>
+          {_('additionally')}
+          {#each additions as ticket}
+            <li>
+              {ticket.name} - {ticket.count}{_('piece_short')}. -
+              <span class="blue">{ticket.count * ticket.price} {_('rub')}</span>
+            </li>
+          {/each}
+        </ul>
+      {/if}
     </div>
-    <p class="status-text">
-      <span class="blue bold">{_('action_register_success')}</span>
-      <br />
-      {_('action_register_mail')}
-    </p>
-    <p class="status-text">
-      <span class="bold blue">{_('action_confirm_pay_blue')}</span>
-      <br />
-      {_('action_confirm_pay')}
-    </p>
-    <p class="status-text red bold">{_('held_event')}</p>
-    <div class="buttons">
+    {#if !prev}
+      {#if paid || !buyable.length}
+        <p class="status-text">
+          <span class="blue bold">{_('action_register_success')}</span>
+          <br />
+          {_('action_register_mail')}
+        </p>
+      {:else}
+        <p class="status-text">
+          <span class="bold blue">{_('action_confirm_pay_blue')}</span>
+          <br />
+          {_('action_confirm_pay')}
+        </p>
+        {#if !paid}
+          <div class="buttons">
+            <button class="blue-button cansel">
+              {_('cansel_reservation')}
+            </button>
+            <button class="blue-button">{_('pay_ticket')}</button>
+          </div>
+        {/if}
+      {/if}
+    {:else}
+      <p class="status-text red bold">{_('held_event')}</p>
+    {/if}
+  </div>
+  {#if !paid && !prev}
+    <div class="mobile-buttons">
       <button class="blue-button cansel">{_('cansel_reservation')}</button>
       <button class="blue-button">{_('pay_ticket')}</button>
     </div>
-  </div>
-  <div class="mobile-buttons">
-    <button class="blue-button cansel">{_('cansel_reservation')}</button>
-    <button class="blue-button">{_('pay_ticket')}</button>
-  </div>
+  {/if}
 </div>

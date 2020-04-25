@@ -45,7 +45,6 @@ export default ( {
   logout: "退出",
   event_calendar: "事件日历",
   free: "免费",
-  event_calendar_info: "来自\"贝加尔湖风扇\"的活动日历©2019",
   user_agreement: "用户协议",
   contacts: "联系人",
   price: "价格",
@@ -339,5 +338,11 @@ export default ( {
   hotel_location:                 "从目录酒店位置",
   hotel_price:                    "酒店价格",
   hotel_rating:                   "酒店评级",
-  saving_hotel:                   "拯救酒店"
+  saving_hotel:                   "拯救酒店",
+
+  check_intered_data:             "检查输入的数据",
+  piece_short:                    "个人电脑。",
+  pay:                            "支付",
+  date_not_correct:               "该事件不发生在选定的一天",
+  event_calendar_info:            "在伊尔库茨克州旅游局和集群发展中心的支持下",
 } );        

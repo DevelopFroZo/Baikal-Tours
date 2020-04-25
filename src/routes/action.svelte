@@ -7,6 +7,7 @@
     const fetcher = new Fetcher(this.fetch);
     let actionId = page.query.id;
     let locale = session.locale;
+    let userId = session.userId;
 
     let result_action = await fetcher.get(`/api/actions/${actionId}`, {
       credentials: "same-origin"
@@ -31,7 +32,7 @@
 
       let mobile = isMobile(session["user-agent"]);
 
-      return { result_action, actionId, locale, similar_events, mobile };
+      return { result_action, actionId, userId, locale, similar_events, mobile };
     } 
 
     this.error(404, "page not found");
@@ -54,8 +55,10 @@
   import Image from "/components/imageCenter.svelte";
   import BannerBlock from "/components/bannerBlock.svelte";
   import { slide } from "svelte/transition";
+  import { fade } from "svelte/transition";
+  import isValidActionDate from "/helpers/isValidActionDate.js";
 
-  export let result_action, actionId, locale, similar_events, mobile;
+  export let result_action, actionId, userId, locale, similar_events, mobile;
 
   const fetcher = new Fetcher();
   const { session } = stores();
@@ -68,7 +71,7 @@
     surname = "",
     userPhone = "",
     userMail = "",
-    disabled = "disabled",
+    disabled = true,
     actionsParams,
     start = false,
     vkHref,
@@ -77,15 +80,23 @@
     initEditor = false,
     registerBlock,
     transfers,
-    total;
+    total,
+    initVk = false,
+    tickets = [],
+    additionals = [],
+    ticketsWithCount = [],
+    additionalsWithCount = [],
+    showBuyWindow = false,
+    userDate = "",
+    showDateChange = true,
+    dates = result_action.dates;
 
-  for(let ticket of result_action.buyable)
-    ticket.count = 0;
+  console.log(dates)
 
   $: {
     total = 0;
 
-    for(let ticket of result_action.buyable)
+    for(let ticket of [...ticketsWithCount, ...additionalsWithCount])
       total += ticket.count * ticket.price;
   }
 
@@ -94,16 +105,58 @@
     changeAllData();
   }
 
-  $: if (userName !== "" && userPhone !== "" && validateMail(userMail))
-    disabled = "";
-  else disabled = "disabled";
+  $: ticketsWithCount = tickets.filter(el => el.count);
+  $: additionalsWithCount = additionals.filter(el => el.count);
+
+  $: if (userName !== "" && userPhone !== "" && validateMail(userMail) && surname !== "" && userDate !== "")
+      disabled = tickets.length ? !ticketsWithCount.length : false;
+     else disabled = true;
+  
+  $: {
+    let date = new Date(userDate);
+    if( userDate !== "" && showDateChange){
+
+      if(dates[0].time_start !== null)
+        date.setHours(Number(dates[0].time_start.split(":")[0]))
+      
+      if( !dates.some(el => isValidActionDate(el, date))){
+        alert(_("date_not_correct"))
+        userDate = "";
+      }
+    }
+  }
 
   function changeAllData(){
+    userName = "";
+    surname = "";
+    userPhone = "";
+    userMail = "";
+    disabled = true;
+    tickets = [];
+    additionals = [];
+    ticketsWithCount = [];
+    additionalsWithCount = [];
+    showBuyWindow = false;
+    userDate = "";
+    total = 0;
+    showDateChange = true;;
+
     transfers = [];
     for(let transfer of result_action.transfers)
       transfers.push(transfer.name);
 
     second_price = parsePrice(result_action.price_min, result_action.price_max, _);
+
+    tickets = result_action.buyable.filter(el => el.type === "ticket");
+    additionals = result_action.buyable.filter(el => el.type === "additional");
+
+    showDateChange = !(result_action.dates.length === 1 && result_action.dates[0].date_start === result_action.dates[0].date_end);
+
+    if(!showDateChange)
+      userDate = result_action.dates[0].date_start === null ? result_action.dates[0].date_end : result_action.dates[0].date_start;
+
+    for(let ticket of result_action.buyable)
+      ticket.count = 0;
 
     if(start){
       setShare();
@@ -120,30 +173,51 @@
     if(initEditor)
       startEditor();
 
+    if(initVk)
+      startVkShare();
+
     setShare();
   });
 
   function setShare(){
+    twitterHref = encodeURI(result_action.name + "\n\n" + document.location.href);
+    facebookHref = document.location.href;
+  }
+
+  function startVkShare(){
     vkHref = VK.Share.button(false, {
       type: "custom",
       text: '<img src="/img/vk-grey.svg"/>'
     });
-
-    twitterHref = encodeURI(result_action.name + "\n\n" + document.location.href);
-    facebookHref = document.location.href;
   }
   
   async function subscribeUser() {
-    let subscribeStatus = await fetcher.post(
-      "/api/actions/subscribe/" + actionId,
-      {
-        name: userName,
-        phone: userPhone,
-        email: userMail
-      }
-    );
+    let reservationData = {
+      userId: Number(userId),
+      actionId: Number(actionId),
+      surname,
+      name: userName,
+      phone: userPhone,
+      email: userMail,
+      date: new Date(userDate).toISOString()
+    }
 
-    if (subscribeStatus.ok) alert("Вы успешно подписались на событие");
+    let countedTickets = [];
+    for(let ticket of [...ticketsWithCount, ...additionalsWithCount])
+      countedTickets.push({
+        actionBuyableId: ticket.id,
+        count: ticket.count
+      })
+
+    if(countedTickets.length)
+      reservationData.buyable = countedTickets;
+
+    let reservationResult = await fetcher.post(`/api/actionReservations`, reservationData);
+
+    console.log(reservationResult)
+
+    if(reservationResult.ok)
+      showBuyWindow = true;
   }
 
   function startEditor(){
@@ -160,7 +234,6 @@
 
   .form-width {
     margin: 15px auto 15px;
-    min-height: calc(100vh - 175px - 60px);
     font-size: $Medium_Font_Size;
   }
 
@@ -210,7 +283,6 @@
 
       & > .inputs-block {
         width: 340px;
-        padding-top: 70px;
 
         & > .input-block:not(:first-child) {
           margin-top: 30px;
@@ -455,6 +527,7 @@
       box-sizing: border-box;
       width: calc(100% - 800px - 50px);
       padding: 0;
+      margin-top: 0;
 
       & h2 {
         font-family: $Playfair;
@@ -738,6 +811,188 @@
     padding-top: 0px !important;
   }
 
+  .already-tickets-block{
+    position: fixed;
+    min-height: 100vh;
+    top: 0;
+    left: 0;
+    z-index: 5;
+    box-sizing: border-box;
+    width: 100%;
+    overflow-y: scroll;
+
+    & > button{
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      background: #00000088;
+    }
+  }
+
+  .already-tickets{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 450px;
+    z-index: 1;
+
+    & > div{
+      padding: 50px;
+      background: #F8F9FB;
+      border-radius: 10px;
+      max-height: 800px;
+      overflow: auto;
+      box-sizing: border-box;
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+
+      & *{
+      font-size: 18px;
+      }
+
+      & > h3{
+        font-size: 24px;
+        color: #4D5062;
+        text-align: center;
+        width: 75%;
+        margin: 0 auto;
+      }
+
+      & > hr{
+        width: calc(100% + 100px);
+        margin-left: -50px;
+        border: 1px solid #E7E7E7;
+        margin: 40px 0 30px -50px;
+      }
+
+      & > .user-data-block{
+        margin-top: 20px;
+
+        & > .user-data{
+
+          & > h5{
+            font-size: $Big_Font_Size;
+            color: #4f4f4f;
+            font-weight: normal;
+          }
+
+          & > span{
+            margin-top: 20px;
+            display: block;
+            font-weight: 600;
+          }
+
+          &:not(:first-child){
+            margin-top: 30px;
+          }
+        }
+      }
+
+      & > .user-tickets-block{
+        & > h4{
+          font-family: $Playfair;
+          font-size: 20px;
+          color: #4f4f4f;
+        }
+
+        & > .additional-header{
+          margin-top: 30px;
+        }
+
+        & > table{
+          margin-top: 10px;
+          width: 100%;
+
+          & > tr{
+
+            & > td:first-child{
+              color: #4f4f4f;
+            }
+
+            & > td:last-child{
+              text-align: right;
+              color: $Blue;
+              font-weight: 600;
+            }
+
+            & > td{
+              padding-top: 20px;
+            }
+          }
+        }
+      }
+
+      & > .user-total{
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        & > .user-total-text{
+          font-weight: 600;
+          font-size: 24px;
+          color: #4f4f4f;
+        }
+
+        & > .blue{
+          color: $Blue;
+          font-size: 20px;
+          font-weight: 600;
+        }
+      }
+
+      & > .buttons-block > button{
+        display: block;
+        border-radius: 100px;
+        font-size: $LowBig_Font_Size;
+        width: 100%;
+        padding: 18px 0;
+        font-weight: 600;
+
+        &.blue-button{
+          background: $Blue_Gradient;
+          color: white;
+          box-shadow: 0px 0px 20px rgba(229, 229, 229, 0.35);
+          margin-top: 30px;
+        }
+
+        &.back{
+          background: linear-gradient(181.91deg, #FFFFFF 24.24%, #EFEFEF 90.54%);
+          box-shadow: 0px 0px 70px rgba(40, 39, 49, 0.05);
+          margin-top: 20px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+
+          & > img{
+            width: 20px;
+            transform: rotate(180deg);
+            margin-right: 10px;
+          }
+        }
+      }
+    }
+  }
+
+  .already-tickets > div::-webkit-scrollbar{
+    display: none;
+  }
+
+  .close-window{
+    position: absolute;
+    width: 45px;
+    height: 45px;
+    right: calc(45px / 2 * -1);
+    top: calc(45px / 2 * -1);
+    background: #F5F5F5;
+    border-radius: 100px;
+  
+    & > img{
+      width: 15px;
+    }
+  }
+
   @media only screen and (max-width: 768px) {
     h1 {
       font-size: $Big_Font_Size;
@@ -986,6 +1241,24 @@
     .form-width{
       overflow: hidden;
     }
+
+    .already-tickets{
+      width: calc(100% - 30px) !important;
+
+      & > div{
+        padding: 40px 20px !important;
+        max-height: calc(100vh - 80px) !important;
+
+        & > h3{
+          width: 100% !important;
+        }
+
+        & > hr{
+          width: calc(100% + 40px) !important;
+          margin-left: -20px !important;
+        }
+      }
+    }
   }
 </style>
 
@@ -995,7 +1268,11 @@
   <script
     type="text/javascript"
     src="https://vk.com/js/api/share.js?95"
-    charset="windows-1251"></script>
+    charset="windows-1251" on:load={() => {
+      initVk = true;
+      if(start)
+        startVkShare();
+    }}></script>
 
   <script src="//cdn.quilljs.com/1.3.6/quill.js" on:load={() => {
     initEditor = true;
@@ -1003,6 +1280,7 @@
       startEditor()
   }}></script>
   <link href="//cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+  <meta name="description" content={result_action.short_description}>
 </svelte:head>
 
 <Header {locale} />
@@ -1243,7 +1521,7 @@
               </div>
             </div>
             <div class="input-block">
-              <input type="text" bind:value={userName} placeholder={_("surname")}/>
+              <input type="text" bind:value={surname} placeholder={_("surname")}/>
               <div class="img-block">
                 <img src="/img/user-black.svg" alt="user">
               </div>
@@ -1264,13 +1542,21 @@
                 <img src="/img/mail.svg" alt="e-mail">
               </div>
             </div>
+            {#if showDateChange}
+              <div class="input-block">
+                <input type="date" bind:value={userDate}/>
+                <div class="img-block">
+                  <img src="/img/calendar.png" alt="date">
+                </div>
+              </div>
+            {/if}
           </div>
           
-          {#if result_action.buyable.filter(el => el.type === "ticket").length > 0}
+          {#if tickets.length > 0}
           <div class="register-categoty-block">
             <h2>{_('ticket_categories')}</h2>
             <div class="tickets-block">
-              {#each result_action.buyable.filter(el => el.type === "ticket") as ticket}
+              {#each tickets as ticket}
                 <div class="ticket-block">
                   <div>
                     <div>{ticket.name}</div>
@@ -1287,11 +1573,11 @@
           </div>
           {/if}
 
-          {#if result_action.buyable.filter(el => el.type === "additional").length > 0}
+          {#if additionals.length > 0}
           <div class="register-categoty-block">
             <h2>{_('additionally')}</h2>
             <div class="tickets-block">
-              {#each result_action.buyable.filter(el => el.type === "additional") as ticket}
+              {#each additionals as ticket}
                 <div class="ticket-block">
                   <div>
                     <div>{ticket.name}</div>
@@ -1313,7 +1599,7 @@
           {#if total > 0}
             <div class="total-price" transition:slide>{_("total")}<span>{total} {_('rub')}</span></div>
           {/if}
-          <button class="register-button" on:click={subscribeUser}>
+          <button class="register-button" on:click={subscribeUser} disabled={disabled}>
             {total === 0 ? _('register') : _("buy_tickets")}
           </button>
         </div>
@@ -1376,18 +1662,67 @@
     </div>
   </div>
 </div>
+<Footer {locale} />
 
-<!-- <div class="footer-banners">
-  <div class="form-width auto-height banners-block">
-    <div class="banners">
-      <div>
-        <div class="img-block">
-          <img src="/img/test.png" alt="hotel" />
+{#if showBuyWindow}
+  <div class="already-tickets-block" transition:fade={{duration: 300}}>
+    <button on:click={() => showBuyWindow = false}></button>
+      <div class="already-tickets">
+        <button class="close-window" on:click={() => showBuyWindow = false}><img src="/img/cross.svg" alt="cross" /></button>
+        <div>
+          <h3>{_("check_intered_data")}</h3>
+          <hr>
+          <div class="user-data-block">
+            <div class="user-data">
+              <h5>{_("name")} {_("surname")}</h5>
+              <span>{userName} {surname}</span>
+            </div>
+            <div class="user-data">
+              <h5>{_("phone")}</h5>
+              <span>{userPhone}</span>
+            </div>
+            <div class="user-data">
+              <h5>E-mail</h5>
+              <span>{userMail}</span>
+            </div>
+          </div>
+          <hr />
+          {#if ticketsWithCount.length || additionalsWithCount.length}
+            <div class="user-tickets-block">
+              {#if ticketsWithCount.length}
+                <h4>{_("tickets")}</h4>
+                <table>
+                  {#each ticketsWithCount as ticket}
+                    <tr>
+                      <td>{ticket.name} - {ticket.count} {_("piece_short")}</td>
+                      <td class="blue">{ticket.count * ticket.price} {_("rub")}</td>
+                    </tr>
+                  {/each}
+                </table>
+              {/if}
+              {#if additionalsWithCount.length}
+                <h4 class="additional-header">{_("additionally")}</h4>
+                <table>
+                  {#each additionalsWithCount as ticket}
+                    <tr>
+                      <td>{ticket.name} - {ticket.count} {_("piece_short")}</td>
+                      <td class="blue">{ticket.count * ticket.price} {_("rub")}</td>
+                    </tr>
+                  {/each}
+                </table>
+              {/if}
+            </div>
+            <hr />
+          {/if}
+          <div class="user-total">
+            <span class="user-total-text">{_("total")}</span>
+            <span class="blue">{total} {_("rub")}.</span>
+          </div>
+          <div class="buttons-block">
+            <button class="blue-button">{_("pay").toUpperCase()}</button>
+            <button class="back" on:click={() => showBuyWindow = false}><img src="/img/right-arrow.svg" alt="back">{_("back")}</button>
+          </div>
         </div>
-        Знакомство с Иркутском
-      </div>
     </div>
   </div>
-</div> -->
-
-<Footer {locale} />
+{/if}

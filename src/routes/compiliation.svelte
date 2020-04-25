@@ -357,8 +357,9 @@
     src="https://vk.com/js/api/share.js?95"
     charset="windows-1251"
     on:load={vkLoad}>
-
   </script>
+
+  <meta name="description" content={compiliation_result.tagline}>
 </svelte:head>
 
 <Header {locale} />

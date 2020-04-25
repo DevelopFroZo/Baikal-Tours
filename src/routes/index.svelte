@@ -544,6 +544,7 @@
 
 <svelte:head>
   <title>{_('event_calendar')}</title>
+  <meta name="description" content={_("main_text")}>
 </svelte:head>
 
 <Header {locale} {mobile} />
