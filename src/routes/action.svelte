@@ -1600,7 +1600,7 @@
             <div class="total-price" transition:slide>{_("total")}<span>{total} {_('rub')}</span></div>
           {/if}
           <button class="register-button" on:click={subscribeUser} disabled={disabled}>
-            {total === 0 ? _('register') : _("buy_tickets")}
+            {!tickets.length ? _('register') : _("buy_tickets")}
           </button>
         </div>
       </div>
