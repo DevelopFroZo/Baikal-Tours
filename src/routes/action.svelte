@@ -91,8 +91,6 @@
     showDateChange = true,
     dates = result_action.dates;
 
-  console.log(dates)
-
   $: {
     total = 0;
 
@@ -1596,8 +1594,8 @@
         </div>
         <hr />
         <div class="final-price-block">
-          {#if total > 0}
-            <div class="total-price" transition:slide>{_("total")}<span>{total} {_('rub')}</span></div>
+          {#if tickets.length}
+            <div class="total-price">{_("total")}<span>{total} {_('rub')}</span></div>
           {/if}
           <button class="register-button" on:click={subscribeUser} disabled={disabled}>
             {!tickets.length ? _('register') : _("buy_tickets")}
