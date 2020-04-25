@@ -46,9 +46,6 @@
     font-size: 24px;
     font-family: $Playfair;
     color: #4d5062;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    overflow: hidden;
     margin-top: 10px;
   }
 
@@ -60,9 +57,6 @@
     & > div:not(.img) {
       margin-left: 30px;
       font-size: $Mini_Font_Size;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      overflow: hidden;
       font-size: $LowBig_Font_Size;
       font-family: $Gilroy;
       color: #434343;
