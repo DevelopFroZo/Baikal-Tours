@@ -433,7 +433,7 @@
 
     & > .form-width {
       padding-top: 235px;
-      padding-right: 40%;
+      padding-right: 480px;
       box-sizing: border-box;
 
       & > h1 {
