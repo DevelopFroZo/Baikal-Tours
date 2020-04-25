@@ -861,7 +861,7 @@
           on:click={() => {
             options[3].isVisible = true;
           }} />
-        <ClickOutside
+        <!-- <ClickOutside
           on:clickoutside={() => (options[3].isVisible = false)}
           exclude={[options[3].btn]}>
           {#if options[3].isVisible}
@@ -872,7 +872,7 @@
               bind:value={priceStart}
               on:change={setPrice} />
           {/if}
-        </ClickOutside>
+        </ClickOutside> -->
       </div>
       <div class="price-filter">
         <input
@@ -886,7 +886,7 @@
           on:click={() => {
             options[4].isVisible = true;
           }} />
-        <ClickOutside
+        <!-- <ClickOutside
           on:clickoutside={() => (options[4].isVisible = false)}
           exclude={[options[4].btn]}>
           {#if options[4].isVisible}
@@ -897,7 +897,7 @@
               bind:value={priceEnd}
               on:change={setPrice} />
           {/if}
-        </ClickOutside>
+        </ClickOutside> -->
       </div>
     </div>
   </div>

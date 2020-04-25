@@ -100,12 +100,6 @@
     padding-bottom: 50px;
   }
 
-  .form-width > h2 {
-    font-size: $Big_Font_Size;
-    margin-top: 50px;
-    text-align: center;
-  }
-
   .selections-block {
     width: 675px;
     display: flex;
@@ -137,23 +131,17 @@
       z-index: -1;
       filter: brightness(90%);
     }
-
-    & > h1 {
-      margin-top: 215px;
-      color: white;
-      text-transform: uppercase;
-      font-size: 20px;
-    }
   }
 
-  h2 {
+  h1 {
     text-align: center;
     font-size: 48px;
-    color: white;
     font-family: $Playfair;
     width: 1000px;
-    margin: auto;
+    margin: 250px auto 0;
     white-space: pre-wrap;
+    font-weight: 900;
+    color: #34353F;
 
     & > span {
       font-family: inherit;
@@ -381,10 +369,6 @@
   }
 
   @media only screen and (max-width: 768px) {
-    h1 {
-      display: none;
-    }
-
     .top-block {
       background: linear-gradient(
         180deg,
@@ -394,7 +378,7 @@
       background-blend-mode: lighten, normal;
       height: 650px;
 
-      & > h2 {
+      & > h1 {
         color: black;
         margin-top: 180px;
         font-size: 24px;
@@ -544,17 +528,16 @@
 
 <svelte:head>
   <title>{_('event_calendar')}</title>
-  <meta name="description" content={_("main_text")}>
+  <meta name="description" content="{_('quiz_text')} {_('on_four_clicks')}">
 </svelte:head>
 
 <Header {locale} {mobile} />
 <div class="top-block">
   <img src="/img/index-top.png" alt={_('main_text')} />
-  <h1>{_('main_text')}</h1>
-  <h2>
+  <h1>
     {_('quiz_text')}
     <span>{_('on_four_clicks')}</span>
-  </h2>
+  </h1>
 </div>
 
 <div class="form-width">
