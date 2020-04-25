@@ -47,7 +47,7 @@ export async function post( req, res ){
   ) ).rows[0];
 
   if( id_ !== id )
-    transaction.query( "rollback" );
+    await transaction.query( "rollback" );
   else{
     await writeFile( `static/${path}`, buffer );
     await transaction.query( "commit" );

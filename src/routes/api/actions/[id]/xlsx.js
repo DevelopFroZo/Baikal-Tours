@@ -132,12 +132,6 @@ export async function get( {
 
   const ws = xlsx.utils.aoa_to_sheet( wsData );
 
-  // wb.Props = {
-  //   Title: "Test title",
-  //   Subject: "Test subject",
-  //   Author: "FroZo",
-  //   CratedDate: new Date()
-  // };
   wb.SheetNames = [ "Лист 1" ];
   wb.Sheets[ "Лист 1" ] = ws;
 
