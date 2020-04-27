@@ -78,7 +78,7 @@ export async function get( {
     	abt.locale = $1 and
       ab.action_id = any( $2 ) and
       ab.id = abt.action_buyable_id`,
-    [ loacle, actionIds ]
+    [ locale, actionIds ]
   );
 
   const buyableMap = createMap( buyable, "action_buyable_id" );
