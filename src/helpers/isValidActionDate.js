@@ -15,6 +15,8 @@ export default ( { date_start, date_end, time_start, time_end, days }, userDate 
     return false;
 
   if( date_start !== null ){
+    date_start = new Date( date_start );
+
     if( time_start !== null )
       date_start = addTimeToDate( date_start, time_start );
 
@@ -23,6 +25,8 @@ export default ( { date_start, date_end, time_start, time_end, days }, userDate 
   }
 
   if( date_end !== null ){
+    date_end = new Date( date_end );
+
     if( time_end !== null )
       date_end = addTimeToDate( date_end, time_end );
 

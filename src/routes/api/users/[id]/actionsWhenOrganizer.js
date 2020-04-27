@@ -1,7 +1,7 @@
 "use strict";
 
 import { toInt } from "/helpers/converters";
-import { createMap, mergeSingle, mergeMultiple } from "/helpers/merger";
+import { createMap, mergeMultiple } from "/helpers/merger";
 
 export async function get( {
   session: { isLogged, locale, role, userId },
@@ -97,7 +97,7 @@ export async function get( {
 
   mergeMultiple( actions, locations, "action_id", "locations", { remove: true, map } );
   mergeMultiple( actions, dates, "action_id", "dates", { remove: true, map } );
-  mergeSingle( buyable, buyableCount, "action_buyable_id", "count", { remove: true, buyableMap } );
+  mergeMultiple( buyable, buyableCount, "action_buyable_id", "count", { remove: true, buyableMap } );
   mergeMultiple( actions, buyable, "action_id", "buyable", { remove: true, map } );
 
   res.success( 0, actions );
