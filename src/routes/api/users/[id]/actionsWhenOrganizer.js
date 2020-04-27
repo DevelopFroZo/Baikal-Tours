@@ -67,12 +67,18 @@ export async function get( {
 
   const { rows: buyable } = await transaction.query(
     `select
-    	id as action_buyable_id,
-      action_id, price, type,
-      null as count
-    from action_buyable
-    where action_id = any( $1 )`,
-    [ actionIds ]
+    	ab.id as action_buyable_id,
+      ab.action_id, ab.price, ab.type,
+      null as count,
+      abt.name
+    from
+    	action_buyable as ab,
+      action_buyable_translates as abt
+    where
+    	abt.locale = $1 and
+      ab.action_id = any( $2 ) and
+      ab.id = abt.action_buyable_id`,
+    [ loacle, actionIds ]
   );
 
   const buyableMap = createMap( buyable, "action_buyable_id" );
