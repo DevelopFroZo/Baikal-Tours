@@ -1,9 +1,43 @@
 <script>
   import { slide } from "svelte/transition";
+  import { dateToString } from "/helpers/converters.js";
 
-  export let _;
+  export let _, organizerEvents;
   let hideForm = false,
     hideApplications = false;
+
+  let tickets, additions;
+
+  console.log(organizerEvents);
+
+  function getCount(ticket, bl) {
+    if (ticket.count)
+      if (ticket.count[0].paid === bl)
+        return `${ticket.count[0].count}${_("piece_short")}`;
+      else if (ticket.count[1])
+        return `${ticket.count[1].count}${_("piece_short")}`;
+      else return "-";
+    else return "-";
+  }
+
+  function getAmount(ticket) {
+    let paids = getCount(ticket, true);
+
+    return paids === "-"
+      ? "-"
+      : `${paids.replace(/\D+/g, "") * ticket.price}${_("rub")}`;
+  }
+
+  function getAllAmount(tickets) {
+    if (!tickets) return 0;
+
+    let total = 0;
+    for (let ticket of tickets)
+      if (ticket.count)
+        for (let count of ticket.count) total += count.count * ticket.price;
+
+    return total;
+  }
 </script>
 
 <style lang="scss">
@@ -26,6 +60,7 @@
     font-size: 36px;
     color: #34353f;
     font-family: $Playfair;
+    margin: 0;
   }
 
   .balance-info-block {
@@ -237,34 +272,6 @@
     }
   }
 
-  .tickets-block {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 45px;
-
-    & > div {
-      width: 275px;
-
-      & > span {
-        font-weight: 600;
-        font-size: 20px;
-      }
-
-      & > table {
-        width: 100%;
-
-        & td {
-          padding-top: 10px;
-          font-size: 20px;
-        }
-      }
-
-      &.services-block {
-        width: 350px;
-      }
-    }
-  }
-
   .download-info-block {
     width: 320px;
     display: flex;
@@ -302,12 +309,18 @@
   }
 
   .payed {
-    font-size: 24px;
-    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 
-    & > span {
-      color: $Blue;
-      margin-left: 20px;
+    & > div {
+      font-size: 24px;
+      font-weight: 600;
+
+      & > span {
+        color: $Blue;
+        margin-left: 20px;
+      }
     }
   }
 
@@ -329,8 +342,109 @@
     color: #8cc261;
   }
 
-  .mobile-download {
+  .additions-block > h4 {
     display: none;
+  }
+
+  .onlyAdditions {
+    margin-top: 5px !important;
+  }
+
+  .tickets-block,
+  .additions-block {
+    display: grid;
+    grid-template-areas:
+      "ticketName    ticketBooked   ticketPaid    ticketPrice   ticketAmount"
+      "ticket        ticket         ticket        ticket        ticket"
+      "ticketBlock   ticketBlock    ticketBlock   ticketBlock   ticketBlock";
+    justify-content: space-between;
+    margin-top: 40px;
+
+    & > h4 {
+      font-size: 20px;
+      color: #434343;
+      font-weight: 600;
+      width: 175px;
+
+      & > span {
+        display: block;
+        font-size: $Medium_Font_Size;
+      }
+    }
+
+    & > .ticket-booked-head,
+    .ticket-paid-head,
+    .ticket-price-head {
+      text-align: center;
+    }
+
+    & > h5 {
+      font-size: $Medium_Font_Size;
+    }
+
+    & > .ticket-block,
+    .addition-block {
+      display: grid;
+      grid-auto-flow: row;
+      justify-content: space-between;
+      grid-template-columns: repeat(5, 175px);
+      grid-row-gap: 10px;
+
+      & > span {
+        font-size: 20px;
+        margin-right: 60px;
+        display: inline-block;
+
+        &:not(.ticket-name) {
+          justify-self: right;
+        }
+      }
+    }
+
+    & > .category-ticket {
+      grid-area: ticket;
+      margin-top: 5px;
+    }
+
+    & > .ticket-block {
+      grid-area: ticketBlock;
+    }
+
+    & > .ticket-name-head {
+      grid-area: ticketName;
+    }
+    & > .ticket-booked-head {
+      grid-area: ticketBooked;
+    }
+    & > .ticket-paid-head {
+      grid-area: ticketPaid;
+    }
+    & > .ticket-price-head {
+      grid-area: ticketPrice;
+    }
+    & > .ticket-amount-head {
+      grid-area: ticketAmount;
+    }
+  }
+
+  .all-registered-users {
+    margin-top: 30px;
+    display: flex;
+    align-items: center;
+
+    & > span {
+      display: inline-block;
+      font-weight: 600;
+
+      &:last-child {
+        margin-left: 30px;
+        color: $Blue;
+      }
+    }
+  }
+
+  .rightElements{
+    justify-content: flex-end;
   }
 
   @media only screen and (max-width: 768px) {
@@ -367,6 +481,10 @@
           width: 10px;
         }
       }
+    }
+
+    .showMobile {
+      display: none;
     }
 
     .payment-block {
@@ -496,48 +614,83 @@
         margin-top: 15px;
       }
 
-      & > .tickets-block {
-        flex-direction: column;
-        justify-content: flex-start;
-        margin-top: 0;
-
-        & > div {
-          width: 100%;
-          margin-top: 30px;
-
-          & > table {
-            border-spacing: 0px;
-
-            & td:last-child {
-              text-align: right;
-            }
-          }
-        }
-
-        & > .download-info-block {
-          display: none;
-        }
-      }
-
       & > hr {
         width: calc(100% + 20px);
         margin-left: -10px;
       }
     }
 
-    .payed{
+    .payed {
       display: flex;
       justify-content: space-between;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: flex-start;
     }
 
-    .mobile-download {
+    .download-info-block {
       display: block;
       margin-top: 30px;
       width: 100%;
-      
-      & > button{
+
+      & > button {
         padding: 20px;
       }
+    }
+
+    .additions-block > h4 {
+      display: block;
+    }
+
+    .tickets-block,
+    .additions-block {
+      grid-template-areas:
+        "ticket              ticket"
+        "ticketName          ticketBlock"
+        "ticketBooked        ticketBlock"
+        "ticketPaid          ticketBlock"
+        "ticketPrice         ticketBlock"
+        "ticketAmount        ticketBlock";
+      justify-content: start !important;
+      grid-column-gap: 25px;
+      grid-row-gap: 15px;
+      overflow-x: scroll;
+
+      & > h5 {
+        margin-top: 25px;
+        font-size: $LowMedium_Font_Size !important;
+        margin-bottom: 5px;
+
+        &.category-ticket {
+          margin: 0;
+        }
+      }
+
+      & > h4 {
+        text-align: left !important;
+      }
+
+      & > .ticket-block,
+      .addition-block {
+        grid-auto-flow: column;
+        grid-template-rows: repeat(5, auto);
+        grid-template-columns: repeat(1, auto);
+        grid-column-gap: 20px;
+
+        & > span {
+          justify-self: center !important;
+          margin: 0;
+          white-space: nowrap;
+        }
+      }
+
+      & > .addition-name-head {
+        grid-area: additionName;
+      }
+    }
+
+    .onlyAdditions {
+      margin-top: 40px !important;
     }
   }
 </style>
@@ -645,67 +798,105 @@
   <div class="user-events-block">
     <h2>{_('your_events')}</h2>
 
-    <div class="events-block">
-      <div class="event">
-        <h3>Веревочные соревнования среди взрослых и детей в Вуки-Парк</h3>
-        <ul>
-          <li>локация</li>
-          <li>локация</li>
-        </ul>
-        <ul>
-          <li>дата</li>
-          <li>дата</li>
-        </ul>
-        <div class="tickets-block">
-          <div class="ticket-block">
-            <span>{_('paid_tickets')}</span>
-            <table>
-              <tr>
-                <td>Взрослый</td>
-                <td>36шт.</td>
-              </tr>
-              <tr>
-                <td>Детский</td>
-                <td>48шт.</td>
-              </tr>
-              <tr>
-                <td>Льготный</td>
-                <td>12шт.</td>
-              </tr>
-            </table>
+    {#if organizerEvents}
+      <div class="events-block">
+        {#each organizerEvents as event}
+          <div class="event">
+            <h3>{event.name}</h3>
+            {#if event.locations}
+              <ul>
+                {#each event.locations as location}
+                  <li>
+                    {location.name}{location.address ? `, ${location.address}` : ''}
+                  </li>
+                {/each}
+              </ul>
+            {/if}
+            {#if event.dates}
+              <ul>
+                {#each event.dates as date}
+                  <li>{dateToString(date, _)}</li>
+                {/each}
+              </ul>
+            {/if}
+            {#if !event.buyable || !event.buyable.filter(el => el.type === 'ticket').length}
+              <div class="all-registered-users">
+                <span>{_('registered')}</span>
+                <span>{event.reservations_count}</span>
+              </div>
+            {/if}
+            {#if event.buyable}
+              <div
+                class="tickets-block"
+                class:showMobile={!event.buyable.filter(el => el.type === 'ticket').length}>
+                <h4 class="ticket-name-head">{_('name2')}</h4>
+                <h4 class="ticket-booked-head">{_('booked')}</h4>
+                <h4 class="ticket-paid-head">{_('paid3')}</h4>
+                <h4 class="ticket-price-head">{_('price')}</h4>
+                <h4 class="ticket-amount-head">
+                  {_('amount')}
+                  <span>{_('paid_tickets')}</span>
+                </h4>
+                {#if event.buyable.filter(el => el.type === 'ticket').length}
+                  <h5 class="category-ticket">{_('tickets')}</h5>
+                  <div class="ticket-block">
+                    {#each event.buyable.filter(el => el.type === 'ticket') as ticket}
+                      <span class="ticket-name">{ticket.name}</span>
+                      <span class="ticket-booked">
+                        {getCount(ticket, false)}
+                      </span>
+                      <span class="ticket-paid">{getCount(ticket, true)}</span>
+                      <span class="ticket-price">{ticket.price}{_('rub')}</span>
+                      <span class="ticket-amount">{getAmount(ticket)}</span>
+                    {/each}
+                  </div>
+                {/if}
+              </div>
+              {#if event.buyable.filter(el => el.type === 'additional').length}
+                <div
+                  class="additions-block"
+                  class:onlyAdditions={!event.buyable.filter(el => el.type === 'ticket').length}>
+                  <h4 class="ticket-name-head">{_('name2')}</h4>
+                  <h4 class="ticket-booked-head">{_('booked')}</h4>
+                  <h4 class="ticket-paid-head">{_('paid3')}</h4>
+                  <h4 class="ticket-price-head">{_('price')}</h4>
+                  <h4 class="ticket-amount-head">
+                    {_('amount')}
+                    <span>{_('paid_tickets')}</span>
+                  </h4>
+                  <h5 class="category-ticket">{_('short_additional')}</h5>
+                  <div class="ticket-block">
+                    {#each event.buyable.filter(el => el.type === 'additional') as ticket}
+                      <span class="ticket-name">{ticket.name}</span>
+                      <span class="ticket-booked">
+                        {getCount(ticket, false)}
+                      </span>
+                      <span class="ticket-paid">{getCount(ticket, true)}</span>
+                      <span class="ticket-price">{ticket.price}{_('rub')}</span>
+                      <span class="ticket-amount">{getAmount(ticket)}</span>
+                    {/each}
+                  </div>
+                </div>
+              {/if}
+            {/if}
+            <hr />
+            <div class="payed" class:rightElements={!event.buyable}>
+              {#if event.buyable}
+                <div class="paid-info">
+                  {_('paid2')}
+                  <span>{getAllAmount(event.buyable)}{_('rub')}</span>
+                </div>
+              {/if}
+              <div class="download-info-block">
+                <button>
+                  <img src="/img/excel.svg" alt="excel" />
+                  {_('download_registered_users')}
+                </button>
+              </div>
+            </div>
           </div>
-          <div class="services-block">
-            <span>{_('paid_additional')}</span>
-            <table>
-              <tr>
-                <td>Питание</td>
-                <td>36шт.</td>
-              </tr>
-              <tr>
-                <td>Снаряжение</td>
-                <td>48шт.</td>
-              </tr>
-            </table>
-          </div>
-          <div class="download-info-block">
-            <button>
-              <img src="/img/excel.svg" alt="excel" />
-              {_('download_registered_users')}
-            </button>
-          </div>
-        </div>
-        <hr />
-        <div class="payed">
-          {_('paid2')}
-          <span>29 500 {_('rub')}</span>
-        </div>
-        <div class="download-info-block mobile-download">
-          <button>
-            <img src="/img/excel.svg" alt="excel" />
-            {_('download_registered_users')}
-          </button>
-        </div>
+        {/each}
       </div>
-    </div>
+    {/if}
   </div>
 </div>

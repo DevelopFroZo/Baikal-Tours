@@ -36,7 +36,11 @@
       query: {userId}
     })).data
 
-    return { locale, section, userInfo, subjectsInfo, reservations};
+    let organizerEvents = (await fetcher.get(`/api/users/${userId}/actionsWhenOrganizer`, {
+      credentials: "same-origin"
+    })).data;
+
+    return { locale, section, userInfo, subjectsInfo, reservations, organizerEvents};
   }
 </script>
 
@@ -49,7 +53,7 @@
   import { goto } from "@sapper/app";
   import i18n from "/helpers/i18n/index.js";
 
-  export let locale, section, userInfo, subjectsInfo, reservations;
+  export let locale, section, userInfo, subjectsInfo, reservations, organizerEvents;
 
   const _ = i18n( locale );
 
@@ -113,7 +117,7 @@
   {:else if section === 'actions'}
     <Actions {_} {reservations}/>
   {:else if section === 'organizer'}
-    <Organizer {_}/>
+    <Organizer {_} {organizerEvents}/>
   {/if}
 </div>
 

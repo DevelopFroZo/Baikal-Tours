@@ -3,7 +3,7 @@
   import Swiper from "swiper";
   import { onMount, afterUpdate } from "svelte";
 
-  export let data, carouselData;
+  export let data, carouselData, blockHeight = "auto";
   let swiper = null, hideButtons = false, carouselBlock;
 
   afterUpdate(() => {
@@ -66,7 +66,7 @@
 </svelte:head>
 
 <div class="swiper-block" bind:this={carouselBlock}>
-  <div class="swiper-wrapper">
+  <div class="swiper-wrapper" style={`height: ${blockHeight}`}>
     <slot />
   </div>
   <div class="swiper-button-prev" class:hideButtons>
