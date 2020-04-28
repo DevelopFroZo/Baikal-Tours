@@ -25,19 +25,24 @@ export async function get( {
 
   await transaction.query( "begin" );
 
+  // #fix add order
   const { rows: actions } = await transaction.query(
     `select
       a.id, at.name,
       null as locations,
       null as dates,
-      null as buyable
+      null as buyable,
+      count( ar.id ) as reservations_count
     from
-    	actions as a,
+    	actions as a
+      left join action_reservations as ar
+      on a.id = ar.action_id,
       actions_translates as at
     where
     	at.locale = $1 and
     	not array_position( a.organizer_ids, $2 ) is null and
-    	a.id = at.action_id`,
+    	a.id = at.action_id
+    group by a.id, at.name`,
     [ locale, id ]
   );
 
