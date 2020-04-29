@@ -47,7 +47,7 @@ export default class extends Foundation{
   async edit( { actionLocationId, locationId, address, coords }, client ){
     let sets = [];
     const params = [ actionLocationId ];
-    let i = 3;
+    let i = 2;
 
     if( typeof locationId === "number" ){
       sets.push( `location_id = $${i++}` );
@@ -68,6 +68,7 @@ export default class extends Foundation{
     if( client === undefined ) client = this.modules.pool;
 
     sets = sets.join( "," );
+
 
     await client.query(
       `update actions_locations
