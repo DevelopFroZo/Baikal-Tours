@@ -49,16 +49,7 @@
     }
   }
 
-  $: if( loaded ){
-    if( editablePlacemark === null ){
-      if( placemark !== null )
-        map.geoObjects.remove( placemark );
-    } else {
-      createPoint( editablePlacemark, false );
-      map.setCenter( editablePlacemark );
-      map.setZoom( 17 );
-    }
-  }
+  $: loaded, editablePlacemark, editablePlacemarkChanged();
 
   function createActionCoords(){
     const geoObjects = [];
@@ -83,6 +74,19 @@
 
     clusterer.add( geoObjects );
     map.geoObjects.add( clusterer );
+  }
+
+  function editablePlacemarkChanged(){
+    if( !loaded ) return;
+
+    if( editablePlacemark === null ){
+      if( placemark !== null )
+        map.geoObjects.remove( placemark );
+    } else {
+      createPoint( editablePlacemark, false );
+      map.setCenter( editablePlacemark );
+      map.setZoom( 17 );
+    }
   }
 
   async function createPoint( coords, isDispatch ){
