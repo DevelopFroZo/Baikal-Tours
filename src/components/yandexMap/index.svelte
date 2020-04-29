@@ -41,14 +41,23 @@
 
     const bounds = map.geoObjects.getBounds();
 
-    if( bounds !== null )
+    if( bounds !== null ){
       map.setBounds( bounds );
+
+      if( map.getZoom() > 17 )
+        map.setZoom( 17 );
+    }
   }
 
-  $: if( loaded && editablePlacemark !== null ){
-    createPoint( editablePlacemark, false );
-
-    map.setCenter( editablePlacemark );
+  $: if( loaded ){
+    if( editablePlacemark === null ){
+      if( placemark !== null )
+        map.geoObjects.remove( placemark );
+    } else {
+      createPoint( editablePlacemark, false );
+      map.setCenter( editablePlacemark );
+      map.setZoom( 17 );
+    }
   }
 
   function createActionCoords(){
@@ -114,6 +123,8 @@
 
     if( editable )
       map.events.add( "click", e => createPoint( e.get( "coords" ) ) );
+
+    dispatch( "load" );
   }
 
   onMount( initMap );
