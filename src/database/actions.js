@@ -320,7 +320,7 @@ export default class extends Foundation{
     ) ).rows;
 
     main.locations = ( await transaction.query(
-      `select l.id, l.name, al.address, al.coords
+      `select l.name, al.id, al.address, al.coords
       from
         actions_locations as al,
         locations as l
@@ -679,10 +679,10 @@ export default class extends Foundation{
     // Actions locations
     if( locations ){
       if( locations.del )
-        promises.push( this.modules.actionsLocations.del( id, locations.del, transaction ) );
+        promises.push( this.modules.actionsLocations.del( locations.del, transaction ) );
       if( locations.edit )
         for( let item of locations.edit )
-          promises.push( this.modules.actionsLocations.edit( id, item, transaction ) );
+          promises.push( this.modules.actionsLocations.edit( item, transaction ) );
       if( locations.create )
         promises.push( this.modules.actionsLocations.create( id, locations.create, transaction ) );
     }

@@ -15,14 +15,20 @@ export default class extends Foundation{
     const params = [ actionId ];
     let i = 2;
 
-    data.forEach( ( { id, address } ) => {
+    data.forEach( ( { locationId, address, coords } ) => {
       const values2 = [ "$1", `$${i++}` ];
 
-      params.push( id );
+      params.push( locationId );
 
       if( address === null || typeof address === "string" ){
-        values2.push( `$${i++}` )
+        values2.push( `$${i++}` );
         params.push( address );
+      }
+      else values2.push( "null" );
+
+      if( coords === null || Array.isArray( coords ) ){
+        values2.push( `$${i++}` );
+        params.push( coords );
       }
       else values2.push( "null" );
 
@@ -32,25 +38,30 @@ export default class extends Foundation{
     if( client === undefined ) client = this.modules.pool;
 
     await client.query(
-      `insert into actions_locations( action_id, location_id, address )
+      `insert into actions_locations( action_id, location_id, address, coords )
       values ${values}`,
       params
     );
   }
 
-  async edit( actionId, { oldLocationId, newLocationId, address }, client ){
+  async edit( { actionLocationId, locationId, address, coords }, client ){
     let sets = [];
-    const params = [ actionId, oldLocationId ];
+    const params = [ actionLocationId ];
     let i = 3;
 
-    if( typeof newLocationId === "number" ){
+    if( typeof locationId === "number" ){
       sets.push( `location_id = $${i++}` );
-      params.push( newLocationId );
+      params.push( locationId );
     }
 
     if( address === null || typeof address === "string" ){
       sets.push( `address = $${i++}` );
       params.push( address );
+    }
+
+    if( coords === null || Array.isArray( coords ) ){
+      sets.push( `coords = $${i++}` );
+      params.push( coords );
     }
 
     if( sets.length === 0 ) return;
@@ -61,24 +72,21 @@ export default class extends Foundation{
     await client.query(
       `update actions_locations
       set ${sets}
-      where
-        action_id = $1 and
-        location_id = $2`,
+      where id = $1`,
       params
     );
   }
 
-  async del( actionId, locationIds, client ){
-    if( !Array.isArray( locationIds ) || locationIds.length === 0 ) return;
+  // #fix по ID
+  async del( actionLocationIds, client ){
+    if( !Array.isArray( actionLocationIds ) || actionLocationIds.length === 0 ) return;
 
     if( client === undefined ) client = this.modules.pool;
 
     await client.query(
       `delete from actions_locations
-      where
-        action_id = $1 and
-        location_id = any( $2::int[] )`,
-      [ actionId, locationIds ]
+      where id = any( $1 )`,
+      [ actionLocationIds ]
     );
   }
 }
