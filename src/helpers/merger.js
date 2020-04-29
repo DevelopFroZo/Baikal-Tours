@@ -1,6 +1,13 @@
 "use strict";
 
-export function createMap( arr, byKey ){
+export {
+  createMap,
+  merge,
+  mergeSingle,
+  mergeMultiple
+};
+
+function createMap( arr, byKey ){
   const map = {};
 
   arr.forEach( ( field, i ) => {
@@ -15,7 +22,7 @@ export function createMap( arr, byKey ){
   return map;
 }
 
-export function merge( mergeType, arr0, arr1, byKey, newKey, options ){
+function merge( mergeType, arr0, arr1, byKey, newKey, options ){
   if( mergeType !== "single" && mergeType !== "multiple" )
     mergeType = "multiple";
 
@@ -57,10 +64,10 @@ export function merge( mergeType, arr0, arr1, byKey, newKey, options ){
   } );
 }
 
-export function mergeSingle( arr0, arr1, byKey, newKey, options ){
+function mergeSingle( arr0, arr1, byKey, newKey, options ){
   merge( "single", arr0, arr1, byKey, newKey, options );
 }
 
-export function mergeMultiple( arr0, arr1, byKey, newKey, options ){
+function mergeMultiple( arr0, arr1, byKey, newKey, options ){
   merge( "multiple", arr0, arr1, byKey, newKey, options );
 }
