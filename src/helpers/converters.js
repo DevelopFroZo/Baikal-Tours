@@ -1,6 +1,16 @@
 "use strict";
 
-export function toNumber( el, type ){
+export {
+  toNumber,
+  toInt,
+  toFloat,
+  toIntArray,
+  contactsToString,
+  dateToString
+};
+
+// ==================== TO NUMBER ====================
+function toNumber( el, type ){
   if( type !== "int" && type !== "float" )
     return null;
 
@@ -23,15 +33,18 @@ export function toNumber( el, type ){
   return el;
 }
 
-export function toInt( el ){
+// ==================== TO INT ====================
+function toInt( el ){
   return toNumber( el, "int" );
 }
 
-export function toFloat( el ){
+// ==================== TO FLOAT ====================
+function toFloat( el ){
   return toNumber( el, "float" );
 }
 
-export function toIntArray( el, splitter ){
+// ==================== TO INT ARRAY ====================
+function toIntArray( el, splitter ){
   if( Array.isArray( el ) && el.every( el_ => Number.isInteger( el_ ) ) )
     return el;
 
@@ -64,7 +77,7 @@ export function toIntArray( el, splitter ){
   return arr;
 }
 
-export function contactsToString( contact_faces, emails, phones ){
+function contactsToString( contact_faces, emails, phones ){
   contact_faces = contact_faces ? contact_faces : [];
   emails = emails ? emails : [];
   phones = phones ? phones : [];
@@ -135,7 +148,7 @@ function upperFirst( st ){
   return st[0].toUpperCase() + st.slice( 1, st.length );
 }
 
-export function dateToString( date, _ ){
+function dateToString( date, _ ){
   let result = "";
 
   // #fix убрать
