@@ -20,7 +20,7 @@
       query: {
         favoritesOnly: ""
       }
-    })).actions;
+    })).actions.slice(0, 3);
 
     let mobile = isMobile(session["user-agent"]);
 
@@ -42,11 +42,19 @@
   export let locale, subjects, actions, compiliations_result, mobile;
 
   const fetcher = new Fetcher();
-
   const _ = i18n(locale);
 
+  let eventsHeight = "auto";
   onMount(() => {
     localStorage.removeItem("actionsParams");
+
+    let maxHeight = 0
+    for(let el of document.getElementsByClassName("card")){
+      if(el.offsetHeight > maxHeight)
+        maxHeight = el.offsetHeight;
+    }
+          
+    eventsHeight = maxHeight;
   });
 
   async function setLocale(locale) {
@@ -114,7 +122,6 @@
 
   .action-carousel {
     margin-top: 75px;
-    overflow: hidden;
   }
 
   .top-block {
@@ -141,7 +148,7 @@
     margin: 250px auto 0;
     white-space: pre-wrap;
     font-weight: 900;
-    color: #34353F;
+    color: #34353f;
 
     & > span {
       font-family: inherit;
@@ -528,7 +535,7 @@
 
 <svelte:head>
   <title>{_('event_calendar')}</title>
-  <meta name="description" content="{_('quiz_text')} {_('on_four_clicks')}">
+  <meta name="description" content="{_('quiz_text')} {_('on_four_clicks')}" />
 </svelte:head>
 
 <Header {locale} {mobile} />
@@ -585,8 +592,9 @@
     </h3>
     <div class="action-carousel">
       <Carousel
-        data={{ slidesPerView: mobile ? 'auto' : 3, spaceBetween: 15, slidesPerGroup: mobile ? 1 : 3, speed: 750, navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' } }}
-        carouselData={actions}>
+        data={{ slidesPerView: mobile ? 'auto' : 3, spaceBetween: 30, slidesPerGroup: mobile ? 1 : 3, speed: 750, allowTouchMove: mobile ? true : false }}
+        carouselData={compiliations_result}
+        blockHeight={eventsHeight + "px"}>
         {#each actions as action}
           <Card {...action} {locale} saveUrl={false} />
         {/each}
