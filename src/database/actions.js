@@ -112,13 +112,11 @@ export default class extends Foundation{
     if( typeof priceMin === "number" && priceMin >= 0 ){
       filters.push( `ae.price_min_ >= $${i++}` );
       params.push( priceMin );
-      i++;
     }
 
     if( typeof priceMax === "number" && priceMax <= 0 ){
       filters.push( `ae.price_max_ <= $${i++}` );
       params.push( priceMax );
-      i++;
     }
 
     if( locations ){

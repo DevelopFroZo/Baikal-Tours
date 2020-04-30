@@ -69,7 +69,6 @@ export default class extends Foundation{
 
     sets = sets.join( "," );
 
-
     await client.query(
       `update actions_locations
       set ${sets}
