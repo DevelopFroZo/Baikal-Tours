@@ -6,6 +6,8 @@ import Foundation from "./helpers/foundation";
 import Translator from "/helpers/translator/index";
 import yandexEngineBuilder from "/helpers/translator/engines/yandex";
 
+import { createMap, mergeMultiple } from "/helpers/merger";
+
 export default class extends Foundation{
   constructor( modules ){
     super( modules, "Actions" );
@@ -49,6 +51,7 @@ export default class extends Foundation{
         array_agg( distinct l.name ) as locations,
         coalesce( min( ab.price ), 0 ) as price_min_,
         coalesce( max( ab.price ), 0 ) as price_max_,
+        null as coords,
         count( 1 ) over ()
       from
         ${favoritesTable}
@@ -79,6 +82,20 @@ export default class extends Foundation{
       ${offset_}`,
       [ locale ]
     ) ).rows;
+
+    const map = createMap( rows, "id" );
+    const actionIds = Object.keys( map );
+
+    const { rows: coords } = await super.query(
+      `select action_id, coords
+      from actions_locations
+      where
+        not coords is null and
+        action_id = any( $1 )`,
+      [ actionIds ]
+    );
+
+    mergeMultiple( rows, coords, "action_id", "coords", { map, field: "." } );
 
     return super.success( 0, rows );
   }
@@ -252,6 +269,20 @@ export default class extends Foundation{
       ${offset_}`,
       params
     ) ).rows;
+
+    const map = createMap( rows, "id" );
+    const actionIds = Object.keys( map );
+
+    const { rows: coords } = await super.query(
+      `select action_id, coords
+      from actions_locations
+      where
+        not coords is null and
+        action_id = any( $1 )`,
+      [ actionIds ]
+    );
+
+    mergeMultiple( rows, coords, "action_id", "coords", { map, field: "." } );
 
     return super.success( 0, rows );
   }
