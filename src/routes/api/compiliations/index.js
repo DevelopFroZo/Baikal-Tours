@@ -23,7 +23,6 @@ export async function post( req, res ){
   const yandexEngine = yandexEngineBuilder( process.env.YANDEX_TRANSLATE_API_KEY, fetch );
   const translator = new Translator( yandexEngine );
   let translated = {};
-  const promises = [];
 
   const q = ( locale, field, value ) => {
     if( !( locale in translated ) )
@@ -76,32 +75,29 @@ export async function post( req, res ){
 
   const id = await req.database.compiliations.create( transaction, url );
 
-  actions.forEach( action => {
-    promises.push( req.database.compiliationsActions.create( transaction, id, action.id, action.description.locale, action.description.text ) );
+  for( let action of actions ){
+    await req.database.compiliationsActions.create( transaction, id, action.id, action.description.locale, action.description.text );
 
     if( action.description.autoTranslate === true ){
       const key = `action${action.id}`;
 
       for( let locale_ in translator.translated[ key ] )
-        promises.push( req.database.compiliationsActions.create( transaction, id, action.id, locale_, translator.translated[ key ][ locale_ ] ) );
+        await req.database.compiliationsActions.create( transaction, id, action.id, locale_, translator.translated[ key ][ locale_ ] );
     }
-  } );
+  }
 
   if( Array.isArray( locationIds ) )
-    promises.push( req.database.compiliationsLocations.create( transaction, id, locationIds ) );
+    await req.database.compiliationsLocations.create( transaction, id, locationIds );
 
   if( Array.isArray( subjectIds ) )
-    promises.push( req.database.compiliationsSubjects.create( transaction, id, subjectIds ) );
+    await req.database.compiliationsSubjects.create( transaction, id, subjectIds );
 
   if( Array.isArray( dates ) )
-    promises.push( req.database.compiliationDates.create( transaction, id, dates ) );
+    await req.database.compiliationDates.create( transaction, id, dates );
 
-  promises.push( ( async () => {
-    for( let key in translated )
-      await req.database.compiliationsTranslates.create( transaction, id, key, translated[ key ] );
-  } )() );
+  for( let key in translated )
+    await req.database.compiliationsTranslates.create( transaction, id, key, translated[ key ] );
 
-  await Promise.all( promises );
   await transaction.query( "commit" );
   await transaction.release();
 

@@ -39,11 +39,10 @@ export async function post( req, res ){
     return res.success();
 
   const { transaction, ids } = await req.database.actionImages.create( actionId, paths );
-  const promises = [];
 
-  paths.forEach( ( path, i ) => promises.push( writeFile( `static/${path}`, buffers[i] ) ) );
+  for( let path of paths )
+    await writeFile( `static/${path}`, buffers[i] );
 
-  await Promise.all( promises );
   await transaction.end();
 
   res.success( 0, ids );

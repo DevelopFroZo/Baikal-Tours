@@ -451,7 +451,6 @@ export default class extends Foundation{
     const yandexEngineHTML = yandexEngineBuilder( process.env.YANDEX_TRANSLATE_API_KEY, fetch, { format: "html" } );
     const translator = new Translator( yandexEngine );
     const translatorHTML = new Translator( yandexEngineHTML );
-    const promises = [];
 
     if( status ){
       set.push( `status = $${sc++}` );
@@ -647,67 +646,64 @@ export default class extends Foundation{
       else
         translated[ key ] = translatorHTML.transformed[ key ];
 
-    promises.push( ( async () => {
-      for( let key in translated )
-        await this.modules.actionsTranslates.createOrEdit( transaction, id, key, translated[ key ] );
-    } )() );
+    for( let key in translated )
+      await this.modules.actionsTranslates.createOrEdit( transaction, id, key, translated[ key ] );
 
     // Action dates
     if( dates ){
       if( dates.del )
-        promises.push( this.modules.actionDates.del( dates.del, transaction ) );
+        await this.modules.actionDates.del( dates.del, transaction );
       if( dates.edit )
         for( let item of dates.edit )
-          promises.push( this.modules.actionDates.edit( item.id, item, transaction ) );
+          await this.modules.actionDates.edit( item.id, item, transaction );
       if( dates.create )
-        promises.push( this.modules.actionDates.create( id, dates.create, transaction ) );
+        await this.modules.actionDates.create( id, dates.create, transaction );
     }
 
     // Actions companions
     if( companions ){
       if( companions.del )
-        promises.push( this.modules.actionsCompanions.del( id, companions.del, transaction ) );
+        await this.modules.actionsCompanions.del( id, companions.del, transaction );
       if( companions.edit )
         for( let item of companions.edit )
-          promises.push( this.modules.actionsCompanions.edit( id, item.oldCompanionId, item.newCompanionId, transaction ) );
+          await this.modules.actionsCompanions.edit( id, item.oldCompanionId, item.newCompanionId, transaction );
       if( companions.create )
-        promises.push( this.modules.actionsCompanions.create( id, companions.create, transaction ) );
+        await this.modules.actionsCompanions.create( id, companions.create, transaction );
     }
 
     // Actions locations
     if( locations ){
       if( locations.del )
-        promises.push( this.modules.actionsLocations.del( locations.del, transaction ) );
+        await this.modules.actionsLocations.del( locations.del, transaction );
       if( locations.edit )
         for( let item of locations.edit )
-          promises.push( this.modules.actionsLocations.edit( item, transaction ) );
+          await this.modules.actionsLocations.edit( item, transaction );
       if( locations.create )
-        promises.push( this.modules.actionsLocations.create( id, locations.create, transaction ) );
+        await this.modules.actionsLocations.create( id, locations.create, transaction );
     }
 
     // Actions subjects
     if( subjects ){
       if( subjects.del )
-        promises.push( this.modules.actionsSubjects.del( id, subjects.del, transaction ) );
+        await this.modules.actionsSubjects.del( id, subjects.del, transaction );
       if( subjects.edit )
         for( let item of subjects.edit )
-          promises.push( this.modules.actionsSubjects.edit( id, item.oldSubjectId, item.newSubjectId, transaction ) );
+          await this.modules.actionsSubjects.edit( id, item.oldSubjectId, item.newSubjectId, transaction );
       if( subjects.create )
-        promises.push( this.modules.actionsSubjects.create( id, subjects.create, transaction ) );
+        await this.modules.actionsSubjects.create( id, subjects.create, transaction );
     }
 
     // Actions transfers
     if( transfers ){
       if( transfers.del )
-        promises.push( this.modules.actionsTransfers.del( id, transfers.del, transaction ) );
+        await this.modules.actionsTransfers.del( id, transfers.del, transaction );
       if( transfers.edit )
         for( let item of transfers.edit )
-          promises.push( this.modules.actionsTransfers.edit( id, item.oldTransferId, item.newTransferId, transaction ) );
+          await this.modules.actionsTransfers.edit( id, item.oldTransferId, item.newTransferId, transaction );
       if( transfers.create )
-        promises.push( this.modules.actionsTransfers.create( id, transfers.create, transaction ) );
+        await this.modules.actionsTransfers.create( id, transfers.create, transaction );
     }
 
-    await Promise.all( promises );
     await transaction.end();
 
     return super.success();

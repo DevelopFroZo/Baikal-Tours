@@ -88,7 +88,6 @@ export default class extends Foundation{
     url = url.toLowerCase();
 
     const transaction = await super.transaction();
-    const promises = [];
 
     const main = ( await transaction.query(
       `select
@@ -111,36 +110,38 @@ export default class extends Foundation{
     if( main === undefined )
       return null;
 
-    promises.push( ( async () => {
-      main.dates = ( await transaction.query(
-        `select id, date_start, date_end, time_start, time_end, days
-        from compiliation_dates
-        where compiliation_id = $1`,
-        [ main.id ]
-      ) ).rows;
-    } )() );
+    main.dates = ( await transaction.query(
+      `select id, date_start, date_end, time_start, time_end, days
+      from compiliation_dates
+      where compiliation_id = $1`,
+      [ main.id ]
+    ) ).rows;
 
-    promises.push( ( async () => {
-      main.actions = [];
+    main.actions = [];
 
-      for( let actionId of main.action_ids ){
-        main.actions.push( ( await this.modules.actions.getOne( false, actionId, locale ) ).data );
-        main.actions[ main.actions.length - 1 ].compiliationDescription = ( await transaction.query(
-          `select description
-          from compiliations_actions
-          where
-            compiliation_id = $1 and
-            action_id = $2 and
-            locale = $3`,
-          [ main.id, actionId, locale ]
-        ) ).rows[0].description;
-      }
-    } )() );
+    for( let actionId of main.action_ids ){
+      const { data } = await this.modules.actions.getOne( false, actionId, locale );
 
-    await Promise.all( promises );
+      if( data === undefined ) continue;
+
+      data.compiliationDescription = ( await transaction.query(
+        `select description
+        from compiliations_actions
+        where
+          compiliation_id = $1 and
+          action_id = $2 and
+          locale = $3`,
+        [ main.id, actionId, locale ]
+      ) ).rows[0].description;
+      main.actions.push( data );
+    }
+
     await transaction.end();
 
     delete main.action_ids;
+
+    if( main.actions.length === 0 )
+      return null;
 
     return main;
   }
