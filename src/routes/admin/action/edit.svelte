@@ -85,7 +85,8 @@
         result_users,
         locale,
         allExcursions,
-        allTours
+        allTours,
+        apiKey: process.env.YANDEX_MAPS_API_KEY
       };
     }
       
@@ -105,6 +106,7 @@
   import Image from "/components/imageCenter.svelte";
   import ClickOutside from "/components/clickOutside.svelte";
   import Loading from "/components/adminLoadingWindow.svelte";
+  import YandexMap from "/components/yandexMap/index.svelte";
 
   export let actionId,
     result_filters,
@@ -145,10 +147,17 @@
     allExcursions,
     allTours,
     locale,
-    buyable = [];
+    buyable = [],
+    apiKey;
 
   const fetcher = new Fetcher();
   const _ = i18n(locale);
+  const customIcon = {
+    iconImageHref: "/img/placeholder-map.svg",
+    iconImageSize: [ 30, 42 ],
+    iconImageOffset: [ -14, -36 ]
+  };
+  const center = [ 52.285725130459866, 104.28156685575135 ];
 
   emails = edit.cloneArray(actionData.emails);
   phones = edit.cloneArray(actionData.phones);
@@ -167,15 +176,11 @@
   transfers = edit.getIds(transfers);
   companions = edit.getIds(companions);
 
-  if (locations !== null) {
-    for (let location of locations) {
+  if (locations) 
+    for (let location of locations) 
       delete location.name;
-      location.oldLocationId = location.id;
-    }
-  }
 
   let price = "",
-    freePrice = price_min === 0 && price_max === 0,
     transfersNames = [],
     subjectsNames = [],
     companionsNames = [],
@@ -190,7 +195,10 @@
     editorBlock,
     showTours = false,
     showExcursions = false,
-    save;
+    save,
+    hideMap = true,
+    activeLocation = null,
+    mapIsLoad = false;
 
   if (organizer_payment !== null) participation = "organizer";
   else if (site_payment === true) participation = "site";
@@ -293,41 +301,6 @@
     newData = edit.validateEditData(
       edit.formatLocations(locations, actionData),
       "locations",
-      newData
-    );
-  }
-
-  //Цена
-  $: {
-    if (!freePrice) {
-      let allPrice = price
-        .split("")
-        .filter(el => el !== " ")
-        .join("")
-        .split("-");
-
-      price_min = allPrice[0] === "" ? 0 : Number(allPrice[0]);
-      price_max =
-        allPrice[1] === "" || allPrice[1] === undefined
-          ? 0
-          : Number(allPrice[1]);
-    } else {
-      price_min = 0;
-      price_max = 0;
-
-      price = "";
-    }
-
-    newData = edit.validateNewData(
-      price_min,
-      actionData.price_min,
-      "price_min",
-      newData
-    );
-    newData = edit.validateNewData(
-      price_max,
-      actionData.price_max,
-      "price_max",
       newData
     );
   }
@@ -511,20 +484,11 @@
 
   //Вариант участия
   $: {
-    if (participation === "free") {
-      price_min = 0;
-      price_max = 0;
-
-      freePrice = true;
-      organizer_payment = null;
-      site_payment = false;
-    } else if (participation === "organizer") {
+    if (participation === "organizer") {
       organizer_payment = actionData.organizer_payment;
-      freePrice = false;
       site_payment = false;
     } else if (participation === "site") {
       site_payment = true;
-      freePrice = false;
       organizer_payment = null;
     }
   }
@@ -586,7 +550,8 @@
     locations.push({
       id: null,
       address: null,
-      oldLocationId: null
+      location_id: null,
+      coords: null
     });
 
     locations = locations;
@@ -1035,6 +1000,29 @@
 
     buyable = buyable;
   }
+
+  function savePlacemark(data){
+    let locationIndex = locations.indexOf(activeLocation);
+    locations[locationIndex].address = data.address;
+    locations[locationIndex].coords = data.coords;
+  }
+
+  function showMap(location){
+    activeLocation = location;
+    hideMap = false;
+  }
+
+  function closeMap(){
+    activeLocation = null;
+    hideMap = true;
+  }
+
+  function deletePlaceholder(){
+    let locationIndex = locations.indexOf(activeLocation);
+    activeLocation.coords = null;
+    locations[locationIndex].address = null;
+    locations[locationIndex].coords = null;
+  }
 </script>
 
 <style lang="scss">
@@ -1297,6 +1285,12 @@
 
   :global(.edit-block .ql-editor){
     min-height: 300px;
+    max-height: 300px;
+  }
+
+  :global(#editor){
+    min-height: 300px;
+    max-height: 300px;
   }
 
   :global(.ql-toolbar){
@@ -1474,6 +1468,77 @@
       margin-top: 0;
     }
   }
+
+  .map-block{
+    position: fixed;
+    width: 90%;
+    height: 90%;
+    top: 5%;
+    left: 5%;
+    z-index: 5;
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+    background: white;
+
+    & > .hide-map-button{
+      position: absolute;
+      right: 30px;
+      top: 30px;
+      z-index: 1;
+
+      & > img{
+        width: 40px;
+      }
+    }
+
+    & > .delete-placeholder{
+      position: absolute;
+      left: 30px;
+      top: 30px;
+      font-size: 24px;
+      padding: 20px;
+      background: white;
+      box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+      z-index: 1;
+    }
+
+    & > span{
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 24px;
+      display: block;
+      padding: 20px;
+      background: white;
+      box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+      z-index: 1;
+    }
+  }
+
+  .hideMap{
+    display: none;
+  }
+
+  .editor-load-block{
+    height: 100%;
+    position: absolute;
+    width: 100%;
+    top: 0;
+    left: 0;
+
+    & > span{
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-weight: bold;
+    }
+  }
+
+  .description-block{
+    height: 350px;
+    position: relative;
+  }
 </style>
 
 <svelte:head>
@@ -1516,7 +1581,14 @@
     <input type="text" name="name" bind:value={name} />
 
     <label for="description">{_('event_description')}</label>
-    <div id="editor"></div>
+    <div class="description-block">
+      <div id="editor"></div>
+      {#if !initEditor && !start}
+        <div class="editor-load-block">
+          <span class="editorLoad">{_("loading_editor")}</span>
+        </div>
+      {/if}
+    </div>
     
     <label>{_('event_photos')}</label>
     <div class="images-block">
@@ -1675,7 +1747,7 @@
             <label for="location" class:hide-label={i !== 0}>
               {_('location')}
             </label>
-            <select name="location" bind:value={location.id}>
+            <select name="location" bind:value={location.location_id}>
               <option value={null} />
               {#each result_filters.locations as locationName}
                 <option value={locationName.id}>{locationName.name}</option>
@@ -1690,7 +1762,7 @@
             <input type="text" bind:value={location.address} />
           </div>
 
-          <button>
+          <button on:click={() => showMap(location)}>
             <img src="/img/admin-placeholder.png" alt="place" />
           </button>
 
@@ -2039,15 +2111,6 @@
           type="radio"
           name="participation"
           bind:group={participation}
-          value={'free'} />
-        <label for="participation">{_('free2')}</label>
-      </div>
-
-      <div>
-        <input
-          type="radio"
-          name="participation"
-          bind:group={participation}
           value={'organizer'} />
         <label for="participation">{_('pay_via_organizer')}</label>
         <input
@@ -2193,6 +2256,25 @@
 </AdminPage>
 
 <Loading promice={save} message={_("saving_event")}/>
+
+<div class="map-block" class:hideMap={hideMap}>
+  <button on:click={closeMap} class="hide-map-button"><img src="/img/cross.svg" alt="close"></button>
+  {#if activeLocation && activeLocation.coords}
+    <button class="delete-placeholder" on:click={deletePlaceholder}>{_("delete_placeholder")}</button>
+  {/if}
+  {#if !mapIsLoad}
+    <span>{_("loading_map")}</span>
+  {/if}
+  <YandexMap
+    {apiKey}
+    center={activeLocation && activeLocation.coords ? activeLocation.coords : center}
+    editablePlacemark={activeLocation && activeLocation.coords ? activeLocation.coords : null}
+    {customIcon}
+    editable = true
+    on:newPlacemark={(e) => savePlacemark(e.detail)}
+    on:load={() => mapIsLoad = true}
+  />
+</div>
 
 {#if showTours}
   <div class="all-tours-block">

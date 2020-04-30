@@ -32,7 +32,7 @@
 
       let mobile = isMobile(session["user-agent"]);
 
-      return { result_action, actionId, userId, locale, similar_events, mobile };
+      return { result_action, actionId, userId, locale, similar_events, mobile, apiKey: process.env.YANDEX_MAPS_API_KEY};
     } 
 
     this.error(404, "page not found");
@@ -57,12 +57,18 @@
   import { slide } from "svelte/transition";
   import { fade } from "svelte/transition";
   import isValidActionDate from "/helpers/isValidActionDate.js";
+  import YandexMap from "/components/yandexMap/index.svelte";
 
-  export let result_action, actionId, userId, locale, similar_events, mobile;
+  export let result_action, actionId, userId, locale, similar_events, mobile, apiKey;
 
   const fetcher = new Fetcher();
   const { session } = stores();
   const _ = i18n(locale);
+  const customIcon = {
+    iconImageHref: "/img/placeholder-map.svg",
+    iconImageSize: [ 30, 42 ],
+    iconImageOffset: [ -14, -36 ]
+  };
 
   let response,
     resp,
@@ -89,7 +95,8 @@
     showBuyWindow = false,
     userDate = "",
     showDateChange = true,
-    dates = result_action.dates;
+    dates = result_action.dates,
+    coords = [];
 
   $: {
     total = 0;
@@ -97,6 +104,16 @@
     for(let ticket of [...ticketsWithCount, ...additionalsWithCount])
       total += ticket.count * ticket.price;
   }
+
+  $: {
+    for(let location of result_action.locations)
+      if(location.coords)
+        coords.push({
+          coords: location.coords
+        });
+    
+    coords = coords;
+  } 
 
   $: {
     result_action;
@@ -224,6 +241,18 @@
     })
     
     editorText.setContents(editorText.clipboard.convert(result_action.full_description.replace(/\n/g, "</br>")))
+  }
+
+  async function payTickets(){
+    let payResult = await fetcher.post(`https://3dsec.sberbank.ru/payment/rest/register.do?userName=fanatbaikala-api&password=fanatbaikala&amount=100&returnUrl=localhost:3000`, {
+      headers: { 
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Access-Control-Allow-Origin" : "*",
+        "Access-Control-Allow-Headers": "Content-Type"
+      } 
+    })
+
+    console.log(payResult)
   }
 </script>
 
@@ -1324,6 +1353,7 @@
 
 </div>
 <div class="form-width">
+  <button on:click={payTickets}>оплатить</button>
   <!-- <p class="italic-bold">{result_action.tagline}</p> -->
   <p class="short-description">{result_action.short_description}</p>
 
@@ -1486,6 +1516,14 @@
           {/each}
           </h3>
         </div>
+        {#if coords.length}
+        <YandexMap
+          {apiKey}
+          {customIcon}
+          center={[ 52.285725130459866, 104.28156685575135 ]}
+          staticPlacemarks={coords}
+        />
+        {/if}
       </div>
       <div class="share">
         {_('share')}
