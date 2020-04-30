@@ -187,22 +187,19 @@ function formatLocations(locations, actionData) {
         let location = Object.assign({}, locations[i]);
         keys = Object.keys(location);
 
+        location.locationId = location.location_id;
+        delete location.location_id;
+
         let bl = false;
-        if (location.id !== null) {
-            for (let key of keys) {
-                if (location[key] === "")
-                    location[key] = null;
-                if (location[key] !== null)
-                    bl = true;
-            }
-
-            if (bl) {
-                if (location.oldLocationId !== null)
-                    location.newLocationId = location.id;
-
-                data.push(location)
-            }
+        for (let key of keys) {
+            if (location[key] === "")
+                location[key] = null;
+            if (location[key])
+                bl = true;
         }
+
+        if (bl) 
+            data.push(location)
     }
 
     if (actionData.locations !== null) {
@@ -210,7 +207,7 @@ function formatLocations(locations, actionData) {
             let location = actionData.locations[i]
             let bl = true;
             for (let j = 0; j < data.length; j++) {
-                if (location.id === data[i].oldLocationId) {
+                if (location.id === data[i].id) {
                     bl = false;
                     break;
                 }
@@ -223,24 +220,25 @@ function formatLocations(locations, actionData) {
         for (let i = 0; i < actionData.locations.length; i++) {
             let startLocation = actionData.locations[i]
             for (let j = 0; j < data.length; j++) {
-                let editLocation = data[j]
-                if (startLocation.id === editLocation.oldLocationId) {
+                let editLocation = Object.assign({}, data[j]);
+                if (startLocation.id === editLocation.id) {
                     let bl = false;
-                    if (editLocation.oldLocationId !== editLocation.newLocationId && editLocation.newLocationId !== undefined) {
+
+                    for(let key of Object.keys(editLocation))
+                        if(editLocation[key] !== startLocation[key] && key !== "locationId")
+                            bl = true;
+                        else if(key !== "id" && key !== "locationId")
+                            delete editLocation[key];
+                        
+                        if(editLocation.locationId !== startLocation.location_id) bl = true;
+                        else delete editLocation.locationId;
+
+                    if (bl){
+                        editLocation.actionLocationId = editLocation.id;
                         delete editLocation.id;
-                        bl = true;
-                    }
-                    else {
-                        delete editLocation.oldLocationId;
-                        delete editLocation.newLocationId;
-                    }
-
-                    if (editLocation.address !== startLocation.address)
-                        bl = true;
-                    else delete editLocation.address
-
-                    if (bl)
                         newData.edit.push(editLocation);
+                    }
+                        
                 }
             }
         }
@@ -248,10 +246,12 @@ function formatLocations(locations, actionData) {
 
     for (let i = 0; i < data.length; i++) {
         let location = data[i];
-        if (location.oldLocationId === null) {
-            delete location.oldLocationId;
-            if (location.address === null) delete location.address;
-            newData.create.push(location)
+        if (!location.id) {
+            delete location.id;
+            if(location.locationId){
+                if (!location.address) delete location.address;
+                newData.create.push(location)
+            }
         }
     }
 

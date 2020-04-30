@@ -347,5 +347,9 @@ export default ( {
   paid3:                      "Оплачено",
   paid_tickets:               "(оплаченные билеты)",
   short_additional:           "Доп. услуги",
-  registered:                 "Зарегистрировано:"
+  registered:                 "Зарегистрировано:",
+  delete_placeholder:         "Удалить метку",
+  loading_map:                "Загрузка карты",
+  loading_editor:             "Загрузка редактора",
+  
 } );

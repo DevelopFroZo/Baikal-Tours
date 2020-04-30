@@ -38,9 +38,7 @@
         ]
       ],
       result_cards,
-      showFilter = false,
-      offset = 0,
-      count = 15;
+      showFilter = false;
 
     let result_filters = await fetcher.get("/api/dataForFilters", {
         credentials: "same-origin"
@@ -54,16 +52,11 @@
     filter[2] = setFilterData(result_filters.data.companions);
     filter[3] = setFilterData(result_filters.data.subjects);
 
-    if (params.offset !== undefined) offset = parseInt(params.offset);
-    if (params.count !== undefined) count = parseInt(params.count);
-
     let paramsKeys = Object.keys(params);
 
     if (
-      paramsKeys.length > 0 &&
-      paramsKeys[0] === "filter" &&
-      paramsKeys[1] !== "count" &&
-      paramsKeys[1] !== "offset"
+      paramsKeys.length > 1 &&
+      paramsKeys[0] === "filter"
     ) {
       showFilter = true;
       if (params.dateStart !== undefined) {
@@ -101,8 +94,9 @@
         query: compiliationQuery
       })).data;
 
-      query.offset = offset;
-      query.count = count;
+
+
+      console.log(query)
 
       result_cards = await fetcher.get("api/actions", {
         credentials: "same-origin",
@@ -111,10 +105,6 @@
     } else {
       result_cards = await fetcher.get("api/actions", {
         credentials: "same-origin",
-        query: {
-          count: count,
-          offset: offset
-        }
       });
       result_compiliations = (await fetcher.get("/api/compiliations", {
         credentials: "same-origin"
@@ -141,7 +131,6 @@
       })).actions.slice(0, 4);
     }
 
-    let result_count = result_cards.count;
     result_cards = result_cards.actions;
 
     let locale = session.locale;
@@ -153,9 +142,6 @@
       locale,
       filter,
       showFilter,
-      offset,
-      count,
-      result_count,
       result_compiliations,
       result_favorites,
       mobile
@@ -168,7 +154,6 @@
   import Footer from "/components/footer.svelte";
   import Card from "/components/card_of_event.svelte";
   import BreadCrumbs from "/components/breadcrumbs.svelte";
-  import Pagination from "/components/pagination.svelte";
   import {
     parseDate,
     parseDateForActiveFilter,
@@ -190,9 +175,6 @@
     locale,
     filter,
     showFilter,
-    offset,
-    count,
-    result_count,
     result_compiliations,
     result_favorites,
     mobile;
@@ -205,24 +187,19 @@
     priceStart = "",
     priceEnd = "",
     resp,
-    pagCards = count,
-    cards = result_cards,
+    cards,
     leftRange = true,
     rightRange = true,
     parseFilter = {},
-    pagData,
     selectionsCarousel,
     start = false,
     head,
     scrollY,
+    clientHeight,
+    outerHeight,
     compiliations,
-    swiper = null;
-
-  let url = {
-    ...parseFilter,
-    offset: (offset / count) * pagCards,
-    count: pagCards
-  };
+    swiper = null,
+    visibleCards = 15;
 
   let options = [];
 
@@ -234,14 +211,15 @@
     });
 
   $: {
-    cards = result_cards;
-    pagData = {
-      allPags: Math.ceil(result_count / pagCards),
-      pag: offset / count
-    };
+    cards = result_cards.slice(0, visibleCards);
+    console.log(cards.length)
 
     checkActiveFilter();
+    console.log(showFilter)
   }
+
+  $: if(scrollY + outerHeight > clientHeight - outerHeight - 350 && visibleCards <= result_cards.length)
+      visibleCards += 15;
 
   function checkActiveFilter() {
     if (showFilter) {
@@ -293,11 +271,8 @@
     price = parsePriceForActiveFilter(filter, _);
 
     parseFilter = parseFilterData(filter).params;
-    parseFilter.count = pagCards;
-    parseFilter.offset = pagData.pag * pagCards;
-
-    showActiveFilters(filter);
-    changePagAndURL(0);
+    visibleCards = 15;
+    setURL();
   }
 
   function setPrice() {
@@ -319,30 +294,10 @@
   }
 
   function setURL() {
-    let URL = fetcher.makeQuery({ query: url });
+    let URL = fetcher.makeQuery({ query: parseFilter });
 
     //#fix переписать логику на сторы
     goto(`/actions${URL}`);
-  }
-
-  function changePagAndURL(pagL) {
-    pagData.pag = pagL;
-
-    url = {
-      ...parseFilter,
-      offset: pagData.pag * pagCards,
-      count: pagCards
-    };
-
-    setURL();
-  }
-
-  async function clickPag(e) {
-    let pagL = e.detail.pagL;
-
-    animateScroll.scrollTo({ offset: head.offsetTop - 150, duration: 1500 });
-
-    changePagAndURL(pagL);
   }
 
   onMount(() => {
@@ -370,6 +325,15 @@
     selectionsStart = true;
     if (start) startSelection();
   }
+
+  function showCard(){
+    let cardFilter = parseFilterData(filter).params;
+
+    if(Object.keys(cardFilter).length > 1)
+      window.location.href= `/map${fetcher.makeQuery({ query: cardFilter })}`;
+    else
+      window.location.href= `/map`
+  }
 </script>
 
 <style lang="scss">
@@ -382,7 +346,7 @@
 
   .cards-block {
     display: grid;
-    grid-template-columns: repeat(3, auto);
+    grid-template-columns: repeat(3, 380px);
     justify-content: space-between;
     grid-row-gap: 30px;
     margin-top: 50px;
@@ -717,11 +681,11 @@
   <link rel="stylesheet" href="https://unpkg.com/swiper/css/swiper.css" />
 </svelte:head>
 
-<svelte:window bind:scrollY />
+<svelte:window bind:scrollY bind:outerHeight/>
 
 <Header {locale} />
 <!-- <BreadCrumbs path = {[{name: "Каталог событий", url: "./"}]} /> -->
-<div class="form-width">
+<div class="form-width" bind:clientHeight>
 
   <div class="selections-carousel">
     <Carousel
@@ -921,7 +885,7 @@
 
   <div class="more-events">
     <h2>{_('more_events')}</h2>
-    <button class="show-card">
+    <button class="show-card" on:click={showCard}>
       {_('show_on_card')}
       <img src="/img/placeholder-map.svg" alt="placeholder" />
     </button>
@@ -932,7 +896,5 @@
       <Card {...cardInfo} {locale} />
     {/each}
   </div>
-
-  <Pagination {pagData} on:clickPag={clickPag} />
 </div>
 <Footer {locale} />
