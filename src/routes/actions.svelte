@@ -94,10 +94,6 @@
         query: compiliationQuery
       })).data;
 
-
-
-      console.log(query)
-
       result_cards = await fetcher.get("api/actions", {
         credentials: "same-origin",
         query

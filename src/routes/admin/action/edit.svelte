@@ -147,7 +147,7 @@
     allTours,
     locale,
     buyable = [];
-    
+
   const fetcher = new Fetcher();
   const _ = i18n(locale);
   const customIcon = {
@@ -220,7 +220,7 @@
     dates = d;
   }
 
-  $: console.log(newData);
+
 
   //Title
   $: {
@@ -899,8 +899,6 @@
             j++;
           }
             
-          // console.log(`first number: ${i + 1}\nfirst id: ${excursion.id}\nsecond number: ${j + 1}\nsecond id: ${newExcursions[i].id}`)
-
           let result = await fetcher.put(`/api/actionsExcursions/`, {
             actionId,
             excursionId: excursion.id,
@@ -908,7 +906,6 @@
             action: "swipe"
           });
           if (result.ok) excursions = newExcursions;
-          console.log(result)
           break;
         }
         i++;

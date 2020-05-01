@@ -230,8 +230,6 @@
 
     let reservationResult = await fetcher.post(`/api/actionReservations`, reservationData);
 
-    console.log(reservationResult)
-
     if(reservationResult.ok)
       showBuyWindow = true;
   }

@@ -189,7 +189,7 @@
           <ul>
             {#each findLocations as location}
               <li>
-                <button on:click={() => console.log(1)}>{location}</button>
+                <button>{location}</button>
               </li>
             {/each}
           </ul>

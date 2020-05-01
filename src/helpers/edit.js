@@ -230,8 +230,8 @@ function formatLocations(locations, actionData) {
                         else if(key !== "id" && key !== "locationId")
                             delete editLocation[key];
                         
-                        if(editLocation.locationId !== startLocation.location_id) bl = true;
-                        else delete editLocation.locationId;
+                    if(editLocation.locationId !== startLocation.location_id) bl = true;
+                    else delete editLocation.locationId;
 
                     if (bl){
                         editLocation.actionLocationId = editLocation.id;

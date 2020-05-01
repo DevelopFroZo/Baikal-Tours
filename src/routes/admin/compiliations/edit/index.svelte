@@ -103,8 +103,6 @@
   dates = edit.cloneArray(compiliationData.dates);
   subjectIds = edit.cloneArray(compiliationData.subjectIds);
 
-  $: console.log(newData);
-
   //Загаловок
   $: {
     newData = edit.validateNewtranslateData(

@@ -37,7 +37,7 @@
         events.push(eventInfo);
         events = events;
         showEvents = false;
-      } else console.log(result.message);
+      }
     } else alert(_("already_added_event"));
   }
 
@@ -89,7 +89,7 @@
     if (result.ok) {
       events.splice(i, 1);
       events = events;
-    } else console.log(result);
+    }
   }
 </script>
 
