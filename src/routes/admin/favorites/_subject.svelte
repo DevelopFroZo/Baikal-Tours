@@ -194,7 +194,7 @@
     margin-bottom: 20px;
   }
 
-  .status{
+  .status {
     font-weight: bold;
   }
 </style>
@@ -215,7 +215,15 @@
           <div class="event-block">
             <h3>{item.name}</h3>
             <div class="event-info">
-              <span>{item.locations.join('; ')}</span>
+              {#if item.locations}
+                <ul>
+                  {#each item.locations as location}
+                    <li>
+                      {location.address ? `${location.name}, ${location.address}` : location.name}
+                    </li>
+                  {/each}
+                </ul>
+              {/if}
               <span>
                 {parseDateForCards(item.date_starts, item.date_ends, _).join('; ')}
               </span>
@@ -236,7 +244,7 @@
         </button>
       {/if}
     {:else}
-      <span class="status">{_("loading_favorite_events")}</span>
+      <span class="status">{_('loading_favorite_events')}</span>
     {/if}
 
   </div>
@@ -254,7 +262,15 @@
         <button class="event-block" on:click={() => addEvent(event)}>
           <h3>{event.name}</h3>
           <div class="event-info">
-            <span>{event.locations.join('; ')}</span>
+            {#if event.locations}
+              <ul>
+                {#each event.locations as location}
+                  <li>
+                    {location.address ? `${location.name}, ${location.address}` : location.name}
+                  </li>
+                {/each}
+              </ul>
+            {/if}
             <span>
               {parseDateForCards(event.date_starts, event.date_ends, _).join('; ')}
             </span>

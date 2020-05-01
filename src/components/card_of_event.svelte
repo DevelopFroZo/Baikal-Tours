@@ -7,14 +7,19 @@
     date_ends,
     date_starts,
     image_url,
-    price_min,
-    price_max,
+    price_min = "",
+    price_max = "",
     subjects,
     locations,
     id,
     locale,
-    companions,
-    saveURL = true;
+    companions = "",
+    saveURL = true,
+    status = "",
+    price_min_=0,
+    price_max_=0;
+
+  console.log(locations)
 
   const _ = i18n(locale);
 
@@ -54,12 +59,16 @@
     align-items: center;
     margin-top: 20px;
 
-    & > div:not(.img) {
+    & > div:not(.img), ul {
       margin-left: 30px;
       font-size: $Mini_Font_Size;
       font-size: $LowBig_Font_Size;
       font-family: $Gilroy;
       color: #434343;
+
+      & > li:not(:first-child){
+        margin-top: 5px;
+      }
     }
 
     .img {
@@ -188,12 +197,16 @@
       <div>{subjects.join('; ')}</div>
     </div>
   {/if}
-  {#if locations.length !== 0 && locations[0] !== null}
+  {#if locations.length !== 0 && locations[0] !== null && locations}
     <div class="line">
       <div class="img">
         <img src="img/placeholder.svg" alt="kategory" />
       </div>
-      <div>{locations.join('; ')}</div>
+      <ul>
+        {#each locations as location}
+          <li>{location.name}{location.address ? `, ${location.address}` : ""}</li>
+        {/each}
+      </ul>
     </div>
   {/if}
 </div>

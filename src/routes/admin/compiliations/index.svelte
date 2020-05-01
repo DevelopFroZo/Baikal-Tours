@@ -89,7 +89,7 @@
     {#if result_compiliations.length > 0}
       {#each result_compiliations as compiliation}
         <a
-          href={`/admin/compiliations/compiliation?url=${compiliation.url}`}
+          href={`/admin/compiliations/${compiliation.url}`}
           class="compiliation-block">
           <div class="img">
             <Image src={compiliation.image_url} alt={compiliation.name} />

@@ -196,10 +196,10 @@
     head,
     scrollY,
     clientHeight,
-    outerHeight,
+    innerHeight,
     compiliations,
     swiper = null,
-    visibleCards = 15;
+    visibleCards = 0;
 
   let options = [];
 
@@ -212,13 +212,12 @@
 
   $: {
     cards = result_cards.slice(0, visibleCards);
-    console.log(cards.length)
 
     checkActiveFilter();
-    console.log(showFilter)
   }
 
-  $: if(scrollY + outerHeight > clientHeight - outerHeight - 350 && visibleCards <= result_cards.length)
+  $: 
+    if(scrollY + innerHeight > clientHeight && visibleCards < result_cards.length)
       visibleCards += 15;
 
   function checkActiveFilter() {
@@ -271,7 +270,7 @@
     price = parsePriceForActiveFilter(filter, _);
 
     parseFilter = parseFilterData(filter).params;
-    visibleCards = 15;
+    visibleCards = 0;
     setURL();
   }
 
@@ -681,7 +680,7 @@
   <link rel="stylesheet" href="https://unpkg.com/swiper/css/swiper.css" />
 </svelte:head>
 
-<svelte:window bind:scrollY bind:outerHeight/>
+<svelte:window bind:scrollY bind:innerHeight/>
 
 <Header {locale} />
 <!-- <BreadCrumbs path = {[{name: "Каталог событий", url: "./"}]} /> -->

@@ -532,7 +532,15 @@
               <div>
                 {parseDateForCards(card.date_starts, card.date_ends, _)}
               </div>
-              <div>{card.locations.join('; ')}</div>
+              <div>
+                {#if card.locations}
+                  <ul>
+                    {#each card.locations as location}
+                      <li>{location.address ? `${location.name}, ${location.address}` : location.name}</li>
+                    {/each}
+                  </ul>
+                {/if}
+              </div>
             </div>
           </div>
           <div

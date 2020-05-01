@@ -16,6 +16,8 @@
     actions,
     fetcher;
 
+  result_actions = result_actions.filter(el => el.status === "active");
+
   const dispatch = createEventDispatcher();
 
   let filter = [
@@ -71,7 +73,7 @@
 
     result_actions = (await fetcher.get("/api/actions", {
       query: parseFilter
-    })).actions;
+    })).actions.filter(el => el.status === "active");
   }
 
   function changeAction(action) {
@@ -144,7 +146,7 @@
       display: flex;
       margin-top: 10px;
 
-      & > span {
+      & > span, ul {
         width: calc(100% / 3 - 20px);
       }
     }
@@ -248,7 +250,13 @@
         <h2>{action.name}</h2>
         <div>
           <span>{action.subjects.join('; ')}</span>
-          <span>{action.locations.join('; ')}</span>
+          {#if action.locations}
+            <ul>
+              {#each action.locations as location}
+                <li>{location.address ? `${location.name}, ${location.address}` : location.name}</li>
+              {/each}
+            </ul>
+          {/if}
           <span>
             {parseDateForCards(action.date_starts, action.date_ends, _)}
           </span>

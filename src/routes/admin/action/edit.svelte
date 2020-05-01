@@ -85,8 +85,7 @@
         result_users,
         locale,
         allExcursions,
-        allTours,
-        apiKey: process.env.YANDEX_MAPS_API_KEY
+        allTours
       };
     }
       
@@ -147,9 +146,8 @@
     allExcursions,
     allTours,
     locale,
-    buyable = [],
-    apiKey;
-
+    buyable = [];
+    
   const fetcher = new Fetcher();
   const _ = i18n(locale);
   const customIcon = {
@@ -158,6 +156,7 @@
     iconImageOffset: [ -14, -36 ]
   };
   const center = [ 52.285725130459866, 104.28156685575135 ];
+  const apiKey = "c7b75af8-80f3-4ff2-afb6-a05da8ecdeec";
 
   emails = edit.cloneArray(actionData.emails);
   phones = edit.cloneArray(actionData.phones);

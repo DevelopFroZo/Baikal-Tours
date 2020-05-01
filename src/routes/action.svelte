@@ -32,7 +32,7 @@
 
       let mobile = isMobile(session["user-agent"]);
 
-      return { result_action, actionId, userId, locale, similar_events, mobile, apiKey: process.env.YANDEX_MAPS_API_KEY};
+      return { result_action, actionId, userId, locale, similar_events, mobile};
     } 
 
     this.error(404, "page not found");
@@ -59,7 +59,7 @@
   import isValidActionDate from "/helpers/isValidActionDate.js";
   import YandexMap from "/components/yandexMap/index.svelte";
 
-  export let result_action, actionId, userId, locale, similar_events, mobile, apiKey;
+  export let result_action, actionId, userId, locale, similar_events, mobile;
 
   const fetcher = new Fetcher();
   const { session } = stores();
@@ -69,6 +69,7 @@
     iconImageSize: [ 30, 42 ],
     iconImageOffset: [ -14, -36 ]
   };
+  const apiKey = "c7b75af8-80f3-4ff2-afb6-a05da8ecdeec";
 
   let response,
     resp,
@@ -241,18 +242,6 @@
     })
     
     editorText.setContents(editorText.clipboard.convert(result_action.full_description.replace(/\n/g, "</br>")))
-  }
-
-  async function payTickets(){
-    let payResult = await fetcher.post(`https://3dsec.sberbank.ru/payment/rest/register.do?userName=fanatbaikala-api&password=fanatbaikala&amount=100&returnUrl=localhost:3000`, {
-      headers: { 
-        "Content-Type": "application/x-www-form-urlencoded",
-        "Access-Control-Allow-Origin" : "*",
-        "Access-Control-Allow-Headers": "Content-Type"
-      } 
-    })
-
-    console.log(payResult)
   }
 </script>
 
@@ -1353,7 +1342,6 @@
 
 </div>
 <div class="form-width">
-  <button on:click={payTickets}>оплатить</button>
   <!-- <p class="italic-bold">{result_action.tagline}</p> -->
   <p class="short-description">{result_action.short_description}</p>
 

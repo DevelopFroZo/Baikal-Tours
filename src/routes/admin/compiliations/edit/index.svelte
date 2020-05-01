@@ -63,7 +63,7 @@
 </script>
 
 <script>
-  import AdminPage from "../_admin_page.svelte";
+  import AdminPage from "../../_admin_page.svelte";
   import i18n from "/helpers/i18n/index.js";
   import * as edit from "/helpers/edit.js";
   import { parseDateForCards } from "/helpers/parsers.js";
@@ -373,7 +373,7 @@
       }
     }
 
-    document.location.href = `/admin/compiliations/compiliation?url=${newData.url}`;
+    document.location.href = `/admin/compiliations/${newData.url}`;
   }
 </script>
 
@@ -479,7 +479,7 @@
       margin-top: 10px;
       justify-content: space-between;
 
-      & > span {
+      & > span, ul {
         width: calc(100% / 3 - 20px);
       }
     }
@@ -512,7 +512,9 @@
     <h1>
       {compiliationId === undefined ? _('creating_compiliation') : _('editing_compiliation')}
     </h1>
-    <button class="save" on:click={() => save = saveCompiliation()}>{_('save')}</button>
+    <button class="save" on:click={() => (save = saveCompiliation())}>
+      {_('save')}
+    </button>
   </div>
   <div class="edit-block">
     <label for="name" class="big-label">
@@ -743,7 +745,15 @@
             <h2>{action.name}</h2>
             <div>
               <span>{action.subjects.join('; ')}</span>
-              <span>{action.locations.join('; ')}</span>
+              {#if action.locations}
+                <ul>
+                  {#each action.locations as location}
+                    <li>
+                      {location.address ? `${location.name}, ${location.address}` : location.name}
+                    </li>
+                  {/each}
+                </ul>
+              {/if}
               <span>
                 {parseDateForCards(action.date_starts, action.date_ends, _)}
               </span>
@@ -778,4 +788,4 @@
   on:changeAction={changeAction}
   on:hideActionWindow={e => (showEvents = false)} />
 
-<Loading promice={save} message={_("saving_compiliation")} />
+<Loading promice={save} message={_('saving_compiliation')} />

@@ -6,8 +6,10 @@
 
     const fetcher = new Fetcher(this.fetch);
 
+    console.log(page.params.slug)
+
     let compiliation_result = await fetcher.get(
-      `/api/compiliations/${page.query.url}`,
+      `/api/compiliations/${page.params.slug}`,
       {
         credentials: "same-origin"
       }

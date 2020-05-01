@@ -3,11 +3,10 @@
 
   export async function preload(page, session) {
     let locale = session.locale;
-    let url = page.query.url;
 
     const fetcher = new Fetcher(this.fetch);
 
-    let compiliationInfo = await fetcher.get(`/api/compiliations/${url}`);
+    let compiliationInfo = await fetcher.get(`/api/compiliations/${page.params.slug}`);
 
     if (compiliationInfo.ok) {
       compiliationInfo = compiliationInfo.data;
