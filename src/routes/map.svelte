@@ -254,7 +254,6 @@
         placeholder={_('search')}
         bind:this={searchBlock}
         on:focus={() => (showFindLocations = true)}
-        on:blur={showFindEvents}
         on:keydown={function(e) {
           if (e.key === 'Enter') {
             showFindEvents();
