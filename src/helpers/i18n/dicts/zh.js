@@ -345,4 +345,18 @@ export default ( {
   pay:                            "支付",
   date_not_correct:               "该事件不发生在选定的一天",
   event_calendar_info:            "在伊尔库茨克州旅游局和集群发展中心的支持下",
+
+  name2:                          "名称",
+  booked:                         "保留",
+  paid3:                          "支付",
+  paid_tickets:                   "（已付票)",
+  short_additional:               "附加服务",
+  registered:                     "已注册:",
+  delete_placeholder:             "删除地标",
+  loading_map:                    "加载地图",
+  loading_editor:                 "加载编辑器",
+  see_all_events:                 "查看所有活动",
+  locations_search_not_found:     "查询没有找到事件\"{text}\"",
+  events_not_found:               "未找到事件",
+  events_on_card:                 "地图上的事件目录"
 } );        

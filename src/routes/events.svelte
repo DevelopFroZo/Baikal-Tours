@@ -292,7 +292,7 @@
     let URL = fetcher.makeQuery({ query: parseFilter });
 
     //#fix переписать логику на сторы
-    goto(`/actions${URL}`);
+    goto(`/events${URL}`);
   }
 
   onMount(() => {

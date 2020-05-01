@@ -258,7 +258,7 @@
         <option value="hidden">{_('hidden')}</option>
         <option value="archive">{_('archive')}</option>
       </select>
-      <a href={`/admin/action/edit?id=${actionId}`}>{_('edit')}</a>
+      <a href={`/admin/event/edit?id=${actionId}`}>{_('edit')}</a>
     </div>
     <h1>{result_action.name}</h1>
     <div id="description-block"></div>

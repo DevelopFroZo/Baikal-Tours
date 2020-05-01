@@ -432,7 +432,7 @@
             {parsePrice(action.price_min, action.price_max, _)}
           </b>
           <div class="action-description">{action.compiliationDescription}</div>
-          <a href={`/action?id=${action.id}`}>{_('detailed')}</a>
+          <a href={`/event?id=${action.id}`}>{_('detailed')}</a>
         </div>
       </div>
     {/each}

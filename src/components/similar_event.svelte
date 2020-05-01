@@ -87,7 +87,7 @@
   }
 </style>
 
-<a class="similar-block" href={`/action?id=${favorite.id}`}>
+<a class="similar-block" href={`/event?id=${favorite.id}`}>
   {#if favorite.image_url !== null}
     <Image src={favorite.image_url} alt={favorite.name}/>
   {/if}

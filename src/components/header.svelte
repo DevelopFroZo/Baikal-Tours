@@ -360,7 +360,7 @@
 
 <header class="form-width line">
   <div class="left-side">
-    <a class="header-name" href="./actions">
+    <a class="header-name" href="./events">
       <h2>{_('event_calendar')}</h2>
       <div>
         <img src="img/ot.png" alt="от" />

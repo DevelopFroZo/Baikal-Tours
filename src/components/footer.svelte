@@ -181,7 +181,7 @@
     <div class="center">
       <div class="hrefs">
         <a href="./">{_('main')}</a>
-        <a href="./actions">{_('event_catalog')}</a>
+        <a href="./events">{_('event_catalog')}</a>
         <a href="./profile">{_('personal_account')}</a>
       </div>
     </div>

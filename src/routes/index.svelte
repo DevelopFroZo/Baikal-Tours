@@ -647,7 +647,7 @@
       </div>
     </button>
   </div>
-  <a href="/actions">{_('find_your_adventure')}</a>
+  <a href="/events">{_('find_your_adventure')}</a>
 </div>
 
 <div class="form-width mail-block">

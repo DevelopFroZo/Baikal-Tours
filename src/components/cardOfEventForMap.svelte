@@ -72,7 +72,7 @@
       {parseDateForCards(date_starts, date_ends, _)}
     </span>
     <span class="event-location">{location}</span>
-    <a href="/action?id={id}">{_('detailed')}</a>
+    <a href="/event?id={id}">{_('detailed')}</a>
   </div>
   {#if image_url}
     <div class="image-block">

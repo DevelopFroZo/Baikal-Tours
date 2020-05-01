@@ -766,7 +766,7 @@
 
     result = await fetcher.put(`/api/actions/${actionId}`, newData);
 
-    document.location.href = `/admin/action?id=${actionId}`;
+    document.location.href = `/admin/event?id=${actionId}`;
   }
 
   async function changePartners() {

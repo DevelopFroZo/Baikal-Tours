@@ -344,4 +344,18 @@ export default ({
   pay:                        "Pay",
   date_not_correct:           "The event does not take place on the selected day",
   event_calendar_info:        "With the support of the tourism Agency of the Irkutsk region and the center for cluster development",
+
+  name2:                      "Name",
+  booked:                     "Reserved",
+  paid3:                      "Paid",
+  paid_tickets:               "(paid tickets)",
+  short_additional:           "Additional services",
+  registered:                 "Registered:",
+  delete_placeholder:         "Delete a placemark",
+  loading_map:                "Loading the map",
+  loading_editor:             "Loading the editor",
+  see_all_events:             "See all events",
+  locations_search_not_found: "No events found for the query \"{text}\"",
+  events_not_found:           "Events not found",
+  events_on_card:             "Catalog of events on the map"
 });

@@ -351,5 +351,8 @@ export default ( {
   delete_placeholder:         "Удалить метку",
   loading_map:                "Загрузка карты",
   loading_editor:             "Загрузка редактора",
-  
+  see_all_events:             "Увидеть все события",
+  locations_search_not_found: "Не найдено ни одного события по запросу \"{text}\"",
+  events_not_found:           "События не найдены",
+  events_on_card:             "Каталог событий на карте"
 } );

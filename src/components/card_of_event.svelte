@@ -174,7 +174,7 @@
   class="card swiper-slide"
   on:click={() => {
     if (saveURL) localStorage.setItem('actionsParams', document.location.href);
-    document.location.href = './action?id=' + id;
+    document.location.href = './event?id=' + id;
   }}>
   <div class="image-and-price">
     <div class="image">

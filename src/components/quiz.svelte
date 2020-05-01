@@ -22,7 +22,7 @@
   function showActions() {
     let URL = fetcher.makeQuery({ query });
 
-    document.location.href = `/actions${URL}`;
+    document.location.href = `/events${URL}`;
   }
 </script>
 

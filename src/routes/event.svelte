@@ -183,7 +183,7 @@
 
   onMount(() => {
     actionsParams = localStorage.getItem("actionsParams");
-    if (actionsParams === null) actionsParams = "./actions";
+    if (actionsParams === null) actionsParams = "./events";
 
     start = true;
     if(initEditor)
