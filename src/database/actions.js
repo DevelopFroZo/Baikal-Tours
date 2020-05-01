@@ -48,10 +48,9 @@ export default class extends Foundation{
         array_agg( distinct ad.date_end ) as date_ends,
         ai.image_url, a.price_min, a.price_max,
         array_agg( distinct s.name ) as subjects,
-        array_agg( distinct l.name ) as locations,
         coalesce( min( ab.price ), 0 ) as price_min_,
         coalesce( max( ab.price ), 0 ) as price_max_,
-        null as coords,
+        null as locations,
         count( 1 ) over ()
       from
         ${favoritesTable}
@@ -86,16 +85,21 @@ export default class extends Foundation{
     const map = createMap( rows, "id" );
     const actionIds = Object.keys( map );
 
-    const { rows: coords } = await super.query(
-      `select action_id, coords
-      from actions_locations
+    const { rows: locations } = await super.query(
+      `select
+        al.action_id, al.address, al.coords,
+        l.name
+      from
+        actions_locations as al,
+        locations as l
       where
-        not coords is null and
-        action_id = any( $1 )`,
-      [ actionIds ]
+        l.locale = $1 and
+        action_id = any( $2 ) and
+        al.location_id = l.id`,
+      [ locale, actionIds ]
     );
 
-    mergeMultiple( rows, coords, "action_id", "coords", { map, field: "." } );
+    mergeMultiple( rows, locations, "action_id", "locations", { map, remove: true } );
 
     return super.success( 0, rows );
   }
@@ -189,7 +193,6 @@ export default class extends Foundation{
           at.full_description, a.price_min, a.price_max,
           ${favoritesColumns0}
           array_agg( l.id ) as locations_ids,
-          array_agg( l.name ) as locations,
           coalesce( min( ab.price ), 0 ) as price_min_,
           coalesce( max( ab.price ), 0 ) as price_max_
         from
@@ -226,10 +229,11 @@ export default class extends Foundation{
         array_agg( ad.date_start ) as date_starts,
         array_agg( ad.date_end ) as date_ends,
         ai.image_url,
+        null as locations,
         count( 1 ) over ()
       from (
         select
-          ae.id, ae.status, ae.name, ae.price_min, ae.price_max, ae.locations,
+          ae.id, ae.status, ae.name, ae.price_min, ae.price_max,
           ${favoritesColumns2}
           array_agg( distinct c.name ) as companions,
           array_agg( distinct s.name ) as subjects
@@ -247,7 +251,7 @@ export default class extends Foundation{
           ac.action_id = ae.id and
           acsu.subject_id = s.id and
           acsu.action_id = ae.id
-        group by ae.id, ae.status, ae.name, ae.price_min, ae.price_max, ${favoritesColumns2} ae.locations ) as tmp
+        group by ae.id, ae.status, ae.name, ae.price_min, ${favoritesColumns2} ae.price_max ) as tmp
         left join action_dates as ad
         on ad.action_id = tmp.id
         left join action_images as ai
@@ -259,7 +263,6 @@ export default class extends Foundation{
         tmp.name,
         tmp.price_min,
         tmp.price_max,
-        tmp.locations,
         tmp.companions,
         tmp.subjects,
         ${favoritesColumns3}
@@ -273,16 +276,21 @@ export default class extends Foundation{
     const map = createMap( rows, "id" );
     const actionIds = Object.keys( map );
 
-    const { rows: coords } = await super.query(
-      `select action_id, coords
-      from actions_locations
+    const { rows: locations_ } = await super.query(
+      `select
+        al.action_id, al.address, al.coords,
+        l.name
+      from
+        actions_locations as al,
+        locations as l
       where
-        not coords is null and
-        action_id = any( $1 )`,
-      [ actionIds ]
+        l.locale = $1 and
+        action_id = any( $2 ) and
+        al.location_id = l.id`,
+      [ locale, actionIds ]
     );
 
-    mergeMultiple( rows, coords, "action_id", "coords", { map, field: "." } );
+    mergeMultiple( rows, locations_, "action_id", "locations", { map, remove: true } );
 
     return super.success( 0, rows );
   }
