@@ -2,6 +2,8 @@
 
 import multer from "multer";
 
+import { access } from "/helpers/promisified";
+
 const upload = multer();
 const dev = process.env.NODE_ENV === "development";
 
@@ -31,7 +33,18 @@ function secureAPI( roles ){
 
 export default ( server ) => {
   // Static
-  // server.get( "/img/actions/*", ( req, res, next ) => res.sendFile( req.path, { root: "./static" }, err => next() ) );
+  server.get( "/img/:folder/*", async ( req, res, next ) => {
+    const folders = [ "actions", "compiliations", "excursions", "partners", "tours", "hotels" ];
+
+    if( !folders.includes( req.params.folder ) )
+      next();
+
+    if( await access( `./static/${req.path}` ) )
+      return res.sendFile( req.path, { root: "./static" } );
+
+    res.sendStatus( 404 );
+  } );
+
   server.get( "/admin*", secureStatic( "admin" ) );
 
   // Documentation
@@ -100,5 +113,6 @@ export default ( server ) => {
   // server.post( "/api/hotels", secureAPI( "admin" ) );
   server.put( "/api/hotels/:id", secureAPI( "admin" ) );
   server.delete( "/api/hotels/:id", secureAPI( "admin" ) );
-  // #fix картинка
+  server.post( "/api/hotels/:id/image", secureAPI( "admin" ), upload.single( "image" ) );
+  // #fix добавить PUT, DELETE
 };

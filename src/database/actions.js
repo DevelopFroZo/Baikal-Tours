@@ -184,7 +184,6 @@ export default class extends Foundation{
     if( datesFilter.length === 0 ) datesFilter = "";
     else datesFilter = `where ${datesFilter.join( " and " )}`;
 
-    // #fix переделать на хранимку
     const rows = ( await super.query(
       `with actions_extended as (
         select
@@ -587,7 +586,6 @@ export default class extends Foundation{
       );
     }
 
-    // #fix move to "actionsTranslates.js" EDIT operations
     if( title ){
       const locale = title.locale;
 

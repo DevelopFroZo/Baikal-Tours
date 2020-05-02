@@ -135,6 +135,7 @@ export async function get( {
   wb.SheetNames = [ "Лист 1" ];
   wb.Sheets[ "Лист 1" ] = ws;
 
+  // #fix сохранить файл
   const output = xlsx.write( wb, {
     bookType: "xlsx",
     type: "binary"

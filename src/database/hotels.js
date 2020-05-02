@@ -120,13 +120,19 @@ export async function edit( client, id, { bookingUrl, bookingLocationId, locatio
   if( sets.length > 0 ){
     sets = sets.join( "," );
 
-    await client.query(
+    const { rowCount } = await client.query(
       `update hotels
       set ${sets}
-      where id = $1`,
+      where id = $1
+      returning 1`,
       params
     );
+
+    if( rowCount === 0 )
+      return { errors: [ `Hotel not found (${id})` ] };
   }
+
+  return true;
 }
 
 export async function remove( client, id ){

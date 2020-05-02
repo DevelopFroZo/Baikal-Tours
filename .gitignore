@@ -9,6 +9,7 @@ static/img/compiliations/
 static/img/excursions/
 static/img/tours/
 static/img/partners/
+static/img/hotels/
 
 src/configs/
 svelte.config.js

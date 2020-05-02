@@ -77,7 +77,6 @@ export default class extends Foundation{
     );
   }
 
-  // #fix по ID
   async del( actionLocationIds, client ){
     if( !Array.isArray( actionLocationIds ) || actionLocationIds.length === 0 ) return;
 
