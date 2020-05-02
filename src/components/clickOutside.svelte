@@ -12,13 +12,14 @@
 
     while (parent) {
 
-      if ((exclude.indexOf(parent) >= 0 || parent === child) && !isShow) {
+      if(isShow && exclude.indexOf(parent) >= 0)
+        return false;
+      if (parent === child || exclude.indexOf(parent) >= 0){
         return true;
       }
-
+        
       parent = parent.parentNode;
     }
-
     return false;
   }
 
