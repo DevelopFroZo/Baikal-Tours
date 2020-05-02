@@ -434,6 +434,20 @@ export default class extends Foundation{
       [ id, locale ]
     ) ).rows;
 
+    main.hotels = ( await transaction.query(
+      `select
+      	h.id, h.booking_url, h.name,
+        h.image_url, h.price, h.rating
+      from
+      	actions_hotels as ah,
+        hotels as h
+      where
+      	ah.action_id = $1 and
+      	ah.hotel_id = h.id
+      order by ah.number`,
+      [ id ]
+    ) ).rows;
+
     await transaction.end();
 
     if( locale !== "ru" ){
@@ -447,6 +461,12 @@ export default class extends Foundation{
         partner.name = transliterate( partner.name );
 
         return partner;
+      } );
+
+      main.hotels = main.hotels.map( hotel => {
+        hotel.name = transliterate( hotel.name );
+
+        return hotel;
       } );
     }
 

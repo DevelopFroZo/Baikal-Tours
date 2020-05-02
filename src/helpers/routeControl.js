@@ -64,6 +64,10 @@ export default ( server ) => {
   server.put( "/api/actionBuyable/:id", secureAPI( "admin" ) );
   server.delete( "/api/actionBuyable/:id", secureAPI( "admin" ) );
 
+  server.post( "/api/actions/:id/hotels", secureAPI( "admin" ) );
+  server.put( "/api/actions/:id/hotels/:hotelId", secureAPI( "admin" ) );
+  server.delete( "/api/actions/:id/hotels/:hotelId", secureAPI( "admin" ) );
+
   server.post( "/api/compiliations", secureAPI( "admin" ) );
   server.post( "/api/compiliations/:id/image", secureAPI( "admin" ), upload.single( "image" ) );
   // #fix добавить PUT, DELETE
@@ -96,4 +100,5 @@ export default ( server ) => {
   // server.post( "/api/hotels", secureAPI( "admin" ) );
   server.put( "/api/hotels/:id", secureAPI( "admin" ) );
   server.delete( "/api/hotels/:id", secureAPI( "admin" ) );
+  // #fix картинка
 };
