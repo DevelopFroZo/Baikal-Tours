@@ -460,7 +460,7 @@
         <ul class="compiliations">
           {#each compiliations as compiliation}
             <li>
-              <a href={`compiliation?url=${compiliation.url}`}>
+              <a href={`/compiliation/${compiliation.url}`}>
                 <div class="img">
                   <Image src={compiliation.image_url} alt={compiliation.name} />
                 </div>
