@@ -72,4 +72,24 @@ export default class extends Foundation{
       role: row.role
     } );
   }
+
+  async restorePassword( userId ){
+    const { password, hashAndSalt } = this.createPassword();
+
+    const { rows: [ row ] } = await super.query(
+      `update users
+      set password = $1
+      where id = $2
+      returning email`,
+      [ hashAndSalt, userId ]
+    );
+
+    if( row === undefined )
+      return { errors: [ `User ${userId} not found` ] };
+
+    return {
+      email: row.email,
+      password
+    };
+  }
 }
