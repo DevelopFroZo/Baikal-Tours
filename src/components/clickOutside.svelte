@@ -3,7 +3,7 @@
 
   export let exclude = [];
 
-  let child;
+  let child, isShow = false;
 
   const dispatch = createEventDispatcher();
 
@@ -11,7 +11,8 @@
     var parent = target;
 
     while (parent) {
-      if (exclude.indexOf(parent) >= 0 || parent === child) {
+
+      if ((exclude.indexOf(parent) >= 0 || parent === child) && !isShow) {
         return true;
       }
 
@@ -23,8 +24,9 @@
 
   function onClickOutside(event) {
     if (!isExcluded(event.target)) {
+      isShow = false;
       dispatch('clickoutside');
-    }
+    } else isShow = true;
   }
 </script>
 
