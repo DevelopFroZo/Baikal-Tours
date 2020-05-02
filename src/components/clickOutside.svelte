@@ -1,7 +1,7 @@
 <script>
   import { createEventDispatcher } from 'svelte';
 
-  export let exclude = [];
+  export let exclude = [], hideByExclude = true;
 
   let child, isShow = false;
 
@@ -12,7 +12,7 @@
 
     while (parent) {
 
-      if(isShow && exclude.indexOf(parent) >= 0)
+      if(isShow && exclude.indexOf(parent) >= 0 && hideByExclude)
         return false;
       if (parent === child || exclude.indexOf(parent) >= 0){
         return true;
