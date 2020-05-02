@@ -33,8 +33,21 @@ export async function put( {
   if( id === null || id < 1 )
     return res.error( 9 );
 
-  // #fix изменить фотографию
-  await edit( pool, id, body );
+  const transaction = await pool.connect();
+
+  await transaction.query( "begin" );
+
+  const result = await edit( transaction, id, body );
+
+  if( result !== true ){
+    await transaction.query( "rollback" );
+    transaction.release();
+
+    return res.json( result );
+  }
+
+  await transaction.query( "commit" );
+  transaction.release();
 
   return res.success();
 }
