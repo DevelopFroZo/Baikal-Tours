@@ -559,6 +559,8 @@
   async function changeImages() {
     let newSecondImages = [],
       result;
+
+    let saveNewImage = !images.length && !newImages.length;
     for (let img of uploadImg.files) {
       let fileFormat = img.name.split(".").pop();
       if (fileFormat !== "jpg" && fileFormat !== "jpeg" && fileFormat !== "png")
@@ -586,6 +588,11 @@
       });
     }
     newImages = newImages;
+
+    if(newImages.length && saveNewImage){
+      changeNewActiveImg(0, newImages[0].id);
+    }
+      
   }
 
   async function changeActiveImg(main_img, id) {
@@ -632,6 +639,19 @@
     images.splice(delete_img, 1);
     images = images;
 
+    let newI = false, i = 0;
+    for(let image of images){
+      if(image.is_main){
+        changeActiveImg(i, image.id)
+        newI = true;
+        break;
+      }
+      i++;
+    }
+
+    if(!newI && newImages[mainImg])
+      changeNewActiveImg(mainImg, newImages[mainImg].id)
+
     await fetcher.delete(`/api/actionImages/${id}`);
   }
 
@@ -649,6 +669,20 @@
 
     newImages.splice(delete_img, 1);
     newImages = newImages;
+
+    if(mainImg){
+      changeNewActiveImg(mainImg, newImages[mainImg].id)
+    }
+    else{
+       let i = 0;
+       for(let image of images){
+         if(image.is_main){
+           changeActiveImg(i, image.id)
+           break;
+         }
+         i++;
+       }
+    }
 
     if (actionId !== undefined) await fetcher.delete(`/api/actionImages/${id}`);
   }
@@ -709,9 +743,8 @@
           { bodyType: "formData" }
         )).data;
         if (mainImg !== null) {
-          let saveImage = await fetcher.put(`/api/actionImages/${actionId}`, {
-            id: result[mainImg],
-            is_main: true
+          let saveImage = await fetcher.put(`/api/actionImages/${result[mainImg]}`, {
+            isMain: true
           });
         }
       }

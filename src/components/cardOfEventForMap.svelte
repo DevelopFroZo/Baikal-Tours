@@ -63,6 +63,28 @@
       right: 0;
     }
   }
+
+  @media only screen and (max-width: 768px){
+    .card-block{
+      & > .event-info-block{
+        padding: 15px 40% 15px 10px;
+
+        & > h2{
+          font-size: $Medium_Font_Size;
+        }
+
+        & > span{
+          font-size: $Mini_Font_Size;
+          margin-top: 8px;
+        }
+
+        & > a{
+          font-size: $Mini_Font_Size;
+          margin-top: 13px;
+        }
+      }
+    }
+  }
 </style>
 
 <div class="card-block">

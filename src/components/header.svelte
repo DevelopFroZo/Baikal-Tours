@@ -24,6 +24,8 @@
   menuButton,
   menuBlock;
 
+  let closeMenu;
+
   async function changeLanguage(e) {
     let lang = e.detail.lang;
     let result = await fetcher.put("/api/locales/" + lang);
@@ -404,14 +406,14 @@
   </div>
 </header>
 
-<ClickOutside on:clickoutside={() => showMenu = false} exclude={[menuButton]}>
+<ClickOutside on:clickoutside={() => showMenu = false} exclude={[menuButton, closeMenu]}>
 {#if showMenu}
   <div class="menu-block" transition:slide bind:this={menuBlock}>
     <div class="top">
       <div class="mobile-language">
         <ChangeLanguage {locale} on:changeLanguage={changeLanguage} />
       </div>
-      <button class="close-menu" on:click={() => (showMenu = false)}>
+      <button class="close-menu" bind:this={closeMenu}>
         <img src="/img/cross.svg" alt="close" />
       </button>
     </div>

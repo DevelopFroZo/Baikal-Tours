@@ -1302,7 +1302,7 @@
   path={[{ name: _('event_catalog'), url: actionsParams }, { name: result_action.name, url: './action?id=' + actionId }]} /> -->
 <div
   class="main-block">
-  {#if result_action.images.length > 0}
+  {#if result_action.images.length && result_action.images.filter(el => el.is_main)[0]}
     <Image
       src={result_action.images.filter(el => el.is_main)[0].image_url}
       alt={result_action.name} />
@@ -1343,7 +1343,7 @@
   <!-- <p class="italic-bold">{result_action.tagline}</p> -->
   <p class="short-description">{result_action.short_description}</p>
 
-  {#if result_action.images.length > 0}
+  {#if result_action.images.length}
     <div class="main-carousel">
       <Carousel data={{slidesPerView: 'auto', preloadImages: "false", centeredSlides: true, spaceBetween: 25, speed: 750, navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' }}}
       carouselData={result_action.images}>
