@@ -2,7 +2,30 @@
 
 import { toInt, toFloat } from "/helpers/converters";
 
-export async function getAll( client, count, offset, search, locationIds, bookingLocationIds ){
+export {
+  create,
+  getAll
+};
+
+async function create( client, bookingUrl, bookingLocationId, locationId, name, price, rating ){
+  try{
+    const { rows: [ { id } ] } = await client.query(
+      `insert into hotels( booking_url, booking_location_id, location_id, name, price, rating )
+      values( $1, $2, $3, $4, $5, $6 )
+      returning id`,
+      [ bookingUrl, bookingLocationId, locationId, name, price, rating ]
+    );
+
+    return id;
+  } catch( e ) {
+    if( e.code === "23503" )
+      return { errors: [ e.detail ] };
+
+    throw e;
+  }
+}
+
+async function getAll( client, count, offset, search, locationIds, bookingLocationIds ){
   let filters = [];
   const params = [];
   let i = 1;
@@ -135,9 +158,15 @@ export async function edit( client, id, { bookingUrl, bookingLocationId, locatio
 }
 
 export async function remove( client, id ){
-  await client.query(
+  const { rows: [ row ] } = await client.query(
     `delete from hotels
-    where id = $1`,
+    where id = $1
+    returning image_url`,
     [ id ]
   );
+
+  if( row === undefined )
+    return { errors: [ `Invalid hotel (${id})` ] };
+
+  return row.image_url;
 }

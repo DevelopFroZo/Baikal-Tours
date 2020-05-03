@@ -14,7 +14,7 @@ export {
 async function put( {
   params: { id },
   body: { site, dateStart, dateEnd, locationIds, price, name },
-  database: { pool, excursions, excursionsTranslates }
+  database: { pool, tours, toursTranslates }
 }, res ){
   const id_ = toInt( id );
 
@@ -42,7 +42,7 @@ async function put( {
 
   await transaction.query( "begin" );
 
-  const result = await excursions.edit( transaction, id_, site, dateStart, dateEnd, locationIds, price );
+  const result = await tours.edit( transaction, id_, site, dateStart, dateEnd, locationIds, price );
 
   if( result !== true ){
     await transaction.query( "rollback" );
@@ -67,7 +67,7 @@ async function put( {
     }
 
     for( let locale in translated )
-      await excursionsTranslates.createOrEdit( transaction, id_, locale, translated[ locale ] );
+      await toursTranslates.createOrEdit( transaction, id_, locale, translated[ locale ] );
   }
 
   await transaction.query( "commit" );
@@ -78,14 +78,14 @@ async function put( {
 
 async function del( {
   params: { id },
-  database: { pool, excursions }
+  database: { pool, tours }
 }, res ){
   const id_ = toInt( id );
 
   if( id_ === null || id_ < 1 )
     return res.error( 9 );
 
-  const result = await excursions.delete( pool, id_ );
+  const result = await tours.delete( pool, id_ );
 
   if( result !== null && typeof result === "object" )
     return res.json( result );

@@ -3,6 +3,7 @@
 import { transliterate } from "transliteration";
 import { toInt } from "/helpers/converters";
 import { getById, edit, remove } from "/database/hotels";
+import { unlink } from "/helpers/promisified";
 
 export async function get( {
   params,
@@ -61,7 +62,13 @@ export async function del( {
   if( id === null || id < 1 )
     return res.error( 9 );
 
-  await remove( pool, id );
+  const result = await remove( pool, id );
 
-  return res.success();
+  if( result !== null && typeof result === "object" )
+    return res.json( result );
+
+  if( result !== null && !result.startsWith( "http" ) )
+    await unlink( `static/${result}` );
+
+  res.success();
 }

@@ -126,16 +126,16 @@ export default class extends Foundation{
   }
 
   async delete( client, id ){
-    const { rowCount } = await client.query(
+    const { rows: [ row ] } = await client.query(
       `delete from excursions
       where id = $1
-      returning 1`,
+      returning image_url`,
       [ id ]
     );
 
-    if( rowCount === 0 )
+    if( row === undefined )
       return { errors: [ `Invalid excursion (${id})` ] };
 
-    return true;
+    return row.image_url;
   }
 }

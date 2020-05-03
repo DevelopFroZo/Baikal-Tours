@@ -109,13 +109,16 @@ export default ( server ) => {
   server.delete( "/api/excursions/:id/image", secureAPI( "admin" ) );
 
   server.post( "/api/tours", secureAPI( "admin" ) );
+  server.put( "/api/tours/:id", secureAPI( "admin" ) );
+  server.delete( "/api/tours/:id", secureAPI( "admin" ) );
   server.post( "/api/tours/:id/image", secureAPI( "admin" ), upload.single( "image" ) );
-  // #fix добавить PUT, DELETE
+  server.put( "/api/tours/:id/image", secureAPI( "admin" ), upload.single( "image" ) );
+  server.delete( "/api/tours/:id/image", secureAPI( "admin" ) );
 
-  // #fix написать создание
-  // server.post( "/api/hotels", secureAPI( "admin" ) );
+  server.post( "/api/hotels", secureAPI( "admin" ) );
   server.put( "/api/hotels/:id", secureAPI( "admin" ) );
   server.delete( "/api/hotels/:id", secureAPI( "admin" ) );
   server.post( "/api/hotels/:id/image", secureAPI( "admin" ), upload.single( "image" ) );
-  // #fix добавить PUT, DELETE
+  server.put( "/api/hotels/:id/image", secureAPI( "admin" ), upload.single( "image" ) );
+  server.delete( "/api/hotels/:id/image", secureAPI( "admin" ) );
 };
