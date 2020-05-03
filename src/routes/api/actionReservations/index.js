@@ -92,15 +92,12 @@ export async function get( {
 
   await transaction.query( "begin" );
 
-  const reservations = await getByUserId( transaction, userId_ );
+  const reservations = await getByUserId( transaction, locale, userId_ );
   const map = createMap( reservations, "action_id" );
   const actionIds = Object.keys( map );
   const actionReservationsIds = [];
 
   reservations.forEach( reservation => {
-    if( !actionIds.includes( reservation.action_id ) )
-      actionIds.push( reservation.action_id );
-
     if( !actionReservationsIds.includes( reservation.action_reservation_id ) )
       actionReservationsIds.push( reservation.action_reservation_id );
 
