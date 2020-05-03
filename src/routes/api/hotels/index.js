@@ -2,9 +2,44 @@
 
 import { transliterate } from "transliteration";
 import { toInt, toIntArray, toFloat } from "/helpers/converters";
-import { getAll } from "/database/hotels";
+import { create, getAll } from "/database/hotels";
 
-export async function get( {
+export {
+  post,
+  get
+};
+
+async function post( {
+  body: { bookingUrl, bookingLocationId, locationId, name, price, rating },
+  database: { pool }
+}, res ){
+  if( typeof name !== "string" || name === "" )
+    return res.error( 13 );
+
+  if( typeof bookingUrl !== "string" || bookingUrl === "" )
+    bookingUrl = null;
+
+  if( !Number.isInteger( bookingLocationId ) || bookingLocationId < 1 )
+    bookingLocationId = null;
+
+  if( !Number.isInteger( locationId ) || locationId < 1 )
+    locationId = null;
+
+  if( !Number.isInteger( price ) || price < 1 )
+    price = null;
+
+  if( typeof rating !== "number" || rating < 1 || rating > 10 )
+    rating = null;
+
+  const result = await create( pool, bookingUrl, bookingLocationId, locationId, name, price, rating );
+
+  if( typeof result === "object" )
+    return res.json( result );
+
+  res.success( 0, result );
+}
+
+async function get( {
   query,
   database: { pool },
   session: { locale }

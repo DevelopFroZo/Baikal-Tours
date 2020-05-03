@@ -76,4 +76,66 @@ export default class extends Foundation{
 
     return super.success( 0, rows );
   }
+
+  async edit( client, id, site, dateStart, dateEnd, locationIds, price ){
+    let sets = [];
+    const params = [ id ];
+    let i = 2;
+
+    if( site !== null ){
+      sets.push( `site = $${i++}` );
+      params.push( site );
+    }
+
+    if( dateStart !== null ){
+      sets.push( `date_start = $${i++}` );
+      params.push( dateStart );
+    }
+
+    if( dateEnd !== null ){
+      sets.push( `date_end = $${i++}` );
+      params.push( dateEnd );
+    }
+
+    if( locationIds !== null ){
+      sets.push( `location_ids = $${i++}` );
+      params.push( locationIds );
+    }
+
+    if( price !== null ){
+      sets.push( `price = $${i++}` );
+      params.push( price );
+    }
+
+    if( sets.length > 0 ){
+      sets = sets.join( "," );
+
+      const { rowCount } = await client.query(
+        `update excursions
+        set ${sets}
+        where id = $1
+        returning 1`,
+        params
+      );
+
+      if( rowCount === 0 )
+        return { errors: [ `Invalid excursion (${id})` ] };
+    }
+
+    return true;
+  }
+
+  async delete( client, id ){
+    const { rows: [ row ] } = await client.query(
+      `delete from excursions
+      where id = $1
+      returning image_url`,
+      [ id ]
+    );
+
+    if( row === undefined )
+      return { errors: [ `Invalid excursion (${id})` ] };
+
+    return row.image_url;
+  }
 }

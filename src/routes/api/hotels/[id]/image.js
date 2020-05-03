@@ -2,7 +2,8 @@
 
 import crypto from "crypto";
 import { toInt } from "/helpers/converters";
-import { writeFile, unlink } from "/helpers/promisified";
+import { access, mkdir, writeFile } from "/helpers/promisified";
+import { unlink } from "/helpers/promisified";
 
 export {
   post,
@@ -37,14 +38,14 @@ async function post( req, res ){
 
   hash.update( `${id}${originalname}${size}${time}${seed}` );
 
-  const path = `img/excursions/${hash.digest( "hex" )}.${ext}`;
+  const path = `img/hotels/${hash.digest( "hex" )}.${ext}`;
 
   const transaction = await req.database.pool.connect();
 
   await transaction.query( "begin" );
 
   const { id: id_ } = ( await transaction.query(
-    `update excursions
+    `update hotels
     set image_url = $1
     where id = $2
     returning id`,
@@ -54,6 +55,9 @@ async function post( req, res ){
   if( id_ !== id )
     await transaction.query( "rollback" );
   else{
+    if( !( await access( "static/img/hotels" ) ) )
+      await mkdir( "static/img/hotels" );
+
     await writeFile( `static/${path}`, buffer );
     await transaction.query( "commit" );
   }
@@ -88,13 +92,13 @@ async function put( {
 
   const { rows: [ row ] } = await pool.query(
     `select image_url
-    from excursions
+    from hotels
     where id = $1`,
     [ id_ ]
   );
 
   if( row === undefined )
-    return res.json( { errors: [ `Invalid excursion (${id_})` ] } );
+    return res.json( { errors: [ `Invalid hotel (${id_})` ] } );
 
   await writeFile( `static/${row.image_url}`, buffer );
 
@@ -116,7 +120,7 @@ async function del( {
 
   const { rows: [ row ] } = await transaction.query(
     `select image_url
-    from excursions
+    from hotels
     where id = $1`,
     [ id_ ]
   );
@@ -125,13 +129,13 @@ async function del( {
     await transaction.query( "rollback" );
     transaction.release();
 
-    return res.json( { errors: [ `Invalid excursion (${id_})` ] } );
+    return res.json( { errors: [ `Invalid hotel (${id_})` ] } );
   }
 
   const { image_url } = row;
 
   await pool.query(
-    `update excursions
+    `update hotels
     set image_url = null
     where id = $1`,
     [ id_ ]

@@ -33,7 +33,6 @@ export async function post( req, res ){
 
   const path = `img/compiliations/${hash.digest( "hex" )}.${ext}`;
 
-  // #fix переделать нормально
   const transaction = await req.database.pool.connect();
 
   await transaction.query( "begin" );

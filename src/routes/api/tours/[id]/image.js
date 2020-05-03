@@ -2,9 +2,15 @@
 
 import crypto from "crypto";
 import { toInt } from "/helpers/converters";
-import { writeFile } from "/helpers/promisified";
+import { writeFile, unlink } from "/helpers/promisified";
 
-export async function post( req, res ){
+export {
+  post,
+  put,
+  del
+};
+
+async function post( req, res ){
   const id = toInt( req.params.id );
 
   if( id === null || id < 1 )
@@ -33,7 +39,6 @@ export async function post( req, res ){
 
   const path = `img/tours/${hash.digest( "hex" )}.${ext}`;
 
-  // #fix переделать нормально
   const transaction = await req.database.pool.connect();
 
   await transaction.query( "begin" );
@@ -54,6 +59,89 @@ export async function post( req, res ){
   }
 
   await transaction.release();
+
+  res.success();
+}
+
+async function put( {
+  params: { id },
+  file,
+  database: { pool }
+}, res ){
+  const id_ = toInt( id );
+
+  if( id_ === null || id_ < 1 )
+    return res.error( 9 );
+
+  if( file === undefined )
+    return res.error( 13 );
+
+  const { originalname, buffer, size } = file;
+
+  if( ( size / Math.pow( 2, 20 ) ) >= 1 )
+    return res.error( 14 );
+
+  const ext = originalname.slice( originalname.lastIndexOf( "." ) + 1, originalname.length );
+
+  if( ![ "png", "jpg", "jpeg" ].includes( ext ) )
+    return res.error( 15 );
+
+  const { rows: [ row ] } = await pool.query(
+    `select image_url
+    from tours
+    where id = $1`,
+    [ id_ ]
+  );
+
+  if( row === undefined )
+    return res.json( { errors: [ `Invalid tour (${id_})` ] } );
+
+  await writeFile( `static/${row.image_url}`, buffer );
+
+  res.success();
+}
+
+async function del( {
+  params: { id },
+  database: { pool }
+}, res ){
+  const id_ = toInt( id );
+
+  if( id_ === null || id_ < 1 )
+    return res.error( 9 );
+
+  const transaction = await pool.connect();
+
+  await transaction.query( "begin" );
+
+  const { rows: [ row ] } = await transaction.query(
+    `select image_url
+    from tours
+    where id = $1`,
+    [ id_ ]
+  );
+
+  if( row === undefined ){
+    await transaction.query( "rollback" );
+    transaction.release();
+
+    return res.json( { errors: [ `Invalid excursion (${id_})` ] } );
+  }
+
+  const { image_url } = row;
+
+  await pool.query(
+    `update tours
+    set image_url = null
+    where id = $1`,
+    [ id_ ]
+  );
+
+  if( image_url !== null && !image_url.startsWith( "http" ) )
+    await unlink( `static/${image_url}` );
+
+  await transaction.query( "commit" );
+  transaction.release();
 
   res.success();
 }
