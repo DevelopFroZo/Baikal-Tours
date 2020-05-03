@@ -448,11 +448,9 @@
     <div class="payment-block">
       {#if result_action.price_min == 0 && result_action.price_max === 0}
         <div class="gray">{_('free2')}</div>
-      {/if}
-      {#if result_action.organizer_payment !== null && result_action.organizer_payment !== ''}
+      {:else if result_action.organizer_payment !== null && result_action.organizer_payment !== ''}
         <div class="blue">{_('pay_via_organizer')}</div>
-      {/if}
-      {#if result_action.site_payment}
+      {:else if result_action.site_payment}
         <div class="green">{_('pay_in_site')}</div>
       {/if}
     </div>

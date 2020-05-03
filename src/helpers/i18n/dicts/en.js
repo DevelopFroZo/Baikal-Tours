@@ -362,5 +362,9 @@ export default ({
   already_added_hotel:        "You have already added this tour",
   add_hotel:                  "Add a hotel",
 
-  organizer_payment_message:  "To register for an event, go to the organizer's website:"
+  organizer_payment_message:  "To register for an event, go to the organizer's website:",
+
+  user_events:                "User events",
+  event_is_paid:              "Event paid",
+  event_is_not_paid:          "Event not paid for"
 });

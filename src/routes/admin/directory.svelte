@@ -83,9 +83,9 @@
     <div class="directory">
       <div class="directory-header">
         <h2>{_("locations")}</h2>
-        <button>
+        <!-- <button>
           <img src="/img/edit_green.png" alt="edit" />
-        </button>
+        </button> -->
       </div>
       <div class="directory-info">
         <ul class="location-block">
@@ -99,9 +99,9 @@
     <div class="directory">
       <div class="directory-header">
         <h2>{_("subjects")}</h2>
-        <button>
+        <!-- <button>
           <img src="/img/edit_green.png" alt="edit" />
-        </button>
+        </button> -->
       </div>
       <div class="directory-info">
         <ul class="subjects-block">
@@ -114,9 +114,9 @@
     <div class="directory">
       <div class="directory-header">
         <h2>{_("transfers")}</h2>
-        <button>
+        <!-- <button>
           <img src="/img/edit_green.png" alt="edit" />
-        </button>
+        </button> -->
       </div>
       <div class="directory-info">
         <ul class="transfers-block">

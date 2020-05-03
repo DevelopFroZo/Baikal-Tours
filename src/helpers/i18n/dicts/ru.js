@@ -359,5 +359,9 @@ export default ( {
   already_added_hotel:        "Вы уже добавили этот тур",
   add_hotel:                  "Добавить отель",
 
-  organizer_payment_message:  "Для регистрации на событие перейдите на сайт организатора:"
+  organizer_payment_message:  "Для регистрации на событие перейдите на сайт организатора:",
+  
+  user_events:                "События пользователя",
+  event_is_paid:              "Событие оплачено",
+  event_is_not_paid:          "Событие не оплачено"
 } );
