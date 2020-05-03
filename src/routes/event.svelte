@@ -1629,24 +1629,6 @@
     </div>
   {/if}
 
-  <!-- <div class="banners-block">
-    <div class="banners-info">
-      <h2>{_('hotels_nearby')}</h2>
-      <a href="/" target="_blank">{_('more_hotels')}</a>
-    </div>
-    <div class="banners">
-      {#each [1,2,3] as bn}
-        <div class="banner-block">
-          <img src="/img/test.png" alt="hotel" />
-          <div class="banner-info">
-            <h4>Гостиница Виктория</h4>
-            <span class="price">от 1500 {_("rub")}</span>
-          </div>
-        </div>
-      {/each}
-    </div>
-  </div> -->
-
   {#if result_action.excursions.length > 0}
     <div class="banners-block">
       <div class="banners-info">
@@ -1673,6 +1655,20 @@
       {/each}
     </div>
   </div>
+  {/if}
+
+  {#if result_action.hotels.length}
+    <div class="banners-block">
+      <div class="banners-info">
+        <h2>{_('hotels')}</h2>
+        <a href="https://fanatbaikala.ru/tours" target="_blank">{_('more_hotels')}</a>
+      </div>
+      <div class="banners">
+        {#each result_action.hotels as hotel}
+          <BannerBlock {...hotel} {_} site={hotel.booking_url} noFollow={true}/>
+        {/each}
+      </div>
+    </div>
   {/if}
 
   <div class="similar-events-block">

@@ -144,6 +144,7 @@
     width: 100%;
     height: 100vh;
     background: $Light_Gray;
+    position: relative;
   }
 
   .search-block {
@@ -272,6 +273,10 @@
     display: none;
   }
 
+  :global(header){
+    position: absolute !important;
+  }
+
   @media only screen and (max-width: 768px) {
     :global(header) {
       width: 100% !important;
@@ -350,6 +355,7 @@
       height: 0;
       overflow: hidden;
       transition: 0.3s;
+      padding: 0 10px;
     }
 
     .search-block.showMobileEvents {

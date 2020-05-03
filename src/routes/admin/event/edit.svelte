@@ -60,6 +60,17 @@
       credentials: "same-origin"
     })).data;
 
+    let allHotels = (await fetcher.get("/api/hotels", {
+      credentials: "same-origin",
+      query: {
+        offset: 0,
+        count: 8
+      }
+    }));
+
+    let hotelsCount = allHotels.count;
+    allHotels = allHotels.hotels;
+
     result_filters = result_filters.data;
     result_users = result_users.data;
 
@@ -85,7 +96,9 @@
         result_users,
         locale,
         allExcursions,
-        allTours
+        allTours,
+        allHotels,
+        hotelsCount
       };
     }
       
@@ -106,6 +119,7 @@
   import ClickOutside from "/components/clickOutside.svelte";
   import Loading from "/components/adminLoadingWindow.svelte";
   import YandexMap from "/components/yandexMap/index.svelte";
+  import HotelsWindow from "./_hotels_window.svelte";
 
   export let actionId,
     result_filters,
@@ -140,13 +154,16 @@
     transfers = null,
     subjects = null,
     companions = null,
+    hotels = [],
     partners = [],
     tours = [],
     excursions = [],
     allExcursions,
     allTours,
+    allHotels,
     locale,
-    buyable = [];
+    buyable = [],
+    hotelsCount;
 
   const fetcher = new Fetcher();
   const _ = i18n(locale);
@@ -192,6 +209,7 @@
     newData = {},
     newPartnerName = "",
     editorBlock,
+    showHotels = false,
     showTours = false,
     showExcursions = false,
     save,
@@ -774,6 +792,13 @@
             actionId,
             tourId: tour.id
           })
+
+      if(hotels.length){
+        for(let hotel of hotels)
+          result = await fetcher.post(`/api/actions/${actionId}/hotels`, {
+            hotelId: hotel.id
+          })
+      }
     }
 
     let newTickets = edit.parseTickets(actionData.buyable, buyable, actionId, locale);
@@ -948,6 +973,34 @@
       excursions = newExcursions;
   }
 
+  async function sortHotels(e){
+    let newHotels = e.detail, i = 0;
+
+    if(actionId !== undefined){
+      for (let hotel of hotels) {
+        if (hotel.id !== newHotels[i].id) {
+          let j = 0;
+          for(let newHotel of newHotels){
+            if(newHotel.id === hotel.id)
+              break;
+            j++;
+          }
+            
+          let result = await fetcher.put(`/api/actions/${actionId}/hotels/${hotel.id} `, {
+            number: j + 1,
+            action: "swipe"
+          });
+          console.log(result)
+          if (result.ok) hotels = newHotels;
+          break;
+        }
+        i++;
+      }
+    }
+    else
+      hotels = newHotels;
+  } 
+
   async function addTour(e){
     let newTour = e.detail;
 
@@ -992,6 +1045,27 @@
     showExcursions = false;
   }
 
+  async function addHotel(e){
+    let newHotel = e.detail;
+
+    for(let hotel of hotels)
+      if(hotel.id === newHotel.id){
+        alert(_("already_added_tour"))
+        return null;
+      }
+      
+
+    if(actionId !== undefined){
+      let result = await fetcher.post(`/api/actions/${actionId}/hotels`, {
+        hotelId: newHotel.id
+      })
+    }
+
+    hotels.push(newHotel);
+    hotels = hotels;
+    showHotels = false;
+  }
+
   async function deleteTour(id, i){
     if(actionId !== undefined){
       let result = await fetcher.delete("/api/actionsTours", {
@@ -1018,6 +1092,14 @@
 
     excursions.splice(i, 1);
     excursions = excursions;
+  }
+
+  async function deleteHotel(id, i){
+    if(actionId)
+      await fetcher.delete(`/api/actions/${actionId}/hotels/${id}`)
+    
+    hotels.splice(i, 1);
+    hotels = hotels;
   }
 
   function addBuyable(type){
@@ -1353,6 +1435,7 @@
 
       & > h4{
         font-size: 20px;
+        color: white;
       }
       
       & > div{
@@ -1367,6 +1450,7 @@
         grid-row-gap: 20px;
         box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
         align-items: start;
+        overflow: auto;
       }
     }
   }
@@ -1420,7 +1504,7 @@
     padding: 20px;
   }
 
-  .tours, .excursions {
+  .tours, .excursions, .hotels {
     & :global(li){
       width: 225px;
     }
@@ -2269,13 +2353,37 @@
               <Image src={item.image_url} alt={item.name} />
               <div class="banner-data">
                 <h4>{item.name}</h4>
-                <span class="price">{item.price} {_("rub")} {item.id}</span>
+                <span class="price">{item.price} {_("rub")}</span>
               </div>
               <button class="delete" on:click={() => deleteExcursion(item.id, index)}> <img src="/img/cross.svg" alt="delete"> </button>
             </div>
           </SortableList>
           {#if excursions.length < 3}
             <button class="add" on:click={() => showExcursions = true}>{_("add_excursion")}</button>
+          {/if}
+        </div>
+      </div>
+
+      <div class="hotels-block">
+        <div class="block-name">{_("hotels_nearby")}</div>
+        <div class="hotels">
+          <SortableList
+            list={hotels}
+            key="id"
+            on:sort={sortHotels}
+            let:item
+            let:index>
+            <div class="banner-block">
+              <Image src={item.image_url} alt={item.name} />
+              <div class="banner-data">
+                <h4>{item.name}</h4>
+                <span class="price">{item.price} {_("rub")}</span>
+              </div>
+              <button class="delete" on:click={() => deleteHotel(item.id, index)}> <img src="/img/cross.svg" alt="delete"> </button>
+            </div>
+          </SortableList>
+          {#if hotels.length < 3}
+            <button class="add" on:click={() => showHotels = true}>{_("add_hotel")}</button>
           {/if}
         </div>
       </div>
@@ -2332,3 +2440,15 @@
     </div>
   </div>
 {/if}
+
+<HotelsWindow 
+  {showHotels} 
+  {allHotels} 
+  {hotelsCount} 
+  {fetcher} 
+  {hotelsCount} 
+  locations={result_filters.locations} 
+  on:change={addHotel}
+  {_}
+  on:closeWindow={() => showHotels = false}
+/>

@@ -491,6 +491,15 @@
       </div>
     {:else}{_("no_data")}{/if}
 
+    <h2>{_("hotels_nearby")}</h2>
+    {#if result_action.hotels.length}
+      <div class="banner-line">
+        {#each result_action.hotels as hotel}
+          <AdminCard {...hotel} {_} site={hotel.booking_url}/>
+        {/each}
+      </div>
+    {:else}{_("no_data")}{/if}
+
     <!-- <h2>{_('list_of_registered_users')}</h2>
     {#if result_action.subscribers.length !== 0}
       <table>

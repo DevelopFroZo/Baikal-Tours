@@ -358,5 +358,8 @@ export default ( {
   see_all_events:                 "查看所有活动",
   locations_search_not_found:     "查询没有找到事件\"{text}\"",
   events_not_found:               "未找到事件",
-  events_on_card:                 "地图上的事件目录"
+  events_on_card:                 "地图上的事件目录",
+
+  already_added_hotel:            "你已经添加了这次巡演",
+  add_hotel:                      "添加酒店"
 } );        

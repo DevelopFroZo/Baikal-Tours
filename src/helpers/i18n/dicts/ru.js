@@ -354,5 +354,8 @@ export default ( {
   see_all_events:             "Увидеть все события",
   locations_search_not_found: "Не найдено ни одного события по запросу \"{text}\"",
   events_not_found:           "События не найдены",
-  events_on_card:             "Каталог событий на карте"
+  events_on_card:             "Каталог событий на карте",
+
+  already_added_hotel:        "Вы уже добавили этот тур",
+  add_hotel:                  "Добавить отель"
 } );

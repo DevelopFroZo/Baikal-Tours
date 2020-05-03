@@ -2,7 +2,7 @@
     import Image from "/components/imageCenter.svelte";
     import { createEventDispatcher } from "svelte";
 
-    export let id, name, image_url, site, price, href, _, isChange = false, noEvents = false;
+    export let id, name = "", image_url = "", site = "", price, href = "", _, isChange = false, noEvents = false;
 
     const dispatch = createEventDispatcher();
 
@@ -43,6 +43,9 @@
     a{
         color: $Blue;
         display: block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
 
     ul > li:not(:first-child){
