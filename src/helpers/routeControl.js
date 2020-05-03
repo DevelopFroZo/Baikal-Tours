@@ -102,8 +102,11 @@ export default ( server ) => {
   server.delete( "/api/favorites/:id", secureAPI( "admin" ) );
 
   server.post( "/api/excursions", secureAPI( "admin" ) );
+  server.put( "/api/excursions/:id", secureAPI( "admin" ) );
+  server.delete( "/api/excursions/:id", secureAPI( "admin" ) );
   server.post( "/api/excursions/:id/image", secureAPI( "admin" ), upload.single( "image" ) );
-  // #fix добавить PUT, DELETE
+  server.put( "/api/excursions/:id/image", secureAPI( "admin" ), upload.single( "image" ) );
+  server.delete( "/api/excursions/:id/image", secureAPI( "admin" ) );
 
   server.post( "/api/tours", secureAPI( "admin" ) );
   server.post( "/api/tours/:id/image", secureAPI( "admin" ), upload.single( "image" ) );

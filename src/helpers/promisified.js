@@ -1,13 +1,15 @@
 import {
   writeFile as fsWriteFile,
   unlink as fsUnlink,
-  access as fsAccess
+  access as fsAccess,
+  mkdir as fsMkdir
 } from "fs";
 
 export {
   writeFile,
   unlink,
-  access
+  access,
+  mkdir
 };
 
 function writeFile( path, data ){
@@ -33,6 +35,15 @@ function access( path ){
     fsAccess( path, err => {
       if( err ) res( false );
       else res( true );
+    } );
+  } );
+}
+
+function mkdir( path ){
+  return new Promise( ( res, rej ) => {
+    fsMkdir( path, err => {
+      if( err ) rej( err );
+      else res();
     } );
   } );
 }

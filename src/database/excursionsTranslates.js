@@ -14,4 +14,14 @@ export default class extends Foundation{
       [ excursionId, locale, name ]
     );
   }
+
+  async createOrEdit( client, excursionId, locale, name ){
+    await client.query(
+      `insert into excursions_translates( excursion_id, locale, name )
+      values( $1, $2, $3 )
+      on conflict ( excursion_id, locale ) do update
+      set name = excluded.name`,
+      [ excursionId, locale, name ]
+    );
+  }
 }
