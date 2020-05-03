@@ -69,16 +69,8 @@ async function del( {
     return res.json( result );
   }
 
-  const { rows } = await transaction.query(
-    `select *
-    from actions_hotels
-    where
-      action_id = 1
-    order by number`
-  );
-
-  await transaction.query( "rollback" );
+  await transaction.query( "commit" );
   transaction.release();
 
-  res.success( 0, rows );
+  res.success();
 }

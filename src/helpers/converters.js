@@ -151,7 +151,6 @@ function upperFirst( st ){
 function dateToString( date, _ ){
   let result = "";
 
-  // #fix убрать
   if( _ === undefined ) return null;
 
   if( date.date_start ) result += `${upperFirst( _( "date_to_string.start" ) )} ${parseDate( date.date_start )}`;

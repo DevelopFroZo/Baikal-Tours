@@ -9,7 +9,6 @@ export default class extends Foundation{
 
   async getAll(){
     const rows = ( await super.query(
-      // #fix позже ПОМЕНЯТЬ
       `select id, name
       from locations`
     ) ).rows;

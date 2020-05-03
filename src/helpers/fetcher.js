@@ -9,7 +9,6 @@ module.exports = class{
       default: async response => await response.text()
     };
 
-    // #fix сделать нормальный способ передавать свой fetch
     if( fetch_ !== undefined )
       this.fetch = fetch_;
   }

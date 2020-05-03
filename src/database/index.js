@@ -75,7 +75,6 @@ modules.actionsSubjects = new ActionsSubjects( modules );
 modules.actionsTours = new ActionsTours( modules );
 modules.actionsTransfers = new ActionsTransfers( modules );
 
-// #fix вынести на глобальный уровень
 // Success & error functions
 modules.success = ( code, data ) => {
   if( data === undefined ) data = null;

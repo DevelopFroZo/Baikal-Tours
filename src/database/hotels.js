@@ -77,7 +77,6 @@ export async function getById( client, id ){
   return row;
 }
 
-// #fix изменить фотографию
 export async function edit( client, id, { bookingUrl, bookingLocationId, locationId, name, price, rating } ){
   let sets = [];
   const params = [ id ];
