@@ -219,7 +219,6 @@
 
   if (organizer_payment !== null) participation = "organizer";
   else if (site_payment === true) participation = "site";
-  else if (price_min === 0 && price_max === 0) participation = "free";
 
   if (price_min === 0 && price_max === 0) price = "";
   else if (price_min === 0 && price_max !== 0) price = price_max;
@@ -500,14 +499,12 @@
   }
 
   //Вариант участия
-  $: {
-    if (participation === "organizer") {
-      organizer_payment = actionData.organizer_payment;
+  $: if (participation === "organizer") {
+      setOrganizerPayment( actionData.organizer_payment )
       site_payment = false;
-    } else if (participation === "site") {
+    } else {
       site_payment = true;
-      organizer_payment = null;
-    }
+      setOrganizerPayment( null )
   }
 
   //Оплата через организатора
@@ -572,6 +569,10 @@
     });
 
     locations = locations;
+  }
+
+  function setOrganizerPayment(fl){
+    organizer_payment = fl;
   }
 
   async function changeImages() {

@@ -361,5 +361,7 @@ export default ( {
   events_on_card:                 "地图上的事件目录",
 
   already_added_hotel:            "你已经添加了这次巡演",
-  add_hotel:                      "添加酒店"
+  add_hotel:                      "添加酒店",
+
+  organizer_payment_message:      "要注册活动，请访问组织者的网站:"
 } );        

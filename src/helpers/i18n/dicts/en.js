@@ -360,5 +360,7 @@ export default ({
   events_on_card:             "Catalog of events on the map",
 
   already_added_hotel:        "You have already added this tour",
-  add_hotel:                  "Add a hotel"
+  add_hotel:                  "Add a hotel",
+
+  organizer_payment_message:  "To register for an event, go to the organizer's website:"
 });
