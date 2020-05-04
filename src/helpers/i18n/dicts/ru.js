@@ -356,12 +356,14 @@ export default ( {
   events_not_found:           "События не найдены",
   events_on_card:             "Каталог событий на карте",
 
-  already_added_hotel:        "Вы уже добавили этот тур",
+  already_added_hotel:        "Вы уже добавили этот отель",
   add_hotel:                  "Добавить отель",
 
   organizer_payment_message:  "Для регистрации на событие перейдите на сайт организатора:",
-  
+
   user_events:                "События пользователя",
   event_is_paid:              "Событие оплачено",
-  event_is_not_paid:          "Событие не оплачено"
+  event_is_not_paid:          "Событие не оплачено",
+
+  hotel_image:                "Фотография отеля"
 } );

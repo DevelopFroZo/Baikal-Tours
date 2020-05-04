@@ -13,7 +13,8 @@ export {
     validateNewtranslateData,
     setTextTranslation,
     validateActionData,
-    parseTickets
+    parseTickets,
+    formatArrays
 }
 
 function getIds(obj) {
@@ -512,4 +513,53 @@ function parseTickets(oldTickets, newTickets, id, locale) {
     if(newData.del.length === 0) delete newData.del;
 
     return newData;
+}
+
+function formatArrays(newArr, oldArr, key, obj){
+    let newData = {
+        create: [],
+        del: []
+    }
+
+    if(newArr){
+        for(let el of newArr){
+            let bl = true;
+            if(oldArr){
+                for(let oldEl of oldArr){
+                    if(el === oldEl){
+                        bl = false;
+                        break;
+                    }
+                }
+            }
+            if(bl)
+                newData.create.push(el);
+        }
+    }
+
+    if(oldArr){
+        for(let el of oldArr){
+            let bl = true;
+            if(newArr){
+                for(let newEl of newArr){
+                    if(el === newEl){
+                        bl = false;
+                        break;
+                    }
+                }
+            }
+            if(bl)
+                newData.del.push(el);
+        }
+    }
+
+    if(!newData.create.length) delete newData.create;
+    if(!newData.del.length) delete newData.del;
+
+    if(Object.keys(newData).length)
+        obj[key] = newData;
+
+    console.log(obj)
+    
+    return obj;
 }

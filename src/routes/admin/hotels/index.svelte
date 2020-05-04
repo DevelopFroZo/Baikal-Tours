@@ -294,7 +294,7 @@
 <AdminPage {locale} {_} {fetcher} page={4}>
   <div class="head-line">
     <h1>{_('hotels')}</h1>
-    <!-- <a class="green-button" href="/admin/hotels/edit">{_('new_tour')}</a> -->
+    <a class="green-button" href="/admin/hotels/edit">{_('new_tour')}</a>
   </div>
   <div class="filter-block">
     <input

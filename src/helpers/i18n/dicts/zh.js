@@ -367,5 +367,7 @@ export default ( {
 
   user_events:                    "用户事件",
   event_is_paid:                  "事件支付",
-  event_is_not_paid:              "事件未支付"
+  event_is_not_paid:              "事件未支付",
+
+  hotel_image:                    "酒店的照片"
 } );        

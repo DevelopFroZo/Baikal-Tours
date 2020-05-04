@@ -69,7 +69,7 @@
   {#if tours.length > 0}
     <div class="tours-block">
       {#each tours as excursion}
-        <Card {...excursion} {_} href={'/admin/tours/edit'} />
+        <Card {...excursion} {_} href="/admin/tours/edit?id={excursion.id}" />
       {/each}
     </div>
   {:else}
