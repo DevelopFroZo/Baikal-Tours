@@ -7,9 +7,23 @@ import yandexEngineBuilder from "/helpers/translator/engines/yandex";
 import { unlink } from "/helpers/promisified";
 
 export {
+  get,
   put,
   del
 };
+
+async function get( {
+  session: { locale },
+  params: { id },
+  database: { pool, excursions }
+}, res ){
+  const id_ = toInt( id );
+
+  if( id_ === null || id_ < 1 )
+    return res.error( 9 );
+
+  return res.json( await excursions.getById( pool, locale, id_ ) );
+}
 
 async function put( {
   params: { id },
