@@ -450,7 +450,7 @@
         <ul class="categories">
           {#each subjects as subject}
             <li>
-              <a href={`actions?filter&subjects=${subject.id}`}>
+              <a href={`events?filter&subjects=${subject.id}`}>
                 {subject.name}
               </a>
             </li>
