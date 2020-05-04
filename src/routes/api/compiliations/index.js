@@ -68,7 +68,6 @@ export async function post( req, res ){
     else
       translated[ key ] = translator.transformed[ key ];
 
-  // #fix переделать нормально
   const transaction = await req.database.pool.connect();
 
   await transaction.query( "begin" );

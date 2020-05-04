@@ -36,6 +36,27 @@ export default class extends Foundation{
     return super.success( 0, rows );
   }
 
+  async getById( client, locale, id ){
+    const { rows } = await client.query(
+      `select
+      	t.image_url, t.site,
+        t.date_start, t.date_end,
+        t.location_ids,
+        t.price,
+        tt.name
+      from
+      	tours as t,
+        tours_translates as tt
+      where
+        tt.locale = $1 and
+      	t.id = $2 and
+        t.id = tt.tour_id`,
+      [ locale, id ]
+    );
+
+    return rows;
+  }
+
   async filter( locale, dateStart, dateEnd, locationIds ){
     let filters = [];
     const params = [ locale ];
