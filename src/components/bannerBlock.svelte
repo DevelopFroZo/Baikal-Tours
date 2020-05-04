@@ -1,7 +1,7 @@
 <script>
     import Image from "/components/imageCenter.svelte";
 
-    export let image_url, name, site, price, isWork = false, _;
+    export let image_url, name, site, price, isWork = false, _, noFollow = false;
 </script>
 
 <style lang="scss">
@@ -77,7 +77,7 @@
   }
 </style>
 
-<a class="banner-block" href={`https://${site}`} target="_blank" class:isWork>
+<a class="banner-block" href={site} target="_blank" class:isWork rel={noFollow ? "nofollow" : ""}>
   <Image src={image_url} alt={name} />
   <div class="banner-info">
     <h4>{name}</h4>

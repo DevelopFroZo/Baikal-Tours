@@ -111,7 +111,7 @@
     offset: (offset / count) * count,
     count
   };
-  let search;
+  let search = "";
   let activeLocations = "";
 
   $: {

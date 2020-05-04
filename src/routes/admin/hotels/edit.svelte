@@ -149,6 +149,16 @@
       margin-top: 20px;
       display: block;
   }
+
+  .delete-image{
+    position: absolute;
+    top: 0;
+    right: 0;
+
+    & > img{
+      width: 20px;
+    }
+  }
 </style>
 
 <AdminPage {_} {locale} {fetcher} page={4}>
@@ -167,6 +177,7 @@
     </label>
     {#if image_url !== null}
       <div class="image">
+        <button class="delete-image"> <img src="/img/cross.svg" alt="delete" /> </button>
         <img src={image_url} alt="hotel image" />
       </div>
     {/if}

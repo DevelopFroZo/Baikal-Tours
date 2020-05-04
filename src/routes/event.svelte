@@ -566,20 +566,6 @@
         border-radius: 10px;
         overflow: hidden;
         position: relative;
-
-        & h3{
-          position: absolute;
-          top: 30px;
-          left: 0;
-          background: linear-gradient(182.54deg, #FFFFFF 24.24%, #EFEFEF 90.54%);
-          box-shadow: 0px 0px 70px rgba(40, 39, 49, 0.05);
-          border-radius: 0px 10px 10px 0px;
-          padding: 15px 20px;
-          max-width: 425px;
-          z-index: 2;
-          font-size: $Big_Font_Size;
-          font-family: $Playfair;
-        }
       }
     }
   }
@@ -1007,6 +993,98 @@
     }
   }
 
+  .organizer-payment{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #F5F7FA;
+    box-shadow: 0px 0px 70px rgba(40, 39, 49, 0.1);
+    border-radius: 10px;
+    padding: 50px 140px 50px 50px;
+    margin-top: 100px;
+    box-sizing: border-box;
+
+    & > span{
+      font-size: 24px;
+      font-weight: bold;
+      font-family: $Playfair;
+      display: block;
+      width: 565px;
+    }
+
+    & > .organizer-site{
+      display: flex;
+      align-items: center;
+
+      & > .image{
+        width: 30px;
+        height: 30px;
+        border-radius: 100px;
+        background: $Orange_Gradient;
+        box-shadow: 0px 23px 70px rgba(77, 80, 98, 0.1), inset 0px 0px 50px rgba(255, 255, 255, 0.45);
+        position: relative;
+
+        & > img{
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          width: 15px;
+        }
+      }
+
+      & > a{
+        color: $Blue;
+        margin-left: 15px;
+        display: block;
+        max-width: 250px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+    }
+  }
+
+  .hideMap{
+    flex-direction: column;
+    width: 400px;
+    margin: 0 auto;
+
+    & > .contacts-block{
+      width: 100%;
+    }
+  }
+
+  .map-without-coords{
+    margin-left: -10px;
+
+    & > h3{
+      position: static !important;
+      margin-top: 7px;
+      border-radius: 10px !important;
+      max-width: none !important;
+      box-sizing: border-box;
+      display: inline-block;
+    }
+  }
+
+  .location-block {
+    
+    & > h3{
+    position: absolute;
+    top: 30px;
+    left: 0;
+    background: linear-gradient(182.54deg, #FFFFFF 24.24%, #EFEFEF 90.54%);
+    box-shadow: 0px 0px 70px rgba(40, 39, 49, 0.05);
+    border-radius: 0px 10px 10px 0px;
+    padding: 15px 20px;
+    max-width: 425px;
+    z-index: 2;
+    font-size: $Big_Font_Size;
+    font-family: $Playfair;
+    }
+  }
+
   @media only screen and (max-width: 768px) {
     h1 {
       font-size: $Big_Font_Size;
@@ -1099,6 +1177,7 @@
         justify-content: flex-start;
         padding: 0 15px;
         margin-top: 0;
+        width: 100%;
 
         & > .contacts-block{
           padding-top: 0;
@@ -1273,6 +1352,50 @@
         }
       }
     }
+
+    .organizer-payment{
+    padding: 30px 15px;
+    margin-top: 60px;
+    box-sizing: border-box;
+    flex-direction: column;
+    width: 100%;
+    align-items: flex-start;
+
+    & > span{
+      font-size: $Big_Font_Size;
+      width: 100%;
+    }
+
+    & > .organizer-site{
+      margin-top: 30px;
+
+      & > .image{
+        width: 25px;
+        height: 25px;
+
+        & > img{
+          width: 12px;
+        }
+      }
+
+      & > a{
+        margin-left: 20px;
+        max-width: calc(100% - 45px);
+      }
+    }
+  }
+
+  .map-without-coords {
+    margin-left: 0;
+
+    & > h3{
+      margin-top: 20px !important;
+    }
+  }
+
+  .hideMap > .map-block{
+    margin-top: 0 !important;
+  }
   }
 </style>
 
@@ -1388,11 +1511,21 @@
 </div>
 
 <div class="contacts-block">
-  <div class="form-width contacts-and-place">
+  <div class="form-width contacts-and-place" class:hideMap={!coords.length}>
     <div class="contacts-block">
       <div class="contacts">
         <h2>{_('contacts')}</h2>
-
+        {#if result_action.locations && !coords.length}
+          <div class="location-block map-without-coords">
+            <h3>{_('venue')}: 
+            {#each result_action.locations as location}
+              <span>
+                {location.name + (location.address === null ? '' : ', ' + location.address) + "\n"}
+              </span>
+            {/each}
+            </h3>
+          </div>
+          {/if}
           {#if result_action.emails !== null}
           <div class="line" class:contacts-flex={result_action.emails.length > 0}>
             <div class="img-block">
@@ -1492,38 +1625,41 @@
       </div>
     </div>
     <div class="map-block">
-      <div class="map">
-        <div class="location-block">
-          <h3>{_('venue')}: 
-          {#each result_action.locations as location}
-            <span>
-              {location.name + (location.address === null ? '' : ', ' + location.address)}
-            </span>
-          {/each}
-          </h3>
+      {#if coords.length}
+        <div class="map">
+          <div class="location-block">
+            <h3>{_('venue')}: 
+            {#each result_action.locations as location}
+              <span>
+                {location.name + (location.address === null ? '' : ', ' + location.address)}
+              </span>
+            {/each}
+            </h3>
+          </div>
+          <YandexMap
+            {apiKey}
+            {customIcon}
+            center={[ 52.285725130459866, 104.28156685575135 ]}
+            staticPlacemarks={coords}
+          />
         </div>
-        {#if coords.length}
-        <YandexMap
-          {apiKey}
-          {customIcon}
-          center={[ 52.285725130459866, 104.28156685575135 ]}
-          staticPlacemarks={coords}
-        />
-        {/if}
-      </div>
+      {/if}
       <div class="share">
         {_('share')}
-        <a
-          class="twitter-share-button"
-          href="https://twitter.com/intent/tweet?text={twitterHref}"
-          target="_blank">
-          <img src="/img/twitter-grey.svg" alt="twitter" />
-        </a>
-        <a
-          href="https://www.facebook.com/sharer/sharer.php?u={facebookHref}"
-          target="_blank">
-          <img src="/img/facebook-grey.svg" alt="facebook" />
-        </a>
+        <div>
+          <a
+            class="twitter-share-button"
+            href="https://twitter.com/intent/tweet?text={twitterHref}"
+            target="_blank">
+            <img src="/img/twitter-grey.svg" alt="twitter" />
+          </a>
+          <a
+            href="https://www.facebook.com/sharer/sharer.php?u={facebookHref}"
+            target="_blank">
+            <img src="/img/facebook-grey.svg" alt="facebook" />
+          </a>
+        </div>
+        
         {@html vkHref}
       </div>
     </div>
@@ -1532,120 +1668,114 @@
 
 <div class="form-width" bind:this={registerBlock}>
   {#if $session.isLogged}
-    <div class="register-center">
-      <div class="register-form">
-        <div class="register-info-blocks">
-          <div class="inputs-block" class:only-inputs={result_action.buyable.length === 0}>
-            <div class="input-block">
-              <input type="text" bind:value={userName} placeholder={_("name")}/>
-              <div class="img-block">
-                <img src="/img/user-black.svg" alt="user">
-              </div>
-            </div>
-            <div class="input-block">
-              <input type="text" bind:value={surname} placeholder={_("surname")}/>
-              <div class="img-block">
-                <img src="/img/user-black.svg" alt="user">
-              </div>
-            </div>
-            <div class="input-block">
-              <input
-                type="text"
-                bind:value={userPhone}
-                on:keydown={validatePhone} 
-                placeholder={_("phone")}/>
-              <div class="img-block">
-                <img src="/img/phone-call.svg" alt="phone">
-              </div>
-            </div>
-            <div class="input-block">
-              <input type="text" bind:value={userMail} placeholder="e-mail"/>
-              <div class="img-block">
-                <img src="/img/mail.svg" alt="e-mail">
-              </div>
-            </div>
-            {#if showDateChange}
-              <div class="input-block">
-                <input type="date" bind:value={userDate}/>
-                <div class="img-block">
-                  <img src="/img/calendar.png" alt="date">
-                </div>
-              </div>
-            {/if}
+    {#if result_action.organizer_payment && result_action.organizer_payment.length}
+      <div class="organizer-payment">
+        <span>{_("organizer_payment_message")}</span>
+        <div class="organizer-site">
+          <div class="image">
+            <img src="/img/internet.svg" alt="organizer site">
           </div>
-          
-          {#if tickets.length > 0}
-          <div class="register-categoty-block">
-            <h2>{_('ticket_categories')}</h2>
-            <div class="tickets-block">
-              {#each tickets as ticket}
-                <div class="ticket-block">
-                  <div>
-                    <div>{ticket.name}</div>
-                    <div class="ticket-price">{ticket.price} {_('rub')}</div>
-                  </div>
-                  <div class="counter">
-                    <button on:click={() => ticket.count = ticket.count - 1 < 0 ? 0 : ticket.count - 1 }>-</button>
-                    <div class="couter-value">{ticket.count}</div>
-                    <button on:click={() => ticket.count++}>+</button>
-                  </div>
-                </div>
-              {/each}
-            </div>
-          </div>
-          {/if}
-
-          {#if additionals.length > 0}
-          <div class="register-categoty-block">
-            <h2>{_('additionally')}</h2>
-            <div class="tickets-block">
-              {#each additionals as ticket}
-                <div class="ticket-block">
-                  <div>
-                    <div>{ticket.name}</div>
-                    <div class="ticket-price">{ticket.price} {_('rub')}</div>
-                  </div>
-                  <div class="counter">
-                    <button on:click={() => ticket.count = ticket.count - 1 < 0 ? 0 : ticket.count - 1}>-</button>
-                    <div class="couter-value">{ticket.count}</div>
-                    <button on:click={() => ticket.count++}>+</button>
-                  </div>
-                </div>
-              {/each}
-            </div>
-          </div>
-          {/if}
-        </div>
-        <hr />
-        <div class="final-price-block">
-          {#if tickets.length}
-            <div class="total-price">{_("total")}<span>{total} {_('rub')}</span></div>
-          {/if}
-          <button class="register-button" on:click={subscribeUser} disabled={disabled}>
-            {!tickets.length ? _('register') : _("buy_tickets")}
-          </button>
+          <a href={result_action.organizer_payment}>{result_action.organizer_payment}</a>
         </div>
       </div>
-    </div>
-  {/if}
+    {:else}
+      <div class="register-center">
+        <div class="register-form">
+          <div class="register-info-blocks">
+            <div class="inputs-block" class:only-inputs={result_action.buyable.length === 0}>
+              <div class="input-block">
+                <input type="text" bind:value={userName} placeholder={_("name")}/>
+                <div class="img-block">
+                  <img src="/img/user-black.svg" alt="user">
+                </div>
+              </div>
+              <div class="input-block">
+                <input type="text" bind:value={surname} placeholder={_("surname")}/>
+                <div class="img-block">
+                  <img src="/img/user-black.svg" alt="user">
+                </div>
+              </div>
+              <div class="input-block">
+                <input
+                  type="text"
+                  bind:value={userPhone}
+                  on:keydown={validatePhone} 
+                  placeholder={_("phone")}/>
+                <div class="img-block">
+                  <img src="/img/phone-call.svg" alt="phone">
+                </div>
+              </div>
+              <div class="input-block">
+                <input type="text" bind:value={userMail} placeholder="e-mail"/>
+                <div class="img-block">
+                  <img src="/img/mail.svg" alt="e-mail">
+                </div>
+              </div>
+              {#if showDateChange}
+                <div class="input-block">
+                  <input type="date" bind:value={userDate}/>
+                  <div class="img-block">
+                    <img src="/img/calendar.png" alt="date">
+                  </div>
+                </div>
+              {/if}
+            </div>
 
-  <!-- <div class="banners-block">
-    <div class="banners-info">
-      <h2>{_('hotels_nearby')}</h2>
-      <a href="/" target="_blank">{_('more_hotels')}</a>
-    </div>
-    <div class="banners">
-      {#each [1,2,3] as bn}
-        <div class="banner-block">
-          <img src="/img/test.png" alt="hotel" />
-          <div class="banner-info">
-            <h4>Гостиница Виктория</h4>
-            <span class="price">от 1500 {_("rub")}</span>
+            {#if tickets.length > 0}
+            <div class="register-categoty-block">
+              <h2>{_('ticket_categories')}</h2>
+              <div class="tickets-block">
+                {#each tickets as ticket}
+                  <div class="ticket-block">
+                    <div>
+                      <div>{ticket.name}</div>
+                      <div class="ticket-price">{ticket.price} {_('rub')}</div>
+                    </div>
+                    <div class="counter">
+                      <button on:click={() => ticket.count = ticket.count - 1 < 0 ? 0 : ticket.count - 1 }>-</button>
+                      <div class="couter-value">{ticket.count}</div>
+                      <button on:click={() => ticket.count++}>+</button>
+                    </div>
+                  </div>
+                {/each}
+              </div>
+            </div>
+            {/if}
+
+            {#if additionals.length > 0}
+            <div class="register-categoty-block">
+              <h2>{_('additionally')}</h2>
+              <div class="tickets-block">
+                {#each additionals as ticket}
+                  <div class="ticket-block">
+                    <div>
+                      <div>{ticket.name}</div>
+                      <div class="ticket-price">{ticket.price} {_('rub')}</div>
+                    </div>
+                    <div class="counter">
+                      <button on:click={() => ticket.count = ticket.count - 1 < 0 ? 0 : ticket.count - 1}>-</button>
+                      <div class="couter-value">{ticket.count}</div>
+                      <button on:click={() => ticket.count++}>+</button>
+                    </div>
+                  </div>
+                {/each}
+              </div>
+            </div>
+            {/if}
+          </div>
+          <hr />
+          <div class="final-price-block">
+            {#if tickets.length}
+              <div class="total-price">{_("total")}<span>{total} {_('rub')}</span></div>
+            {/if}
+            <button class="register-button" on:click={subscribeUser} disabled={disabled}>
+              {!tickets.length ? _('register') : _("buy_tickets")}
+            </button>
           </div>
         </div>
-      {/each}
-    </div>
-  </div> -->
+      </div>
+    {/if}
+  {/if}
 
   {#if result_action.excursions.length > 0}
     <div class="banners-block">
@@ -1673,6 +1803,20 @@
       {/each}
     </div>
   </div>
+  {/if}
+
+  {#if result_action.hotels.length}
+    <div class="banners-block">
+      <div class="banners-info">
+        <h2>{_('hotels')}</h2>
+        <a href="https://fanatbaikala.ru/tours" target="_blank">{_('more_hotels')}</a>
+      </div>
+      <div class="banners">
+        {#each result_action.hotels as hotel}
+          <BannerBlock {...hotel} {_} site={hotel.booking_url} noFollow={true}/>
+        {/each}
+      </div>
+    </div>
   {/if}
 
   <div class="similar-events-block">

@@ -357,5 +357,14 @@ export default ({
   see_all_events:             "See all events",
   locations_search_not_found: "No events found for the query \"{text}\"",
   events_not_found:           "Events not found",
-  events_on_card:             "Catalog of events on the map"
+  events_on_card:             "Catalog of events on the map",
+
+  already_added_hotel:        "You have already added this tour",
+  add_hotel:                  "Add a hotel",
+
+  organizer_payment_message:  "To register for an event, go to the organizer's website:",
+
+  user_events:                "User events",
+  event_is_paid:              "Event paid",
+  event_is_not_paid:          "Event not paid for"
 });
