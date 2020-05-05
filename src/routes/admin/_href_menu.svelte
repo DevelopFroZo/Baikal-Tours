@@ -129,7 +129,7 @@
   <a
     class="category-href"
     class:active-page={page === 6}
-    href="./admin/compiliations">
+    href="./admin/selections">
     {_("selections")}
   </a>
   <a

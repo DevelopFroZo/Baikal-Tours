@@ -120,6 +120,7 @@
   import Loading from "/components/adminLoadingWindow.svelte";
   import YandexMap from "/components/yandexMap/index.svelte";
   import HotelsWindow from "./_hotels_window.svelte";
+  import UsersBlock from "./_users_window.svelte";
 
   export let actionId,
     result_filters,
@@ -379,10 +380,25 @@
   //Организатор из пользователей
   $: {
     if(organizer_ids === null || organizer_ids.length === 0)
-      organizer_ids = [null];
+      organizer_ids = [{id: null, isVisible: false}];
+
+    for(let i = 0; i <  organizer_ids.length; i++)
+      if(typeof organizer_ids[i] !== "object")
+        organizer_ids[i] = {
+          id: organizer_ids[i],
+          isVisible: false
+        }
+
+      
+
     
+    let ids = [];
+    for(let { id } of organizer_ids)
+      if(id)
+        ids.push(id)
+
     newData = edit.validateEditArray(
-      organizer_ids.filter(el => el !== null),
+      ids,
       actionData.organizer_ids,
       "organizer_ids",
       newData
@@ -1135,6 +1151,20 @@
     locations[locationIndex].address = null;
     locations[locationIndex].coords = null;
   }
+
+  function getOrganizerNameById(id){
+    for(let organizer of result_users){
+      if(organizer.id === id){
+        let name = "";
+        if(organizer.name && organizer.surname)
+          name = `${organizer.name} ${organizer.surname}`
+        else name = organizer.email;
+        return name;
+      }
+    }
+
+    return "";
+  }
 </script>
 
 <style lang="scss">
@@ -1188,7 +1218,19 @@
     top: 5px;
     right: 5px;
     z-index: 2;
-    font-size: 30px;
+    background: white;
+    border-radius: 100px;
+    width: 20px;
+    height: 20px;
+    overflow: hidden;
+
+    & > img{
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 10px;
+    }
   }
 
   .block-name {
@@ -1568,18 +1610,37 @@
     align-items: center;
     margin-top: 8px;
     height: 24px;
-    overflow: hidden;
+    position: relative;
 
     & > .add-оrganizer{
       font-size: 25px;
     }
 
-    & > button{
+    & > button:not(.organizer-user){
       margin-left: 10px;
     }
 
-    & > select{
+    & > .organizer-user{
       margin-top: 0;
+      border: 1px solid $Gray;
+      padding: 3px;
+      width: 400px;
+      text-align: left;
+      height: 24px;
+      position: relative;
+
+      &:before{
+        position: absolute;
+        top: 50%;
+        right: 5px;
+        transform: translateY(-50%) rotate(90deg);
+        width: 17px;
+        height: 8px;
+        background-image: url("../img/next.svg");
+        background-size: 100% 100%;
+        content: "";
+        display: block;
+      }
     }
   }
 
@@ -1710,7 +1771,7 @@
       {#each images as img, i}
         <div class="img-block">
           <div class="img" class:imp={img.is_main}>
-            <button on:click={() => deleteImg(i, img.id)}>×</button>
+            <button on:click={() => deleteImg(i, img.id)}> <img src="/img/cross.svg" alt="delete"> </button>
             <img
               src={img.image_url}
               alt="image"
@@ -1725,7 +1786,7 @@
       {#each newImages as img, i}
         <div class="img-block">
           <div class="img" class:imp={i === mainImg}>
-            <button on:click={() => deleteNewImg(i, img.id)}>×</button>
+            <button on:click={() => deleteNewImg(i, img.id)}> <img src="/img/cross.svg" alt="delete"> </button>
             <img
               src={URL.createObjectURL(img.src)}
               alt="image"
@@ -2003,15 +2064,18 @@
         <label for="organisator-user">{_('organizer_from_user')}</label>
           {#each organizer_ids as organizer, i}
             <div class="organizer-line">
-              <select name="organisation-user" bind:value={organizer}>
-                <option value={null} />
-                {#each result_users as user}
-                  <option value={user.id}>{user.name} {user.surname}</option>
-                {/each}
-              </select>
+              <button class="organizer-user" bind:this={organizer.btn} on:click={() => organizer.isVisible = true}>{getOrganizerNameById(organizer.id)}</button>
+              <ClickOutside on:clickoutside={() => organizer.isVisible = false} exclude={[organizer.btn]}>
+                {#if organizer.isVisible}
+                  <UsersBlock {result_users} {_} {fetcher} id={organizer.id} {organizer_ids} on:changeUser={(e) => {
+                    organizer.id = e.detail.id;
+                    organizer.isVisible = false;
+                  }}/>
+                {/if}
+              </ClickOutside>
               <button class="delete" on:click={() => {organizer_ids.splice(i, 1); organizer_ids = organizer_ids}}>×</button>
               {#if i === organizer_ids.length - 1}
-                <button class="add-оrganizer" on:click={() => {organizer_ids.push(null); organizer_ids = organizer_ids}}>+</button>
+                <button class="add-оrganizer" on:click={() => {organizer_ids.push({id: null, isVisible: false}); organizer_ids = organizer_ids}}>+</button>
               {/if}
             </div>
           {/each}

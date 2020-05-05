@@ -44,6 +44,7 @@
       font-size: $Medium_Font_Size;
       color: rgba(52, 53, 63, 0.7);
       width: 205px;
+      margin-top: 10px;
     }
   }
 
@@ -74,6 +75,19 @@
     align-items: center;
     justify-content: end;
     margin-top: 10px;
+    
+    & > span{
+      background: linear-gradient(0deg, #f5822a, #f04a30);
+      font-weight: 600;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-size: $LowMedium_Font_Size;
+      text-transform: uppercase;
+    }
+
+    & > img{
+      width: 158px;
+    }
   }
 
   .underline {
@@ -93,6 +107,10 @@
     font-size: $LowBig_Font_Size;
     font-weight: normal;
     color: #4d5062;
+  }
+
+  h5{
+    letter-spacing: 0.1em;
   }
 
   .mail {
@@ -173,7 +191,7 @@
     <div class="left-side">
       <h5>{_('event_calendar').toUpperCase()}</h5>
       <div class="logo-images">
-        <img src="/img/ot.png" alt="from" />
+        <span>{_("from")}</span>
         <img src="img/logo.png" alt="logo.png" />
       </div>
       <p>{_('event_calendar_info')}</p>

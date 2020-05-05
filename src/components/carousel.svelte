@@ -14,9 +14,7 @@
     if (swiper !== null) {
       swiper.update();
       swiper.slideTo(0, 750);
-      swiper.destroy();
-    } 
-    swiper = new Swiper(carouselBlock, data);
+    } else swiper = new Swiper(carouselBlock, data);
 
     hideButtons = carouselData.length < swiper.params.slidesPerGroup
   }

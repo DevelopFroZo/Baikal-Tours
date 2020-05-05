@@ -35,7 +35,7 @@
 <a
   class="selection-block swiper-slide"
   style="width: {width}px; height: {height}px;"
-  href={`/compiliation/${url}`}>
+  href={`/selected/${url}`}>
   <p>{name}</p>
   <Image src={image_url} alt={name} />
 </a>

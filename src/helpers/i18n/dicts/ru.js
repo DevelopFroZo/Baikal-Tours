@@ -365,5 +365,10 @@ export default ( {
   event_is_paid:              "Событие оплачено",
   event_is_not_paid:          "Событие не оплачено",
 
-  hotel_image:                "Фотография отеля"
+  hotel_image:                "Фотография отеля",
+
+  added_organizer:            "Вы уже добавили этого организатора",
+  required_fields_message:    "Заполните все обязательные поля",
+  change_one_ticket:          "Выберите хотя бы один билет",
+  full_site_name:             "Календарь событий на Байкале от Фаната Байкала"
 } );

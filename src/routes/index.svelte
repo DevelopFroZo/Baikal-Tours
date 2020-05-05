@@ -136,7 +136,6 @@
       height: 100%;
       transform: translate(-50%, -50%);
       z-index: -1;
-      filter: brightness(90%);
     }
   }
 
@@ -375,6 +374,18 @@
     }
   }
 
+  .top-text{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.6) 69.79%, rgba(255, 255, 255, 0) 83.33%);
+    background-blend-mode: lighten, normal;
+
+  }
+
   @media only screen and (max-width: 768px) {
     .top-block {
       background: linear-gradient(
@@ -540,11 +551,13 @@
 
 <Header {locale} {mobile} />
 <div class="top-block">
+  <div class="top-text">
+    <h1>
+      {_('quiz_text')}
+      <span>{_('on_four_clicks')}</span>
+    </h1>
+  </div>
   <img src="/img/index-top.png" alt={_('main_text')} />
-  <h1>
-    {_('quiz_text')}
-    <span>{_('on_four_clicks')}</span>
-  </h1>
 </div>
 
 <div class="form-width">

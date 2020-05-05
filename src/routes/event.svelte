@@ -2,6 +2,7 @@
   import Fetcher from "/helpers/fetcher.js";
   import { parseDate } from "/helpers/parsers.js";
   import { isMobile } from "/helpers/validators.js";
+  import { getRundomObjects } from "/helpers/edit.js";
 
   export async function preload(page, session) {
     const fetcher = new Fetcher(this.fetch);
@@ -15,6 +16,76 @@
 
     if (result_action.ok){
       result_action = result_action.data;
+      let locationIds = [];
+
+      if(result_action.excursions.length < 3 || result_action.excursions.length < 3 || result_action.tours.length < 3){
+        let findedLocations = [];
+        for(let { location_id } of result_action.locations)
+          if(findedLocations[location_id] === undefined){
+            locationIds.push(location_id);
+            findedLocations[location_id] = location_id;
+          }
+      }
+
+      if(result_action.excursions.length < 3){
+        let excursions;
+        
+        if(locationIds.length){
+          excursions = (await fetcher.get(`/api/excursions`, {
+            credentials: "same-origin",
+            query: {
+              filter: "",
+              locationIds,
+            }
+          })).data.filter(el => result_action.excursions.length ? result_action.excursions.some(ex => el.id !== ex.id) : true);
+        }
+        else
+          excursions = (await fetcher.get(`api/excursions`, {
+            credentials: "same-origin"
+          }))
+
+        result_action.excursions = [...result_action.excursions, ...getRundomObjects(result_action.excursions.length, 3, excursions)];
+      }
+
+      if(result_action.tours.length < 3){
+        let tours;
+
+        if(locationIds.length){
+          tours = (await fetcher.get(`/api/tours`, {
+            credentials: "same-origin",
+            query: {
+              filter: "",
+              locationIds,
+            }
+          })).data.filter(el => result_action.tours.length ? result_action.tours.some(ex => el.id !== ex.id) : true);
+        }
+        else
+          tours = (await fetcher.get(`api/tours`, {
+            credentials: "same-origin"
+          }))
+
+        result_action.tours = [...result_action.tours, ...getRundomObjects(result_action.tours.length, 3, tours)];
+      }
+
+      if(result_action.hotels.length < 3){
+        let hotels;
+
+        if(locationIds.length){
+          hotels = (await fetcher.get(`/api/hotels`, {
+            credentials: "same-origin",
+            query: {
+              filter: "",
+              locationIds,
+            }
+          })).hotels.filter(el => result_action.hotels.length ? result_action.hotels.some(ex => el.id !== ex.id) : true);
+        }
+        else
+          hotels = (await fetcher.get(`api/hotels`, {
+            credentials: "same-origin"
+          }))
+
+        result_action.hotels = [...result_action.hotels, ...getRundomObjects(result_action.hotels.length, 3, hotels)];
+      }
 
       let firstSimilarDate = new Date(result_action.dates[0].date_start);
       firstSimilarDate.setDate(firstSimilarDate.getDate() + 1);
@@ -78,7 +149,6 @@
     surname = "",
     userPhone = "",
     userMail = "",
-    disabled = true,
     actionsParams,
     start = false,
     vkHref,
@@ -97,7 +167,8 @@
     userDate = "",
     showDateChange = true,
     dates = result_action.dates,
-    coords = [];
+    coords = [],
+    requiredField = false;
 
   $: {
     total = 0;
@@ -123,10 +194,6 @@
 
   $: ticketsWithCount = tickets.filter(el => el.count);
   $: additionalsWithCount = additionals.filter(el => el.count);
-
-  $: if (userName !== "" && userPhone !== "" && validateMail(userMail) && surname !== "" && userDate !== "")
-      disabled = tickets.length ? !ticketsWithCount.length : false;
-     else disabled = true;
   
   $: {
     let date = new Date(userDate);
@@ -147,7 +214,6 @@
     surname = "";
     userPhone = "";
     userMail = "";
-    disabled = true;
     tickets = [];
     additionals = [];
     ticketsWithCount = [];
@@ -155,7 +221,8 @@
     showBuyWindow = false;
     userDate = "";
     total = 0;
-    showDateChange = true;;
+    showDateChange = true;
+    requiredField = false;
 
     transfers = [];
     for(let transfer of result_action.transfers)
@@ -168,7 +235,7 @@
 
     showDateChange = !(result_action.dates.length === 1 && result_action.dates[0].date_start === result_action.dates[0].date_end);
 
-    if(!showDateChange)
+    if(!showDateChange || !result_action.buyable.length)
       userDate = result_action.dates[0].date_start === null ? result_action.dates[0].date_end : result_action.dates[0].date_start;
 
     for(let ticket of result_action.buyable)
@@ -208,6 +275,33 @@
   }
   
   async function subscribeUser() {
+    requiredField = false;
+
+    let required = [userName, surname, userPhone, userMail];
+    for(let req of required)
+      if(!req.length){
+        alert(_("required_fields_message"))
+        requiredField = true;
+        return;
+      }
+
+    if(tickets.length && showDateChange && !userDate.length){
+      alert(_("required_fields_message"))
+      requiredField = true;
+      return;
+    }
+
+    if(!validateMail(userMail)){
+      alert(_("uncorrect_mail"))
+      requiredField = true;
+      return;
+    }
+
+    if(tickets.length && !ticketsWithCount.length){
+      alert(_("change_one_ticket"))
+      return;
+    }
+
     let reservationData = {
       userId: Number(userId),
       actionId: Number(actionId),
@@ -230,8 +324,12 @@
 
     let reservationResult = await fetcher.post(`/api/actionReservations`, reservationData);
 
-    if(reservationResult.ok)
-      showBuyWindow = true;
+    if(reservationResult.ok){
+      if(additionalsWithCount.length || ticketsWithCount.length)
+        showBuyWindow = true;
+      else
+        alert(_("action_register_success"))
+    }
   }
 
   function startEditor(){
@@ -411,10 +509,6 @@
     color: white;
     font-size: $LowBig_Font_Size;
     transition: 0.3s;
-
-    &:disabled {
-      opacity: 0.3;
-    }
   }
 
   ul {
@@ -612,7 +706,7 @@
 
     & > .banners {
       display: grid;
-      grid-template-columns: repeat(3, auto);
+      grid-template-columns: repeat(3, 390px);
       justify-content: space-between;
       margin-top: 40px;
     }
@@ -1085,6 +1179,27 @@
     }
   }
 
+  .requiredField{
+    
+    & > input{
+      border: 1px solid #ED2D33aa;
+      box-sizing: border-box;
+    }
+
+    &:before{
+      display: block;
+      content: "*";
+      color: #ED2D33aa;
+      position: absolute;
+      top: 50%;
+      left: -30px;
+      transform: translateY(-50%);
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+  }
+
   @media only screen and (max-width: 768px) {
     h1 {
       font-size: $Big_Font_Size;
@@ -1314,6 +1429,7 @@
         overflow-x: scroll;
         grid-column-gap: 10px;
         justify-content: left;
+        grid-template-columns: repeat(3, 210px);
       }
     }
 
@@ -1396,11 +1512,18 @@
   .hideMap > .map-block{
     margin-top: 0 !important;
   }
+
+  .requiredField{
+    &:before{
+      content: "*";
+      left: -20px;
+    }
+  }
   }
 </style>
 
 <svelte:head>
-  <title>{result_action.title === null ? result_action.name : result_action.title}</title>
+  <title>{result_action.title === null ? result_action.name : result_action.title} | {_("full_site_name")}</title>
 
   <script
     type="text/javascript"
@@ -1683,19 +1806,19 @@
         <div class="register-form">
           <div class="register-info-blocks">
             <div class="inputs-block" class:only-inputs={result_action.buyable.length === 0}>
-              <div class="input-block">
+              <div class="input-block" class:requiredField={requiredField && !userName.length}>
                 <input type="text" bind:value={userName} placeholder={_("name")}/>
                 <div class="img-block">
                   <img src="/img/user-black.svg" alt="user">
                 </div>
               </div>
-              <div class="input-block">
+              <div class="input-block" class:requiredField={requiredField && !surname.length}>
                 <input type="text" bind:value={surname} placeholder={_("surname")}/>
                 <div class="img-block">
                   <img src="/img/user-black.svg" alt="user">
                 </div>
               </div>
-              <div class="input-block">
+              <div class="input-block" class:requiredField={requiredField && !userPhone.length}>
                 <input
                   type="text"
                   bind:value={userPhone}
@@ -1705,14 +1828,14 @@
                   <img src="/img/phone-call.svg" alt="phone">
                 </div>
               </div>
-              <div class="input-block">
+              <div class="input-block" class:requiredField={requiredField && ( !validateMail(userMail) || !userMail.length)}>
                 <input type="text" bind:value={userMail} placeholder="e-mail"/>
                 <div class="img-block">
                   <img src="/img/mail.svg" alt="e-mail">
                 </div>
               </div>
-              {#if showDateChange}
-                <div class="input-block">
+              {#if showDateChange && (tickets.length || additionals.length)}
+                <div class="input-block" class:requiredField={requiredField && !userDate.length}>
                   <input type="date" bind:value={userDate}/>
                   <div class="img-block">
                     <img src="/img/calendar.png" alt="date">
@@ -1765,11 +1888,11 @@
           </div>
           <hr />
           <div class="final-price-block">
-            {#if tickets.length}
+            {#if tickets.length || additionalsWithCount.length}
               <div class="total-price">{_("total")}<span>{total} {_('rub')}</span></div>
             {/if}
-            <button class="register-button" on:click={subscribeUser} disabled={disabled}>
-              {!tickets.length ? _('register') : _("buy_tickets")}
+            <button class="register-button" on:click={subscribeUser}>
+              {!tickets.length && !additionalsWithCount.length ? _('register') : _("buy_tickets")}
             </button>
           </div>
         </div>

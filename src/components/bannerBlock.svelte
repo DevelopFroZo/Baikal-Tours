@@ -81,6 +81,8 @@
   <Image src={image_url} alt={name} />
   <div class="banner-info">
     <h4>{name}</h4>
-    <span class="price">{price}{_('rub')}</span>
+    {#if price}
+      <span class="price">{price}{_('rub')}</span>
+    {/if}
   </div>
 </a>
