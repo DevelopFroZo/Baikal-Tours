@@ -44,9 +44,9 @@
 
   header {
     background-color: white;
-    padding: 20px 40px;
+    padding: 20px 50px;
     box-sizing: border-box;
-    position: fixed;
+    position: absolute;
     border-radius: 10px;
     box-shadow: 0px 0px 70px rgba(40, 39, 49, 0.1);
     top: 40px;
@@ -56,16 +56,22 @@
   }
 
   .header-name {
-    padding: 0 15px;
     display: inline-block;
 
     & > div {
       display: flex;
       align-items: center;
       justify-content: flex-end;
+      background: linear-gradient(0deg, #f5822a, #f04a30);
+      font-weight: 600;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-size: $LowMedium_Font_Size;
+      text-transform: uppercase;
 
-      & > img:last-child {
-        margin-left: 6px;
+      & > .logo{
+        width: 156px;
+        margin-left: 15px;
       }
     }
   }
@@ -77,6 +83,7 @@
     font-weight: normal;
     font-family: $Gilroy;
     margin-bottom: 10px;
+    letter-spacing: 0.1em;
   }
 
   .line {
@@ -254,7 +261,9 @@
       display: none;
     }
 
-    
+    header{
+      padding: 20px 30px !important;
+    }
 
     .page-name {
       margin-left: 0;
@@ -357,6 +366,15 @@
     .categories-block {
       width: 100%;
     }
+
+    .logo{
+      width: 121px !important;
+      margin-left: 7px !important;
+    }
+
+    .header-name > div{
+      font-size: $LowMedium_Font_Size;
+    }
   }
 </style>
 
@@ -365,8 +383,8 @@
     <a class="header-name" href="./events">
       <h2>{_('event_calendar')}</h2>
       <div>
-        <img src="img/ot.png" alt="от" />
-        <img src="img/logo.png" alt="logo" />
+        {_("from")}
+        <img src="img/logo.png" alt="logo" class="logo"/>
       </div>
     </a>
     <div class="language">
@@ -450,7 +468,7 @@
         <ul class="categories">
           {#each subjects as subject}
             <li>
-              <a href={`actions?filter&subjects=${subject.id}`}>
+              <a href={`events?filter&subjects=${subject.id}`}>
                 {subject.name}
               </a>
             </li>
@@ -462,7 +480,7 @@
         <ul class="compiliations">
           {#each compiliations as compiliation}
             <li>
-              <a href={`/compiliation/${compiliation.url}`}>
+              <a href={`/selected/${compiliation.url}`}>
                 <div class="img">
                   <Image src={compiliation.image_url} alt={compiliation.name} />
                 </div>

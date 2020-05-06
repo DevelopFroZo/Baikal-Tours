@@ -80,5 +80,7 @@
   <ul class="locations">
     <li>{_('price')}: {price}{_('rub')}</li>
   </ul>
-  <!-- <a {href} class="edit">{_('edit')}</a> -->
+  {#if href.length}
+    <a {href} class="edit">{_('edit')}</a>
+  {/if}
 </div>

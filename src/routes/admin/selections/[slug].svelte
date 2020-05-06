@@ -138,7 +138,7 @@
 </svelte:head>
 
 <AdminPage {fetcher} {locale} {_} page={6}>
-  <a href="/admin/compiliations" class="back-page">
+  <a href="/admin/selections" class="back-page">
     {_('return_to_compiliations')}
   </a>
   <div class="compiliation-block">

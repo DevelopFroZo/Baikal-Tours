@@ -8,10 +8,10 @@
     let excursion_data = {
       name: "",
       site: "",
-      dateStart: "",
-      dateEnd: "",
-      locationIds: [],
-      image: {},
+      date_start: "",
+      date_end: "",
+      location_ids: [],
+      image_url: null,
       price: null
     };
 
@@ -19,8 +19,12 @@
       credentials: "same-origin"
     })).data.locations;
 
-    if (id !== undefined) {
-      // получение данных об экскурсии
+    if (id) {
+      excursion_data = (await fetcher.get(`/api/excursions/${id}`, {
+        credentials: "same-origin"
+      }))[0];
+
+      console.log(excursion_data);
     }
 
     return { locale, id, excursion_data, ...excursion_data, locations };
@@ -33,17 +37,18 @@
   import * as edit from "/helpers/edit.js";
   import ClickOutside from "/components/clickOutside.svelte";
   import Loading from "/components/adminLoadingWindow.svelte";
+  import { parseDate } from "/helpers/parsers.js";
 
   export let locale,
     id,
     excursion_data,
     name,
     site,
-    dateStart,
-    dateEnd,
-    locationIds,
+    date_start,
+    date_end,
+    location_ids,
     price,
-    image,
+    image_url,
     locations;
 
   const _ = i18n(locale);
@@ -53,10 +58,16 @@
     editData = {},
     deleteData = {},
     uploadImg,
-    newImage = Object.keys(image).length === 0,
+    newImage = image_url === null,
     options = [{ isVisible: false, option: null, btn: null }],
     locationsNames = "",
     save;
+
+  location_ids = edit.cloneArray(excursion_data.location_ids);
+
+  // $: console.log("edit:\n", editData);
+  // $: console.log("delete:\n", deleteData);
+  // $: console.log("new:\n", newData);
 
   //Имя
   $: {
@@ -108,9 +119,15 @@
 
   //Дата начала
   $: {
+    let isoDate = "";
+    if (date_start && date_start.length) {
+      date_start = parseDate(new Date(date_start));
+      isoDate = new Date(date_start).toISOString();
+    }
+
     let data = edit.validateNewData(
-      dateStart,
-      excursion_data.dateStart,
+      isoDate,
+      excursion_data.date_start,
       "dateStart",
       {}
     );
@@ -128,9 +145,15 @@
 
   //Дата окончания
   $: {
+    let isoDate = "";
+    if (date_end && date_end.length) {
+      date_end = parseDate(new Date(date_end));
+      isoDate = new Date(date_end).toISOString();
+    }
+
     let data = edit.validateNewData(
-      dateEnd,
-      excursion_data.dateEnd,
+      isoDate,
+      excursion_data.date_end,
       "dateEnd",
       {}
     );
@@ -148,36 +171,31 @@
 
   //Локации
   $: {
-    if (locationIds === null) {
-      locationIds = [];
+    if (location_ids === null) {
+      location_ids = [];
     }
-    locationsNames = edit.getNamesById(locations, locationIds);
+    locationsNames = edit.getNamesById(locations, location_ids);
 
-    let data = edit.validateEditData(
-      edit.formatIdsArrays(locationIds, excursion_data.locationIds),
+    let data = edit.validateEditArray(
+      location_ids,
+      excursion_data.location_ids,
       "locationIds",
       {}
     );
 
     if (Object.keys(data).indexOf("locationIds") !== -1 && id === undefined)
-      newData.locationIds = data.locationIds.create;
+      newData.locationIds = data.locationIds;
     else if (
       Object.keys(data).indexOf("locationIds") !== -1 &&
       id !== undefined
     )
-      editData.locationIds = data.locationIds.edit;
+      editData.locationIds = data.locationIds;
     else {
       delete editData.locationIds;
       delete newData.locationIds;
       editData = editData;
       newData = newData;
     }
-
-    if (
-      Object.keys(data).indexOf("locationIds") !== -1 &&
-      data.locationIds.delete !== undefined
-    )
-      deleteData.locationIds = data.locationIds.delete;
   }
 
   async function changeImage() {
@@ -188,29 +206,14 @@
       if (fileFormat !== "jpg" && fileFormat !== "jpeg" && fileFormat !== "png")
         alert(_("images_types_message").replace(/{img}/g, img.name));
       else if (img[0].size / 1024 / 1024 <= 1) {
-        image.image_url = img[0];
+        image_url = img[0];
         newImage = true;
       } else alert(_("image_not_load").replace(/{img}/g, img[0].name));
-    }
-
-    if (id !== undefined && image !== null) {
-      let result = (await fetcher.post(
-        `api/compiliations/${id}/image`,
-        {
-          image: image.image_url
-        },
-        { bodyType: "formData" }
-      )).data;
-
-      image.id = result;
     }
   }
 
   async function deleteImg() {
-    // if (id !== undefined)
-    //   await fetcher.delete(`api/compiliations/${id}/image`);
-
-    image = {};
+    image_url = null;
   }
 
   async function saveExcursion() {
@@ -226,15 +229,15 @@
         name: "excursion_site"
       },
       {
-        field: dateStart,
+        field: date_start,
         name: "date_start"
       },
       {
-        field: dateEnd,
+        field: date_end,
         name: "date_end"
       },
       {
-        field: locationIds,
+        field: location_ids,
         name: "locations"
       }
     ];
@@ -245,7 +248,7 @@
         return null;
       }
 
-    if (Object.keys(image).length === 0) {
+    if (!image_url) {
       alert(
         _("required_field_message").replace(/{field}/g, _("excursion_image"))
       );
@@ -258,7 +261,31 @@
       if (newImage) {
         result = await fetcher.post(
           `/api/excursions/${id}/image`,
-          { image: image.image_url },
+          { image: image_url },
+          { bodyType: "formData" }
+        );
+      }
+    } else {
+      if (Object.keys(editData).length)
+        await fetcher.put(`/api/excursions/${id}`, editData);
+
+      if (image_url !== excursion_data.image_url && excursion_data.image_url) {
+        result = await fetcher.put(
+          `api/excursions/${id}/image`,
+          {
+            image: image_url
+          },
+          { bodyType: "formData" }
+        );
+      } else if (
+        image_url !== excursion_data.image_url &&
+        !excursion_data.image_url
+      ) {
+        result = await fetcher.post(
+          `api/excursions/${id}/image`,
+          {
+            image: image_url
+          },
           { bodyType: "formData" }
         );
       }
@@ -276,7 +303,7 @@
     margin-top: 20px;
   }
 
-  input:not([type="checkbox"]){
+  input:not([type="checkbox"]) {
     margin-top: 8px;
     width: 100%;
     padding: 3px;
@@ -285,9 +312,9 @@
     height: 24px;
   }
 
-   input[type="file"]{
-     margin-top: 0;
-   }
+  input[type="file"] {
+    margin-top: 0;
+  }
 
   .img {
     width: 300px;
@@ -333,7 +360,7 @@
     <h2>
       {id === undefined ? _('creating_excursion') : _('editing_excursion')}
     </h2>
-    <button class="green-button" on:click={() => save = saveExcursion()}>
+    <button class="green-button" on:click={() => (save = saveExcursion())}>
       {_('excursion_save')}
     </button>
   </div>
@@ -349,11 +376,11 @@
     </label>
     <div class="img-block">
       <h3>{_('excursion_image')}</h3>
-      {#if Object.keys(image).length !== 0}
+      {#if image_url}
         <div class="img">
           <button on:click={() => deleteImg()}>×</button>
           <img
-            src={newImage ? URL.createObjectURL(image.image_url) : image_url}
+            src={newImage ? URL.createObjectURL(image_url) : image_url}
             alt="excursion image" />
         </div>
       {:else}
@@ -376,11 +403,11 @@
       </label>
       <label for="dateStart">
         <h4>{_('date_start')}</h4>
-        <input type="date" name="dateStart" bind:value={dateStart} />
+        <input type="date" name="dateStart" bind:value={date_start} />
       </label>
       <label for="dateEnd">
         <h4>{_('date_end')}</h4>
-        <input type="date" name="dateEnd" bind:value={dateEnd} />
+        <input type="date" name="dateEnd" bind:value={date_end} />
       </label>
       <div>
         <label for="locations">
@@ -403,11 +430,11 @@
               <div class="option" bind:this={options[0].option}>
                 {#each locations as location}
                   <div
-                    on:click={() => (locationIds = edit.parseDataToIds(locationIds, location.id))}>
+                    on:click={() => (location_ids = edit.parseDataToIds(location_ids, location.id))}>
                     <label>{location.name}</label>
                     <input
                       type="checkbox"
-                      checked={locationIds.indexOf(location.id) !== -1} />
+                      checked={location_ids.indexOf(location.id) !== -1} />
                   </div>
                 {/each}
               </div>
@@ -420,4 +447,4 @@
   </div>
 </AdminPage>
 
-<Loading promice={save} message={_("saving_excursion")} />
+<Loading promice={save} message={_('saving_excursion')} />

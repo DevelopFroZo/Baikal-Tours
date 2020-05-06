@@ -6,7 +6,7 @@
 
     let locale = session.locale;
     let id = page.query.id;
-    let tourData = {
+    let hotelData = {
       booking_url: "",
       location_id: null,
       name: "",
@@ -19,17 +19,17 @@
     })).data.locations;
 
     if (id !== undefined) {
-      tourData = (await fetcher.get(`/api/hotels/${id}`, {
+      hotelData = (await fetcher.get(`/api/hotels/${id}`, {
         credentials: "same-origin"
       })).data;
     }
 
-    if (tourData !== undefined)
+    if (hotelData !== undefined)
       return {
         locale,
         id,
-        tourData,
-        ...tourData,
+        hotelData,
+        ...hotelData,
         locations
       };
     else this.error(404, "page not found");
@@ -45,7 +45,7 @@
 
   export let locale,
     id,
-    tourData,
+    hotelData,
     booking_url,
     location_id,
     name,
@@ -58,43 +58,93 @@
   const _ = i18n(locale);
 
   let newData = {},
-    save;
-  
+    save,
+    uploadImg,
+    newImage = image_url === null;
+
   //Название отеля
-  $: newData = validateNewData(name, tourData.name, "name", newData);
+  $: newData = validateNewData(name, hotelData.name, "name", newData);
 
   //Страница отеля на booking
-  $: newData = validateNewData(booking_url, tourData.booking_url, "bookingUrl", newData);
+  $: newData = validateNewData(
+    booking_url,
+    hotelData.booking_url,
+    "bookingUrl",
+    newData
+  );
 
   //Цена отеля
-  $: newData = validateNewData(price, tourData.price, "price", newData);
+  $: newData = validateNewData(price, hotelData.price, "price", newData);
 
   //Рейтинг отеля
-  $: newData = validateNewData(rating, tourData.rating, "rating", newData);
+  $: newData = validateNewData(rating, hotelData.rating, "rating", newData);
 
   //Локация отеля из справочника
-  $: newData = validateNewData(location_id, tourData.location_id, "locationId", newData);
+  $: newData = validateNewData(
+    location_id,
+    hotelData.location_id,
+    "locationId",
+    newData
+  );
 
-  async function saveData(){
-      let result;
+  async function saveData() {
+    let result;
 
-      for(let key of Object.keys(newData))
-        if(newData[key] === "" || newData[key] === undefined)
-            newData[key] = null;
+    for (let key of Object.keys(newData))
+      if (newData[key] === "" || newData[key] === undefined)
+        newData[key] = null;
 
-      if(newData.name === null){
-          alert(_("required_field_message").replace(/{field}/g, _("hotel_name")));
-          return null;
+    if (newData.name === null) {
+      alert(_("required_field_message").replace(/{field}/g, _("hotel_name")));
+      return null;
+    }
+
+    if (id === undefined) {
+      result = await fetcher.post(`/api/hotels/`, { ...newData });
+      id = result.data;
+
+      if (image_url) {
+        result = await fetcher.post(
+          `/api/hotels/${id}/image`,
+          { image: image_url },
+          { bodyType: "formData" }
+        );
       }
+    } else {
+      result = await fetcher.put(`/api/hotels/${id}`, { ...newData });
 
-      if(id === undefined){
-          //Создание события
-      }
-      else
-          result = await fetcher.put(`/api/hotels/${id}`, {...newData});
-      
-      document.location.href = "./admin/hotels";
+      if(image_url !== hotelData.image_url && !image_url)
+        result = await fetcher.delete(`/api/hotels/${id}/image`);
+      else if (image_url !== hotelData.image_url && !hotelData.image_url)
+        result = await fetcher.post(
+          `/api/hotels/${id}/image`,
+          { image: image_url },
+          { bodyType: "formData" }
+        );
+      else if(image_url !== hotelData.image_url)
+        result = await fetcher.put(
+          `/api/hotels/${id}/image`,
+          { image: image_url },
+          { bodyType: "formData" }
+        );
 
+    } 
+
+    // document.location.href = "./admin/hotels";
+  }
+
+  async function changeImage() {
+    let img = uploadImg.files;
+
+    if (img.length !== 0) {
+      let fileFormat = img[0].name.split(".").pop();
+      if (fileFormat !== "jpg" && fileFormat !== "jpeg" && fileFormat !== "png")
+        alert(_("images_types_message").replace(/{img}/g, img.name));
+      else if (img[0].size / 1024 / 1024 <= 1) {
+        image_url = img[0];
+        newImage = true;
+      } else alert(_("image_not_load").replace(/{img}/g, img[0].name));
+    }
   }
 </script>
 
@@ -145,18 +195,33 @@
     justify-content: space-between;
   }
 
-  label{
-      margin-top: 20px;
-      display: block;
+  label {
+    margin-top: 20px;
+    display: block;
   }
 
-  .delete-image{
-    position: absolute;
-    top: 0;
-    right: 0;
+  .img-block{
+    margin-top: 20px;
+  }
 
-    & > img{
-      width: 20px;
+  .img {
+    width: 300px;
+    height: 200px;
+    margin: auto;
+
+    & > img {
+      margin-top: 20px;
+      max-width: 100%;
+      max-height: calc(100% - 30px);
+    }
+
+    & > button {
+      position: absolute;
+      top: 0px;
+      right: 0px;
+      font-size: 20px;
+      z-index: 2;
+      color: black;
     }
   }
 </style>
@@ -164,7 +229,9 @@
 <AdminPage {_} {locale} {fetcher} page={4}>
   <div class="line">
     <h1>{id === undefined ? _('creating_hotel') : _('editing_hotel')}</h1>
-    <button class="green-button" on:click={() => save = saveData()}>{_('hotel_save')}</button>
+    <button class="green-button" on:click={() => (save = saveData())}>
+      {_('hotel_save')}
+    </button>
   </div>
   <div class="edit-block">
     <label for="name">
@@ -175,12 +242,28 @@
       <h3>{_('hotel_url')}</h3>
       <input type="text" name="booking_url" bind:value={booking_url} />
     </label>
-    {#if image_url !== null}
-      <div class="image">
-        <button class="delete-image"> <img src="/img/cross.svg" alt="delete" /> </button>
-        <img src={image_url} alt="hotel image" />
-      </div>
-    {/if}
+    <div class="img-block">
+      <h3>{_('hotel_image')}</h3>
+      {#if image_url}
+        <div class="img">
+          <button on:click={() => (image_url = null)}>×</button>
+          <img
+            src={newImage ? URL.createObjectURL(image_url) : image_url}
+            alt="tour image" />
+        </div>
+      {:else}
+        <button class="upload-image-block">
+          {_('upload_images')}
+          <input
+            type="file"
+            class="upload-image"
+            accept=".jpg, .jpeg, .png"
+            bind:this={uploadImg}
+            on:change={changeImage}
+            name="uploadImg" />
+        </button>
+      {/if}
+    </div>
     <div class="edit-line">
       <label for="price">
         <h3>{_('hotel_price')}</h3>
@@ -203,4 +286,4 @@
   </div>
 </AdminPage>
 
-<Loading promice={save} message={_("saving_hotel")} />
+<Loading promice={save} message={_('saving_hotel')} />

@@ -80,7 +80,7 @@
 <AdminPage page={6} {fetcher} {locale} {_}>
   <div class="head-line">
     <h1>{_('selections')}</h1>
-    <a href="/admin/compiliations/edit" class="new-compilation">
+    <a href="/admin/selections/edit" class="new-compilation">
       {_('new_compilation')}
     </a>
   </div>
@@ -89,7 +89,7 @@
     {#if result_compiliations.length > 0}
       {#each result_compiliations as compiliation}
         <a
-          href={`/admin/compiliations/${compiliation.url}`}
+          href={`/admin/selections/${compiliation.url}`}
           class="compiliation-block">
           <div class="img">
             <Image src={compiliation.image_url} alt={compiliation.name} />

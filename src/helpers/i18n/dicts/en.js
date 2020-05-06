@@ -366,5 +366,7 @@ export default ({
 
   user_events:                "User events",
   event_is_paid:              "Event paid",
-  event_is_not_paid:          "Event not paid for"
+  event_is_not_paid:          "Event not paid for",
+
+  hotel_image:                "The photo of the hotel"
 });

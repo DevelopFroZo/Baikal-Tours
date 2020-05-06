@@ -9,7 +9,7 @@ export {
 }
 
 function parseDate(date) {
-    return date.getFullYear() + "-" + dateFormat(parseInt(date.getMonth() + 1) + "") + "-" + dateFormat(date.getDate());
+    return date.getFullYear() + "-" + dateFormat(parseInt(date.getMonth() + 1) + "") + "-" + dateFormat(date.getDate() + "");
 }
 
 function dateFormat(date) {

@@ -13,7 +13,9 @@ export {
     validateNewtranslateData,
     setTextTranslation,
     validateActionData,
-    parseTickets
+    parseTickets,
+    formatArrays,
+    getRundomObjects
 }
 
 function getIds(obj) {
@@ -198,7 +200,7 @@ function formatLocations(locations, actionData) {
                 bl = true;
         }
 
-        if (bl) 
+        if (bl)
             data.push(location)
     }
 
@@ -224,21 +226,21 @@ function formatLocations(locations, actionData) {
                 if (startLocation.id === editLocation.id) {
                     let bl = false;
 
-                    for(let key of Object.keys(editLocation))
-                        if(editLocation[key] !== startLocation[key] && key !== "locationId")
+                    for (let key of Object.keys(editLocation))
+                        if (editLocation[key] !== startLocation[key] && key !== "locationId")
                             bl = true;
-                        else if(key !== "id" && key !== "locationId")
+                        else if (key !== "id" && key !== "locationId")
                             delete editLocation[key];
-                        
-                    if(editLocation.locationId !== startLocation.location_id) bl = true;
+
+                    if (editLocation.locationId !== startLocation.location_id) bl = true;
                     else delete editLocation.locationId;
 
-                    if (bl){
+                    if (bl) {
                         editLocation.actionLocationId = editLocation.id;
                         delete editLocation.id;
                         newData.edit.push(editLocation);
                     }
-                        
+
                 }
             }
         }
@@ -248,7 +250,7 @@ function formatLocations(locations, actionData) {
         let location = data[i];
         if (!location.id) {
             delete location.id;
-            if(location.locationId){
+            if (location.locationId) {
                 if (!location.address) delete location.address;
                 newData.create.push(location)
             }
@@ -464,8 +466,8 @@ function parseTickets(oldTickets, newTickets, id, locale) {
         del: [],
     };
 
-    for(let ticket of newTickets)
-        if(ticket.price.length !== 0)
+    for (let ticket of newTickets)
+        if (ticket.price.length !== 0)
             ticket.price = Number(ticket.price);
 
     for (let ticket of newTickets) {
@@ -501,15 +503,77 @@ function parseTickets(oldTickets, newTickets, id, locale) {
             }
         }
 
-        if(Object.keys(data).length !== 0){
+        if (Object.keys(data).length !== 0) {
             data.id = newTicket.id;
             newData.edit.push(data);
         }
     }
 
-    if(newData.create.length === 0) delete newData.create;
-    if(newData.edit.length === 0) delete newData.edit;
-    if(newData.del.length === 0) delete newData.del;
+    if (newData.create.length === 0) delete newData.create;
+    if (newData.edit.length === 0) delete newData.edit;
+    if (newData.del.length === 0) delete newData.del;
 
     return newData;
+}
+
+function formatArrays(newArr, oldArr, key, obj) {
+    let newData = {
+        create: [],
+        del: []
+    }
+
+    if (newArr) {
+        for (let el of newArr) {
+            let bl = true;
+            if (oldArr) {
+                for (let oldEl of oldArr) {
+                    if (el === oldEl) {
+                        bl = false;
+                        break;
+                    }
+                }
+            }
+            if (bl)
+                newData.create.push(el);
+        }
+    }
+
+    if (oldArr) {
+        for (let el of oldArr) {
+            let bl = true;
+            if (newArr) {
+                for (let newEl of newArr) {
+                    if (el === newEl) {
+                        bl = false;
+                        break;
+                    }
+                }
+            }
+            if (bl)
+                newData.del.push(el);
+        }
+    }
+
+    if (!newData.create.length) delete newData.create;
+    if (!newData.del.length) delete newData.del;
+
+    if (Object.keys(newData).length)
+        obj[key] = newData;
+
+    console.log(obj)
+
+    return obj;
+}
+
+function getRundomObjects(start, max, obj) {
+    let randObjs = [];
+        for (let i = start; i < max; i++) {
+            if (!obj.length)
+                break;
+            let rand = parseInt(Math.random() * obj.length);
+            randObjs.push(obj[rand]);
+            obj.splice(rand, 1);
+        }
+
+    return randObjs;
 }

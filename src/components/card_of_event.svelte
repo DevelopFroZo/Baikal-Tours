@@ -19,8 +19,6 @@
     price_min_=0,
     price_max_=0;
 
-  console.log(locations)
-
   const _ = i18n(locale);
 
   let dates = parseDateForCards(date_starts, date_ends, _);

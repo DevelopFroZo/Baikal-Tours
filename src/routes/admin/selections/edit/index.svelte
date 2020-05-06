@@ -371,7 +371,7 @@
       }
     }
 
-    document.location.href = `/admin/compiliations/${newData.url}`;
+    document.location.href = `/admin/selections/${newData.url}`;
   }
 </script>
 
