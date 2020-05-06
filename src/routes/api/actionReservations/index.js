@@ -36,9 +36,10 @@ export async function post( req, res ){
 
   const actionDates = await req.database.actionDates.getByActionId( transaction, actionId );
 
-  // #fix что будет, если нет даты?
-  if( !actionDates.some( actionDate => isValidActionDate( actionDate, date ) ) )
-    return res.error( 18 );
+  if(
+    actionDates.length > 0 &&
+    !actionDates.some( actionDate => isValidActionDate( actionDate, date ) )
+  ) return res.error( 18 );
 
   if(
     !Array.isArray( buyable ) ||
@@ -60,7 +61,7 @@ export async function post( req, res ){
     } );
 
     buyable = null;
-  };
+  }
 
   const result = await create( req.database.pool, userId, actionId, name, surname, phone, email, date, buyable );
 

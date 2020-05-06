@@ -14,4 +14,14 @@ export default class extends Foundation{
       [ compiliationId, actionId, locale, description ]
     );
   }
+
+  async editOrUpdate( client, compiliationId, actionId, locale, description ){
+    await client.query(
+      `insert into compiliations_actions( compiliation_id, action_id, locale, description )
+      values( $1, $2, $3, $4 )
+      on conflict( compiliation_id, action_id, locale ) do update
+      set description = excluded.description`,
+      [ compiliationId, actionId, locale, description ]
+    );
+  }
 }

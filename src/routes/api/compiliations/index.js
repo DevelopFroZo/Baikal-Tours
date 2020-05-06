@@ -5,9 +5,12 @@ import Translator from "/helpers/translator/index";
 import yandexEngineBuilder from "/helpers/translator/engines/yandex";
 import { toIntArray } from "/helpers/converters";
 
-export async function post( req, res ){
-  const { file } = req;
+export {
+  post,
+  get
+};
 
+async function post( req, res ){
   const { url, actions, title, name, tagline, description, dates } = req.body;
   let { locationIds, subjectIds } = req.body;
 
@@ -103,7 +106,7 @@ export async function post( req, res ){
   res.success( 0, id );
 }
 
-export async function get( req, res ){
+async function get( req, res ){
   const { locale } = req.session;
   const { filter } = req.query;
 

@@ -2,7 +2,11 @@
 
 // Errors: 3, 4
 export async function post( req, res ){
-  // #fix проверки на корректность данных
+  if(
+    typeof req.body.phoneOrEmail !== "string" || req.body.phoneOrEmail === "" ||
+    typeof req.body.password !== "string" || req.body.password === ""
+  ) return res.json( { errors: [ "Invalid phone, email or password" ] } );
+
   const result = await req.database.auth.signin(
     req.body.phoneOrEmail,
     req.body.password

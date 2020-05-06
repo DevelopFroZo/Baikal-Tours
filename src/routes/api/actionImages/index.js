@@ -19,7 +19,6 @@ export async function post( req, res ){
   const paths = [];
 
   for( let { originalname, buffer, size } of images ){
-    // #fix добавить в ответ поле "отсеянные" и по каким причинам
     if( ( size / Math.pow( 2, 20 ) ) >= 1 ) continue;
 
     const ext = originalname.slice( originalname.lastIndexOf( "." ) + 1, originalname.length );

@@ -5,7 +5,12 @@ export async function post( req, res ){
   let result;
 
   if( req.query.action === "start" ){
-    const { name, surname } = req.body;
+    let { name, surname } = req.body;
+
+    if(
+      typeof req.body.phone !== "string" || req.body.phone === "" ||
+      typeof req.body.email !== "string" || req.body.email === ""
+    ) return res.json( { errors: [ "Invalid phone or email" ] } );
 
     if( typeof name !== "string" )
       name = "";
@@ -13,7 +18,6 @@ export async function post( req, res ){
     if( typeof surname !== "string" )
       surname = "";
 
-    // #fix проверки на корректность данных
     result = await req.database.auth.signup(
       name,
       surname,
@@ -34,8 +38,11 @@ export async function post( req, res ){
     return res.success();
   }
   else if( req.query.action === "confirm" ){
-    // #fix проверки на корректность данных
-    // #fix redirect на /api/signin
+    if(
+      typeof req.body.phoneOrEmail !== "string" || req.body.phoneOrEmail === "" ||
+      typeof req.body.password !== "string" || req.body.password === ""
+    ) return res.json( { errors: [ "Invalid phone, email or password" ] } );
+
     result = await req.database.auth.signin(
       req.body.phoneOrEmail,
       req.body.password

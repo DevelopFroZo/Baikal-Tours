@@ -24,9 +24,14 @@ export async function put( req, res ){
       ( size / Math.pow( 2, 20 ) ) < 1 &&
       [ "png", "jpg", "jpeg" ].includes( ext )
     ){
-      const { image_url } = await req.database.actionPartners.get( id, transaction );
+      const row = await req.database.actionPartners.get( id, transaction );
 
-      await writeFile( `static/${image_url}`, buffer );
+      if( row !== null ){
+        const { image_url } = row;
+
+        if( image_url !== null && !image_url.startsWith( "http" ) )
+          await writeFile( `static/${image_url}`, buffer );
+      }
     }
   }
 
@@ -41,10 +46,16 @@ export async function del( req, res ){
   if( id === null || id < 1 )
     return res.error( 9 );
 
-  const { transaction, imageUrl } = await req.database.actionPartners.delete( id );
+  const result = await req.database.actionPartners.delete( id );
 
-  await unlink( `static/${imageUrl}` );
-  await transaction.end();
+  if( result !== null ){
+    const { transaction, imageUrl } = result;
+
+    if( imageUrl !== null && !imageUrl.startsWith( "http" ) )
+      await unlink( `static/${imageUrl}` );
+
+    await transaction.end();
+  }
 
   res.success();
 }

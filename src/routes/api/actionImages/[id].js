@@ -24,9 +24,14 @@ export async function put( req, res ){
       ( size / Math.pow( 2, 20 ) ) < 1 &&
       [ "png", "jpg", "jpeg" ].includes( ext )
     ){
-      const { image_url } = await req.database.actionImages.get( id, transaction );
+      const row = await req.database.actionImages.get( id, transaction );
 
-      await writeFile( `static/${image_url}`, buffer );
+      if( row !== null ){
+        const { image_url } = row;
+
+        if( image_url !== null && !image_url.startsWith( "http" ) )
+          await writeFile( `static/${image_url}`, buffer );
+      }
     }
   }
 
