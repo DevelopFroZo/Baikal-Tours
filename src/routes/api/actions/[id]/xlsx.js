@@ -3,12 +3,14 @@
 import xlsx from "xlsx";
 import { toInt } from "/helpers/converters";
 import { createMap, mergeMultiple } from "/helpers/merger";
+import { writeFile, access, mkdir } from "/helpers/promisified";
 
 export async function get( {
   session: { isLogged, role, userId, locale },
   params,
   query,
-  database: { pool }
+  database: { pool },
+  _
 }, res ){
   if( !isLogged ) return res.json( {
     ok: false,
@@ -135,11 +137,25 @@ export async function get( {
   wb.SheetNames = [ "Лист 1" ];
   wb.Sheets[ "Лист 1" ] = ws;
 
-  // #fix сохранить файл
-  const output = xlsx.write( wb, {
+  const outputBinary = xlsx.write( wb, {
     bookType: "xlsx",
     type: "binary"
   } );
 
-  res.end( output, "binary" );
+  const outputBuffer = xlsx.write( wb, {
+    bookType: "xlsx",
+    type: "buffer"
+  } );
+
+  let [ date, time ] = ( new Date() ).toISOString().split( "T" );
+
+  time = time.split( ":" )[0];
+  date = `${date}T${time} 00 00.000Z`;
+
+  if( !( await access( "reports" ) ) )
+    await mkdir( "reports" );
+
+  await writeFile( `reports/action${id}_${date}.xlsx`, outputBuffer );
+
+  res.end( outputBinary, "binary" );
 }

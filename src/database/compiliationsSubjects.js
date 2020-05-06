@@ -27,4 +27,15 @@ export default class extends Foundation{
       );
     }
   }
+
+  async edit( client, compiliationId, oldSubjectId, newSubjectId ){
+    await client.query(
+      `update compiliations_subjects
+      set subject_id = $1
+      where
+        compiliation_id = $2 and
+        subject_id = $3`,
+      [ newSubjectId, compiliationId, oldSubjectId ]
+    );
+  }
 }

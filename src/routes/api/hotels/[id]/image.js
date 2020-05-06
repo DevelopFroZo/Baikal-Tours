@@ -100,7 +100,8 @@ async function put( {
   if( row === undefined )
     return res.json( { errors: [ `Invalid hotel (${id_})` ] } );
 
-  await writeFile( `static/${row.image_url}`, buffer );
+  if( row.image_url !== null && !row.image_url.startsWith( "http" ) )
+    await writeFile( `static/${row.image_url}`, buffer );
 
   res.success();
 }

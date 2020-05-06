@@ -25,7 +25,6 @@ export async function get( {
 
   await transaction.query( "begin" );
 
-  // #fix add order
   const { rows: actions } = await transaction.query(
     `select
       a.id, at.name,
@@ -36,13 +35,16 @@ export async function get( {
     from
     	actions as a
       left join action_reservations as ar
-      on a.id = ar.action_id,
+      on a.id = ar.action_id
+      left join action_dates as ad
+      on a.id = ad.action_id,
       actions_translates as at
     where
     	at.locale = $1 and
     	not array_position( a.organizer_ids, $2 ) is null and
     	a.id = at.action_id
-    group by a.id, at.name`,
+    group by a.id, at.name, ad.date_start
+    order by ad.date_start`,
     [ locale, id ]
   );
 

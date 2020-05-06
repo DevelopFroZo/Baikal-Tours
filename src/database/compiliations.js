@@ -77,7 +77,8 @@ export default class extends Foundation{
       where
         ct.locale = $1 and
         ${filters}
-        c.id = ct.compiliation_id`,
+        c.id = ct.compiliation_id
+      group by c.id, ct.name`,
       params
     ) ).rows;
 
@@ -146,8 +147,35 @@ export default class extends Foundation{
     return main;
   }
 
-  // #fix
-  async edit(){
-    //
+  async edit( client, oldUrl, newUrl ){
+    try{
+      await client.query(
+        `update compiliations
+        set url = $1
+        where url = $2`,
+        [ newUrl, oldUrl ]
+      );
+    } catch( e ) {
+      if( e.code === "23505" )
+        return { errors: [ `Compiliation with same url (${newUrl}) already exists` ] };
+
+      throw e;
+    }
+
+    return true;
+  }
+
+  async delete( client, id ){
+    const { rows: [ row ] } = await client.query(
+      `delete from compiliations
+      where id = $1
+      returning image_url`,
+      [ id ]
+    );
+
+    if( row === undefined )
+      return false;
+
+    return row.image_url;
   }
 }

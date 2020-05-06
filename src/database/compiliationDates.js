@@ -57,4 +57,46 @@ export default class extends Foundation{
       params
     );
   }
+
+  async edit( client, { id, dateStart, dateEnd, timeStart, timeEnd, days } ){
+    let sets = [];
+    const params = [ id ];
+    let i = 2;
+
+    if( typeof dateStart === "string" && dateStart !== "" ){
+      sets.push( `date_start = $${i++}` );
+      params.push( dateStart );
+    }
+
+    if( typeof dateEnd === "string" && dateEnd !== "" ){
+      sets.push( `date_end = $${i++}` );
+      params.push( dateEnd );
+    }
+
+    if( typeof timeStart === "string" && timeStart !== "" ){
+      sets.push( `time_start = $${i++}` );
+      params.push( timeStart );
+    }
+
+    if( typeof timeEnd === "string" && timeEnd !== "" ){
+      sets.push( `time_end = $${i++}` );
+      params.push( timeEnd );
+    }
+
+    if( days !== null && typeof days === "object" && Array.isArray( days ) ){
+      sets.push( `days = $${i++}` );
+      params.push( days );
+    }
+
+    if( sets.length > 0 ){
+      sets = sets.join( "," );
+
+      await client.query(
+        `update compiliation_dates
+        set ${sets}
+        where id = $1`,
+        params
+      );
+    }
+  }
 }

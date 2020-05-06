@@ -82,8 +82,11 @@ export default ( server ) => {
   server.delete( "/api/actions/:id/hotels/:hotelId", secureAPI( "admin" ) );
 
   server.post( "/api/compiliations", secureAPI( "admin" ) );
+  server.put( "/api/compiliations/:id", secureAPI( "admin" ) );
+  server.delete( "/api/compiliations/:id", secureAPI( "admin" ) );
   server.post( "/api/compiliations/:id/image", secureAPI( "admin" ), upload.single( "image" ) );
-  // #fix добавить PUT, DELETE
+  server.put( "/api/compiliations/:id/image", secureAPI( "admin" ), upload.single( "image" ) );
+  server.delete( "/api/compiliations/:id/image", secureAPI( "admin" ) );
 
   server.post( "/api/companions", secureAPI( "admin" ) );
   server.put( "/api/companions/:id", secureAPI( "admin" ) );

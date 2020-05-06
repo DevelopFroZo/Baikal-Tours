@@ -11,6 +11,8 @@ static/img/tours/
 static/img/partners/
 static/img/hotels/
 
+reports/
+
 src/configs/
 svelte.config.js
 __safety/

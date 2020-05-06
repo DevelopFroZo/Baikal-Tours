@@ -141,7 +141,7 @@ export default class extends Foundation{
     }
 
     if( locations ){
-      filters.push( `ae.locations_ids @> $${i++}::int[]` );
+      filters.push( `ae.locations_ids && $${i++}::int[]` );
       params.push( locations );
     }
 

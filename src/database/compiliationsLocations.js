@@ -27,4 +27,15 @@ export default class extends Foundation{
       );
     }
   }
+
+  async edit( client, compiliationId, oldLocationId, newLocationId ){
+    await client.query(
+      `update compiliations_locations
+      set location_id = $1
+      where
+        compiliation_id = $2 and
+        location_id = $3`,
+      [ newLocationId, compiliationId, oldLocationId ]
+    );
+  }
 }
