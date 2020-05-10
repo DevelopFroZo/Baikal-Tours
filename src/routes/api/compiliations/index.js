@@ -4,19 +4,20 @@ import fetch from "node-fetch";
 import Translator from "/helpers/translator/index";
 import yandexEngineBuilder from "/helpers/translator/engines/yandex";
 import { toIntArray } from "/helpers/converters";
+import { create, getAll, filter } from "/database/compiliations/index";
+import { createOrEdit } from "/database/compiliations/translates";
 
 export {
   post,
   get
 };
 
-async function post( req, res ){
-  const { url, actions, title, name, tagline, description, dates } = req.body;
-  let { locationIds, subjectIds } = req.body;
-
+async function post( {
+  body: { url, title, name, tagline, description, locationIds, subjectIds },
+  database: { pool }
+}, res ){
   if(
     typeof url !== "string" || url === "" ||
-    !Array.isArray( actions ) ||
     typeof title !== "object" ||
     typeof name !== "object" ||
     typeof tagline !== "object" ||
@@ -33,11 +34,6 @@ async function post( req, res ){
 
     translated[ locale ][ field ] = value;
   };
-
-  actions.forEach( action => {
-    if( action.description.autoTranslate === true )
-      translator.add( `action${action.id}`, action.description.text, action.description.locale, action.description.toLocales );
-  } );
 
   if( !Array.isArray( locationIds ) )
     locationIds = null;
@@ -71,51 +67,38 @@ async function post( req, res ){
     else
       translated[ key ] = translator.transformed[ key ];
 
-  const transaction = await req.database.pool.connect();
+  const transaction = await pool.connect();
 
   await transaction.query( "begin" );
 
-  const id = await req.database.compiliations.create( transaction, url );
+  const id = await create( transaction, url, locationIds, subjectIds );
 
-  for( let action of actions ){
-    await req.database.compiliationsActions.create( transaction, id, action.id, action.description.locale, action.description.text );
+  if( id === null ){
+    await transaction.query( "rollback" );
+    transaction.release();
 
-    if( action.description.autoTranslate === true ){
-      const key = `action${action.id}`;
-
-      for( let locale_ in translator.translated[ key ] )
-        await req.database.compiliationsActions.create( transaction, id, action.id, locale_, translator.translated[ key ][ locale_ ] );
-    }
+    return res.json( { errors: [ `Url (${url}) already exists` ] } );
   }
 
-  if( Array.isArray( locationIds ) )
-    await req.database.compiliationsLocations.create( transaction, id, locationIds );
-
-  if( Array.isArray( subjectIds ) )
-    await req.database.compiliationsSubjects.create( transaction, id, subjectIds );
-
-  if( Array.isArray( dates ) )
-    await req.database.compiliationDates.create( transaction, id, dates );
-
-  for( let key in translated )
-    await req.database.compiliationsTranslates.create( transaction, id, key, translated[ key ] );
+  for( let locale in translated )
+    await createOrEdit( transaction, id, locale, translated[ locale ] );
 
   await transaction.query( "commit" );
-  await transaction.release();
+  transaction.release();
 
   res.success( 0, id );
 }
 
-async function get( req, res ){
-  const { locale } = req.session;
-  const { filter } = req.query;
+async function get( {
+  session: { locale },
+  query: { filter: filter_, locationIds, subjectIds, dateStart, dateEnd },
+  database: { pool }
+}, res ){
+  if( filter_ === undefined )
+    return res.success( 0, await getAll( pool, locale ) );
 
-  if( filter === undefined )
-    return res.json( await req.database.compiliations.get( locale ) );
+  const locationIds_ = toIntArray( locationIds );
+  const subjectIds_ = toIntArray( subjectIds );
 
-  const locationIds = toIntArray( req.query.locationIds );
-  const subjectIds = toIntArray( req.query.subjectIds );
-  const { dateStart, dateEnd } = req.query;
-
-  res.json( await req.database.compiliations.filter( locale, locationIds, subjectIds, dateStart, dateEnd ) );
+  res.success( 0, await filter( pool, locale, locationIds_, subjectIds_, dateStart, dateEnd ) );
 }
