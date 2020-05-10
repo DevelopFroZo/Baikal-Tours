@@ -30,7 +30,7 @@ async function put( {
   if( typeof timeEnd !== "string" || timeEnd === "" )
     timeEnd = null;
 
-  if( typeof days !== "string" || days === "" )
+  if( !Array.isArray( days ) )
     days = null;
 
   const result = await edit( pool, id_, dateStart, dateEnd, timeStart, timeEnd, days );
