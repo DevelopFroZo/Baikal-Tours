@@ -15,7 +15,7 @@
 </script>
 
 <script>
-  import AdminPage from "./_admin_page.svelte";
+  import AdminPage from "../_admin_page.svelte";
   import i18n from "/helpers/i18n/index.js";
 
   export let locale, result_directories;
@@ -77,9 +77,14 @@
   }
 </style>
 
+<svelte:head>
+  <title>{_("handbooks")}</title>
+</svelte:head>
+
 <AdminPage page={2} {fetcher} {_} {locale}>
   <h1>{_("handbooks")}</h1>
   <div class="directories-line">
+
     <div class="directory">
       <div class="directory-header">
         <h2>{_("locations")}</h2>
@@ -96,12 +101,13 @@
         </ul>
       </div>
     </div>
+
     <div class="directory">
       <div class="directory-header">
         <h2>{_("subjects")}</h2>
-        <!-- <button>
+        <a href="./admin/directories/subjects">
           <img src="/img/edit_green.png" alt="edit" />
-        </button> -->
+        </a>
       </div>
       <div class="directory-info">
         <ul class="subjects-block">
@@ -111,12 +117,13 @@
         </ul>
       </div>
     </div>
+    
     <div class="directory">
       <div class="directory-header">
         <h2>{_("transfers")}</h2>
-        <!-- <button>
+        <a href="/admin/directories/transfers">
           <img src="/img/edit_green.png" alt="edit" />
-        </button> -->
+        </a>
       </div>
       <div class="directory-info">
         <ul class="transfers-block">

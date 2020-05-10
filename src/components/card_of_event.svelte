@@ -161,7 +161,7 @@
         }
       }
 
-      & > div{
+      & > div, ul{
         margin-left: 10px !important;
       }
     }

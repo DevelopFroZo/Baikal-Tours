@@ -46,7 +46,7 @@
       color: #34353f;
       width: 100%;
       height: 100%;
-      background: rgba(255, 255, 255, 0.6);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.5) 36.46%, rgba(255, 255, 255, 0.5) 66.15%, rgba(255, 255, 255, 0) 100%);
       box-shadow: 0px 0px 70px rgba(40, 39, 49, 0.1);
       border-radius: 10px;
       text-align: center;

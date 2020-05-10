@@ -239,7 +239,6 @@
   }
 
 
-
   //Title
   $: {
     newData = edit.validateNewtranslateData(
@@ -1007,7 +1006,6 @@
             number: j + 1,
             action: "swipe"
           });
-          console.log(result)
           if (result.ok) hotels = newHotels;
           break;
         }

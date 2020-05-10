@@ -370,5 +370,13 @@ export default ( {
   added_organizer:            "Вы уже добавили этого организатора",
   required_fields_message:    "Заполните все обязательные поля",
   change_one_ticket:          "Выберите хотя бы один билет",
-  full_site_name:             "Календарь событий на Байкале от Фаната Байкала"
+  full_site_name:             "Календарь событий на Байкале от Фаната Байкала",
+  add_subject:                "Добавить тематику",
+  save_subjects:              "Сохранить тематики",
+  saving_subjects:            "Сохранение тематик",
+  add_transfer:               "Добавить трансфер",
+  save_transfers:             "Сохранить трансферы",
+  saving_transfers:           "Сохранение трансферов",
+  finded:                     "Найдено",
+  uncorrect_date_form:        "Некорректный формат даты"
 } );

@@ -8,8 +8,6 @@
 
   let tickets, additions;
 
-  console.log(organizerEvents);
-
   function getCount(ticket, bl) {
     if (ticket.count)
       if (ticket.count[0].paid === bl)

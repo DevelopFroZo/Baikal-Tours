@@ -5,11 +5,18 @@ export {
     parsePriceForActiveFilter,
     parseDateForCards,
     parseUrlByPage,
-    parseStringToWords
+    parseStringToWords,
+    reverseDate
 }
 
 function parseDate(date) {
     return date.getFullYear() + "-" + dateFormat(parseInt(date.getMonth() + 1) + "") + "-" + dateFormat(date.getDate() + "");
+}
+
+function reverseDate(date, changePoints = true){
+    date = date.split(changePoints ? "-" : ".").reverse();
+    if(changePoints) return date.join(".")
+    else return date.join("-")
 }
 
 function dateFormat(date) {
@@ -96,7 +103,6 @@ function parseDateForCards(date_starts, date_ends, _) {
 function parseUrlByPage(page, removeParams, newParams) {
     let keys = Object.keys(page.query);
     let newKeys = Object.keys(newParams);
-    console.log(keys.length, newKeys.length)
     let url = page.path;
     let querys = [];
 

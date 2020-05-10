@@ -74,12 +74,15 @@ function parseFilterDataForAdmin(filter) {
         allStatuses: ""
     }, arrData;
 
-    if (filter[0][0].active) params.search = encodeURIComponent(filter[0][0].value);
+    if (filter.search.active || filter.search.value.length){
+        params.search = encodeURIComponent(filter.search.value);
+        filter.search.active = true;
+    }
 
-    arrData = getActiveOption(filter[1])
+    arrData = getActiveOption(filter.subjects)
     if (arrData.length !== 0) params.subjects = arrData;
 
-    arrData = getActiveOption(filter[2]);
+    arrData = getActiveOption(filter.locations);
     if (arrData.length !== 0) params.locations = arrData;
 
     return params;

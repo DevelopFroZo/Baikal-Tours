@@ -386,20 +386,6 @@
       </a>
       {@html vkHref}
     </div>
-    {#if compiliation_result.dates !== null && compiliation_result.dates.length > 0}
-      <div
-        class="main-date"
-        class:center-date={compiliation_result.dates.length === 1}>
-        <div class="mini-image-block">
-          <img src="/img/star.svg" alt="star" />
-        </div>
-        <ul>
-          {#each compiliation_result.dates as date}
-            <li>{dateToString(date, _)}</li>
-          {/each}
-        </ul>
-      </div>
-    {/if}
   </div>
   <h2>{compiliation_result.tagline}</h2>
   <div class="description">{compiliation_result.description}</div>
@@ -409,8 +395,9 @@
       <div class="event-block">
         <div class="img-block">
           <Image
-            src={action.images.length === 0 ? '/img/logo.png' : action.images.filter(el => el.is_main)[0].image_url}
-            alt="test" />
+            src={action.image_url ? action.image_url : '/img/logo.png'}
+            alt="test"
+            autoWidth={action.image_url === null}/>
         </div>
         <div class="event-info">
           <h3>{action.name}</h3>
@@ -431,7 +418,7 @@
           <b class="price">
             {parsePrice(action.price_min, action.price_max, _)}
           </b>
-          <div class="action-description">{action.compiliationDescription}</div>
+          <div class="action-description">{action.description}</div>
           <a href={`/event?id=${action.id}`}>{_('detailed')}</a>
         </div>
       </div>

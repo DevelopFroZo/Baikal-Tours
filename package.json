@@ -31,6 +31,8 @@
     "nodemailer": "^6.4.2",
     "pg": "^7.17.1",
     "sirv": "^0.4.2",
+    "svelte-imask": "^1.2.0",
+    "svelte-input-mask": "0.0.3",
     "svelte-loading-spinners": "0.0.16",
     "svelte-sortable-list": "^1.1.0",
     "swiper": "^5.3.6",

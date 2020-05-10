@@ -130,7 +130,7 @@
 
     } 
 
-    // document.location.href = "./admin/hotels";
+    document.location.href = "./admin/hotels";
   }
 
   async function changeImage() {

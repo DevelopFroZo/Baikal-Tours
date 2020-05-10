@@ -142,7 +142,7 @@
     {_('return_to_compiliations')}
   </a>
   <div class="compiliation-block">
-    <!-- <a class="edit" href="admin/compiliations/edit">{_('edit')}</a> -->
+    <a class="edit" href="admin/selections/edit?url={compiliationInfo.url}">{_('edit')}</a>
     <h1>{compiliationInfo.name}</h1>
     <h2>{compiliationInfo.tagline}</h2>
     <pre class="margin-top">{compiliationInfo.description}</pre>
@@ -156,12 +156,12 @@
           <a class="action" href={`/admin/event?id=${action.id}`}>
             <h3>{action.name}</h3>
             <div>
-              <span>
+              <!-- <span>
                 {#each action.subjects as subject}
                   {subject.name}
                   <br />
                 {/each}
-              </span>
+              </span> -->
               <span>
                 {#each action.locations as location}
                   {location.name}
@@ -176,11 +176,11 @@
               </span>
             </div>
           </a>
-          <pre>{action.compiliationDescription}</pre>
+          <pre>{action.description}</pre>
         </div>
       {/each}
 
-      <div class="info-block">
+      <!-- <div class="info-block">
         <div class="line">
           <img src="img/admin-date.png" alt="date" />
           <div class="info">
@@ -193,7 +193,7 @@
             {:else}{_('no_data')}{/if}
           </div>
         </div>
-      </div>
+      </div> -->
     </div>
   </div>
 </AdminPage>

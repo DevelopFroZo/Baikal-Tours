@@ -396,7 +396,7 @@
       background-blend-mode: lighten, normal;
       height: 650px;
 
-      & > h1 {
+      & > .top-text > h1{
         color: black;
         margin-top: 180px;
         font-size: 24px;
