@@ -115,7 +115,7 @@ async function getByUrl( client, locale, url ){
   main.actions = ( await client.query(
     `select
     	ca.action_id as id, ca.description,
-    	at.name,
+    	at.name, ai.image_url,
     	coalesce( min( ab.price ), 0 ) as price_min,
     	coalesce( max( ab.price ), 0 ) as price_max,
       null as locations,
