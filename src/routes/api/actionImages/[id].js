@@ -48,7 +48,7 @@ export async function del( req, res ){
 
   const { transaction, imageUrl } = await req.database.actionImages.delete( id );
 
-  if( image_url !== null && !imageUrl.startsWith( "http" ) )
+  if( imageUrl !== null && !imageUrl.startsWith( "http" ) )
     await unlink( `static/${imageUrl}` );
 
   await transaction.end();

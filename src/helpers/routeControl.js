@@ -82,11 +82,20 @@ export default ( server ) => {
   server.delete( "/api/actions/:id/hotels/:hotelId", secureAPI( "admin" ) );
 
   server.post( "/api/compiliations", secureAPI( "admin" ) );
-  server.put( "/api/compiliations/:id", secureAPI( "admin" ) );
-  server.delete( "/api/compiliations/:id", secureAPI( "admin" ) );
-  server.post( "/api/compiliations/:id/image", secureAPI( "admin" ), upload.single( "image" ) );
-  server.put( "/api/compiliations/:id/image", secureAPI( "admin" ), upload.single( "image" ) );
-  server.delete( "/api/compiliations/:id/image", secureAPI( "admin" ) );
+  server.put( "/api/compiliations/:slug", secureAPI( "admin" ) );
+  server.delete( "/api/compiliations/:slug", secureAPI( "admin" ) );
+
+  server.post( "/api/compiliations/:slug/actions", secureAPI( "admin" ) );
+  server.put( "/api/compiliations/:slug/actions/:id", secureAPI( "admin" ) );
+  server.delete( "/api/compiliations/:slug/actions/:id", secureAPI( "admin" ) );
+
+  server.post( "/api/compiliations/:slug/dates", secureAPI( "admin" ) );
+  server.put( "/api/compiliations/:slug/dates/:id", secureAPI( "admin" ) );
+  server.delete( "/api/compiliations/:slug/dates/:id", secureAPI( "admin" ) );
+
+  server.post( "/api/compiliations/:slug/image", secureAPI( "admin" ), upload.single( "image" ) );
+  server.put( "/api/compiliations/:slug/image", secureAPI( "admin" ), upload.single( "image" ) );
+  server.delete( "/api/compiliations/:slug/image", secureAPI( "admin" ) );
 
   server.post( "/api/companions", secureAPI( "admin" ) );
   server.put( "/api/companions/:id", secureAPI( "admin" ) );

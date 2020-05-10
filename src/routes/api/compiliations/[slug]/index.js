@@ -4,7 +4,8 @@ import fetch from "node-fetch";
 import Translator from "/helpers/translator/index";
 import yandexEngineBuilder from "/helpers/translator/engines/yandex";
 import { toInt } from "/helpers/converters";
-import { unlink } from "/helpers/promisified";
+import { getByUrl, edit, del as del_ } from "/database/compiliations/index";
+import { createOrEdit } from "/database/compiliations/translates";
 
 export {
   get,
@@ -12,61 +13,32 @@ export {
   del
 };
 
-async function get( req, res ){
-  const { slug: url } = req.params;
 
+async function get( {
+  session: { locale },
+  params: { slug: url },
+  database: { pool }
+}, res ){
   if( typeof url !== "string" || url === "" )
     return res.error( 16 );
 
-  const compiliation = await req.database.compiliations.getByUrl( req.session.locale, url );
+  const result = await getByUrl( pool, locale, url );
 
-  if( compiliation === null )
-    return res.error( 16 );
+  if( typeof result !== "object" )
+    return res.json( { errors: [ result ] } );
 
-  res.success( 0, compiliation );
+  res.success( 0, result );
 }
 
 async function put( {
-  params: { slug },
-  body: {
-    url,
-    actions,
-    title,
-    name,
-    tagline,
-    description,
-    dates,
-    locations,
-    subjects
-  },
-  database: {
-    pool,
-    compiliations,
-    compiliationsActions,
-    compiliationsLocations,
-    compiliationsSubjects,
-    compiliationDates,
-    compiliationsTranslates
-  }
+  params: { slug: id },
+  body: { url, title, name, tagline, description, locationIds, subjectIds },
+  database: { pool }
 }, res ){
-  const id = toInt( slug );
+  const id_ = toInt( id );
 
-  if( id === null || id < 1 )
+  if( id_ === null || id_ < 1 )
     return res.error( 9 );
-
-  const { rowCount } = await pool.query(
-    `select 1
-    from compiliations
-    where id = $1`,
-    [ id ]
-  );
-
-  if( rowCount === 0 )
-    return res.error( 9 );
-
-  const yandexEngine = yandexEngineBuilder( process.env.YANDEX_TRANSLATE_API_KEY, fetch );
-  const translator = new Translator( yandexEngine );
-  let translated = {};
 
   const q = ( locale, field, value ) => {
     if( !( locale in translated ) )
@@ -75,38 +47,54 @@ async function put( {
     translated[ locale ][ field ] = value;
   };
 
-  if( actions !== null && typeof actions === "object" && Array.isArray( actions ) )
-    actions.forEach( action => {
-      if( action.description.autoTranslate === true )
-        translator.add( `action${action.id}`, action.description.text, action.description.locale, action.description.toLocales );
-    } );
+  const yandexEngine = yandexEngineBuilder( process.env.YANDEX_TRANSLATE_API_KEY, fetch );
+  const translator = new Translator( yandexEngine );
+  let translated = {};
+  let result;
+
+  if( typeof url !== "string" || url === "" )
+    url = null;
+
+  if( !Array.isArray( locationIds ) )
+    locationIds = null;
+
+  if( !Array.isArray( subjectIds ) )
+    subjectIds = null;
 
   if( typeof title === "object" ){
-    q( title.locale, "title", title.text );
+    const { text, locale, autoTranslate, toLocales } = title;
 
-    if( title.autoTranslate === true )
-      translator.add( "title", title.text, title.locale, title.toLocales );
+    q( locale, "title", text );
+
+    if( autoTranslate === true )
+      translator.add( "title", text, locale, toLocales );
   }
 
   if( typeof name === "object" ){
-    q( name.locale, "name", name.text );
+    const { text, locale, autoTranslate, toLocales } = name;
 
-    if( name.autoTranslate === true )
-      translator.add( "name", name.text, name.locale, name.toLocales );
+    q( locale, "name", text );
+
+    if( autoTranslate === true )
+      translator.add( "name", text, locale, toLocales );
   }
 
   if( typeof tagline === "object" ){
-    q( tagline.locale, "tagline", tagline.text );
+    const { text, locale, autoTranslate, toLocales } = tagline;
 
-    if( tagline.autoTranslate === true )
-      translator.add( "tagline", tagline.text, tagline.locale, tagline.toLocales );
+    q( locale, "tagline", text );
+
+    if( autoTranslate === true )
+      translator.add( "tagline", text, locale, toLocales );
   }
 
   if( typeof description === "object" ){
-    q( description.locale, "description", description.text );
+    const { text, locale, autoTranslate, toLocales } = description;
 
-    if( description.autoTranslate === true )
-      translator.add( "description", description.text, description.locale, description.toLocales );
+    q( locale, "description", text );
+
+    if( autoTranslate === true )
+      translator.add( "description", text, locale, toLocales );
   }
 
   await translator.translate();
@@ -122,42 +110,20 @@ async function put( {
 
   await transaction.query( "begin" );
 
-  if( actions !== null && typeof actions === "object" && Array.isArray( actions ) )
-    for( let action of actions ){
-      await compiliationsActions.editOrUpdate( transaction, id, action.id, action.description.locale, action.description.text );
+  result = await edit( transaction, id_, url, locationIds, subjectIds );
 
-      if( action.description.autoTranslate === true ){
-        const key = `action${action.id}`;
+  if( result !== true ){
+    await transaction.query( "rollback" );
+    transaction.release();
 
-        for( let locale_ in translator.translated[ key ] )
-          await compiliationsActions.editOrUpdate( transaction, id, action.id, locale_, translator.translated[ key ][ locale_ ] );
-      }
-    }
+    return res.json( { errors: [ result ] } );
+  }
 
-  if( Array.isArray( locations ) )
-    for( let location of locations )
-      await compiliationsLocations.edit( transaction, id, location.oldLocationId, location.newLocationId );
+  for( let locale in translated ){
+    result = await createOrEdit( transaction, id_, locale, translated[ locale ] );
 
-  if( Array.isArray( subjects ) )
-    for( let subject of subjects )
-      await compiliationsSubjects.edit( transaction, id, subject.oldSubjectId, subject.newSubjectId );
-
-  if( Array.isArray( dates ) )
-    for( let date of dates )
-      await compiliationDates.edit( transaction, date );
-
-  for( let key in translated )
-    await compiliationsTranslates.editOrUpdate( transaction, id, key, translated[ key ] );
-
-  if( typeof url === "string" && url !== "" ){
-    const result = await compiliations.edit( transaction, url_, url );
-
-    if( result !== true ){
-      await transaction.query( "rollback" );
-      transaction.release();
-
-      return res.json( result );
-    }
+    if( result !== true )
+      return res.json( { errors: [ result ] } );
   }
 
   await transaction.query( "commit" );
@@ -167,21 +133,21 @@ async function put( {
 }
 
 async function del( {
-  params: { slug },
-  database: { pool, compiliations }
+  params: { slug: id },
+  database: { pool }
 }, res ){
-  const id = toInt( slug );
+  const id_ = toInt( id );
 
-  if( id === null || id < 1 )
+  if( id_ === null || id_ < 1 )
     return res.error( 9 );
 
-  const result = await compiliations.delete( pool, id );
+  const result = await del_( pool, id );
 
-  if( result === false )
-    return res.error( 9 );
+  if( result !== null && typeof result === "object" )
+    return res.json( result );
 
   if( result !== null && !result.startsWith( "http" ) )
     await unlink( `static/${result}` );
 
-  return res.success();
+  res.success();
 }

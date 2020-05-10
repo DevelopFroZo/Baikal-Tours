@@ -1,6 +1,6 @@
 "use strict";
 
-// Libs
+// Imports
 import sirv from "sirv";
 import express from "express";
 import compression from "compression";
