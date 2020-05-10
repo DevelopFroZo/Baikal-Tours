@@ -132,7 +132,7 @@ async function getByUrl( client, locale, url ){
     	at.locale = ca.locale and
     	ca.compiliation_id = $2 and
     	ca.action_id = at.action_id
-    group by ca.action_id, ca.description, at.name`,
+    group by ca.action_id, ca.description, at.name, ai.image_url`,
     [ locale, main.id ]
   ) ).rows;
 
