@@ -190,7 +190,7 @@ async function edit( client, id, url, locationIds, subjectIds ){
   }
 
   if( subjectIds !== null ){
-    sets.push( `subject_id = $${i++}` );
+    sets.push( `subject_ids = $${i++}` );
     params.push( subjectIds );
   }
 
