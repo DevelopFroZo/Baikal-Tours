@@ -136,8 +136,12 @@ async function getByUrl( client, locale, url ){
     [ locale, main.id ]
   ) ).rows;
 
-  if( main.actions.length === 0 )
-    return `No data`;
+  main.dates = ( await client.query(
+    `select id, date_start, date_end, time_start, time_end, days
+    from compiliation_dates
+    where compiliation_id = $1`,
+    [ main.id ]
+  ) ).rows;
 
   const map = createMap( main.actions, "id" );
   const actionIds = Object.keys( map );
