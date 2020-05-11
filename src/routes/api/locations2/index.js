@@ -1,7 +1,7 @@
 "use strict";
 
 import { toInt } from "/helpers/converters";
-import { create, getAll } from "/database/locations2/index";
+import { create, getAll } from "/database/locations2";
 
 export {
   post,
@@ -12,6 +12,9 @@ async function post( {
   body: { name, id },
   database: { pool }
 }, res ){
+  if( typeof name !== "string" || name === "" )
+    return res.error( 13 );
+
   const id_ = toInt( id );
 
   const client = await pool.connect();
@@ -36,6 +39,7 @@ async function post( {
 async function get( {
   database: { pool }
 }, res ){
+  // #fix localise
   const result = await getAll( pool );
 
   res.success( 0, result );

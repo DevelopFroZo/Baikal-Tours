@@ -2,7 +2,8 @@
 
 export {
   create,
-  getAll
+  getAll,
+  edit
 };
 
 async function create( client, name, id ){
@@ -77,4 +78,18 @@ async function getAll( client ){
   );
 
   return rows;
+}
+
+async function edit( client, id, name ){
+  const { rowCount } = await client.query(
+    `update locations2
+    set name = $1
+    where id = $2`,
+    [ name, id ]
+  );
+
+  if( rowCount === 0 )
+    return `Invalid ID (${id})`;
+
+  return true;
 }
