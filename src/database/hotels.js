@@ -4,16 +4,19 @@ import { toInt, toFloat } from "/helpers/converters";
 
 export {
   create,
-  getAll
+  getAll,
+  getById,
+  edit,
+  remove
 };
 
-async function create( client, bookingUrl, bookingLocationId, locationId, name, price, rating ){
+async function create( client, bookingUrl, bookingLocationId, name, price, rating ){
   try{
     const { rows: [ { id } ] } = await client.query(
-      `insert into hotels( booking_url, booking_location_id, location_id, name, price, rating )
-      values( $1, $2, $3, $4, $5, $6 )
+      `insert into hotels( booking_url, booking_location_id, name, price, rating )
+      values( $1, $2, $3, $4, $5 )
       returning id`,
-      [ bookingUrl, bookingLocationId, locationId, name, price, rating ]
+      [ bookingUrl, bookingLocationId, name, price, rating ]
     );
 
     return id;
@@ -39,10 +42,11 @@ async function getAll( client, count, offset, search, locationIds, bookingLocati
     params.push( search );
   }
 
-  if( locationIds !== null ){
-    filters.push( `h.location_id = any( $${i++} )` );
-    params.push( locationIds );
-  }
+  // #fix
+  // if( locationIds !== null ){
+  //   filters.push( `h.location_id = any( $${i++} )` );
+  //   params.push( locationIds );
+  // }
 
   if( bookingLocationIds !== null ){
     filters.push( `h.booking_location_id = any( $${i++} )` );
@@ -56,7 +60,7 @@ async function getAll( client, count, offset, search, locationIds, bookingLocati
 
   const { rowCount, rows } = await client.query(
     `select
-      h.id, h.booking_url, h.location_id, h.name, h.image_url, h.price, h.rating,
+      h.id, h.booking_url, h.name, h.image_url, h.price, h.rating,
       bl.id as booking_location_id,
       bl.name as booking_location_name,
       count( 1 ) over ()
@@ -82,10 +86,10 @@ async function getAll( client, count, offset, search, locationIds, bookingLocati
   };
 }
 
-export async function getById( client, id ){
+async function getById( client, id ){
   const { rows: [ row ] } = await client.query(
     `select
-      h.booking_url, h.location_id, h.name, h.image_url, h.price, h.rating,
+      h.booking_url, h.name, h.image_url, h.price, h.rating,
       bl.id as booking_location_id,
       bl.name as booking_location_name
     from
@@ -100,12 +104,11 @@ export async function getById( client, id ){
   return row;
 }
 
-export async function edit( client, id, { bookingUrl, bookingLocationId, locationId, name, price, rating } ){
+async function edit( client, id, { bookingUrl, bookingLocationId, name, price, rating } ){
   let sets = [];
   const params = [ id ];
   let i = 2;
 
-  locationId = toInt( locationId );
   price = toInt( price );
   rating = toFloat( rating );
 
@@ -117,11 +120,6 @@ export async function edit( client, id, { bookingUrl, bookingLocationId, locatio
   if( typeof bookingLocationId === "string" && bookingLocationId !== "" ){
     sets.push( `booking_location_id = $${i++}` );
     params.push( bookingLocationId );
-  }
-
-  if( locationId !== null && locationId > 0 ){
-    sets.push( `location_id = $${i++}` );
-    params.push( locationId );
   }
 
   if( typeof name === "string" && name !== "" ){
@@ -157,7 +155,7 @@ export async function edit( client, id, { bookingUrl, bookingLocationId, locatio
   return true;
 }
 
-export async function remove( client, id ){
+async function remove( client, id ){
   const { rows: [ row ] } = await client.query(
     `delete from hotels
     where id = $1
