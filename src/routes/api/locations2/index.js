@@ -9,7 +9,7 @@ export {
 };
 
 async function post( {
-  body: { name, id },
+  body: { name, id, isChild },
   database: { pool }
 }, res ){
   if( typeof name !== "string" || name === "" )
@@ -17,11 +17,14 @@ async function post( {
 
   const id_ = toInt( id );
 
+  if( typeof isChild !== "boolean" )
+    isChild = false;
+
   const client = await pool.connect();
 
   await client.query( "begin" );
 
-  const result = await create( client, name, id_ );
+  const result = await create( client, name, id_, isChild );
 
   if( typeof result === "string" ){
     await client.query( "rollback" );

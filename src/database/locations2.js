@@ -7,7 +7,7 @@ export {
   del
 };
 
-async function create( client, name, id ){
+async function create( client, name, id, isChild ){
   let n0, n1, n2;
   let insertParams;
 
@@ -34,13 +34,13 @@ async function create( client, name, id ){
     let searchParams = [];
     let index;
 
-    if( n2_ !== 0 ){
+    if( n2_ !== 0 || n1_ !== 0 && isChild ){
       where = "where n0 = $1 and n1 = $2";
       searchParams = [ n0_, n1_ ];
       insertParams = [ n0_, n1_ ];
       index = 2;
     }
-    else if( n1_ !== 0 ){
+    else if( n1_ !== 0 || n0_ !== 0 && isChild ){
       where = "where n0 = $1";
       searchParams = [ n0_ ];
       insertParams = [ n0_, 0, 0 ];
