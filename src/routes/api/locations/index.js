@@ -5,7 +5,12 @@ export {
 };
 
 async function get( {
+  session: { locale },
+  query: { location2name },
   database: { locations }
 }, res ){
-  res.json( await locations.getAll() );
+  if( typeof location2name === "string" )
+    location2name = true;
+
+  res.json( await locations.getAll( locale, location2name ) );
 }

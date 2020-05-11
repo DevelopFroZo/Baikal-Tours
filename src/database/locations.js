@@ -7,10 +7,21 @@ export default class extends Foundation{
     super( modules, "Locations" );
   }
 
-  async getAll(){
+  async getAll( locale, location2name ){
+    let fields = "";
+    let from = "";
+
+    if( location2name ){
+      fields = ", l2.name as location2_name";
+      from = "left join locations2 as l2 on l2.id = l.location2_id";
+    }
+
     const rows = ( await super.query(
-      `select id, name
-      from locations`
+      `select l.id, l.name${fields}
+      from locations as l ${from}
+      where locale = $1
+      order by l.id`,
+      [ locale ]
     ) ).rows;
 
     return super.success( 0, rows );

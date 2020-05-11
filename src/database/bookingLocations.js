@@ -5,11 +5,19 @@ export {
   edit
 };
 
-async function getAll( client ){
+async function getAll( client, location2name ){
+  let fields = "";
+  let from = "";
+
+  if( location2name ){
+    fields = ", l2.name as location2_name";
+    from = "left join locations2 as l2 on l2.id = bl.location2_id";
+  }
+
   const { rows } = await client.query(
-    `select *
-    from booking_locations
-    order by id`
+    `select bl.id, bl.name${fields}
+    from booking_locations as bl ${from}
+    order by bl.id`
   );
 
   return rows;
