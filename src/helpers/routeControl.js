@@ -133,4 +133,10 @@ export default ( server ) => {
   server.post( "/api/hotels/:id/image", secureAPI( "admin" ), upload.single( "image" ) );
   server.put( "/api/hotels/:id/image", secureAPI( "admin" ), upload.single( "image" ) );
   server.delete( "/api/hotels/:id/image", secureAPI( "admin" ) );
+
+  server.put( "/api/locations/:id", secureAPI( "admin" ) );
+
+  server.post( "/api/locations2", secureAPI( "admin" ) );
+  server.put( "/api/locations2/:id", secureAPI( "admin" ) );
+  server.delete( "/api/locations2/:id", secureAPI( "admin" ) );
 };

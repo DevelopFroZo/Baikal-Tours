@@ -3,10 +3,11 @@
 export {
   create,
   getAll,
-  edit
+  edit,
+  del
 };
 
-async function create( client, name, id ){
+async function create( client, name, id, isChild ){
   let n0, n1, n2;
   let insertParams;
 
@@ -33,13 +34,13 @@ async function create( client, name, id ){
     let searchParams = [];
     let index;
 
-    if( n2_ !== 0 ){
+    if( n2_ !== 0 || n1_ !== 0 && isChild ){
       where = "where n0 = $1 and n1 = $2";
       searchParams = [ n0_, n1_ ];
       insertParams = [ n0_, n1_ ];
       index = 2;
     }
-    else if( n1_ !== 0 ){
+    else if( n1_ !== 0 || n0_ !== 0 && isChild ){
       where = "where n0 = $1";
       searchParams = [ n0_ ];
       insertParams = [ n0_, 0, 0 ];
@@ -90,6 +91,58 @@ async function edit( client, id, name ){
 
   if( rowCount === 0 )
     return `Invalid ID (${id})`;
+
+  return true;
+}
+
+async function del( client, id ){
+  const { rows: [ row ] } = await client.query(
+    `select n0, n1, n2
+    from locations2
+    where id = $1`,
+    [ id ]
+  );
+
+  if( row === undefined )
+    return `Invalid ID (${id})`;
+
+  const { n0, n1, n2 } = row;
+
+  let whereDelete;
+  let whereUpdate;
+  let index;
+  let params;
+
+  if( n2 !== 0 ){
+    whereDelete = "n0 = $1 and n1 = $2 and n2 = $3";
+    whereUpdate = "n0 = $1 and n1 = $2 and n2 > $3";
+    index = 2;
+    params = [ n0, n1, n2 ];
+  }
+  else if( n1 !== 0 ){
+    whereDelete = "n0 = $1 and n1 = $2";
+    whereUpdate = "n0 = $1 and n1 > $2";
+    index = 1;
+    params = [ n0, n1 ];
+  } else {
+    whereDelete = "n0 = $1";
+    whereUpdate = "n0 > $1";
+    index = 0;
+    params = [ n0 ];
+  }
+
+  await client.query(
+    `delete from locations2
+    where ${whereDelete}`,
+    params
+  );
+
+  await client.query(
+    `update locations2
+    set n${index} = n${index} - 1
+    where ${whereUpdate}`,
+    params
+  );
 
   return true;
 }
