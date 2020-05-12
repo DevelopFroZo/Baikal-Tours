@@ -15,8 +15,8 @@ export default class extends Foundation{
 
   async createEmpty(){
     const id = ( await super.query(
-      `insert into actions( price_min, price_max, site_payment )
-      values( 0, 0, false )
+      `insert into actions( site_payment )
+      values( false )
       returning id`
     ) ).rows[0].id;
 
@@ -46,10 +46,10 @@ export default class extends Foundation{
         a.id, a.status, at.name, ${favoritesColumn}
         array_agg( distinct ad.date_start ) as date_starts,
         array_agg( distinct ad.date_end ) as date_ends,
-        ai.image_url, a.price_min, a.price_max,
+        ai.image_url,
         array_agg( distinct s.name ) as subjects,
-        coalesce( min( ab.price ), 0 ) as price_min_,
-        coalesce( max( ab.price ), 0 ) as price_max_,
+        coalesce( min( ab.price ), 0 ) as price_min,
+        coalesce( max( ab.price ), 0 ) as price_max,
         null as locations,
         count( 1 ) over ()
       from
@@ -75,7 +75,7 @@ export default class extends Foundation{
         ${status}
         a.id = at.action_id and
         at.locale = $1
-      group by a.id, a.status, at.name, ai.image_url, a.price_min, a.price_max${group}
+      group by a.id, a.status, at.name, ai.image_url${group}
       order by ${order}
       ${limit}
       ${offset_}`,
@@ -131,12 +131,12 @@ export default class extends Foundation{
     }
 
     if( typeof priceMin === "number" && priceMin >= 0 ){
-      filters.push( `ae.price_min_ >= $${i++}` );
+      filters.push( `ae.price_min >= $${i++}` );
       params.push( priceMin );
     }
 
-    if( typeof priceMax === "number" && priceMax <= 0 ){
-      filters.push( `ae.price_max_ <= $${i++}` );
+    if( typeof priceMax === "number" && priceMax >= 0 ){
+      filters.push( `ae.price_max <= $${i++}` );
       params.push( priceMax );
     }
 
@@ -189,11 +189,11 @@ export default class extends Foundation{
         select
           a.id, a.status, at.locale, at.title,
           at.name, at.tagline, at.short_description,
-          at.full_description, a.price_min, a.price_max,
+          at.full_description,
           ${favoritesColumns0}
           array_agg( l.id ) as locations_ids,
-          coalesce( min( ab.price ), 0 ) as price_min_,
-          coalesce( max( ab.price ), 0 ) as price_max_
+          coalesce( min( ab.price ), 0 ) as price_min,
+          coalesce( max( ab.price ), 0 ) as price_max
         from
           ${favoritesTable}
           actions as a
@@ -218,10 +218,8 @@ export default class extends Foundation{
           at.name,
           at.tagline,
           at.short_description,
-          at.full_description,
-          a.price_min,
           ${favoritesColumns1}
-          a.price_max
+          at.full_description
       )
       select
         tmp.*,
@@ -472,6 +470,7 @@ export default class extends Foundation{
     return super.success( 0, main );
   }
 
+  // #fix переделать (???)
   async getOneForEmail( id, locale ){
     const result = ( await super.query(
       `select
@@ -492,7 +491,7 @@ export default class extends Foundation{
   }
 
   async edit( id, {
-    status, price_min, price_max, organizer_ids,
+    status, organizer_ids,
     site_payment, organizer_payment, emails, phones,
     websites, vk_link, facebook_link, instagram_link,
     twitter_link, title, name, tagline,
@@ -513,16 +512,6 @@ export default class extends Foundation{
     if( status ){
       set.push( `status = $${sc++}` );
       params.push( status );
-    }
-
-    if( typeof price_min === "number" ){
-      set.push( `price_min = $${sc++}` );
-      params.push( price_min );
-    }
-
-    if( typeof price_max === "number" ){
-      set.push( `price_max = $${sc++}` );
-      params.push( price_max );
     }
 
     if( organizer_ids === null || Array.isArray( organizer_ids ) ){
