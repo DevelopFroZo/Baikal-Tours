@@ -71,11 +71,27 @@ async function create( client, name, id, isChild ){
   return row;
 }
 
-async function getAll( client ){
+async function getAll( client, locale, ln, bln ){
+  let fields = "";
+  let from = "";
+  const params = [];
+
+  if( ln ){
+    fields += ", l.name as location_name";
+    from += " left join locations as l on l2.id = l.location2_id and l.locale = $1";
+    params.push( locale );
+  }
+
+  if( bln ){
+    fields += ", bl.name as booking_location_name";
+    from += " left join booking_locations as bl on l2.id = bl.location2_id";
+  }
+
   const { rows } = await client.query(
-    `select *
-    from locations2
-    order by n0, n1, n2`
+    `select l2.*${fields}
+    from locations2 as l2${from}
+    order by l2.n0, l2.n1, l2.n2`,
+    params
   );
 
   return rows;

@@ -9,8 +9,8 @@ async function get( {
   query: { location2name },
   database: { locations }
 }, res ){
-  if( typeof location2name === "string" )
-    location2name = true;
+  location2name = typeof location2name === "string" ? true : false;
 
+  // #fix localise
   res.json( await locations.getAll( locale, location2name ) );
 }

@@ -10,8 +10,7 @@ async function get( {
   query: { location2name },
   database: { pool }
 }, res ){
-  if( typeof location2name === "string" )
-    location2name = true;
+  location2name = typeof location2name === "string" ? true : false;
 
   // #fix localise
   res.success( 0, await getAll( pool, location2name ) );
