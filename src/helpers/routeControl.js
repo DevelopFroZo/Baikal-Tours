@@ -112,6 +112,9 @@ export default ( server ) => {
   server.post( "/api/favorites", secureAPI( "admin" ) );
   server.put( "/api/favorites/:id", secureAPI( "admin" ) );
   server.delete( "/api/favorites/:id", secureAPI( "admin" ) );
+  server.post( "/api/favorites/main", secureAPI( "admin" ) );
+  server.put( "/api/favorites/main/:id", secureAPI( "admin" ) );
+  server.delete( "/api/favorites/main/:id", secureAPI( "admin" ) );
 
   server.post( "/api/excursions", secureAPI( "admin" ) );
   server.put( "/api/excursions/:id", secureAPI( "admin" ) );
