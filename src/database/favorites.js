@@ -89,7 +89,8 @@ export default class extends Foundation{
       `select
         f.*, at.name,
         null as locations,
-        null as dates
+        null as dates,
+        null as subjects
       from
       	favorites as f,
       	actions_translates as at
@@ -123,8 +124,21 @@ export default class extends Foundation{
       [ actionIds ]
     );
 
+    const { rows: subjects } = await transaction.query(
+      `select asu.action_id, s.name
+      from
+      	actions_subjects as asu,
+      	subjects as s
+      where
+      	s.locale = $1 and
+      	asu.action_id = any( $2 ) and
+      	asu.subject_id = s.id`,
+      [ locale, actionIds ]
+    );
+
     mergeMultiple( main, locations, "action_id", "locations", { map, remove: true } );
     mergeMultiple( main, dates, "action_id", "dates", { map, remove: true } );
+    mergeMultiple( main, subjects, "action_id", "subjects", { map, field: "name" } );
 
     await transaction.end();
 
