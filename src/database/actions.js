@@ -23,37 +23,22 @@ export default class extends Foundation{
     return super.success( 0, id );
   }
 
-  async getAll( allStatuses, locale, count, offset, favoritesOnly ){
+  async getAll( allStatuses, locale, count, offset ){
     const status = allStatuses ? "" : "a.status = 'active' and";
     const limit = count && count > 0 ? `limit ${count}` : "";
     const offset_ = offset && offset > -1 ? `offset ${offset}` : "";
-    let favoritesColumn = "";
-    let favoritesTable = "";
-    let favoritesWhere = "";
-    let group = "";
-    let order = "date_starts, a.id";
-
-    if( favoritesOnly ){
-      favoritesColumn = "f.id as favorite_id,";
-      favoritesTable = "favorites as f,";
-      favoritesWhere = "f.action_id = a.id and";
-      group = ", f.subject_id, f.number, favorite_id";
-      order = "f.subject_id, f.number";
-    }
 
     const rows = ( await super.query(
       `select
-        a.id, a.status, at.name, ${favoritesColumn}
-        array_agg( distinct ad.date_start ) as date_starts,
-        array_agg( distinct ad.date_end ) as date_ends,
+        a.id, a.status, at.name,
         ai.image_url,
         array_agg( distinct s.name ) as subjects,
         coalesce( min( ab.price ), 0 ) as price_min,
         coalesce( max( ab.price ), 0 ) as price_max,
         null as locations,
+        null as dates,
         count( 1 ) over ()
       from
-        ${favoritesTable}
         actions as a
         left join action_dates as ad
         on a.id = ad.action_id
@@ -71,12 +56,11 @@ export default class extends Foundation{
         on a.id = ab.action_id and ab.type = 'ticket',
         actions_translates as at
       where
-        ${favoritesWhere}
         ${status}
         a.id = at.action_id and
         at.locale = $1
-      group by a.id, a.status, at.name, ai.image_url${group}
-      order by ${order}
+      group by a.id, a.status, at.name, ai.image_url, ad.date_start, ad.date_end
+      order by ad.date_start, ad.date_end, a.id
       ${limit}
       ${offset_}`,
       [ locale ]
@@ -99,12 +83,20 @@ export default class extends Foundation{
       [ locale, actionIds ]
     );
 
+    const { rows: dates } = await super.query(
+      `select action_id, date_start, date_end, time_start, time_end, days
+      from action_dates
+      where action_id = any( $1 )`,
+      [ actionIds ]
+    );
+
     mergeMultiple( rows, locations, "action_id", "locations", { map, remove: true } );
+    mergeMultiple( rows, dates, "action_id", "dates", { map, remove: true } );
 
     return super.success( 0, rows );
   }
 
-  async filter( allStatuses, locale, dateStart, dateEnd, locations, companions, subjects, search, priceMin, priceMax, count, offset, favoritesOnly ){
+  async filter( allStatuses, locale, dateStart, dateEnd, locations, companions, subjects, search, priceMin, priceMax, count, offset ){
     const status = allStatuses ? "" : "a.status = 'active' and";
     const limit = count && count > 0 ? `limit ${count}` : "";
     const offset_ = offset && offset > -1 ? `offset ${offset}` : "";
@@ -112,23 +104,7 @@ export default class extends Foundation{
     const params = [ locale ];
     let i = params.length + 1;
     let datesFilter = [];
-    let favoritesColumns0 = "";
-    let favoritesColumns1 = "";
-    let favoritesColumns2 = "";
-    let favoritesColumns3 = "";
-    let favoritesTable = "";
-    let favoritesWhere = "";
-    let order = "date_starts, tmp.id";
-
-    if( favoritesOnly ){
-      favoritesColumns0 = "f.id as favorite_id, f.subject_id as fsi, f.number as fn,";
-      favoritesColumns1 = "favorite_id, fsi, fn,";
-      favoritesColumns2 = "ae.favorite_id, ae.fsi, ae.fn,";
-      favoritesColumns3 = "tmp.favorite_id, tmp.fsi, tmp.fn,";
-      favoritesTable = "favorites as f,";
-      favoritesWhere = "f.action_id = a.id and";
-      order = "tmp.fsi, tmp.fn";
-    }
+    let order = "";
 
     if( typeof priceMin === "number" && priceMin >= 0 ){
       filters.push( `ae.price_min >= $${i++}` );
@@ -190,12 +166,10 @@ export default class extends Foundation{
           a.id, a.status, at.locale, at.title,
           at.name, at.tagline, at.short_description,
           at.full_description,
-          ${favoritesColumns0}
           array_agg( l.id ) as locations_ids,
           coalesce( min( ab.price ), 0 ) as price_min,
           coalesce( max( ab.price ), 0 ) as price_max
         from
-          ${favoritesTable}
           actions as a
           left join action_buyable as ab
           on a.id = ab.action_id and ab.type = 'ticket',
@@ -205,7 +179,6 @@ export default class extends Foundation{
         where
           ${status}
           at.locale = $1 and
-          ${favoritesWhere}
           a.id = at.action_id and
           l.locale = at.locale and
           a.id = al.action_id and
@@ -218,20 +191,17 @@ export default class extends Foundation{
           at.name,
           at.tagline,
           at.short_description,
-          ${favoritesColumns1}
           at.full_description
       )
       select
         tmp.*,
-        array_agg( ad.date_start ) as date_starts,
-        array_agg( ad.date_end ) as date_ends,
         ai.image_url,
         null as locations,
+        null as dates,
         count( 1 ) over ()
       from (
         select
           ae.id, ae.status, ae.name, ae.price_min, ae.price_max,
-          ${favoritesColumns2}
           array_agg( distinct c.name ) as companions,
           array_agg( distinct s.name ) as subjects
         from
@@ -248,7 +218,7 @@ export default class extends Foundation{
           ac.action_id = ae.id and
           acsu.subject_id = s.id and
           acsu.action_id = ae.id
-        group by ae.id, ae.status, ae.name, ae.price_min, ${favoritesColumns2} ae.price_max ) as tmp
+        group by ae.id, ae.status, ae.name, ae.price_min, ae.price_max ) as tmp
         left join action_dates as ad
         on ad.action_id = tmp.id
         left join action_images as ai
@@ -262,9 +232,10 @@ export default class extends Foundation{
         tmp.price_max,
         tmp.companions,
         tmp.subjects,
-        ${favoritesColumns3}
-        ai.image_url
-      order by ${order}
+        ai.image_url,
+        ad.date_start,
+        ad.date_end
+      order by ad.date_start, ad.date_end, tmp.id
       ${limit}
       ${offset_}`,
       params
@@ -287,7 +258,15 @@ export default class extends Foundation{
       [ locale, actionIds ]
     );
 
+    const { rows: dates } = await super.query(
+      `select action_id, date_start, date_end, time_start, time_end, days
+      from action_dates
+      where action_id = any( $1 )`,
+      [ actionIds ]
+    );
+
     mergeMultiple( rows, locations_, "action_id", "locations", { map, remove: true } );
+    mergeMultiple( rows, dates, "action_id", "dates", { map, remove: true } );
 
     return super.success( 0, rows );
   }
