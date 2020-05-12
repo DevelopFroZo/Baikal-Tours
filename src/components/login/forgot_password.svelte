@@ -8,6 +8,12 @@
 
   const dispatch = createEventDispatcher();
   let email = "";
+
+  async function forgotPassword(){
+    dispatch("restorePassword", {
+      email
+    })
+  }
 </script>
 
 <style lang="scss">
@@ -32,7 +38,8 @@
       <button
         id="login"
         class="blue-button"
-        disabled={email === '' ? 'disabled' : ''}>
+        disabled={email === '' ? 'disabled' : ''}
+        on:click={forgotPassword}>
         {_('get_new_password')}
       </button>
 

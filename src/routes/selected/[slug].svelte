@@ -60,6 +60,7 @@
       text: '<img src="/img/vk-grey.svg"/>'
     });
   }
+  
 </script>
 
 <style lang="scss">

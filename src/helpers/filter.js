@@ -95,8 +95,8 @@ function parseFilterDataForHotels(filter) {
 
     if (filter.search.active || filter.search.value.length > 0) params.search = encodeURIComponent(filter.search.value);
 
-    arrData = getActiveOption(filter.locationIds);
-    if (arrData.length) params.locationIds = arrData;
+    arrData = getActiveOption(filter.bookingLocationIds);
+    if (arrData.length) params.bookingLocationIds = arrData;
 
     if(Object.keys(params).length === 1)
         params = {};

@@ -24,15 +24,15 @@
     let count = 16;
     let paramsKeys = Object.keys(params);
     let showFilter = false;
-    let locations = (await fetcher.get("/api/dataForFilters", {
+    let locations = (await fetcher.get("/api/bookingLocations", {
       credentials: "same-origin"
-    })).data.locations;
+    })).data;
     let str = "";
 
     if (params.offset !== undefined) offset = parseInt(params.offset);
     if (params.count !== undefined) count = parseInt(params.count);
 
-    filter.locationIds = setFilterData(locations);
+    filter.bookingLocationIds = setFilterData(locations);
 
     if (
       paramsKeys[0] === "filter" &&
@@ -48,10 +48,10 @@
           filter.search.active = true;
         }
       }
-      if (params.locationIds !== undefined)
-        filter.locationIds = setFilterFromUrl(
-          params.locationIds.split(","),
-          filter.locationIds
+      if (params.bookingLocationIds !== undefined)
+        filter.bookingLocationIds = setFilterFromUrl(
+          params.bookingLocationIds.split(","),
+          filter.bookingLocationIds
         );
 
       hotels = await fetcher.get("api/hotels", {
@@ -130,7 +130,7 @@
 
     if (showFilter){
         parseFilter = parseFilterDataForHotels(filter);
-        for(let location of filter.locationIds)
+        for(let location of filter.bookingLocationIds)
             if(location.active)
                 secondLocations.push(location.value);
     }
@@ -294,7 +294,7 @@
 <AdminPage {locale} {_} {fetcher} page={4}>
   <div class="head-line">
     <h1>{_('hotels')}</h1>
-    <a class="green-button" href="/admin/hotels/edit">{_('new_tour')}</a>
+    <a class="green-button" href="/admin/hotels/edit">{_('new_hotel')}</a>
   </div>
   <div class="filter-block">
     <input
@@ -325,7 +325,7 @@
         exclude={[locationsBlock.btn]}>
         {#if locationsBlock.isVisible}
           <div class="option">
-            {#each filter.locationIds as location}
+            {#each filter.bookingLocationIds as location}
               <div
                 on:click={() => {
                   location.active = !location.active;

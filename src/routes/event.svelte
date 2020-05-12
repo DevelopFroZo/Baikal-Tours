@@ -183,6 +183,7 @@
   }
 
   $: {
+    coords = [];
     for(let location of result_action.locations)
       if(location.coords)
         coords.push({
@@ -680,9 +681,13 @@
     overflow: hidden;
 
     & > .form-width {
-      padding-top: 235px;
+      padding-top: 0px;
       padding-right: 480px;
       box-sizing: border-box;
+      position: absolute;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
 
       & > h1 {
         font-size: 36px;
@@ -939,7 +944,7 @@
       font-size: $Big_Font_Size;
 
       &:not(:first-child){
-        margin-top: 10px;
+        margin-top: 5px;
       }
     }
   }
@@ -1388,7 +1393,21 @@
           padding-bottom: 15px;
         }
       }
-  } 
+  }
+
+  .dates-block{
+    margin-top: 20px;
+
+    li{
+      color: white;
+      font-size: $Big_Font_Size;
+      font-weight: 600;
+
+      &:not(:first-child){
+        margin-top: 5px;
+      }
+    }
+  }
 
   @media only screen and (max-width: 768px) {
     h1 {
@@ -1767,6 +1786,17 @@
         </ul>
       {/if}
     </div>
+    {#if result_action.dates}
+      <div class="dates-block">
+        <ul>
+          {#each result_action.dates as date}
+            <li>
+              {dateToString(date, _)}
+            </li>
+          {/each} 
+        </ul>
+      </div>
+    {/if}
     {#if $session.isLogged}
       <button class="register-button" on:click={() => {
         animateScroll.scrollTo({offset: registerBlock.offsetTop - 150, duration: 1500})

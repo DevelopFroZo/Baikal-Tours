@@ -368,5 +368,32 @@ export default ({
   event_is_paid:              "Event paid",
   event_is_not_paid:          "Event not paid for",
 
-  hotel_image:                "The photo of the hotel"
+  hotel_image:                "The photo of the hotel",
+
+  added_organizer:            "You have already added this organizer",
+  required_fields_message:    "Fill in all required fields",
+  change_one_ticket:          "Choose at least one ticket",
+  full_site_name:             "Calendar of events on lake Baikal from a fan of lake Baikal",
+  add_subject:                "Add a subject",
+  save_subjects:              "Save topics",
+  saving_subjects:            "Saving topics",
+  add_transfer:               "Add transfer",
+  save_transfers:             "Save transfers",
+  saving_transfers:           "Saving transfers",
+  finded:                     "Found",
+  uncorrect_date_form:        "Invalid date format",
+  add_first_level_location:   "Add a first-level location",
+  add_second_level_location:  "Add a second-level location",
+  add_thrid_level_location:   "Add a third-level location",
+  type_location_name:         "Enter the location name",
+  add_location:               "Add location",
+  delete_list:                "Delete branch \" {text}\"?",
+  delete_location:            "Delete location \" {text}\"",
+  location_name:              "Location name",
+  old_location_name:          "Old name",
+  booking_location:           "Location on booking",
+  location_validate:          "Location mapping",
+  booking_locations:          "Booking Locations",
+  location_from_booking:      "Location from Booking",
+  new_hotel:                  "New hotel"
 });

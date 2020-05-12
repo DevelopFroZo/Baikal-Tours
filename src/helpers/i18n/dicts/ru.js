@@ -378,5 +378,19 @@ export default ( {
   save_transfers:             "Сохранить трансферы",
   saving_transfers:           "Сохранение трансферов",
   finded:                     "Найдено",
-  uncorrect_date_form:        "Некорректный формат даты"
+  uncorrect_date_form:        "Некорректный формат даты",
+  add_first_level_location:   "Добавить локацию первого уровня",
+  add_second_level_location:  "Добавить локацию второго уровня",
+  add_thrid_level_location:   "Добавить локацию третьего уровня",
+  type_location_name:         "Введите название локации",
+  add_location:               "Добавить локацию",
+  delete_list:                "Удалить ветку \"{text}\"?",
+  delete_location:            "Удалить локацию \"{text}\"",
+  location_name:              "Имя локации",
+  old_location_name:          "Старое имя",
+  booking_location:           "Локация на booking",
+  location_validate:          "Сопоставление локации",
+  booking_locations:          "Локации Booking",
+  location_from_booking:      "Локация из Booking",
+  new_hotel:                  "Новый отель"
 } );

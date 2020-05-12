@@ -49,6 +49,17 @@
     }
     else showSearch = true;
   }
+
+  async function restorePassword({detail}){
+    let result = await fetcher.get(`/api/restorePassword`, detail);
+
+    if(result.ok){
+      goto(parseUrlByPage($page, ['window'], {
+        window: 'login'
+      }))
+    }
+    else alert(result.message)
+  }
 </script>
 
 <style lang="scss">
@@ -673,6 +684,7 @@
   on:forgotPassword={() => goto(parseUrlByPage($page, ['window'], {
         window: 'forgot-password'
       }))}
+  on:restorePassword={restorePassword}
   on:login={() => goto(parseUrlByPage($page, ['window'], { window: 'login' }))}
   on:register={() => goto(parseUrlByPage($page, ['window'], {
         window: 'register'

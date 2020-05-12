@@ -369,5 +369,32 @@ export default ( {
   event_is_paid:                  "事件支付",
   event_is_not_paid:              "事件未支付",
 
-  hotel_image:                    "酒店的照片"
+  hotel_image:                    "酒店的照片",
+
+  added_organizer:                "你已经添加了这个组织者",
+  required_fields_message:        "填写所有必填字段",
+  change_one_ticket:              "选择至少一张票",
+  full_site_name:                 "贝加尔湖事件日历从贝加尔湖的粉丝",
+  add_subject:                    "添加主题",
+  save_subjects:                  "保存主题",
+  saving_subjects:                "保存主题",
+  add_transfer:                   "添加传输",
+  save_transfers:                 "保存传输",
+  saving_transfers:               "保存转账",
+  finded:                         "发现",
+  uncorrect_date_form:            "日期格式无效",
+  add_first_level_location:       "添加一个第一级位置",
+  add_second_level_location:      "添加二级位置",
+  add_thrid_level_location:       "添加第三级位置",
+  type_location_name:             "输入位置名称",
+  add_location:                   "添加位置",
+  delete_list:                    "删除分支\"{text}\"？",
+  delete_location:                "删除位置\"{text}\"",
+  location_name:                  "位置名称",
+  old_location_name:              "旧名",
+  booking_location:               "预订位置",
+  location_validate:              "位置映射",
+  booking_locations:              "预订地点",
+  location_from_booking:          "从预订位置",
+  new_hotel:                      "新酒店"
 } );        

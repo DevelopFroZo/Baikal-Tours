@@ -10,7 +10,11 @@
       credentials: "same-origin"
     })).data;
 
-    return { locale, result_directories };
+    let locations = (await fetcher.get("/api/locations2", {
+      credentials: "same-origin"
+    })).data;
+
+    return { locale, result_directories, locations };
   }
 </script>
 
@@ -18,7 +22,7 @@
   import AdminPage from "../_admin_page.svelte";
   import i18n from "/helpers/i18n/index.js";
 
-  export let locale, result_directories;
+  export let locale, result_directories, locations;
 
   const fetcher = new Fetcher();
   const _ = i18n(locale);
@@ -67,13 +71,17 @@
       font-weight: bold;
   }
 
-  .location-block{
-      font-weight: bold;
+  .second-level {
+    margin-left: 15px;
+    font-weight: 600;
+  }
 
-      & > li{
-          margin-left: 10px;
-          font-weight: normal;
-      }
+  .thrid-level{
+    margin-left: 30px;
+  }
+
+  .first-level{
+    font-weight: bold;
   }
 </style>
 
@@ -88,15 +96,20 @@
     <div class="directory">
       <div class="directory-header">
         <h2>{_("locations")}</h2>
-        <!-- <button>
+        <a href="admin/directories/locations">
           <img src="/img/edit_green.png" alt="edit" />
-        </button> -->
+        </a>
       </div>
       <div class="directory-info">
         <ul class="location-block">
-          Иркутская область
-          {#each result_directories.locations as location}
-            <li>{location.name}</li>
+          {#each locations as location}
+            {#if location.n1 && !location.n2}
+              <li class="second-level">{location.name}</li>
+            {:else if location.n1 && location.n2}
+              <li class="thrid-level">{location.name}</li>
+            {:else}
+              <li class="first-level">{location.name}</li>
+            {/if}
           {/each}
         </ul>
       </div>
