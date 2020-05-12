@@ -44,9 +44,10 @@ export default class extends Foundation{
 
     const prices = ( await transaction.query(
       `select
-         min( price_min ) as min,
-         max( price_max ) as max
-       from actions`
+      	coalesce( min( price ), 0 ) as min,
+      	coalesce( max( price ), 0 ) as max
+      from action_buyable
+      where type = 'ticket'`
     ) ).rows;
 
     await transaction.end();

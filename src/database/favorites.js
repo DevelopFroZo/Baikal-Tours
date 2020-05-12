@@ -1,6 +1,7 @@
 "use strict";
 
 import Foundation from "./helpers/foundation";
+import { createMap, mergeMultiple } from "/helpers/merger";
 
 export default class extends Foundation{
   constructor( modules ){
@@ -72,6 +73,62 @@ export default class extends Foundation{
     await transaction.end();
 
     return super.success( 0, id );
+  }
+
+  async get( locale, subjectIds ){
+    const transaction = await super.transaction();
+    let filter = "";
+    const params = [ locale ];
+
+    if( subjectIds !== null ){
+      filter = "f.subject_id = any( $2 ) and";
+      params.push( subjectIds );
+    }
+
+    const { rows: main } = await transaction.query(
+      `select
+        f.*, at.name,
+        null as locations,
+        null as dates
+      from
+      	favorites as f,
+      	actions_translates as at
+      where
+      	at.locale = $1 and
+        ${filter}
+      	f.action_id = at.action_id
+      order by f.subject_id, f.number`,
+      params
+    );
+
+    const map = createMap( main, "action_id" );
+    const actionIds = Object.keys( map );
+
+    const { rows: locations } = await transaction.query(
+      `select al.action_id, al.address, l.name
+      from
+      	actions_locations as al,
+      	locations as l
+      where
+      	l.locale = $1 and
+      	al.action_id = any( $2 ) and
+      	al.location_id = l.id`,
+      [ locale, actionIds ]
+    );
+
+    const { rows: dates } = await transaction.query(
+      `select action_id, date_start, date_end, time_start, time_end, days
+      from action_dates
+      where action_id = any( $1 )`,
+      [ actionIds ]
+    );
+
+    mergeMultiple( main, locations, "action_id", "locations", { map, remove: true } );
+    mergeMultiple( main, dates, "action_id", "dates", { map, remove: true } );
+
+    await transaction.end();
+
+    return main;
   }
 
   async edit( id, number, action ){

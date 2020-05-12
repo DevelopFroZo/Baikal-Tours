@@ -1,8 +1,13 @@
 "use strict";
 
-import { toInt } from "/helpers/converters";
+import { toInt, toIntArray } from "/helpers/converters";
 
-export async function post( req, res ){
+export {
+  post,
+  get
+};
+
+async function post( req, res ){
   const subjectId = toInt( req.body.subjectId );
   const actionId = toInt( req.body.actionId );
   let before = toInt( req.body.before );
@@ -16,4 +21,15 @@ export async function post( req, res ){
     before = null;
 
   res.json( await req.database.favorites.create( subjectId, actionId, before ) );
+}
+
+async function get( {
+  session: { locale },
+  query: { subjectIds },
+  database: { favorites }
+}, res ){
+  const subjectIds_ = toIntArray( subjectIds );
+  const result = await favorites.get( locale, subjectIds_ );
+
+  res.success( 0, result );
 }
