@@ -117,7 +117,7 @@ async function edit( client, id, { bookingUrl, bookingLocationId, name, price, r
     params.push( bookingUrl );
   }
 
-  if( typeof bookingLocationId === "string" && bookingLocationId !== "" ){
+  if( Number.isInteger( bookingLocationId ) && bookingLocationId > 0 ){
     sets.push( `booking_location_id = $${i++}` );
     params.push( bookingLocationId );
   }
