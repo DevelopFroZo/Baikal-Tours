@@ -10,7 +10,7 @@ export {
 };
 
 async function post( {
-  body: { bookingUrl, bookingLocationId, locationId, name, price, rating },
+  body: { bookingUrl, bookingLocationId, name, price, rating },
   database: { pool }
 }, res ){
   if( typeof name !== "string" || name === "" )
@@ -22,16 +22,13 @@ async function post( {
   if( !Number.isInteger( bookingLocationId ) || bookingLocationId < 1 )
     bookingLocationId = null;
 
-  if( !Number.isInteger( locationId ) || locationId < 1 )
-    locationId = null;
-
   if( !Number.isInteger( price ) || price < 1 )
     price = null;
 
   if( typeof rating !== "number" || rating < 1 || rating > 10 )
     rating = null;
 
-  const result = await create( pool, bookingUrl, bookingLocationId, locationId, name, price, rating );
+  const result = await create( pool, bookingUrl, bookingLocationId, name, price, rating );
 
   if( typeof result === "object" )
     return res.json( result );

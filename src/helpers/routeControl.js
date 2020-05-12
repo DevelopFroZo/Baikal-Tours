@@ -136,6 +136,8 @@ export default ( server ) => {
 
   server.put( "/api/locations/:id", secureAPI( "admin" ) );
 
+  server.put( "/api/bookingLocations/:id", secureAPI( "admin" ) );
+
   server.post( "/api/locations2", secureAPI( "admin" ) );
   server.put( "/api/locations2/:id", secureAPI( "admin" ) );
   server.delete( "/api/locations2/:id", secureAPI( "admin" ) );

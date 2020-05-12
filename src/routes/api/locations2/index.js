@@ -40,10 +40,15 @@ async function post( {
 }
 
 async function get( {
+  session: { locale },
+  query: { ln, bln },
   database: { pool }
 }, res ){
+  ln = typeof ln === "string" ? true : false;
+  bln = typeof bln === "string" ? true : false;
+
   // #fix localise
-  const result = await getAll( pool );
+  const result = await getAll( pool, locale, ln, bln );
 
   res.success( 0, result );
 }

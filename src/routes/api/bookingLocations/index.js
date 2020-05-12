@@ -1,16 +1,17 @@
 "use strict";
 
+import { getAll } from "/database/bookingLocations";
+
 export {
   get
 };
 
 async function get( {
-  session: { locale },
   query: { location2name },
-  database: { locations }
+  database: { pool }
 }, res ){
   location2name = typeof location2name === "string" ? true : false;
 
   // #fix localise
-  res.json( await locations.getAll( locale, location2name ) );
+  res.success( 0, await getAll( pool, location2name ) );
 }
