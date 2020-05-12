@@ -3,7 +3,7 @@
   import Swiper from "swiper";
   import { onMount, afterUpdate } from "svelte";
 
-  export let data, carouselData, blockHeight = "auto";
+  export let data, carouselData, blockHeight = "auto", mainSlide = 0;
   let swiper = null, hideButtons = false, carouselBlock;
 
   afterUpdate(() => {
@@ -13,7 +13,7 @@
   function changeUpdate(){
     if (swiper !== null) {
       swiper.update();
-      swiper.slideTo(0, 750);
+      swiper.slideTo(mainSlide === 1 ? (carouselData.length < 3 ? 0 : 1) : 1, 750);
     } else swiper = new Swiper(carouselBlock, data);
 
     hideButtons = carouselData.length < swiper.params.slidesPerGroup

@@ -8,13 +8,21 @@
   let secondActions = [],
     oldActions = [];
 
-  for (let action of reservations)
+  for (let action of reservations){
+    let actionDate = null;
+    if(action.date){
+      actionDate = new Date(action.date)
+      actionDate.setDate(actionDate.getDate() + 1)
+    }
+      
     if (
-      action.date !== null &&
-      new Date(action.date).getTime() <= new Date()
+      actionDate &&
+      actionDate < new Date()
     )
       oldActions.push(action);
     else secondActions.push(action);
+  }
+    
 
   function setSection(sectionType) {
     section = sectionType;

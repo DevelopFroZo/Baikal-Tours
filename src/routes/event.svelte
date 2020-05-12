@@ -1,6 +1,6 @@
 <script context="module">
   import Fetcher from "/helpers/fetcher.js";
-  import { parseDate } from "/helpers/parsers.js";
+  import { parseDate, reverseDate } from "/helpers/parsers.js";
   import { isMobile } from "/helpers/validators.js";
   import { getRundomObjects } from "/helpers/edit.js";
 
@@ -129,6 +129,8 @@
   import { fade } from "svelte/transition";
   import isValidActionDate from "/helpers/isValidActionDate.js";
   import YandexMap from "/components/yandexMap/index.svelte";
+  import { imask } from 'svelte-imask';
+  import ClickOutside from "/components/clickOutside.svelte";
 
   export let result_action, actionId, userId, locale, similar_events, mobile;
 
@@ -168,7 +170,10 @@
     showDateChange = true,
     dates = result_action.dates,
     coords = [],
-    requiredField = false;
+    requiredField = false,
+    visibleDates,
+    showDatePicker = false,
+    dateInput;
 
   $: {
     total = 0;
@@ -178,6 +183,7 @@
   }
 
   $: {
+    coords = [];
     for(let location of result_action.locations)
       if(location.coords)
         coords.push({
@@ -195,18 +201,35 @@
   $: ticketsWithCount = tickets.filter(el => el.count);
   $: additionalsWithCount = additionals.filter(el => el.count);
   
-  $: {
-    let date = new Date(userDate);
-    if( userDate !== "" && showDateChange){
+  function checkUserDate() {
+    let splitDate = userDate.split(".");
+    if((userDate.length !== 10 || splitDate[0] > 31 || splitDate[1] > 12 || splitDate.length < 3) && userDate !== ""){
+      alert(_("uncorrect_date_form"))
+      return false;
+    }
+
+    if(!userDate.length){
+      alert(_("required_fields_message"))
+      requiredField = true;
+    }
+
+    let date = new Date(reverseDate(userDate, false));
+    if( showDateChange){
 
       if(dates[0].time_start !== null)
         date.setHours(Number(dates[0].time_start.split(":")[0]))
       
       if( !dates.some(el => isValidActionDate(el, date))){
         alert(_("date_not_correct"))
-        userDate = "";
+        return false;
+      }
+      else{
+        showDatePicker = false;
+        return true
       }
     }
+
+    return true;
   }
 
   function changeAllData(){
@@ -233,13 +256,10 @@
     tickets = result_action.buyable.filter(el => el.type === "ticket");
     additionals = result_action.buyable.filter(el => el.type === "additional");
 
-    showDateChange = !(result_action.dates.length === 1 && result_action.dates[0].date_start === result_action.dates[0].date_end);
-
-    if(!showDateChange || !result_action.buyable.length)
-      userDate = result_action.dates[0].date_start === null ? result_action.dates[0].date_end : result_action.dates[0].date_start;
-
     for(let ticket of result_action.buyable)
       ticket.count = 0;
+
+    setRegisterDates();
 
     if(start){
       setShare();
@@ -285,11 +305,9 @@
         return;
       }
 
-    if(tickets.length && showDateChange && !userDate.length){
-      alert(_("required_fields_message"))
-      requiredField = true;
+    if(!checkUserDate())
       return;
-    }
+    
 
     if(!validateMail(userMail)){
       alert(_("uncorrect_mail"))
@@ -309,7 +327,7 @@
       name: userName,
       phone: userPhone,
       email: userMail,
-      date: new Date(userDate).toISOString()
+      date: new Date(reverseDate(userDate, false)).toISOString()
     }
 
     let countedTickets = [];
@@ -330,6 +348,7 @@
       else
         alert(_("action_register_success"))
     }
+    else alert("Произошла ошибка на сервере")
   }
 
   function startEditor(){
@@ -338,6 +357,126 @@
     })
     
     editorText.setContents(editorText.clipboard.convert(result_action.full_description.replace(/\n/g, "</br>")))
+  }
+
+  async function setRegisterDates(){
+    let dates = result_action.dates;
+    visibleDates = [];
+
+    if(dates){
+      let dateNow = new Date();
+      for(let date of dates){
+        let dateStart;
+        let dateEnd;
+        let dates = date.days;
+
+        if(date.date_start){
+          dateStart = new Date(date.date_start);
+          dateStart.setHours(date.time_start ? date.time_start.split(":")[0] : 23)
+          dateStart.setMinutes(date.time_start ? date.time_start.split(":")[1] : 59)
+          dateStart.setSeconds(date.time_start ? date.time_start.split(":")[2] : 59)
+        }
+        if(date.date_end){
+          dateEnd = new Date(date.date_end);
+          dateEnd.setHours(date.time_end ? date.time_end.split(":")[0] : 23)
+          dateEnd.setMinutes(date.time_end ? date.time_end.split(":")[1] : 59)
+          dateEnd.setSeconds(date.time_end ? date.time_end.split(":")[2] : 59)
+        }
+                
+        if(dateStart && dateEnd && parseDate(dateStart) === parseDate(dateEnd)){
+          if(visibleDates.indexOf(parseDate(dateStart)) === -1)
+            visibleDates.push(parseDate(dateStart))
+        }
+        else if(dateStart !== dateEnd && dateStart && dateEnd && dateEnd > dateNow){
+  
+          let fullStartDate = new Date(dateStart);
+          let fullEndDate = new Date(dateEnd);
+  
+          if(fullStartDate < new Date())
+            fullStartDate = dateNow;
+          let i = 0;
+          
+          while(fullStartDate <= fullEndDate && i <= 100){
+            
+            if(checkDateByDay(fullStartDate, dates, visibleDates)){
+              visibleDates.push(parseDate(fullStartDate));
+              i++;
+            }
+              
+              
+            fullStartDate.setDate(fullStartDate.getDate() + 1);
+          }
+        }
+        else if(dateStart && !dateEnd){
+          let fullStartDate = new Date(dateStart);
+          if(fullStartDate < dateNow)
+            fullStartDate = new Date(dateNow);
+  
+          let i = 0;
+          while(i <= 100){
+            if(checkDateByDay(fullStartDate, dates, visibleDates)){
+              visibleDates.push(parseDate(fullStartDate));
+              i++;
+            }
+              
+            fullStartDate.setDate(fullStartDate.getDate() + 1);
+          }
+        }
+        else if(!dateStart && dateEnd && dateEnd >= dateNow){
+          let secondDate = new Date(dateNow);
+          let i = 0;
+  
+          while(i <= 100 && dateEnd > secondDate){
+  
+            if(checkDateByDay(secondDate, dates, visibleDates)){
+              visibleDates.push(parseDate(secondDate));
+              i++;
+            }
+              
+            secondDate.setDate(secondDate.getDate() + 1);
+          }
+        }
+        else if(!dateStart && !dateEnd && dates){
+          let secondDate = new Date(dateNow);
+          let i = 0;
+  
+          while(i <= 100){
+            if(checkDateByDay(secondDate, dates, visibleDates)){
+              visibleDates.push(parseDate(secondDate));
+              i++;
+            }
+              
+            secondDate.setDate(secondDate.getDate() + 1);
+          }
+        }
+      }
+    }
+
+    visibleDates = visibleDates.sort();
+
+    if(visibleDates.length <= 1 || !result_action.buyable.length){
+      userDate = visibleDates.length ? reverseDate(visibleDates[0]) : null;
+      showDateChange = false;
+    }
+  }
+
+  function checkDateByDay(date, dates, allDates){
+    let bl = dates ? false : true;
+    if(dates)
+      for(let day of dates){
+        let dateDay = date.getDay();
+        if(dateDay === 0) dateDay = 6
+        if(dateDay === day){
+          bl = true;
+          break;
+        }
+      }
+    
+    if(bl){
+      if(allDates.indexOf(parseDate(date)) === -1)
+        return true;
+    }
+    return false;
   }
 </script>
 
@@ -403,7 +542,7 @@
         & > .input-block{
           position: relative;
 
-          input {
+          & > :global(input) {
             background: white;
             box-sizing: border-box;
             box-shadow: 0px 0px 20px rgba(229, 229, 229, 0.35);
@@ -538,19 +677,23 @@
   .main-block {
     min-height: 650px;
     position: relative;
-    background: linear-gradient(126.58deg, rgba(255, 255, 255, 0.6) 50.56%, rgba(255, 255, 255, 0) 58.16%);
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.56) 0%, rgba(0, 0, 0, 0) 100%);
     overflow: hidden;
 
     & > .form-width {
-      padding-top: 235px;
+      padding-top: 0px;
       padding-right: 480px;
       box-sizing: border-box;
+      position: absolute;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
 
       & > h1 {
         font-size: 36px;
         font-family: $Playfair;
         margin-top: 20px;
-        color: #34353F;
+        color: white;
       }
 
       & > button{
@@ -602,6 +745,11 @@
       overflow: visible;
     }
 
+    & .partner-container > span{
+      color: #C1C1C1;
+      font-size: $LowBig_Font_Size;
+    }
+
     & .partner-block {
       text-align: center;
       width: 280px;
@@ -609,6 +757,7 @@
       background: white;
       box-shadow: 0px 0px 70px rgba(40, 39, 49, 0.1);
       position: relative;
+      margin-bottom: 15px;
 
       & > img {
         position: absolute;
@@ -772,7 +921,7 @@
     & > li{
       display: flex;
       align-items: center;
-      color: $Blue;
+      color: white;
       font-size: $Big_Font_Size;
     }
 
@@ -780,7 +929,7 @@
       width: 7px;
       height: 7px;
       border-radius: 10px;
-      border: 1px solid $Blue;
+      border: 1px solid white;
       box-sizing: border-box;
       margin: 0 15px;
     }
@@ -790,21 +939,22 @@
     margin-top: 20px;
 
     & li{
-      color: rgba(52, 53, 63, 0.7);
+      color: white;
       font-weight: bold;
       font-size: $Big_Font_Size;
 
       &:not(:first-child){
-        margin-top: 10px;
+        margin-top: 5px;
       }
     }
   }
 
   .short-description{
     width: 65%;
-    font-size: 24px;
+    font-size: 20px;
     font-weight: bold;
     margin-top: 50px;
+    color: #5A5C6B;
   }
 
   #description-block{
@@ -1200,6 +1350,65 @@
     }
   }
 
+  .date-picker{
+
+    & > input{
+      position: relative;
+      z-index: 2;
+      background: transparent !important;
+      box-shadow: none !important;
+    }
+
+    & > .img-block{
+      z-index: 3;
+    }
+
+    & > .all-dates{
+      position: absolute;
+      top: 0;
+      left: 0;
+      background: white;
+      border-radius: 25px;
+      padding-top: 51px;
+      z-index: 1;
+      width: 100%;
+      box-shadow: 0px 0px 20px rgba(229, 229, 229, 0.35);
+    }
+  }
+
+  .date-list{
+      max-height: 120px;
+      overflow: auto;
+
+      & button{
+        padding: 7px 20px;
+        font-size: $Big_Font_Size;
+        color: #434343;
+
+        &:first-child{
+          padding-top: 0;
+        }
+
+        &:last-child{
+          padding-bottom: 15px;
+        }
+      }
+  }
+
+  .dates-block{
+    margin-top: 20px;
+
+    li{
+      color: white;
+      font-size: $Big_Font_Size;
+      font-weight: 600;
+
+      &:not(:first-child){
+        margin-top: 5px;
+      }
+    }
+  }
+
   @media only screen and (max-width: 768px) {
     h1 {
       font-size: $Big_Font_Size;
@@ -1577,6 +1786,17 @@
         </ul>
       {/if}
     </div>
+    {#if result_action.dates}
+      <div class="dates-block">
+        <ul>
+          {#each result_action.dates as date}
+            <li>
+              {dateToString(date, _)}
+            </li>
+          {/each} 
+        </ul>
+      </div>
+    {/if}
     {#if $session.isLogged}
       <button class="register-button" on:click={() => {
         animateScroll.scrollTo({offset: registerBlock.offsetTop - 150, duration: 1500})
@@ -1591,7 +1811,8 @@
 
   {#if result_action.images.length}
     <div class="main-carousel">
-      <Carousel data={{slidesPerView: 'auto', preloadImages: "false", centeredSlides: true, spaceBetween: 25, speed: 750, navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' }}}
+      <Carousel data={{slidesPerView: 'auto', preloadImages: "false", centeredSlides: true, spaceBetween: 25, speed: 750, navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' }, initialSlide: 1}}
+      mainSlide={1}
       carouselData={result_action.images}>
         {#each result_action.images as img}
           <div class="carousel-cell swiper-slide">
@@ -1620,14 +1841,17 @@
         <Carousel data={{slidesPerView: 'auto', spaceBetween: (mobile ? 10 : 25), speed: 750, navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' }}}
         carouselData={result_action.partners}>
           {#each result_action.partners as partner}
+          <div class="partner-container">
             <div class="partner-block swiper-slide">
               <img
                 src={partner.image_url}
                 alt={partner.name === null ? 'partner' : partner.name} />
             </div>
+            <span>{partner.name}</span>
+          </div>
+            
           {/each}
         </Carousel>
-        
       </div>
     </div>
   {/if}
@@ -1835,55 +2059,79 @@
                 </div>
               </div>
               {#if showDateChange && (tickets.length || additionals.length)}
-                <div class="input-block" class:requiredField={requiredField && !userDate.length}>
-                  <input type="date" bind:value={userDate}/>
+                <div class="input-block date-picker" class:requiredField={requiredField && !userDate.length}>
+                  <input 
+                    use:imask={{mask: "00.00.0000" }} 
+                    bind:value={userDate} 
+                    placeholder="ДД.ММ.ГГГГ" 
+                    bind:this={dateInput}
+                    on:focus={() => showDatePicker = true}
+                    />
                   <div class="img-block">
                     <img src="/img/calendar.png" alt="date">
+                  </div>
+                  <div class="all-dates">
+                    <ClickOutside on:clickoutside={() => showDatePicker = false} exclude={[dateInput]} hideByExclude={false}>
+                      {#if showDatePicker && userDate.length < 10}
+                        <ul class="date-list" transition:slide>
+                          {#each visibleDates.filter(el => userDate.length ? reverseDate(el).startWith(userDate) : true) as date}
+                            <li>
+                              <button on:click={() => {
+                                userDate = reverseDate(date);
+                                showDatePicker = false;
+                              }}>
+                                {reverseDate(date)}
+                              </button>
+                            </li>
+                          {/each}
+                        </ul>
+                      {/if}
+                    </ClickOutside>
                   </div>
                 </div>
               {/if}
             </div>
 
             {#if tickets.length > 0}
-            <div class="register-categoty-block">
-              <h2>{_('ticket_categories')}</h2>
-              <div class="tickets-block">
-                {#each tickets as ticket}
-                  <div class="ticket-block">
-                    <div>
-                      <div>{ticket.name}</div>
-                      <div class="ticket-price">{ticket.price} {_('rub')}</div>
+              <div class="register-categoty-block">
+                <h2>{_('ticket_categories')}</h2>
+                <div class="tickets-block">
+                  {#each tickets as ticket}
+                    <div class="ticket-block">
+                      <div>
+                        <div>{ticket.name}</div>
+                        <div class="ticket-price">{ticket.price} {_('rub')}</div>
+                      </div>
+                      <div class="counter">
+                        <button on:click={() => ticket.count = ticket.count - 1 < 0 ? 0 : ticket.count - 1 }>-</button>
+                        <div class="couter-value">{ticket.count}</div>
+                        <button on:click={() => ticket.count++}>+</button>
+                      </div>
                     </div>
-                    <div class="counter">
-                      <button on:click={() => ticket.count = ticket.count - 1 < 0 ? 0 : ticket.count - 1 }>-</button>
-                      <div class="couter-value">{ticket.count}</div>
-                      <button on:click={() => ticket.count++}>+</button>
-                    </div>
-                  </div>
-                {/each}
+                  {/each}
+                </div>
               </div>
-            </div>
             {/if}
 
             {#if additionals.length > 0}
-            <div class="register-categoty-block">
-              <h2>{_('additionally')}</h2>
-              <div class="tickets-block">
-                {#each additionals as ticket}
-                  <div class="ticket-block">
-                    <div>
-                      <div>{ticket.name}</div>
-                      <div class="ticket-price">{ticket.price} {_('rub')}</div>
+              <div class="register-categoty-block">
+                <h2>{_('additionally')}</h2>
+                <div class="tickets-block">
+                  {#each additionals as ticket}
+                    <div class="ticket-block">
+                      <div>
+                        <div>{ticket.name}</div>
+                        <div class="ticket-price">{ticket.price} {_('rub')}</div>
+                      </div>
+                      <div class="counter">
+                        <button on:click={() => ticket.count = ticket.count - 1 < 0 ? 0 : ticket.count - 1}>-</button>
+                        <div class="couter-value">{ticket.count}</div>
+                        <button on:click={() => ticket.count++}>+</button>
+                      </div>
                     </div>
-                    <div class="counter">
-                      <button on:click={() => ticket.count = ticket.count - 1 < 0 ? 0 : ticket.count - 1}>-</button>
-                      <div class="couter-value">{ticket.count}</div>
-                      <button on:click={() => ticket.count++}>+</button>
-                    </div>
-                  </div>
-                {/each}
+                  {/each}
+                </div>
               </div>
-            </div>
             {/if}
           </div>
           <hr />
@@ -1915,17 +2163,17 @@
   {/if}
 
   {#if result_action.tours.length > 0}
-  <div class="banners-block">
-    <div class="banners-info">
-      <h2>{_('tours')}</h2>
-      <a href="https://fanatbaikala.ru/tours" target="_blank">{_('more_excursions')}</a>
+    <div class="banners-block">
+      <div class="banners-info">
+        <h2>{_('tours')}</h2>
+        <a href="https://fanatbaikala.ru/tours" target="_blank">{_('more_excursions')}</a>
+      </div>
+      <div class="banners">
+        {#each result_action.tours as tour}
+          <BannerBlock {...tour} {_} />
+        {/each}
+      </div>
     </div>
-    <div class="banners">
-      {#each result_action.tours as tour}
-        <BannerBlock {...tour} {_} />
-      {/each}
-    </div>
-  </div>
   {/if}
 
   {#if result_action.hotels.length}

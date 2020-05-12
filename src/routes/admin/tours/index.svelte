@@ -20,8 +20,6 @@
 
   export let locale, tours;
 
-  console.log(tours);
-
   const fetcher = new Fetcher();
   const _ = i18n(locale);
 </script>

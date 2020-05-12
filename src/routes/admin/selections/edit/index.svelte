@@ -4,7 +4,8 @@
   export async function preload(page, session) {
     const fetcher = new Fetcher(this.fetch);
     let locale = session.locale;
-    let compiliationId = page.query.id;
+    let compiliationUrl = page.query.url;
+    let compiliationId = undefined;
     let compiliationData;
 
     let isSuccess = false;
@@ -20,9 +21,9 @@
       }
     })).actions;
 
-    if (compiliationId !== undefined) {
+    if (compiliationUrl) {
       compiliationData = await fetcher.get(
-        `/api/compiliation/${compiliationId}`,
+        `/api/compiliations/${compiliationUrl}`,
         {
           credentials: "same-origin"
         }
@@ -30,6 +31,7 @@
 
       if (compiliationData.ok) {
         compiliationData = compiliationData.data;
+        compiliationId = compiliationData.id;
         isSuccess = true;
       }
     } else {
@@ -41,9 +43,9 @@
         description: "",
         actions: [],
         dates: null,
-        subjectIds: null,
-        locationIds: null,
-        image: {}
+        subject_ids: null,
+        location_ids: null,
+        image_url: null
       };
       isSuccess = true;
     }
@@ -66,11 +68,12 @@
   import AdminPage from "../../_admin_page.svelte";
   import i18n from "/helpers/i18n/index.js";
   import * as edit from "/helpers/edit.js";
-  import { parseDateForCards } from "/helpers/parsers.js";
+  import { parseDateForCards, parseDate } from "/helpers/parsers.js";
   import EventsBlock from "./_events_block.svelte";
   import tr from "transliteration";
   import ClickOutside from "/components/clickOutside.svelte";
   import Loading from "/components/adminLoadingWindow.svelte";
+  import { dateToString } from "/helpers/converters.js";
 
   export let locale,
     compiliationId,
@@ -84,25 +87,44 @@
     description,
     actions,
     dates,
-    locationIds,
-    subjectIds,
-    image;
+    location_ids,
+    subject_ids,
+    image_url;
+
 
   const _ = i18n(locale);
   const fetcher = new Fetcher();
   const { slugify } = tr;
 
   let newData = {},
-    subjectsNames = [],
-    locationsNames = [],
-    uploadImg,
-    newImage = Object.keys(image).length !== 0,
-    showEvents = false,
-    save;
+      datesData = {},
+      eventsData = {},
+      subjectsNames = [],
+      locationsNames = [],
+      uploadImg,
+      showEvents = false,
+      save,
+      newImage = image_url === null;
 
   dates = edit.cloneArray(compiliationData.dates);
-  subjectIds = edit.cloneArray(compiliationData.subjectIds);
+  subject_ids = edit.cloneArray(compiliationData.subject_ids);
+  location_ids = edit.cloneArray(compiliationData.location_ids);
+  actions = edit.cloneArray(compiliationData.actions);
 
+  if(dates && compiliationId){
+    dates = edit.setDataToCK(dates);
+    compiliationData.dates = edit.setDataToCK(compiliationData.dates)
+
+    let d = dates;
+    for (let date of d) {
+      if (date.dateStart !== null)
+        date.dateStart = parseDate(new Date(date.dateStart));
+      if (date.dateEnd !== null)
+        date.dateEnd = parseDate(new Date(date.dateEnd));
+    }
+    dates = d;
+  }
+  
   //Загаловок
   $: {
     newData = edit.validateNewtranslateData(
@@ -162,59 +184,44 @@
       addDate();
     }
 
-    newData = edit.validateEditData(
+    let data = edit.validateEditData(
       edit.formatDates(dates, compiliationData),
       "dates",
-      newData
+      datesData
     );
 
-    if (
-      Object.keys(newData).indexOf("dates") !== -1 &&
-      compiliationId === undefined
-    )
-      newData.dates = newData.dates.create;
+    if(data.dates && Object.keys(data.dates).length) datesData = data.dates;
+    else datesData = {}
   }
 
   //Тематики
   $: {
-    if (subjectIds === null) {
-      subjectIds = [];
+    if (subject_ids === null) {
+      subject_ids = [];
     }
 
-    subjectsNames = edit.getNamesById(result_filters.subjects, subjectIds);
+    subjectsNames = edit.getNamesById(result_filters.subjects, subject_ids);
 
-    newData = edit.validateEditData(
-      edit.formatIdsArrays(subjectIds, compiliationData.subjectIds),
+    newData = edit.validateEditArray(
+      subject_ids, compiliationData.subject_ids,
       "subjectIds",
       newData
     );
-
-    if (
-      Object.keys(newData).indexOf("subjectIds") !== -1 &&
-      compiliationId === undefined
-    )
-      newData.subjectIds = newData.subjectIds.create;
   }
 
   //Локации
   $: {
-    if (locationIds === null) {
-      locationIds = [];
+    if (location_ids === null) {
+      location_ids = [];
     }
 
-    locationsNames = edit.getNamesById(result_filters.locations, locationIds);
+    locationsNames = edit.getNamesById(result_filters.locations, location_ids);
 
-    newData = edit.validateEditData(
-      edit.formatIdsArrays(locationIds, compiliationData.locationIds),
+    newData = edit.validateEditArray(
+      location_ids, compiliationData.location_ids,
       "locationIds",
       newData
     );
-
-    if (
-      Object.keys(newData).indexOf("locationIds") !== -1 &&
-      compiliationId === undefined
-    )
-      newData.locationIds = newData.locationIds.create;
   }
 
   //События
@@ -226,7 +233,7 @@
     let actionsData = [];
     for (let action of actions)
       actionsData.push({
-        id: action.id,
+        actionId: action.id,
         description: edit.setTextTranslation(
           action.description,
           locale,
@@ -234,17 +241,14 @@
         )
       });
 
-    newData = edit.validateEditData(
-      edit.validateActionData(actionsData, compiliationData),
+    let data = edit.validateEditData(
+      edit.validateActionData(actionsData, compiliationData.actions),
       "actions",
-      newData
+      eventsData
     );
 
-    if (
-      Object.keys(newData).indexOf("actions") !== -1 &&
-      compiliationId === undefined
-    )
-      newData.actions = newData.actions.create;
+    if(data.actions && Object.keys(data.actions).length) eventsData = data.actions;
+    else eventsData = {}
   }
 
   let options = [];
@@ -276,29 +280,14 @@
       if (fileFormat !== "jpg" && fileFormat !== "jpeg" && fileFormat !== "png")
         alert(_("images_types_message").replace(/{img}/g, img.name));
       else if (img[0].size / 1024 / 1024 <= 1) {
-        image.image_url = img[0];
+        image_url = img[0];
         newImage = true;
       } else alert(_("image_not_load").replace(/{img}/g, img[0].name));
-    }
-
-    if (compiliationId !== undefined && image !== null) {
-      let result = (await fetcher.post(
-        `api/compiliations/${compiliationId}/image`,
-        {
-          image
-        },
-        { bodyType: "formData" }
-      )).data;
-
-      image.id = result;
     }
   }
 
   async function deleteImg() {
-    if (compiliationId !== undefined)
-      await fetcher.delete(`api/compiliations/${compiliationId}/image`);
-
-    image = {};
+    image_url = null;
   }
 
   function changeAction(e) {
@@ -354,22 +343,53 @@
       return null;
     }
 
-    if (Object.keys(image).length === 0) {
+    if (!image_url) {
       alert(_("none_compiliation_image"));
       return null;
     }
 
-    if (compiliationId === undefined) {
-      compiliationId = (await fetcher.post(`/api/compiliations`, newData)).data;
+    if (compiliationId === undefined) compiliationId = (await fetcher.post(`/api/compiliations`, newData)).data;
+    else await fetcher.put(`/api/compiliations/${compiliationId}`, newData);
 
-      if (newImage) {
-        result = await fetcher.post(
-          `/api/compiliations/${compiliationId}/image`,
-          { image: image.image_url },
-          { bodyType: "formData" }
-        );
-      }
-    }
+    
+    if(eventsData.create)
+      for(let event of eventsData.create)
+        await fetcher.post(`/api/compiliations/${compiliationId}/actions`, event);
+    
+    if(eventsData.edit)
+      for(let event of eventsData.edit)
+        await fetcher.put(`/api/compiliations/${compiliationId}/actions/${event.actionId}`, {description: event.description});
+
+    if(eventsData.del)
+      for(let event of eventsData.del)
+        await fetcher.delete(`/api/compiliations/${compiliationId}/actions/${event}`);
+
+
+    if(datesData.create)
+      for(let date of datesData.create)
+        await fetcher.post(`/api/compiliations/${compiliationId}/dates`, date);
+
+    if(datesData.edit)
+      for(let date of datesData.edit)
+        await fetcher.put(`/api/compiliations/${compiliationId}/dates/${date.id}`, date);
+
+    if(datesData.del)
+      for(let date of datesData.del)
+        await fetcher.delete(`/api/compiliations/${compiliationId}/dates/${date}`);
+
+    if (image_url !== compiliationData.image_url && compiliationData.image_url) 
+      await fetcher.put(
+        `/api/compiliations/${compiliationId}/image`,
+        { image: image_url },
+        { bodyType: "formData" }
+      );
+    
+    else if( image_url !== compiliationData.image_url && !compiliationData.image_url )
+      await fetcher.post(
+        `/api/compiliations/${compiliationId}/image`,
+        { image: image_url },
+        { bodyType: "formData" }
+      );
 
     document.location.href = `/admin/selections/${newData.url}`;
   }
@@ -538,7 +558,7 @@
 
     <div class="image-block">
       <h4>{_('compiliation_photo')}</h4>
-      {#if Object.keys(image).length === 0}
+      {#if !image_url}
         <button class="upload-image-block">
           {_('upload_images')}
           <input
@@ -553,7 +573,7 @@
         <div class="img">
           <button on:click={() => deleteImg()}>×</button>
           <img
-            src={newImage ? URL.createObjectURL(image.image_url) : image.image_url}
+            src={newImage ? URL.createObjectURL(image_url) : image_url}
             alt="compiliation image" />
         </div>
       {/if}
@@ -686,11 +706,11 @@
                 bind:this={options[0].option}>
                 {#each result_filters.subjects as subject}
                   <div
-                    on:click={() => (subjectIds = edit.parseDataToIds(subjectIds, subject.id))}>
+                    on:click={() => (subject_ids = edit.parseDataToIds(subject_ids, subject.id))}>
                     <label>{subject.name}</label>
                     <input
                       type="checkbox"
-                      checked={subjectIds.indexOf(subject.id) !== -1} />
+                      checked={subject_ids.indexOf(subject.id) !== -1} />
                   </div>
                 {/each}
               </div>
@@ -720,11 +740,11 @@
                 bind:this={options[1].option}>
                 {#each result_filters.locations as location}
                   <div
-                    on:click={() => (locationIds = edit.parseDataToIds(locationIds, location.id))}>
+                    on:click={() => (location_ids = edit.parseDataToIds(location_ids, location.id))}>
                     <label>{location.name}</label>
                     <input
                       type="checkbox"
-                      checked={locationIds.indexOf(location.id) !== -1} />
+                      checked={location_ids.indexOf(location.id) !== -1} />
                   </div>
                 {/each}
               </div>
@@ -742,7 +762,6 @@
           <div class="action">
             <h2>{action.name}</h2>
             <div>
-              <span>{action.subjects.join('; ')}</span>
               {#if action.locations}
                 <ul>
                   {#each action.locations as location}
@@ -753,7 +772,11 @@
                 </ul>
               {/if}
               <span>
-                {parseDateForCards(action.date_starts, action.date_ends, _)}
+                {#if action.date_starts}
+                  {parseDateForCards(action.date_starts, action.date_ends, _)}
+                {:else}
+                  {dateToString(action.dates, _)}
+                {/if}
               </span>
             </div>
           </div>

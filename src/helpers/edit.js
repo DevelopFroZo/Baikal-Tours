@@ -15,7 +15,8 @@ export {
     validateActionData,
     parseTickets,
     formatArrays,
-    getRundomObjects
+    getRundomObjects,
+    formatStringArrays
 }
 
 function getIds(obj) {
@@ -415,23 +416,23 @@ function validateActionData(newObj, oldObj) {
 
     if (oldObj !== null && oldObj.length > 0) {
         //Удаление
-        let find = false;
         for (let i = 0; i < oldObj.length; i++) {
+            let find = false;
             for (let j = 0; j < newObj.length; j++) {
-                if (oldObj[i].id === newObj[j].id) {
+                if (oldObj[i].id === newObj[j].actionId) {
                     find = true;
                     break;
                 }
             }
             if (!find) {
-                newData.del.push(newObj[i].id)
+                newData.del.push(oldObj[i].id)
             }
         }
 
         //Редактирование
         for (let i = 0; i < oldObj.length; i++) {
             for (let j = 0; j < newObj.length; j++) {
-                if (newObj[i].id === oldObj[j].id && newObj[j].description.text !== oldObj[i].description) {
+                if (newObj[j].actionId === oldObj[i].id && newObj[j].description.text !== oldObj[i].description) {
                     newData.edit.push(newObj[j])
                     break;
                 }
@@ -440,10 +441,10 @@ function validateActionData(newObj, oldObj) {
     }
 
     //Добавление
-    let find = false;
     for (let i = 0; i < newObj.length; i++) {
+        let find = false;
         for (let j = 0; j < oldObj.length; j++) {
-            if (newObj[i].id === oldObj[j].id) {
+            if (newObj[i].actionId === oldObj[j].id) {
                 find = true;
                 break;
             }
@@ -560,8 +561,6 @@ function formatArrays(newArr, oldArr, key, obj) {
     if (Object.keys(newData).length)
         obj[key] = newData;
 
-    console.log(obj)
-
     return obj;
 }
 
@@ -576,4 +575,57 @@ function getRundomObjects(start, max, obj) {
         }
 
     return randObjs;
+}
+
+function formatStringArrays(newObj, oldObj){
+    let data = {
+        create: [],
+        edit: [],
+        delete: []
+    }
+
+    newObj = newObj.map(el => {
+        return Object.assign({}, el);
+      });
+    oldObj = oldObj.map(el => {
+        return Object.assign({}, el);
+      });
+
+    for(let obj of newObj)
+        if(!obj.id && obj.name.length){
+            obj.name = setTextTranslation(obj.name);
+            data.create.push(obj)
+        }
+    
+    for(let oldj of oldObj){
+        let bl = true;
+        for(let newj of newObj)
+            if(oldj.id === newj.id && newj.name.length){
+                bl = false;
+                break;
+            }
+        if(bl)
+            data.delete.push(oldj.id)
+    }
+
+    for(let newj of newObj){
+        let edit = {};
+        for(let oldj of oldObj){
+            if(oldj.id === newj.id && newj.name.length){
+                let keys = Object.keys(oldj).filter(el => el !== "id");
+
+                for(let key of keys){
+                    if(oldj[key] !== newj[key])
+                        edit[key] = newj[key];
+                }
+
+                if(edit.name) edit.name = setTextTranslation(newj.name)
+            }
+        }
+
+        if(Object.keys(edit).length)
+            data.edit.push({id: newj.id, ...edit})
+    }
+
+    return data;
 }

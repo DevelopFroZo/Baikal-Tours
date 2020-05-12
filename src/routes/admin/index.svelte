@@ -6,20 +6,17 @@
     setFilterFromUrl,
     showActiveFilters
   } from "/helpers/filter.js";
+  import { parseStringToWords } from "/helpers/parsers.js";
 
   export async function preload(page, session) {
     const fetcher = new Fetcher(this.fetch);
 
-    let filter = [
-        [
-          {
-            value: "",
-            active: false
-          }
-        ],
-        [],
-        []
-      ],
+    let filter = {
+        search: {
+          value: "",
+          active: false
+        }
+      },
       offset = 0,
       count = 15,
       params = page.query,
@@ -45,8 +42,8 @@
       credentials: "same-origin"
     });
 
-    filter[1] = setFilterData(result_filters.data.subjects);
-    filter[2] = setFilterData(result_filters.data.locations);
+    filter.subjects = setFilterData(result_filters.data.subjects);
+    filter.locations = setFilterData(result_filters.data.locations);
 
     let paramsKeys = Object.keys(params);
 
@@ -59,14 +56,23 @@
     ) {
       showFilter = true;
       if (params.search !== undefined) {
-        filter[0][0].value = params.search;
-        filter[0][0].active = true;
+        let search = parseStringToWords(params.search);
+        if (search.length) {
+          filter.search.value = search;
+          filter.search.active = true;
+        }
       }
       if (params.locations !== undefined) {
-        filter[2] = setFilterFromUrl(params.locations.split(","), filter[2]);
+        filter.locations = setFilterFromUrl(
+          params.locations.split(","),
+          filter.locations
+        );
       }
       if (params.subjects !== undefined) {
-        filter[1] = setFilterFromUrl(params.subjects.split(","), filter[1]);
+        filter.subjects = setFilterFromUrl(
+          params.subjects.split(","),
+          filter.subjects
+        );
       }
 
       let query = parseFilterDataForAdmin(filter);
@@ -83,6 +89,8 @@
         }
       });
     }
+
+    if (filter.search.active) filter.search.value = params.search;
 
     let locale = session.locale;
 
@@ -125,7 +133,7 @@
 
   let options = [],
     cards = result_cards,
-    search = filter[0][0].value;
+    search = "";
 
   let cardsCounts = {
     active: 0,
@@ -156,6 +164,7 @@
     };
 
     if (showFilter) parseFilter = parseFilterDataForAdmin(filter);
+    changeSearch()
   }
 
   const fetcher = new Fetcher();
@@ -178,6 +187,10 @@
       option: null,
       btn: null
     });
+
+  function changeSearch(){
+    search = filter.search.value;
+  }
 
   function setURL() {
     let URL = fetcher.makeQuery({ query: url });
@@ -217,27 +230,6 @@
 
     changePagAndURL(0);
     showFilter = showActiveFilters(filter);
-  }
-
-  function closeFilter(e) {
-    filter = e.detail.filter;
-
-    changeFilter();
-  }
-
-  function checkSearchFilter() {
-    var str = search.replace(/\s+/g, " ");
-    str = str.replace(/[^ \u4e00-\u520fa-zа-яё\d]/giu, "");
-    str = str.replace(/\ /g, ",");
-
-    if (str.length !== 0) filter[0][0].active = true;
-    else filter[0][0].active = false;
-
-    filter[0][0].value = str;
-
-    changeFilter();
-
-    filter[0][0].value = search;
   }
 
   onMount(() => {
@@ -296,8 +288,7 @@
     position: relative;
     color: #00000099;
     background: white;
-    border: 1px solid black;
-    border-radius: 5px;
+    border: 1px solid $Gray;
     padding-left: 12px;
     box-sizing: border-box;
     margin-top: 0;
@@ -308,7 +299,7 @@
     top: 27px;
     left: 0;
     background: white;
-    border: 1px solid $Dark_Gray;
+    border: 1px solid $Gray;
     min-width: 100%;
     box-sizing: border-box;
     z-index: 2;
@@ -330,8 +321,12 @@
 
   .filter-block {
     display: flex;
-    justify-content: space-between;
+    align-items: center;
     margin-top: 25px;
+
+    & > *:not(:first-child){
+      margin-left: 40px;
+    }
   }
 
   .event-block {
@@ -410,6 +405,47 @@
   .full-event-block {
     margin-top: 15px;
   }
+
+  .active-filters {
+    margin-top: 30px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+
+    & > .ul-name {
+      margin-right: 20px;
+      font-size: $Big_Font_Size;
+    }
+
+    & > li:not(.ul-name) {
+      padding: 10px;
+      background: white;
+      border-radius: 100px;
+      box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+      margin-right: 20px;
+      display: flex;
+      align-items: center;
+
+      & img {
+        width: 15px;
+        margin-left: 10px;
+      }
+    }
+
+    & > li {
+      margin-top: 10px;
+    }
+  }
+
+  .search-input{
+    width: 300px;
+    padding: 5px;
+    background: white;
+    border: 1px solid $Gray;
+    border-radius: 0;
+  }
+
+
 </style>
 
 <svelte:head>
@@ -447,7 +483,10 @@
       type="text"
       placeholder={_('search_by_name')}
       bind:value={search}
-      on:blur={checkSearchFilter}
+      on:blur={() => {
+        filter.search.value = search;
+        changeFilter();
+      }}
       class="search-input"
       on:keyup={function(e) {
         if (e.key === 'Enter') this.blur();
@@ -466,7 +505,7 @@
         exclude={[options[0].btn]}>
         {#if options[0].isVisible}
           <div class="option" bind:this={options[0].option}>
-            {#each filter[1] as subject}
+            {#each filter.subjects as subject}
               <div
                 on:click={() => {
                   subject.active = !subject.active;
@@ -494,7 +533,7 @@
         exclude={[options[1].btn]}>
         {#if options[1].isVisible}
           <div class="option" bind:this={options[1].option}>
-            {#each filter[2] as location}
+            {#each filter.locations as location}
               <div
                 on:click={() => {
                   location.active = !location.active;
@@ -509,15 +548,43 @@
       </ClickOutside>
     </div>
   </div>
-  <ActiveFilters
-    {search}
-    {filter}
-    {showFilter}
-    min={-1}
-    max={3}
-    on:closeFilter={closeFilter}
-    white={true}
-    {_} />
+
+  {#if showFilter}
+    <ul class="active-filters">
+      <li class="ul-name">{_('you_have_chosen')}:</li>
+      {#each Object.keys(filter) as filterKey}
+        {#if Array.isArray(filter[filterKey])}
+          {#each filter[filterKey] as elem}
+            {#if elem.active}
+              <li>
+                {elem.value}
+                <button
+                  on:click={() => {
+                    elem.active = false;
+                    changeFilter();
+                  }}>
+                  <img src="/img/cross.svg" alt="delete" />
+                </button>
+              </li>
+            {/if}
+          {/each}
+        {:else if filter[filterKey].active}
+          <li>
+            {filter[filterKey].value}
+            <button
+              on:click={() => {
+                filter[filterKey].active = false;
+                filter[filterKey].value = '';
+                changeFilter();
+              }}>
+              <img src="/img/cross.svg" alt="delete" />
+            </button>
+          </li>
+        {/if}
+      {/each}
+    </ul>
+  {/if}
+
   <div class="events-block">
     {#each cards as card, i}
       <div class="full-event-block">
@@ -536,7 +603,9 @@
                 {#if card.locations}
                   <ul>
                     {#each card.locations as location}
-                      <li>{location.address ? `${location.name}, ${location.address}` : location.name}</li>
+                      <li>
+                        {location.address ? `${location.name}, ${location.address}` : location.name}
+                      </li>
                     {/each}
                   </ul>
                 {/if}

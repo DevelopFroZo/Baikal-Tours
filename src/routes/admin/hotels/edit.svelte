@@ -8,15 +8,15 @@
     let id = page.query.id;
     let hotelData = {
       booking_url: "",
-      location_id: null,
+      booking_location_id: null,
       name: "",
       price: null,
       rating: null,
       image_url: null
     };
-    let locations = (await fetcher.get("/api/dataForFilters", {
+    let locations = (await fetcher.get("/api/bookingLocations", {
       credentials: "same-origin"
-    })).data.locations;
+    })).data;
 
     if (id !== undefined) {
       hotelData = (await fetcher.get(`/api/hotels/${id}`, {
@@ -47,12 +47,14 @@
     id,
     hotelData,
     booking_url,
-    location_id,
+    booking_location_id,
     name,
     price,
     rating,
     image_url,
     locations;
+
+  console.log(hotelData)
 
   const fetcher = new Fetcher();
   const _ = i18n(locale);
@@ -61,6 +63,8 @@
     save,
     uploadImg,
     newImage = image_url === null;
+
+  $: console.log(newData)
 
   //Название отеля
   $: newData = validateNewData(name, hotelData.name, "name", newData);
@@ -81,9 +85,9 @@
 
   //Локация отеля из справочника
   $: newData = validateNewData(
-    location_id,
-    hotelData.location_id,
-    "locationId",
+    booking_location_id,
+    hotelData.booking_location_id,
+    "bookingLocationId",
     newData
   );
 
@@ -130,7 +134,7 @@
 
     } 
 
-    // document.location.href = "./admin/hotels";
+    document.location.href = "./admin/hotels";
   }
 
   async function changeImage() {
@@ -274,8 +278,8 @@
         <input type="number" name="rating" bind:value={rating} />
       </label>
       <label for="location">
-        <h3>{_('hotel_location')}</h3>
-        <select name="location" bind:value={location_id}>
+        <h3>{_('location_from_booking')}</h3>
+        <select name="location" bind:value={booking_location_id}>
           <option value={null} />
           {#each locations as location}
             <option value={location.id}>{location.name}</option>

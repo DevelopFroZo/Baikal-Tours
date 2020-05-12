@@ -78,7 +78,9 @@
     <a href={site}>{site}</a>
   {/if}
   <ul class="locations">
-    <li>{_('price')}: {price}{_('rub')}</li>
+    {#if price}
+        <li>{_('price')}: {price}{_('rub')}</li>
+    {/if}
   </ul>
   {#if href.length}
     <a {href} class="edit">{_('edit')}</a>

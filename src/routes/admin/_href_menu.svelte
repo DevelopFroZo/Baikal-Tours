@@ -108,7 +108,7 @@
   <a
     class="category-href"
     class:active-page={page === 2}
-    href="./admin/directory">
+    href="./admin/directories">
     {_("handbooks")}
   </a>
   <a

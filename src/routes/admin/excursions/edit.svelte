@@ -23,8 +23,6 @@
       excursion_data = (await fetcher.get(`/api/excursions/${id}`, {
         credentials: "same-origin"
       }))[0];
-
-      console.log(excursion_data);
     }
 
     return { locale, id, excursion_data, ...excursion_data, locations };
@@ -64,10 +62,6 @@
     save;
 
   location_ids = edit.cloneArray(excursion_data.location_ids);
-
-  // $: console.log("edit:\n", editData);
-  // $: console.log("delete:\n", deleteData);
-  // $: console.log("new:\n", newData);
 
   //Имя
   $: {

@@ -24,7 +24,6 @@
         credentials: "same-origin"
       }))[0];
 
-      console.log(tour_data);
     }
 
     return { locale, id, tour_data, ...tour_data, locations };
@@ -64,10 +63,6 @@
     save;
 
   location_ids = edit.cloneArray(tour_data.location_ids);
-
-  // $: console.log("edit:\n", editData);
-  // $: console.log("delete:\n", deleteData);
-  // $: console.log("new:\n", newData);
 
   //Имя
   $: {

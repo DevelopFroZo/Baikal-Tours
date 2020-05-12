@@ -7,6 +7,7 @@
     showActiveFilters
   } from "/helpers/filter.js";
   import { isMobile } from "/helpers/validators.js";
+  import { parseStringToWords } from "/helpers/parsers.js";
 
   export async function preload(page, session) {
     const fetcher = new Fetcher(this.fetch);
@@ -58,7 +59,9 @@
       paramsKeys.length > 1 &&
       paramsKeys[0] === "filter"
     ) {
-      showFilter = true;
+      if(paramsKeys.filter(el => el !== "filter" && el !== "search").length)
+        showFilter = true;
+
       if (params.dateStart !== undefined) {
         filter[0][0].active = true;
         filter[0][0].value = params.dateStart;
@@ -88,6 +91,9 @@
       let filterParams = parseFilterData(filter);
       query = filterParams.params;
       compiliationQuery = filterParams.compiliationsParams;
+
+      if(params.search)
+        query.search = parseStringToWords(params.search);
 
       result_compiliations = (await fetcher.get("/api/compiliations", {
         credentials: "same-origin",
@@ -156,7 +162,7 @@
     parsePriceForActiveFilter
   } from "/helpers/parsers.js";
   import i18n from "/helpers/i18n/index.js";
-  import { goto } from "@sapper/app";
+  import { goto, stores } from "@sapper/app";
   import { onMount, afterUpdate } from "svelte";
   import ActiveFilters from "/components/active_filters.svelte";
   import Selection from "/components/selection.svelte";
@@ -177,6 +183,7 @@
 
   const fetcher = new Fetcher();
   const _ = i18n(locale);
+  const { page } = stores();
 
   let date = "",
     price = "",
@@ -266,6 +273,13 @@
     price = parsePriceForActiveFilter(filter, _);
 
     parseFilter = parseFilterData(filter).params;
+
+    if($page.query.search)
+      parseFilter.search = $page.query.search;
+
+    if(Object.keys(parseFilter).length === 1)
+      parseFilter = null;
+
     visibleCards = 0;
     setURL();
   }
@@ -678,7 +692,7 @@
 
 <svelte:window bind:scrollY bind:innerHeight/>
 
-<Header {locale} />
+<Header {locale} searchText={$page.query.search ? $page.query.search : ""}/>
 <!-- <BreadCrumbs path = {[{name: "Каталог событий", url: "./"}]} /> -->
 <div class="form-width" bind:clientHeight>
 
@@ -695,7 +709,13 @@
     </Carousel>
   </div>
 
-  <h1>{_('event_catalog')}</h1>
+  <h1>
+    {#if $page.query.search}
+      {_("finded")}
+    {:else}
+      {_('event_catalog')}
+    {/if}
+  </h1>
 
   <div class="filters">
     <div class="two-input">

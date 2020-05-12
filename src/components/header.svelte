@@ -7,22 +7,24 @@
   import Login from "./login/index.svelte";
   import { parseUrlByPage } from "/helpers/parsers.js";
   import { slide } from "svelte/transition";
-  import { onMount } from "svelte";
+  import { onMount, afterUpdate } from "svelte";
   import Image from "/components/imageCenter.svelte";
   import ClickOutside from "/components/clickOutside.svelte";
 
   export let locale,
     mobile,
     compiliations = [],
-    subjects = [];
+    subjects = [],
+    searchText = "";
 
   const fetcher = new Fetcher();
   const { session, page } = stores();
   const _ = i18n(locale);
 
   let showMenu = false,
-  menuButton,
-  menuBlock;
+    menuButton,
+    menuBlock,
+    showSearch = false;
 
   let closeMenu;
 
@@ -37,6 +39,27 @@
     compiliations = (await fetcher.get("/api/compiliations")).data.splice(0, 6);
     subjects = (await fetcher.get("/api/dataForFilters")).data.subjects;
   });
+
+  function search() {
+    if (showSearch){
+      if(searchText.length)
+        document.location.href = `/events?filter&search=${searchText}`;
+      else 
+        document.location.href = `/events`;
+    }
+    else showSearch = true;
+  }
+
+  async function restorePassword({detail}){
+    let result = await fetcher.get(`/api/restorePassword`, detail);
+
+    if(result.ok){
+      goto(parseUrlByPage($page, ['window'], {
+        window: 'login'
+      }))
+    }
+    else alert(result.message)
+  }
 </script>
 
 <style lang="scss">
@@ -69,7 +92,7 @@
       font-size: $LowMedium_Font_Size;
       text-transform: uppercase;
 
-      & > .logo{
+      & > .logo {
         width: 156px;
         margin-left: 15px;
       }
@@ -161,12 +184,24 @@
   .user-info {
     display: flex;
     align-items: center;
+    transition: 0.3s;
+
+    &.showSearch {
+      opacity: 0;
+      visibility: hidden;
+    }
   }
 
   .language {
     position: absolute;
     right: -100px;
     top: 5px;
+    transition: 0.3s;
+
+    &.showSearch {
+      opacity: 0;
+      visibility: hidden;
+    }
   }
 
   .menu > img {
@@ -256,12 +291,77 @@
     display: none;
   }
 
+  .search {
+    position: relative;
+    z-index: 3;
+    transition: 0.3s;
+
+    & > img {
+      width: 25px;
+    }
+
+    &.showSearch {
+      margin-right: 80px;
+      margin-top: 2px;
+    }
+  }
+
+  .navigate-block {
+    display: flex;
+    align-items: center;
+  }
+
+  .input-block {
+    position: absolute;
+    top: 50%;
+    right: 130px;
+    transform: translateY(-50%);
+    width: 0;
+    height: 50%;
+    background: #f4f4f4;
+    z-index: 1;
+    border-radius: 100px;
+    overflow: hidden;
+    transition: 0.3s;
+    opacity: 0;
+
+    & > input {
+      border-radius: 100%;
+      height: 50px;
+      padding: 13px 90px 13px 35px;
+      width: 100%;
+      box-sizing: border-box;
+      font-size: 24px;
+    }
+
+    & > button {
+      position: absolute;
+      top: 50%;
+      right: -20px;
+      transform: translateY(calc(-50% + 2px));
+      transition: 0.3s;
+
+      & > img {
+        width: 20px;
+      }
+    }
+
+    &.showSearch {
+      width: 745px;
+      opacity: 1;
+
+      & > button {
+        right: 30px;
+      }
+    }
+  }
+
   @media only screen and (max-width: 768px) {
     .user-info {
       display: none;
     }
 
-    header{
+    header {
       padding: 20px 30px !important;
     }
 
@@ -367,32 +467,82 @@
       width: 100%;
     }
 
-    .logo{
+    .logo {
       width: 121px !important;
       margin-left: 7px !important;
     }
 
-    .header-name > div{
+    .header-name,
+    .menu {
+      transition: 0.3s;
+
+      &.showSearch {
+        opacity: 0;
+        visibility: hidden;
+      }
+    }
+
+    .header-name > div {
       font-size: $LowMedium_Font_Size;
+    }
+
+    .input-block {
+      right: 10px;
+      height: 50px;
+
+      &.showSearch {
+        width: calc(100% - 20px);
+      }
+
+      & > input {
+        font-size: $Big_Font_Size;
+        padding-left: 20px;
+      }
+
+      & > button {
+        right: 20px;
+
+        & > img {
+          width: 15px;
+        }
+      }
+    }
+
+    .search {
+      & > img {
+        width: 16px;
+      }
+
+      &.showSearch {
+        margin-right: 0px;
+      }
+    }
+
+    .navigate-block > button {
+      margin-left: 0;
+
+      &:not(:first-child) {
+        margin-left: 30px;
+      }
     }
   }
 </style>
 
 <header class="form-width line">
-  <div class="left-side">
+  <div class="left-side" class:showSearch>
     <a class="header-name" href="./events">
       <h2>{_('event_calendar')}</h2>
       <div>
-        {_("from")}
-        <img src="img/logo.png" alt="logo" class="logo"/>
+        {_('from')}
+        <img src="img/logo.png" alt="logo" class="logo" />
       </div>
     </a>
-    <div class="language">
+    <div class="language" class:showSearch>
       <ChangeLanguage {locale} on:changeLanguage={changeLanguage} />
     </div>
   </div>
   <div class="right-side">
-    <div class="user-info">
+    <div class="user-info" class:showSearch>
       {#if !$session.isLogged}
         <button
           class="login"
@@ -416,83 +566,104 @@
       {/if}
     </div>
     <div class="navigate-block">
-      <!-- <button class="search"></button> -->
-      <button class="menu" on:click={() => (showMenu = true)} bind:this={menuButton}>
+      <button class="search" on:click={search} class:showSearch>
+        <img src="/img/search.svg" alt="search" />
+      </button>
+      <button
+        class="menu"
+        on:click={() => (showMenu = true)}
+        bind:this={menuButton}
+        class:showSearch>
         <img src="/img/open-menu.svg" alt="menu" />
       </button>
     </div>
   </div>
+  <div class="input-block" class:showSearch>
+    <input
+      type="text"
+      bind:value={searchText}
+      on:keyup={e => {
+        if (e.key === 'Enter') search();
+      }} />
+    <button class="close" on:click={() => (showSearch = false)}>
+      <img src="/img/cross.svg" alt="clear" />
+    </button>
+  </div>
 </header>
 
-<ClickOutside on:clickoutside={() => showMenu = false} exclude={[menuButton, closeMenu]}>
-{#if showMenu}
-  <div class="menu-block" transition:slide bind:this={menuBlock}>
-    <div class="top">
-      <div class="mobile-language">
-        <ChangeLanguage {locale} on:changeLanguage={changeLanguage} />
-      </div>
-      <button class="close-menu" bind:this={closeMenu}>
-        <img src="/img/cross.svg" alt="close" />
-      </button>
-    </div>
-    <div class="menu-login">
-      {#if !$session.isLogged}
-        <div class="blue">
-          <button
-            on:click={() => {
-              goto(parseUrlByPage($page, [], { window: 'login' }));
-              showMenu = false;
-            }}>
-            {_('authorize')}
-          </button>
-          {' / '}
-          <button
-            on:click={() => {
-              goto(parseUrlByPage($page, [], { window: 'register' }));
-              showMenu = false;
-            }}>
-            {_('registration')}
-          </button>
+<ClickOutside
+  on:clickoutside={() => (showMenu = false)}
+  exclude={[menuButton, closeMenu]}>
+  {#if showMenu}
+    <div class="menu-block" transition:slide bind:this={menuBlock}>
+      <div class="top">
+        <div class="mobile-language">
+          <ChangeLanguage {locale} on:changeLanguage={changeLanguage} />
         </div>
-      {:else}
-        <a href="./profile?section=settings" class="my-page">
-          {`${$session.name} ${$session.surname}`}
-        </a>
-        <br />
-        <a class="blue" href="/logout">{_('logout')}</a>
-      {/if}
-    </div>
-    <div class="menu-info">
-      <div class="categories-block">
-        <h3>{_('category')}</h3>
-        <ul class="categories">
-          {#each subjects as subject}
-            <li>
-              <a href={`events?filter&subjects=${subject.id}`}>
-                {subject.name}
-              </a>
-            </li>
-          {/each}
-        </ul>
+        <button class="close-menu" bind:this={closeMenu}>
+          <img src="/img/cross.svg" alt="close" />
+        </button>
       </div>
-      <div class="compiliations-block">
-        <h3>{_('selections')}</h3>
-        <ul class="compiliations">
-          {#each compiliations as compiliation}
-            <li>
-              <a href={`/selected/${compiliation.url}`}>
-                <div class="img">
-                  <Image src={compiliation.image_url} alt={compiliation.name} />
-                </div>
-                <h4>{compiliation.name}</h4>
-              </a>
-            </li>
-          {/each}
-        </ul>
+      <div class="menu-login">
+        {#if !$session.isLogged}
+          <div class="blue">
+            <button
+              on:click={() => {
+                goto(parseUrlByPage($page, [], { window: 'login' }));
+                showMenu = false;
+              }}>
+              {_('authorize')}
+            </button>
+            {' / '}
+            <button
+              on:click={() => {
+                goto(parseUrlByPage($page, [], { window: 'register' }));
+                showMenu = false;
+              }}>
+              {_('registration')}
+            </button>
+          </div>
+        {:else}
+          <a href="./profile?section=settings" class="my-page">
+            {`${$session.name} ${$session.surname}`}
+          </a>
+          <br />
+          <a class="blue" href="/logout">{_('logout')}</a>
+        {/if}
+      </div>
+      <div class="menu-info">
+        <div class="categories-block">
+          <h3>{_('category')}</h3>
+          <ul class="categories">
+            {#each subjects as subject}
+              <li>
+                <a href={`events?filter&subjects=${subject.id}`}>
+                  {subject.name}
+                </a>
+              </li>
+            {/each}
+          </ul>
+        </div>
+        <div class="compiliations-block">
+          <h3>{_('selections')}</h3>
+          <ul class="compiliations">
+            {#each compiliations as compiliation}
+              <li>
+                <a href={`/selected/${compiliation.url}`}>
+                  <div class="img">
+                    <Image
+                      src={compiliation.image_url}
+                      alt={compiliation.name} />
+                  </div>
+                  <h4>{compiliation.name}</h4>
+                </a>
+              </li>
+            {/each}
+          </ul>
+        </div>
       </div>
     </div>
-  </div>
-{/if}
+  {/if}
 </ClickOutside>
 
 <Register
@@ -513,6 +684,7 @@
   on:forgotPassword={() => goto(parseUrlByPage($page, ['window'], {
         window: 'forgot-password'
       }))}
+  on:restorePassword={restorePassword}
   on:login={() => goto(parseUrlByPage($page, ['window'], { window: 'login' }))}
   on:register={() => goto(parseUrlByPage($page, ['window'], {
         window: 'register'
