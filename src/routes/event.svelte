@@ -1478,6 +1478,7 @@
       img{
         max-width: 70%;
         max-height: 80vh;
+        width: auto !important;
       }
     }
   }
