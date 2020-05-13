@@ -27,7 +27,6 @@
         organizer_phone: null,
         title: "",
         name: "",
-        tagline: "",
         short_description: "",
         full_description: "",
         organizer_name: "",
@@ -144,7 +143,6 @@
     organizer_phone = null,
     title = "",
     name = "",
-    tagline = "",
     short_description = "",
     full_description = "",
     organizer_name = "",
@@ -245,16 +243,6 @@
       edit.setTextTranslation(title, locale, actionId),
       actionData.title,
       "title",
-      newData
-    );
-  }
-
-  //Tagline
-  $: {
-    newData = edit.validateNewtranslateData(
-      edit.setTextTranslation(tagline, locale, actionId),
-      actionData.tagline,
-      "tagline",
       newData
     );
   }
@@ -728,10 +716,6 @@
       {
         field: title,
         name: "title"
-      },
-      {
-        field: tagline,
-        name: "tagline"
       },
       {
         field: short_description,
@@ -1740,9 +1724,6 @@
   <div class="edit-block">
     <label for="title">Title</label>
     <input type="text" name="title" bind:value={title} />
-
-    <label for="tagline">Tagline</label>
-    <input type="text" name="tagline" bind:value={tagline} />
 
     <label for="short-description">{_('short_event_description')}</label>
     <input

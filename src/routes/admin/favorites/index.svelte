@@ -17,6 +17,7 @@
   import AdminPage from "../_admin_page.svelte";
   import i18n from "/helpers/i18n/index.js";
   import Subject from "./_subject.svelte";
+  import Main from "./_main.svelte";
 
   export let locale, subjects;
 
@@ -49,6 +50,7 @@
 <AdminPage {_} {fetcher} {locale} page={8}>
   <h1>{_('featured_events')}</h1>
   <div class="subjects-block">
+    <Main {_} {fetcher} />
     {#each subjects as subject}
       <Subject {...subject} {_} {fetcher}/>
     {/each}

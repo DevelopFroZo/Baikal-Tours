@@ -68,7 +68,7 @@
   import AdminPage from "../../_admin_page.svelte";
   import i18n from "/helpers/i18n/index.js";
   import * as edit from "/helpers/edit.js";
-  import { parseDateForCards, parseDate } from "/helpers/parsers.js";
+  import { parseDate } from "/helpers/parsers.js";
   import EventsBlock from "./_events_block.svelte";
   import tr from "transliteration";
   import ClickOutside from "/components/clickOutside.svelte";
@@ -91,29 +91,28 @@
     subject_ids,
     image_url;
 
-
   const _ = i18n(locale);
   const fetcher = new Fetcher();
   const { slugify } = tr;
 
   let newData = {},
-      datesData = {},
-      eventsData = {},
-      subjectsNames = [],
-      locationsNames = [],
-      uploadImg,
-      showEvents = false,
-      save,
-      newImage = image_url === null;
+    datesData = {},
+    eventsData = {},
+    subjectsNames = [],
+    locationsNames = [],
+    uploadImg,
+    showEvents = false,
+    save,
+    newImage = image_url === null;
 
   dates = edit.cloneArray(compiliationData.dates);
   subject_ids = edit.cloneArray(compiliationData.subject_ids);
   location_ids = edit.cloneArray(compiliationData.location_ids);
   actions = edit.cloneArray(compiliationData.actions);
 
-  if(dates && compiliationId){
+  if (dates && compiliationId) {
     dates = edit.setDataToCK(dates);
-    compiliationData.dates = edit.setDataToCK(compiliationData.dates)
+    compiliationData.dates = edit.setDataToCK(compiliationData.dates);
 
     let d = dates;
     for (let date of d) {
@@ -124,7 +123,7 @@
     }
     dates = d;
   }
-  
+
   //Загаловок
   $: {
     newData = edit.validateNewtranslateData(
@@ -190,8 +189,8 @@
       datesData
     );
 
-    if(data.dates && Object.keys(data.dates).length) datesData = data.dates;
-    else datesData = {}
+    if (data.dates && Object.keys(data.dates).length) datesData = data.dates;
+    else datesData = {};
   }
 
   //Тематики
@@ -203,7 +202,8 @@
     subjectsNames = edit.getNamesById(result_filters.subjects, subject_ids);
 
     newData = edit.validateEditArray(
-      subject_ids, compiliationData.subject_ids,
+      subject_ids,
+      compiliationData.subject_ids,
       "subjectIds",
       newData
     );
@@ -218,7 +218,8 @@
     locationsNames = edit.getNamesById(result_filters.locations, location_ids);
 
     newData = edit.validateEditArray(
-      location_ids, compiliationData.location_ids,
+      location_ids,
+      compiliationData.location_ids,
       "locationIds",
       newData
     );
@@ -247,8 +248,9 @@
       eventsData
     );
 
-    if(data.actions && Object.keys(data.actions).length) eventsData = data.actions;
-    else eventsData = {}
+    if (data.actions && Object.keys(data.actions).length)
+      eventsData = data.actions;
+    else eventsData = {};
   }
 
   let options = [];
@@ -348,43 +350,57 @@
       return null;
     }
 
-    if (compiliationId === undefined) compiliationId = (await fetcher.post(`/api/compiliations`, newData)).data;
+    if (compiliationId === undefined)
+      compiliationId = (await fetcher.post(`/api/compiliations`, newData)).data;
     else await fetcher.put(`/api/compiliations/${compiliationId}`, newData);
 
-    
-    if(eventsData.create)
-      for(let event of eventsData.create)
-        await fetcher.post(`/api/compiliations/${compiliationId}/actions`, event);
-    
-    if(eventsData.edit)
-      for(let event of eventsData.edit)
-        await fetcher.put(`/api/compiliations/${compiliationId}/actions/${event.actionId}`, {description: event.description});
+    if (eventsData.create)
+      for (let event of eventsData.create)
+        await fetcher.post(
+          `/api/compiliations/${compiliationId}/actions`,
+          event
+        );
 
-    if(eventsData.del)
-      for(let event of eventsData.del)
-        await fetcher.delete(`/api/compiliations/${compiliationId}/actions/${event}`);
+    if (eventsData.edit)
+      for (let event of eventsData.edit)
+        await fetcher.put(
+          `/api/compiliations/${compiliationId}/actions/${event.actionId}`,
+          { description: event.description }
+        );
 
+    if (eventsData.del)
+      for (let event of eventsData.del)
+        await fetcher.delete(
+          `/api/compiliations/${compiliationId}/actions/${event}`
+        );
 
-    if(datesData.create)
-      for(let date of datesData.create)
+    if (datesData.create)
+      for (let date of datesData.create)
         await fetcher.post(`/api/compiliations/${compiliationId}/dates`, date);
 
-    if(datesData.edit)
-      for(let date of datesData.edit)
-        await fetcher.put(`/api/compiliations/${compiliationId}/dates/${date.id}`, date);
+    if (datesData.edit)
+      for (let date of datesData.edit)
+        await fetcher.put(
+          `/api/compiliations/${compiliationId}/dates/${date.id}`,
+          date
+        );
 
-    if(datesData.del)
-      for(let date of datesData.del)
-        await fetcher.delete(`/api/compiliations/${compiliationId}/dates/${date}`);
+    if (datesData.del)
+      for (let date of datesData.del)
+        await fetcher.delete(
+          `/api/compiliations/${compiliationId}/dates/${date}`
+        );
 
-    if (image_url !== compiliationData.image_url && compiliationData.image_url) 
+    if (image_url !== compiliationData.image_url && compiliationData.image_url)
       await fetcher.put(
         `/api/compiliations/${compiliationId}/image`,
         { image: image_url },
         { bodyType: "formData" }
       );
-    
-    else if( image_url !== compiliationData.image_url && !compiliationData.image_url )
+    else if (
+      image_url !== compiliationData.image_url &&
+      !compiliationData.image_url
+    )
       await fetcher.post(
         `/api/compiliations/${compiliationId}/image`,
         { image: image_url },
@@ -497,7 +513,8 @@
       margin-top: 10px;
       justify-content: space-between;
 
-      & > span, ul {
+      & > span,
+      ul {
         width: calc(100% / 3 - 20px);
       }
     }
@@ -771,13 +788,13 @@
                   {/each}
                 </ul>
               {/if}
-              <span>
-                {#if action.date_starts}
-                  {parseDateForCards(action.date_starts, action.date_ends, _)}
-                {:else}
-                  {dateToString(action.dates, _)}
-                {/if}
-              </span>
+              {#if action.dates}
+                <ul>
+                  {#each action.dates as date}
+                    <li>{dateToString(date, _)}</li>
+                  {/each}
+                </ul>
+              {/if}
             </div>
           </div>
           <textarea bind:value={action.description} />
@@ -800,7 +817,6 @@
 
 <EventsBlock
   {_}
-  {parseDateForCards}
   {result_actions}
   {result_filters}
   {showEvents}

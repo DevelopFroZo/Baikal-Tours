@@ -396,5 +396,7 @@ export default ( {
   location_validate:              "位置映射",
   booking_locations:              "预订地点",
   location_from_booking:          "从预订位置",
-  new_hotel:                      "新酒店"
+  new_hotel:                      "新酒店",
+
+  events_for_main:                "主页的收藏夹"
 } );        

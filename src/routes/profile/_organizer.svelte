@@ -1,12 +1,17 @@
 <script>
   import { slide } from "svelte/transition";
+  import { stores } from "@sapper/app";
   import { dateToString } from "/helpers/converters.js";
+  import Fetcher from "/helpers/fetcher.js";
 
   export let _, organizerEvents;
   let hideForm = false,
     hideApplications = false;
 
   let tickets, additions;
+
+  const { session } = stores()
+  const fetcher = new Fetcher();
 
   function getCount(ticket, bl) {
     if (ticket.count)
@@ -35,6 +40,14 @@
         for (let count of ticket.count) total += count.count * ticket.price;
 
     return total;
+  }
+
+  async function downloadFile(id){
+    const response = await fetch(`/api/actions/${id}/xlsx?userId=${$session.userId}`)
+    const blob = await response.blob();
+    const url = URL.createObjectURL(blob);
+
+    window.open(url)
   }
 </script>
 
@@ -886,7 +899,7 @@
                 </div>
               {/if}
               <div class="download-info-block">
-                <button>
+                <button on:click={() => downloadFile(event.id)}>
                   <img src="/img/excel.svg" alt="excel" />
                   {_('download_registered_users')}
                 </button>

@@ -114,7 +114,7 @@
 <script>
   import AdminPage from "./_admin_page.svelte";
   import i18n from "/helpers/i18n/index.js";
-  import { parseDateForCards } from "/helpers/parsers.js";
+  import { dateToString } from "/helpers/converters.js";
   import Pagination from "/components/pagination.svelte";
   import { goto } from "@sapper/app";
   import ActiveFilters from "/components/active_filters.svelte";
@@ -584,7 +584,7 @@
       {/each}
     </ul>
   {/if}
-
+  
   <div class="events-block">
     {#each cards as card, i}
       <div class="full-event-block">
@@ -596,9 +596,17 @@
             <div class="event-name-block">{card.name}</div>
             <div class="event-info-block">
               <div>{card.subjects.join('; ')}</div>
-              <div>
-                {parseDateForCards(card.date_starts, card.date_ends, _)}
-              </div>
+              {#if card.dates}
+                <div>
+                  <ul>
+                    {#each card.dates as date}
+                      <li>
+                        {dateToString(date, _)}
+                      </li>
+                    {/each}
+                  </ul>
+                </div>
+              {/if}
               <div>
                 {#if card.locations}
                   <ul>

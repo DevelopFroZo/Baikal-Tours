@@ -5,7 +5,7 @@
   import SortableList from "/components/sortableList.svelte";
   import { onMount } from "svelte";
 
-  export let name, id, _, fetcher;
+  export let _, fetcher;
 
   let showEvents = false,
     events = [],
@@ -28,10 +28,10 @@
     }
 
     if (bl) {
-      let result = await fetcher.post("/api/favorites", {
-        subjectId: id,
+      let result = await fetcher.post("/api/favorites/main", {
         actionId: eventInfo.id
       });
+
       if (result.ok) {
         eventInfo.favorite_id = result.data;
         events.push(eventInfo);
@@ -52,7 +52,7 @@
           if (newEvent.action_id === event.action_id) break;
           j++;
         }
-        let result = await fetcher.put(`/api/favorites/${event.id}`, {
+        let result = await fetcher.put(`/api/favorites/main/${event.id}`, {
           number: j + 1,
           action: "swipe"
         });
@@ -66,25 +66,15 @@
   onMount(getEvents);
 
   async function getEvents() {
-    events = (await fetcher.get("/api/favorites", {
-      query: {
-        filter: "",
-        subjectIds: id
-      }
-    })).data;
+    events = (await fetcher.get("/api/favorites/main")).data;
 
-    allEvents = (await fetcher.get("/api/actions", {
-      query: {
-        filter: "",
-        subjects: id
-      }
-    })).actions;
+    allEvents = (await fetcher.get("/api/actions")).actions;
 
     find = true;
   }
 
   async function deleteEvent(id, i) {
-    let result = await fetcher.delete(`/api/favorites/${id}`);
+    let result = await fetcher.delete(`/api/favorites/main/${id}`);
     if (result.ok) {
       events.splice(i, 1);
       events = events;
@@ -203,7 +193,7 @@
 </style>
 
 <div>
-  <h2>{name}</h2>
+  <h2>{_('events_for_main')}</h2>
 
   <div class="subject-events-block">
 

@@ -28,7 +28,6 @@
   import YandexMap from "/components/yandexMap/index.svelte";
   import i18n from "/helpers/i18n/index.js";
   import Image from "/components/imageCenter.svelte";
-  import { parseDateForCards } from "/helpers/parsers.js";
   import { slide } from "svelte/transition";
   import Card from "/components/cardOfEventForMap.svelte";
   import ClickOutside from "/components/clickOutside.svelte";

@@ -392,5 +392,7 @@ export default ( {
   location_validate:          "Сопоставление локации",
   booking_locations:          "Локации Booking",
   location_from_booking:      "Локация из Booking",
-  new_hotel:                  "Новый отель"
+  new_hotel:                  "Новый отель",
+
+  events_for_main:            "Изрбанные для главной"
 } );

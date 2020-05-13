@@ -1,10 +1,8 @@
 <script>
-  import { parseDateForCards } from "/helpers/parsers.js";
+  import { dateToString } from "/helpers/converters.js";
   import Image from "/components/imageCenter.svelte";
 
   export let _, favorite;
-
-  let dates = parseDateForCards(favorite.date_starts, favorite.date_ends, _)
 </script>
 
 <style lang="scss">
@@ -94,8 +92,8 @@
   <div>
     <h4>{favorite.name}</h4>
     <ul class="dates">
-      {#each dates as date}
-        <li>{date}</li>
+      {#each favorite.dates as date}
+        <li>{dateToString(date, _)}</li>
       {/each}
     </ul>
   </div>

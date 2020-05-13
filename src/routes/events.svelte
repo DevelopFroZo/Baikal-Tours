@@ -55,11 +55,8 @@
 
     let paramsKeys = Object.keys(params);
 
-    if (
-      paramsKeys.length > 1 &&
-      paramsKeys[0] === "filter"
-    ) {
-      if(paramsKeys.filter(el => el !== "filter" && el !== "search").length)
+    if (paramsKeys.length > 1 && paramsKeys[0] === "filter") {
+      if (paramsKeys.filter(el => el !== "filter" && el !== "search").length)
         showFilter = true;
 
       if (params.dateStart !== undefined) {
@@ -92,8 +89,7 @@
       query = filterParams.params;
       compiliationQuery = filterParams.compiliationsParams;
 
-      if(params.search)
-        query.search = parseStringToWords(params.search);
+      if (params.search) query.search = parseStringToWords(params.search);
 
       result_compiliations = (await fetcher.get("/api/compiliations", {
         credentials: "same-origin",
@@ -106,7 +102,7 @@
       });
     } else {
       result_cards = await fetcher.get("api/actions", {
-        credentials: "same-origin",
+        credentials: "same-origin"
       });
       result_compiliations = (await fetcher.get("/api/compiliations", {
         credentials: "same-origin"
@@ -114,24 +110,71 @@
     }
 
     if (params.subjects !== undefined) {
-      let subjects = params.subjects.split(",");
+      let subjectIds = params.subjects.split(",").map(el => {
+        return Number(el);
+      });
 
-      result_favorites = (await fetcher.get("/api/actions/", {
+      let data = (await fetcher.get("/api/favorites/", {
         credentials: "same-origin",
         query: {
           filter: "",
           favoritesOnly: "",
-          subjects
+          subjectIds
         }
-      })).actions;
+      })).data;
+
+      if (subjectIds.length === 1) {
+        result_favorites = data;
+      } else if (subjectIds.length === 2) {
+        let newData = [];
+        for (let subject of subjectIds) {
+          let i = 0;
+          for (let favorite of data) {
+            if (favorite.subject_id === subject) {
+              i++;
+              newData.push(favorite);
+              if (i === 2) break;
+            }
+          }
+        }
+        result_favorites = newData;
+      } else if (subjectIds.length === 3) {
+        let newData = [];
+        let twoFavorites = true;
+        for (let subject of subjectIds) {
+          let i = 0;
+          for (let favorite of data) {
+            if (favorite.subject_id === subject) {
+              i++;
+              newData.push(favorite);
+              if (i === 2 && twoFavorites) {
+                twoFavorites = false;
+                break;
+              } else if (i === 1 && !twoFavorites) break;
+            }
+          }
+        }
+        result_favorites = newData;
+      } else {
+        let newData = [];
+        for (let subject of subjectIds) {
+          for (let favorite of data) {
+            if (favorite.subject_id === subject) {
+              newData.push(favorite);
+              break;
+            }
+          }
+        }
+        result_favorites = newData;
+      }
     } else {
-      result_favorites = (await fetcher.get("/api/actions/", {
-        credentials: "same-origin",
-        query: {
-          favoritesOnly: ""
-        }
-      })).actions.slice(0, 4);
+      result_favorites = (await fetcher.get("/api/favorites/main", {
+        credentials: "same-origin"
+      })).data;
     }
+
+    for(let favorite of result_favorites)
+      favorite.id = favorite.action_id;
 
     result_cards = result_cards.actions;
 
@@ -219,9 +262,11 @@
     checkActiveFilter();
   }
 
-  $: 
-    if(scrollY + innerHeight > clientHeight && visibleCards < result_cards.length)
-      visibleCards += 15;
+  $: if (
+    scrollY + innerHeight > clientHeight &&
+    visibleCards < result_cards.length
+  )
+    visibleCards += 15;
 
   function checkActiveFilter() {
     if (showFilter) {
@@ -274,11 +319,9 @@
 
     parseFilter = parseFilterData(filter).params;
 
-    if($page.query.search)
-      parseFilter.search = $page.query.search;
+    if ($page.query.search) parseFilter.search = $page.query.search;
 
-    if(Object.keys(parseFilter).length === 1)
-      parseFilter = null;
+    if (Object.keys(parseFilter).length === 1) parseFilter = null;
 
     visibleCards = 0;
     setURL();
@@ -335,13 +378,12 @@
     if (start) startSelection();
   }
 
-  function showCard(){
+  function showCard() {
     let cardFilter = parseFilterData(filter).params;
 
-    if(Object.keys(cardFilter).length > 1)
-      window.location.href= `/map${fetcher.makeQuery({ query: cardFilter })}`;
-    else
-      window.location.href= `/map`
+    if (Object.keys(cardFilter).length > 1)
+      window.location.href = `/map${fetcher.makeQuery({ query: cardFilter })}`;
+    else window.location.href = `/map`;
   }
 </script>
 
@@ -678,7 +720,7 @@
         left: 0 !important;
       }
 
-      & input[type="range"]{
+      & input[type="range"] {
         padding: 0;
       }
     }
@@ -690,9 +732,9 @@
   <link rel="stylesheet" href="https://unpkg.com/swiper/css/swiper.css" />
 </svelte:head>
 
-<svelte:window bind:scrollY bind:innerHeight/>
+<svelte:window bind:scrollY bind:innerHeight />
 
-<Header {locale} searchText={$page.query.search ? $page.query.search : ""}/>
+<Header {locale} searchText={$page.query.search ? $page.query.search : ''} />
 <!-- <BreadCrumbs path = {[{name: "Каталог событий", url: "./"}]} /> -->
 <div class="form-width" bind:clientHeight>
 
@@ -710,11 +752,7 @@
   </div>
 
   <h1>
-    {#if $page.query.search}
-      {_("finded")}
-    {:else}
-      {_('event_catalog')}
-    {/if}
+    {#if $page.query.search}{_('finded')}{:else}{_('event_catalog')}{/if}
   </h1>
 
   <div class="filters">

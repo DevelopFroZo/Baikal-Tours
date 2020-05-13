@@ -15,12 +15,9 @@
       credentials: "same-origin"
     })).data;
 
-    let actions = (await fetcher.get("/api/actions", {
+    let actions = (await fetcher.get("/api/favorites/main", {
       credentials: "same-origin",
-      query: {
-        favoritesOnly: ""
-      }
-    })).actions.slice(0, 3);
+    })).data.slice(0, 3);
 
     let mobile = isMobile(session["user-agent"]);
 
@@ -41,6 +38,9 @@
 
   export let locale, subjects, actions, compiliations_result, mobile;
 
+  for(let action of actions)
+    action.id = action.action_id;
+  
   const fetcher = new Fetcher();
   const _ = i18n(locale);
 

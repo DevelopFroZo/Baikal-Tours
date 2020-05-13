@@ -213,7 +213,7 @@
   }
 
   .menu-block {
-    position: fixed;
+    position: absolute;
     top: 130px;
     left: 50%;
     transform: translateX(-50%);
@@ -384,6 +384,7 @@
     }
 
     .menu-block {
+      position: fixed;
       overflow: auto;
       width: 100%;
       height: 100vh;

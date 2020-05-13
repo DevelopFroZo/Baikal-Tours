@@ -395,5 +395,7 @@ export default ({
   location_validate:          "Location mapping",
   booking_locations:          "Booking Locations",
   location_from_booking:      "Location from Booking",
-  new_hotel:                  "New hotel"
+  new_hotel:                  "New hotel",
+
+  events_for_main:            "Favorites for the main page"
 });

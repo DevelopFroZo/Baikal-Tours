@@ -1,11 +1,11 @@
 <script>
-  import { parseDateForCards, parsePrice } from "/helpers/parsers.js";
+  import { parsePrice } from "/helpers/parsers.js";
   import i18n from "/helpers/i18n/index.js";
   import Image from "/components/imageCenter.svelte";
+  import { dateToString } from "/helpers/converters.js";
 
   export let name,
-    date_ends,
-    date_starts,
+    dates,
     image_url,
     price_min = "",
     price_max = "",
@@ -15,13 +15,10 @@
     locale,
     companions = "",
     saveURL = true,
-    status = "",
-    price_min_=0,
-    price_max_=0;
+    status = "";
 
   const _ = i18n(locale);
 
-  let dates = parseDateForCards(date_starts, date_ends, _);
   let second_price = parsePrice(price_min, price_max, _);
 </script>
 
@@ -185,7 +182,13 @@
   </div>
   <h4>{name}</h4>
   {#if dates.length !== 0}
-    <div class="date-block">{dates.join('; ')}</div>
+    <ul class="date-block">
+      {#each dates as date}
+        <li>
+          {dateToString(date, _)}
+        </li>
+      {/each}
+    </ul>
   {/if}
   {#if subjects.length !== 0 && subjects[0] !== null}
     <div class="line">

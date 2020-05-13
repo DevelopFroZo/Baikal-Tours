@@ -7,35 +7,34 @@
     showActiveFilters
   } from "/helpers/filter.js";
   import ClickOutside from "/components/clickOutside.svelte";
+  import { parseStringToWords } from "/helpers/parsers.js";
+  import { dateToString } from "/helpers/converters.js";
 
   export let _,
     result_filters,
     result_actions,
     showEvents,
-    parseDateForCards,
     actions,
     fetcher;
 
-  result_actions = result_actions.filter(el => el.status === "active");
+  console.log(result_actions)
 
+  result_actions = result_actions.filter(el => el.status === "active");
+  //f
   const dispatch = createEventDispatcher();
 
-  let filter = [
-      [
-        {
-          value: "",
-          active: false
-        }
-      ],
-      [],
-      []
-    ],
+  let filter = {
+      search: {
+        value: "",
+        active: false
+      }
+    },
     parseFilter,
     showFilter = false;
 
-  let search = filter[0][0].value;
-  filter[1] = setFilterData(result_filters.subjects);
-  filter[2] = setFilterData(result_filters.locations);
+  let search = "";
+  filter.subjects = setFilterData(result_filters.subjects);
+  filter.locations = setFilterData(result_filters.locations);
 
   let options = [];
   for (let i = 0; i < 2; i++)
@@ -46,18 +45,16 @@
     });
 
   function checkSearchFilter() {
-    var str = search.replace(/\s+/g, " ");
-    str = str.replace(/[^ \u4e00-\u520fa-zа-яё\d]/giu, "");
-    str = str.replace(/\ /g, ",");
+    var str = parseStringToWords(search);
 
-    if (str.length !== 0) filter[0][0].active = true;
-    else filter[0][0].active = false;
+    if (str.length !== 0) filter.search.active = true;
+    else filter.search.active = false;
 
-    filter[0][0].value = str;
+    filter.search.value = str;
 
     changeFilter();
 
-    filter[0][0].value = search;
+    filter.search.value = search;
   }
 
   function closeFilter(e) {
@@ -68,8 +65,10 @@
 
   async function changeFilter() {
     parseFilter = parseFilterDataForAdmin(filter);
-    showFilter = showActiveFilters(filter);
+
     delete parseFilter.allStatuses;
+
+    showFilter = Object.keys(parseFilter).length > 1;
 
     result_actions = (await fetcher.get("/api/actions", {
       query: parseFilter
@@ -146,7 +145,8 @@
       display: flex;
       margin-top: 10px;
 
-      & > span, ul {
+      & > span,
+      ul {
         width: calc(100% / 3 - 20px);
       }
     }
@@ -160,6 +160,37 @@
     margin-top: 15px;
     display: flex;
     justify-content: space-between;
+  }
+
+  .active-filters {
+    margin-top: 30px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+
+    & > .ul-name {
+      margin-right: 20px;
+      font-size: $Big_Font_Size;
+    }
+
+    & > li:not(.ul-name) {
+      padding: 10px;
+      background: white;
+      border-radius: 100px;
+      box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+      margin-right: 20px;
+      display: flex;
+      align-items: center;
+
+      & img {
+        width: 15px;
+        margin-left: 10px;
+      }
+    }
+
+    & > li {
+      margin-top: 10px;
+    }
   }
 </style>
 
@@ -191,7 +222,7 @@
             exclude={[options[0].btn]}>
             {#if options[0].isVisible}
               <div class="option" bind:this={options[0].option}>
-                {#each filter[1] as subject}
+                {#each filter.subjects as subject}
                   <div
                     on:click={() => {
                       subject.active = !subject.active;
@@ -218,10 +249,8 @@
             on:clickoutside={() => (options[1].isVisible = false)}
             exclude={[options[1].btn]}>
             {#if options[1].isVisible}
-              <div
-                class="option"
-                bind:this={options[1].option}>
-                {#each filter[2] as location}
+              <div class="option" bind:this={options[1].option}>
+                {#each filter.locations as location}
                   <div
                     on:click={() => {
                       location.active = !location.active;
@@ -237,14 +266,43 @@
         </div>
       </div>
     </div>
-    <ActiveFilters
-      {search}
-      {filter}
-      {showFilter}
-      min={-1}
-      max={3}
-      on:closeFilter={closeFilter}
-      {_} />
+
+    {#if showFilter}
+      <ul class="active-filters">
+        <li class="ul-name">{_('you_have_chosen')}:</li>
+        {#each Object.keys(filter) as filterKey}
+          {#if Array.isArray(filter[filterKey])}
+            {#each filter[filterKey] as elem}
+              {#if elem.active}
+                <li>
+                  {elem.value}
+                  <button
+                    on:click={() => {
+                      elem.active = false;
+                      changeFilter();
+                    }}>
+                    <img src="/img/cross.svg" alt="delete" />
+                  </button>
+                </li>
+              {/if}
+            {/each}
+          {:else if filter[filterKey].active}
+            <li>
+              {filter[filterKey].value}
+              <button
+                on:click={() => {
+                  filter[filterKey].active = false;
+                  filter[filterKey].value = '';
+                  changeFilter();
+                }}>
+                <img src="/img/cross.svg" alt="delete" />
+              </button>
+            </li>
+          {/if}
+        {/each}
+      </ul>
+    {/if}
+
     {#each result_actions as action}
       <div class="action" on:click={() => changeAction(action)}>
         <h2>{action.name}</h2>
@@ -253,13 +311,21 @@
           {#if action.locations}
             <ul>
               {#each action.locations as location}
-                <li>{location.address ? `${location.name}, ${location.address}` : location.name}</li>
+                <li>
+                  {location.address ? `${location.name}, ${location.address}` : location.name}
+                </li>
               {/each}
             </ul>
           {/if}
-          <span>
-            {parseDateForCards(action.date_starts, action.date_ends, _)}
-          </span>
+          {#if action.dates}
+            <ul>
+              {#each action.dates as date}
+                <li>
+                  {dateToString(date, _)}
+                </li>
+              {/each}
+            </ul>
+          {/if}
         </div>
       </div>
     {/each}

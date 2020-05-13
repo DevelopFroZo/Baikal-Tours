@@ -1,3 +1,5 @@
+import { parseDate } from "/helpers/parsers.js";
+
 export {
     getIds,
     parseDataToIds,
@@ -109,18 +111,6 @@ function formatDates(dates, actionData) {
         }
 
         if (bl) {
-            if (date.dateStart !== null) {
-                date.dateStart = new Date(date.dateStart);
-                date.dateStart.setHours(0);
-                date.dateStart = date.dateStart.toISOString();
-            }
-
-            if (date.dateEnd !== null) {
-                date.dateEnd = new Date(date.dateEnd);
-                date.dateEnd.setHours(0);
-                date.dateEnd = date.dateEnd.toISOString();
-            }
-
             if (date.timeStart !== null && date.timeStart.split(":").length === 2)
                 date.timeStart += ":00";
 
@@ -154,7 +144,9 @@ function formatDates(dates, actionData) {
                 let editData = data[j]
                 if (editData.id === startData.id) {
                     let keys = Object.keys(startData);
-
+                    if(startData.dateStart) startData.dateStart = parseDate(new Date(startData.dateStart))
+                    if(startData.dateEnd) startData.dateEnd = parseDate(new Date(startData.dateEnd))
+                    startData.dateEnd = parseDate(new Date(startData.dateEnd))
                     for (let key of keys) {
                         if (startData[key] !== editData[key]) {
                             newData.edit.push(editData);

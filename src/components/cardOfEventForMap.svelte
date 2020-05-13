@@ -1,8 +1,8 @@
 <script>
   import Image from "/components/imageCenter.svelte";
-  import {parseDateForCards} from "/helpers/parsers.js";
+  import { dateToString } from "/helpers/converters.js";
 
-  export let name, date_starts, date_ends, location, image_url, id, _;
+  export let name, dates, location, image_url, id, _;
 </script>
 
 <style lang="scss">
@@ -49,6 +49,13 @@
         color: #3b394a;
       }
 
+      > .event-date{
+        li{
+          color: #3b394a;
+          font-size: $Medium_Font_Size;
+        }
+      }
+
       & > a {
         color: $Blue;
         text-decoration: underline;
@@ -64,21 +71,21 @@
     }
   }
 
-  @media only screen and (max-width: 768px){
-    .card-block{
-      & > .event-info-block{
+  @media only screen and (max-width: 768px) {
+    .card-block {
+      & > .event-info-block {
         padding: 15px 40% 15px 10px;
 
-        & > h2{
+        & > h2 {
           font-size: $Medium_Font_Size;
         }
 
-        & > span{
+        & > span {
           font-size: $Mini_Font_Size;
           margin-top: 8px;
         }
 
-        & > a{
+        & > a {
           font-size: $Mini_Font_Size;
           margin-top: 13px;
         }
@@ -90,9 +97,13 @@
 <div class="card-block">
   <div class="event-info-block">
     <h2>{name}</h2>
-    <span class="event-date">
-      {parseDateForCards(date_starts, date_ends, _)}
-    </span>
+    {#if dates}
+      <ul class="event-date">
+        {#each dates as date}
+          <li>{dateToString(date, _)}</li>
+        {/each}
+      </ul>
+    {/if}
     <span class="event-location">{location}</span>
     <a href="/event?id={id}">{_('detailed')}</a>
   </div>
