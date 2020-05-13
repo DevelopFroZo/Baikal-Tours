@@ -13,7 +13,7 @@
   function changeUpdate(){
     if (swiper !== null) {
       swiper.update();
-      swiper.slideTo(mainSlide === 1 ? (carouselData.length < 3 ? 0 : 1) : 1, 750);
+      swiper.slideTo(mainSlide === 1 ? (carouselData.length < 3 ? 0 : 1) : 0, 750);
     } else swiper = new Swiper(carouselBlock, data);
 
     hideButtons = carouselData.length < swiper.params.slidesPerGroup

@@ -133,6 +133,7 @@
   import YandexMap from "/components/yandexMap/index.svelte";
   import { imask } from 'svelte-imask';
   import ClickOutside from "/components/clickOutside.svelte";
+  import Swiper from "swiper";
 
   export let result_action, actionId, userId, locale, similar_events, mobile;
 
@@ -175,7 +176,10 @@
     requiredField = false,
     visibleDates,
     showDatePicker = false,
-    dateInput;
+    dateInput,
+    fullWindowGallary = null,
+    fullWindowGallaryBlock,
+    showGallary = false;
 
   $: {
     total = 0;
@@ -262,6 +266,11 @@
     for(let ticket of result_action.buyable)
       ticket.count = 0;
 
+    if(fullWindowGallary){
+      fullWindowGallary.update();
+      fullWindowGallary.slideTo(0, 0);
+    }
+
     setRegisterDates();
 
     if(start){
@@ -274,6 +283,18 @@
   onMount(() => {
     actionsParams = localStorage.getItem("actionsParams");
     if (actionsParams === null) actionsParams = "./events";
+
+    fullWindowGallary = new Swiper(fullWindowGallaryBlock, {
+      slidesPerView: "auto",
+      autoHeight: true,
+      centeredSlides: true,
+      spaceBetween: 10,
+      speed: 750,
+      navigation: { 
+        nextEl: '.swiper-button-next', 
+        prevEl: '.swiper-button-prev' 
+      }
+    })
 
     start = true;
     if(initEditor)
@@ -480,6 +501,12 @@
         return true;
     }
     return false;
+  }
+
+  function showGallaryWindow(el){
+    fullWindowGallary.update();
+    fullWindowGallary.slideTo(el, 0);
+    showGallary = true;
   }
 </script>
 
@@ -1412,6 +1439,54 @@
     }
   }
 
+  .gallary-window{
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background: #ffffff99;
+    z-index: 5;
+    visibility: hidden;
+    opacity: 0;
+    transition: 0.3s;
+
+    > button{
+      width: 100%;
+      height: 100vh;
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 1;
+    }
+
+    > .gallary-block{
+      position: absolute;
+      top: 50%;
+      left: 0;
+      transform: translateY(-50%);
+      max-height: 80vh;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      z-index: 2;
+
+      > .swiper-wrapper{
+        align-items: center !important;
+      }
+
+      img{
+        max-width: 70%;
+        max-height: 80vh;
+      }
+    }
+  }
+
+  .showGallary{
+    visibility: visible;
+    opacity: 1;
+  }
+
   @media only screen and (max-width: 768px) {
     h1 {
       font-size: $Big_Font_Size;
@@ -1449,10 +1524,6 @@
           width: 5px;
           height: 5px;
         }
-      }
-
-      & > .locations-block li{
-        color: #34353F;
       }
 
       & > button{
@@ -1817,10 +1888,10 @@
       <Carousel data={{slidesPerView: 'auto', preloadImages: "false", centeredSlides: true, spaceBetween: 25, speed: 750, navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' }, initialSlide: 1}}
       mainSlide={1}
       carouselData={result_action.images}>
-        {#each result_action.images as img}
-          <div class="carousel-cell swiper-slide">
+        {#each result_action.images as img, i}
+          <button class="carousel-cell swiper-slide" on:click={() => showGallaryWindow(i)}>
             <Image src={img.image_url} alt={"img"}/>
-          </div>
+          </button>
         {/each}       
       </Carousel>
     </div>
@@ -1844,8 +1915,8 @@
         <Carousel data={{slidesPerView: 'auto', spaceBetween: (mobile ? 10 : 25), speed: 750, navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' }}}
         carouselData={result_action.partners}>
           {#each result_action.partners as partner}
-          <div class="partner-container">
-            <div class="partner-block swiper-slide">
+          <div class="partner-container swiper-slide">
+            <div class="partner-block">
               <img
                 src={partner.image_url}
                 alt={partner.name === null ? 'partner' : partner.name} />
@@ -2268,3 +2339,20 @@
     </div>
   </div>
 {/if}
+
+<div class="gallary-window" class:showGallary>
+  <button on:click={() => showGallary = false}></button>
+  <div class="gallary-block" bind:this={fullWindowGallaryBlock}>
+    <div class="swiper-wrapper">
+      {#each result_action.images as img}
+        <img src={img.image_url} alt="event image" class="swiper-slide">
+      {/each}
+    </div>
+    <div class="swiper-button-prev">
+      <img src="/img/next.svg" alt="prev" class="prev">
+    </div>
+    <div class="swiper-button-next">
+      <img src="/img/next.svg" alt="prev" class="next">
+    </div>
+  </div>
+</div>
