@@ -35,14 +35,24 @@
   const _ = i18n(locale),
     fetcher = new Fetcher();
 
+  let prices = {};
+  if(result_action.buyable && result_action.buyable.filter( el => el.type === "ticket" ).length){
+    prices.min = Math.min.apply(null, result_action.buyable.filter( el => el.type === "ticket" ).map(el => {return el.price}));
+    prices.max = Math.max.apply(null, result_action.buyable.filter( el => el.type === "ticket" ).map(el => {return el.price}));
+  }
+  else{
+    prices.min = 0;
+    prices.max = 0;
+  }
+
   let contactData = contactsToString(
       result_action.contact_faces,
       result_action.emails,
       result_action.phones
     ),
     second_price = parsePrice(
-      result_action.price_min,
-      result_action.price_max,
+      prices.min,
+      prices.max,
       _
     ),
     adminActinonParams = "/admin",
@@ -288,7 +298,7 @@
             <img src="img/admin-date.png" alt="date" />
           </div>
           <div class="info">
-            {#if result_action.dates.length > 0}
+            {#if result_action.dates && result_action.dates.length > 0}
               <ul>
                 {#each result_action.dates as date}
                   <li>{dateToString(date, _)}</li>

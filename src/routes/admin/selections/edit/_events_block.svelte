@@ -17,10 +17,8 @@
     actions,
     fetcher;
 
-  console.log(result_actions)
-
   result_actions = result_actions.filter(el => el.status === "active");
-  //f
+
   const dispatch = createEventDispatcher();
 
   let filter = {

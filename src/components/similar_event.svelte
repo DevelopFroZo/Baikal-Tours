@@ -91,10 +91,12 @@
   {/if}
   <div>
     <h4>{favorite.name}</h4>
-    <ul class="dates">
-      {#each favorite.dates as date}
-        <li>{dateToString(date, _)}</li>
-      {/each}
-    </ul>
+    {#if favorite.dates}
+      <ul class="dates">
+        {#each favorite.dates as date}
+          <li>{dateToString(date, _)}</li>
+        {/each}
+      </ul>
+    {/if}
   </div>
 </a>

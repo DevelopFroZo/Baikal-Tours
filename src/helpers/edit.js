@@ -147,6 +147,7 @@ function formatDates(dates, actionData) {
                     if(startData.dateStart) startData.dateStart = parseDate(new Date(startData.dateStart))
                     if(startData.dateEnd) startData.dateEnd = parseDate(new Date(startData.dateEnd))
                     startData.dateEnd = parseDate(new Date(startData.dateEnd))
+                    console.log(startData, editData)
                     for (let key of keys) {
                         if (startData[key] !== editData[key]) {
                             newData.edit.push(editData);

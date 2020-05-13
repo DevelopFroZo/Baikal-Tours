@@ -181,7 +181,7 @@
     <div class="price">{second_price}</div>
   </div>
   <h4>{name}</h4>
-  {#if dates.length !== 0}
+  {#if dates && dates.length !== 0}
     <ul class="date-block">
       {#each dates as date}
         <li>
@@ -190,7 +190,7 @@
       {/each}
     </ul>
   {/if}
-  {#if subjects.length !== 0 && subjects[0] !== null}
+  {#if subjects && subjects.length !== 0 && subjects[0] !== null}
     <div class="line">
       <div class="img">
         <img src="img/star.svg" alt="category" />
@@ -198,7 +198,7 @@
       <div>{subjects.join('; ')}</div>
     </div>
   {/if}
-  {#if locations.length !== 0 && locations[0] !== null && locations}
+  {#if locations && locations.length !== 0 && locations[0] !== null}
     <div class="line">
       <div class="img">
         <img src="img/placeholder.svg" alt="kategory" />

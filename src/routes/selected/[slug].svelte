@@ -403,18 +403,22 @@
         <div class="event-info">
           <h3>{action.name}</h3>
           <ul>
-            {#each action.locations as location, i}
-              <li>
-                {location.name}
-                {#if i != action.locations.length - 1}{'; '}{/if}
-              </li>
-            {/each}
-            {#each action.dates as date, i}
-              <li>
-                {dateToString(date, _)}
-                {#if i != action.dates.length - 1}{'; '}{/if}
-              </li>
-            {/each}
+            {#if action.locations}
+              {#each action.locations as location, i}
+                <li>
+                  {location.name}
+                  {#if i != action.locations.length - 1}{'; '}{/if}
+                </li>
+              {/each}
+            {/if}
+            {#if action.dates}
+              {#each action.dates as date, i}
+                <li>
+                  {dateToString(date, _)}
+                  {#if i != action.dates.length - 1}{'; '}{/if}
+                </li>
+              {/each}
+            {/if}
           </ul>
           <b class="price">
             {parsePrice(action.price_min, action.price_max, _)}

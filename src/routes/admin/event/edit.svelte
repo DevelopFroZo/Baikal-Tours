@@ -187,6 +187,11 @@
   buyable = edit.cloneArray(actionData.buyable);
   organizer_ids = edit.cloneArray(actionData.organizer_ids);
 
+  if(actionData.dates)
+    for(let i = 0; i < actionData.dates.length; i++)
+      if(actionData.dates[i].days)
+        dates[i].days = Object.assign([], actionData.dates[i].days)
+
   subjects = edit.getIds(subjects);
   transfers = edit.getIds(transfers);
   companions = edit.getIds(companions);
@@ -235,7 +240,6 @@
     }
     dates = d;
   }
-
 
   //Title
   $: {

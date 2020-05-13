@@ -363,6 +363,10 @@
   }
 </style>
 
+<svelte:head>
+  <title>{_("locations")}</title>
+</svelte:head>
+
 <AdminPage {locale} {_} {fetcher} page={2}>
   <h1>{_('locations')}</h1>
   <div class="head-line">

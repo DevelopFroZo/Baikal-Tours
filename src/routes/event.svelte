@@ -87,7 +87,9 @@
         result_action.hotels = [...result_action.hotels, ...getRundomObjects(result_action.hotels.length, 3, hotels)];
       }
 
-      let firstSimilarDate = new Date(result_action.dates[0].date_start);
+      let firstSimilarDate;
+      if(result_action.dates.length) firstSimilarDate = new Date(result_action.dates[0].date_start);
+      else firstSimilarDate = new Date();
       firstSimilarDate.setDate(firstSimilarDate.getDate() + 1);
       firstSimilarDate = parseDate(firstSimilarDate);
 
@@ -211,6 +213,7 @@
     if(!userDate.length){
       alert(_("required_fields_message"))
       requiredField = true;
+      return false;
     }
 
     let date = new Date(reverseDate(userDate, false));
@@ -305,10 +308,9 @@
         return;
       }
 
-    if(!checkUserDate())
+    if(result_action.dates.length && !checkUserDate())
       return;
     
-
     if(!validateMail(userMail)){
       alert(_("uncorrect_mail"))
       requiredField = true;
@@ -363,7 +365,7 @@
     let dates = result_action.dates;
     visibleDates = [];
 
-    if(dates){
+    if(dates && dates.length){
       let dateNow = new Date();
       for(let date of dates){
         let dateStart;
@@ -455,7 +457,7 @@
     visibleDates = visibleDates.sort();
 
     if(visibleDates.length <= 1 || !result_action.buyable.length){
-      userDate = visibleDates.length ? reverseDate(visibleDates[0]) : null;
+      userDate = visibleDates.length ? reverseDate(visibleDates[0]) : parseDate( new Date() );
       showDateChange = false;
     }
   }
@@ -466,6 +468,7 @@
       for(let day of dates){
         let dateDay = date.getDay();
         if(dateDay === 0) dateDay = 6
+        else dateDay--;
         if(dateDay === day){
           bl = true;
           break;
@@ -1776,7 +1779,7 @@
     {/if}
     <h1>{result_action.name}</h1>
     <div class="locations-block">
-      {#if result_action.locations.length > 0}
+      {#if result_action.locations && result_action.locations.length > 0}
         <ul>
           {#each result_action.locations as location}
             <li>
@@ -1974,15 +1977,17 @@
     <div class="map-block">
       {#if coords.length}
         <div class="map">
-          <div class="location-block">
-            <h3>{_('venue')}: 
-            {#each result_action.locations as location}
-              <span>
-                {location.name + (location.address === null ? '' : ', ' + location.address)}
-              </span>
-            {/each}
-            </h3>
-          </div>
+          {#if result_action.locations}
+            <div class="location-block">
+              <h3>{_('venue')}: 
+              {#each result_action.locations as location}
+                <span>
+                  {location.name + (location.address === null ? '' : ', ' + location.address)}
+                </span>
+              {/each}
+              </h3>
+            </div>
+          {/if}
           <YandexMap
             {apiKey}
             {customIcon}
@@ -2074,7 +2079,7 @@
                     <ClickOutside on:clickoutside={() => showDatePicker = false} exclude={[dateInput]} hideByExclude={false}>
                       {#if showDatePicker && userDate.length < 10}
                         <ul class="date-list" transition:slide>
-                          {#each visibleDates.filter(el => userDate.length ? reverseDate(el).startWith(userDate) : true) as date}
+                          {#each visibleDates.filter(el => userDate.length ? reverseDate(el).indexOf(userDate) === 0 : true) as date}
                             <li>
                               <button on:click={() => {
                                 userDate = reverseDate(date);

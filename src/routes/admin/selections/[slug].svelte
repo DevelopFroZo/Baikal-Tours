@@ -162,18 +162,22 @@
                   <br />
                 {/each}
               </span> -->
-              <span>
-                {#each action.locations as location}
-                  {location.name}
-                  <br />
-                {/each}
-              </span>
-              <span>
-                {#each action.dates as date}
-                  {dateToString(date, _)}
-                  <br />
-                {/each}
-              </span>
+              {#if action.locations}
+                <span>
+                  {#each action.locations as location}
+                    {location.name}
+                    <br />
+                  {/each}
+                </span>
+              {/if}
+              {#if action.dates}
+                <span>
+                  {#each action.dates as date}
+                    {dateToString(date, _)}
+                    <br />
+                  {/each}
+                </span>
+              {/if}
             </div>
           </a>
           <pre>{action.description}</pre>
