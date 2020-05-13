@@ -88,11 +88,14 @@ export default class extends Foundation{
     const { rows: main } = await transaction.query(
       `select
         f.*, at.name,
+        ai.image_url,
         null as locations,
         null as dates,
         null as subjects
       from
-      	favorites as f,
+      	favorites as f
+        left join action_images as ai
+        on f.action_id = ai.action_id and ai.is_main = true,
       	actions_translates as at
       where
       	at.locale = $1 and

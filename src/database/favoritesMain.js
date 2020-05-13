@@ -73,15 +73,23 @@ async function getAll( client, locale ){
   const { rows: main } = await client.query(
     `select
       f.*, at.name,
+      ai.image_url,
       null as locations,
+      coalesce( min( ab.price ), 0 ) as price_min,
+      coalesce( max( ab.price ), 0 ) as price_max,
       null as dates,
       null as subjects
     from
-      favorites_main as f,
+      favorites_main as f
+      left join action_images as ai
+      on f.action_id = ai.action_id and ai.is_main = true
+      left join action_buyable as ab
+      on f.action_id = ab.action_id and ab.type = 'ticket',
       actions_translates as at
     where
       at.locale = $1 and
       f.action_id = at.action_id
+    group by f.id, at.name, ai.image_url
     order by f.number`,
     [ locale ]
   );

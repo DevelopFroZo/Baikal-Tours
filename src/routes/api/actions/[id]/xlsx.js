@@ -137,12 +137,7 @@ export async function get( {
   wb.SheetNames = [ "Лист 1" ];
   wb.Sheets[ "Лист 1" ] = ws;
 
-  const outputBinary = xlsx.write( wb, {
-    bookType: "xlsx",
-    type: "binary"
-  } );
-
-  const outputBuffer = xlsx.write( wb, {
+  const output = xlsx.write( wb, {
     bookType: "xlsx",
     type: "buffer"
   } );
@@ -155,7 +150,7 @@ export async function get( {
   if( !( await access( "reports" ) ) )
     await mkdir( "reports" );
 
-  await writeFile( `reports/action${id}_${date}.xlsx`, outputBuffer );
+  await writeFile( `reports/action${id}_${date}.xlsx`, output );
 
-  res.end( outputBinary, "binary" );
+  res.download( `reports/action${id}_${date}.xlsx`, `action${id}_${date}.xlsx` );
 }
