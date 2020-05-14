@@ -241,6 +241,9 @@
     dates = d;
   }
 
+  if((!actionData.title || !actionData.title.length) && actionId)
+    title = actionData.name;
+
   //Title
   $: {
     newData = edit.validateNewtranslateData(
@@ -379,9 +382,6 @@
           id: organizer_ids[i],
           isVisible: false
         }
-
-      
-
     
     let ids = [];
     for(let { id } of organizer_ids)
@@ -717,10 +717,6 @@
     let result;
 
     let requiredFields = [
-      {
-        field: title,
-        name: "title"
-      },
       {
         field: short_description,
         name: "short_event_description"

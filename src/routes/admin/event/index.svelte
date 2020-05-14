@@ -248,7 +248,7 @@
 
 <svelte:head>
   <title>
-    {result_action.title === null ? _('event_page') : result_action.title}
+    {result_action.title === null ? result_action.name : result_action.title} | {_("full_site_name")}
   </title>
 
   <script src="//cdn.quilljs.com/1.3.6/quill.js" on:load={() => {
