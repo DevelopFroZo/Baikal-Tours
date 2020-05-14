@@ -63,6 +63,7 @@
         & > li{
           font-size: $LowBig_Font_Size;
           color: $Orange;
+          font-weight: 600;
         }
       }
     }
@@ -72,14 +73,22 @@
     .similar-block{
       width: 100%;
       height: 165px;
+
+      > div{
+        padding: 10px;
+      }
     }
 
     h4{
       font-size: $LowBig_Font_Size !important;
     }
 
+    ul{
+      margin-top: 5px !important;
+    }
+
     li{
-      font-size: $LowMedium_Font_Size;
+      font-size: $LowMedium_Font_Size !important;
     }
   }
 </style>
