@@ -6,7 +6,7 @@ export default class extends Foundation{
   }
 
   async createOrEdit( client, actionId, locale, {
-    title, name, tagline, short_description,
+    title, name, short_description,
     full_description, organizer_name, contact_faces
   } ){
     let values = [ "$1", "$2" ];
@@ -25,13 +25,6 @@ export default class extends Foundation{
       values.push( `$${i++}` );
       sets.push( `name = excluded.name` );
       params.push( name );
-    }
-    else values.push( "''" );
-
-    if( tagline ){
-      values.push( `$${i++}` );
-      sets.push( `tagline = excluded.tagline` );
-      params.push( tagline );
     }
     else values.push( "''" );
 
@@ -67,7 +60,7 @@ export default class extends Foundation{
     sets = sets.join( "," );
 
     await client.query(
-      `insert into actions_translates( action_id, locale, title, name, tagline, short_description, full_description, organizer_name, contact_faces )
+      `insert into actions_translates( action_id, locale, title, name, short_description, full_description, organizer_name, contact_faces )
       values( ${values} )
       on conflict ( action_id, locale ) do update
       set ${sets}`,

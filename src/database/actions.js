@@ -164,7 +164,7 @@ export default class extends Foundation{
       `with actions_extended as (
         select
           a.id, a.status, at.locale, at.title,
-          at.name, at.tagline, at.short_description,
+          at.name, at.short_description,
           at.full_description,
           array_agg( l.id ) as locations_ids,
           coalesce( min( ab.price ), 0 ) as price_min,
@@ -189,7 +189,6 @@ export default class extends Foundation{
           at.locale,
           at.title,
           at.name,
-          at.tagline,
           at.short_description,
           at.full_description
       )
@@ -473,7 +472,7 @@ export default class extends Foundation{
     status, organizer_ids,
     site_payment, organizer_payment, emails, phones,
     websites, vk_link, facebook_link, instagram_link,
-    twitter_link, title, name, tagline,
+    twitter_link, title, name,
     short_description, full_description,
     organizer_name, contact_faces, dates, companions,
     locations, subjects, transfers
@@ -576,18 +575,6 @@ export default class extends Foundation{
 
       if( name.autoTranslate === true )
         translator.add( "name", name.text, locale, name.toLocales );
-    }
-
-    if( tagline ){
-      const locale = tagline.locale;
-
-      if( translated[ locale ] === undefined )
-        translated[ locale ] = {};
-
-      translated[ locale ].tagline = tagline.text;
-
-      if( tagline.autoTranslate === true )
-        translator.add( "tagline", tagline.text, locale, tagline.toLocales );
     }
 
     if( short_description ){

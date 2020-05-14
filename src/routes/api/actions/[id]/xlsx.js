@@ -150,7 +150,9 @@ export async function get( {
   if( !( await access( "reports" ) ) )
     await mkdir( "reports" );
 
-  await writeFile( `reports/action${id}_${date}.xlsx`, output );
+  const name = `action${id}_${date}.xlsx`;
 
-  res.download( `reports/action${id}_${date}.xlsx`, `action${id}_${date}.xlsx` );
+  await writeFile( `reports/${name}`, output );
+
+  res.download( `reports/${name}`, name );
 }
