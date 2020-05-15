@@ -25,6 +25,13 @@ async function getAll( client, location2name ){
 
 async function edit( client, id, location2Id ){
   try{
+    if( location2Id !== null ) await client.query(
+      `update booking_locations
+      set location2_id = null
+      where location2_id = $1`,
+      [ location2Id ]
+    );
+
     const { rowCount } = await client.query(
       `update booking_locations
       set location2_id = $1

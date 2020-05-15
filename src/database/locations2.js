@@ -77,13 +77,13 @@ async function getAll( client, locale, ln, bln ){
   const params = [];
 
   if( ln ){
-    fields += ", l.name as location_name";
+    fields += ", l.id as location_id, l.name as location_name";
     from += " left join locations as l on l2.id = l.location2_id and l.locale = $1";
     params.push( locale );
   }
 
   if( bln ){
-    fields += ", bl.name as booking_location_name";
+    fields += ", bl.id as booking_location_id, bl.name as booking_location_name";
     from += " left join booking_locations as bl on l2.id = bl.location2_id";
   }
 

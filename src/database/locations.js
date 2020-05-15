@@ -29,6 +29,13 @@ export default class extends Foundation{
 
   async edit( id, location2Id ){
     try{
+      if( location2Id !== null ) await super.query(
+        `update locations
+        set location2_id = null
+        where location2_id = $1`,
+        [ location2Id ]
+      );
+
       const { rowCount } = await super.query(
         `update locations
         set location2_id = $1
