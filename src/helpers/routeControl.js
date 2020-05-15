@@ -57,6 +57,14 @@ export default ( server ) => {
   server.post( "/api/actions", secureAPI( "admin" ) );
   server.put( "/api/actions/:id", secureAPI( "admin" ) );
 
+  server.post( "/api/actions/:id/hotels", secureAPI( "admin" ) );
+  server.put( "/api/actions/:id/hotels/:hotelId", secureAPI( "admin" ) );
+  server.delete( "/api/actions/:id/hotels/:hotelId", secureAPI( "admin" ) );
+
+  server.post( "/api/actions/:id/locations2", secureAPI( "admin" ) );
+  server.put( "/api/actions/:id/locations2/:location2Id", secureAPI( "admin" ) );
+  server.delete( "/api/actions/:id/locations2/:location2Id", secureAPI( "admin" ) );
+
   server.post( "/api/actionImages", secureAPI( "admin" ), upload.array( "images" ) );
   server.put( "/api/actionImages/:id", secureAPI( "admin" ), upload.single( "image" ) );
   server.delete( "/api/actionImages/:id", secureAPI( "admin" ) );
@@ -76,10 +84,6 @@ export default ( server ) => {
   server.post( "/api/actionBuyable", secureAPI( "admin" ) );
   server.put( "/api/actionBuyable/:id", secureAPI( "admin" ) );
   server.delete( "/api/actionBuyable/:id", secureAPI( "admin" ) );
-
-  server.post( "/api/actions/:id/hotels", secureAPI( "admin" ) );
-  server.put( "/api/actions/:id/hotels/:hotelId", secureAPI( "admin" ) );
-  server.delete( "/api/actions/:id/hotels/:hotelId", secureAPI( "admin" ) );
 
   server.post( "/api/compiliations", secureAPI( "admin" ) );
   server.put( "/api/compiliations/:slug", secureAPI( "admin" ) );

@@ -343,6 +343,19 @@ export default class extends Foundation{
       [ id, locale ]
     ) ).rows;
 
+    main.locations2 = ( await transaction.query(
+      `select
+      	al2.address, al2.coords,
+      	l2.id, l2.name
+      from
+      	actions_locations2 as al2,
+      	locations2 as l2
+      where
+      	al2.action_id = $1 and
+      	al2.location2_id = l2.id`,
+      [ id ]
+    ) ).rows;
+
     main.subjects = ( await transaction.query(
       `select s.id, s.name
       from
@@ -431,6 +444,8 @@ export default class extends Foundation{
 
         return location;
       } );
+
+      // #fix add locations2 (address)
 
       main.partners = main.partners.map( partner => {
         partner.name = transliterate( partner.name );
