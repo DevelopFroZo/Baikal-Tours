@@ -707,7 +707,7 @@
   .main-block {
     min-height: 650px;
     position: relative;
-    background: linear-gradient(180deg, rgba(0, 0, 0, 0.56) 0%, rgba(0, 0, 0, 0) 100%);
+    background: linear-gradient(360deg, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.3) 100%);
     overflow: hidden;
 
     & > .form-width {

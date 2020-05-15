@@ -565,7 +565,7 @@
 </div>
 
 <div class="form-width all-info">
-  <div class="info-block">
+  <!-- <div class="info-block">
     <div class="about-calendar">
       <h3>
         {_('event_calendar')}
@@ -575,7 +575,7 @@
       <pre>{_('event_calendar_text')}</pre>
     </div>
     <div class="video-block" />
-  </div>
+  </div> -->
 
   <div class="compiliations-block">
     <h3>

@@ -27,7 +27,7 @@
       grid-row-gap: 15px;
       grid-template-areas:
         "left-block center-block right-block"
-        "assign policy download";
+        "left-block assign policy";
 
       & > div {
         font-size: $Big_Font_Size;
@@ -38,6 +38,7 @@
   .left-side {
     text-align: right;
     justify-self: end;
+    align-self: center;
     grid-area: left-block;
 
     & > p {
@@ -50,6 +51,15 @@
 
   .center{
     grid-area: center-block;
+    color: #34353F;
+
+    > a{
+      display: block;
+
+      &:not(:first-child){
+        margin-top: 20px;
+      }
+    }
   }
 
   .right-side{
@@ -62,10 +72,6 @@
 
   .policy{
     grid-area: policy;
-  }
-
-  .download{
-    grid-area: download;
   }
 
   .logo-images {
@@ -94,7 +100,7 @@
     text-decoration: underline;
     display: block;
     font-size: $Big_Font_Size;
-    color: #34353f !important;
+    color: rgba(52, 53, 63, 0.5) !important;
     align-self: center;
   }
 
@@ -121,15 +127,6 @@
     margin-top: 35px;
   }
 
-  .download {
-    display: inline-block;
-    padding: 15px 25px;
-    border-radius: 10px;
-    background: $Light_Gray;
-    font-weight: bold;
-    text-decoration: underline;
-  }
-
   h6{
     font-size: $Big_Font_Size;
   }
@@ -140,8 +137,8 @@
       grid-row-gap: 10px;
       grid-template-areas: "left-block left-block"
                            "center-block right-block"
-                           "assign download"
-                           "policy download" !important;
+                           "center-block assign"
+                           "center-block policy" !important;
       grid-template-columns: 150px 150px;
 
       & > div{
@@ -152,6 +149,7 @@
     .left-side{
       justify-self: center;
       text-align: center;
+      margin-bottom: 20px;
 
       & > p{
         font-size: $LowMedium_Font_Size;
@@ -183,6 +181,16 @@
     h6{
       font-size: $LowMedium_Font_Size;
     }
+
+    .center{
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+
+      > a{
+        margin-top: 0 !important;
+      }
+    }
   }
 </style>
 
@@ -197,22 +205,15 @@
       <p>{_('event_calendar_info')}</p>
     </div>
     <div class="center">
-      <div class="hrefs">
-        <a href="./">{_('main')}</a>
-        <a href="./events">{_('event_catalog')}</a>
-        <a href="./profile">{_('personal_account')}</a>
-      </div>
+      <a href="./">{_('main')}</a>
+      <a href="./events">{_('event_catalog')}</a>
+      <a href="./profile">{_('personal_account')}</a>
     </div>
     <div class="right-side">
       <h6>{_('contacts')}</h6>
-      <div class="mail">events@calendar.com</div>
-      <div class="info">
-        {_('tourist_information')}
-        <br />
-      </div>
+      <div class="mail">info@baikal.events</div>
     </div>
     <a href="./" class="underline assign">{_('user_agreement')}</a>
     <a href="./" class="underline policy">{_('privacy_policy')}</a>
-    <a href="./" class="download">{_('download_pdf')}</a>
   </div>
 </footer>

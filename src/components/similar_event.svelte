@@ -14,11 +14,7 @@
     position: relative;
     overflow: hidden;
     box-shadow: 0px 0px 70px rgba(40, 39, 49, 0.1);
-    background: linear-gradient(
-      89.11deg,
-      rgba(255, 255, 255, 0.46) 0.42%,
-      rgba(255, 255, 255, 0) 99.59%
-    );
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.6) 100%);
     border-radius: 10px;
     display: block;
 
@@ -44,19 +40,21 @@
       color: #34353f;
       width: 100%;
       height: 100%;
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.5) 36.46%, rgba(255, 255, 255, 0.5) 66.15%, rgba(255, 255, 255, 0) 100%);
+      background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.6) 100%);
       box-shadow: 0px 0px 70px rgba(40, 39, 49, 0.1);
       border-radius: 10px;
-      text-align: center;
+      text-align: left;
       display: flex;
       flex-direction: column;
-      align-items: center;
-      justify-content: center;
+      justify-content: flex-end;
+      padding: 35px;
+      box-sizing: border-box;
 
       & > h4 {
         font-size: 24px;
         font-family: $Playfair;
-        width: 260px;
+        width: 100%;
+        color: white;
       }
 
       & > ul {
@@ -64,6 +62,8 @@
         
         & > li{
           font-size: $LowBig_Font_Size;
+          color: $Orange;
+          font-weight: 600;
         }
       }
     }
@@ -73,14 +73,22 @@
     .similar-block{
       width: 100%;
       height: 165px;
+
+      > div{
+        padding: 10px;
+      }
     }
 
     h4{
       font-size: $LowBig_Font_Size !important;
     }
 
+    ul{
+      margin-top: 5px !important;
+    }
+
     li{
-      font-size: $LowMedium_Font_Size;
+      font-size: $LowMedium_Font_Size !important;
     }
   }
 </style>
