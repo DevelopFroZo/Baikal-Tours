@@ -96,38 +96,51 @@ export default class extends Foundation{
     return super.success( 0, rows );
   }
 
-  async filter( allStatuses, locale, dateStart, dateEnd, locations, companions, subjects, search, priceMin, priceMax, count, offset ){
+  async filter(
+    client,
+    allStatuses,
+    locale,
+    dateStart,
+    dateEnd,
+    locations,
+    companions,
+    subjects,
+    search,
+    priceMin,
+    priceMax,
+    count,
+    offset
+  ){
     const status = allStatuses ? "" : "a.status = 'active' and";
     const limit = count && count > 0 ? `limit ${count}` : "";
     const offset_ = offset && offset > -1 ? `offset ${offset}` : "";
     let filters = [];
+    let priceFilters = [];
     const params = [ locale ];
-    let i = params.length + 1;
-    let datesFilter = [];
-    let order = "";
+    let i = 2;
 
     if( typeof priceMin === "number" && priceMin >= 0 ){
-      filters.push( `ae.price_min >= $${i++}` );
+      priceFilters.push( `tmp.price_min >= $${i++}` );
       params.push( priceMin );
     }
 
     if( typeof priceMax === "number" && priceMax >= 0 ){
-      filters.push( `ae.price_max <= $${i++}` );
+      priceFilters.push( `tmp.price_max <= $${i++}` );
       params.push( priceMax );
     }
 
     if( locations ){
-      filters.push( `ae.locations_ids && $${i++}::int[]` );
+      filters.push( `al.location_id = any( $${i++} )` );
       params.push( locations );
     }
 
     if( companions ){
-      filters.push( `c.id = any( $${i++}::int[] )` );
+      filters.push( `ac.companion_id = any( $${i++} )` );
       params.push( companions );
     }
 
     if( subjects ){
-      filters.push( `s.id = any( $${i++}::int[] )` );
+      filters.push( `asu.subject_id = any( $${i++} )` );
       params.push( subjects );
     }
 
@@ -136,112 +149,87 @@ export default class extends Foundation{
 
       filters.push(
         `(
-          ae.name ||
-          ae.full_description
-        ) ilike any( $${i++}::character varying[] )`
+          at.name ||
+          at.full_description
+        ) ilike any( $${i++} )`
       );
 
       params.push( search );
     }
 
     if( dateStart ){
-      datesFilter.push( `( ad.date_start is null or ad.date_start >= $${i++} )` );
+      filters.push( `( ad.date_start is null or ad.date_start >= $${i++} )` );
       params.push( dateStart );
     }
 
     if( dateEnd ){
-      datesFilter.push( `( ad.date_end is null or ad.date_end <= $${i} )` );
+      filters.push( `( ad.date_end is null or ad.date_end <= $${i} )` );
       params.push( dateEnd );
     }
 
     if( filters.length === 0 ) filters = "";
     else filters = `${filters.join( " and " )} and`;
 
-    if( datesFilter.length === 0 ) datesFilter = "";
-    else datesFilter = `where ${datesFilter.join( " and " )}`;
+    if( priceFilters.length === 0 ) priceFilters = "";
+    else priceFilters = `where ${priceFilters.join( " and " )}`;
 
-    const rows = ( await super.query(
-      `with actions_extended as (
-        select
-          a.id, a.status, at.locale, at.title,
-          at.name, at.short_description,
-          at.full_description,
-          array_agg( l.id ) as locations_ids,
-          coalesce( min( ab.price ), 0 ) as price_min,
-          coalesce( max( ab.price ), 0 ) as price_max
-        from
-          actions as a
-          left join action_buyable as ab
-          on a.id = ab.action_id and ab.type = 'ticket',
-          actions_translates as at,
-          actions_locations as al,
-          locations as l
-        where
-          ${status}
-          at.locale = $1 and
-          a.id = at.action_id and
-          l.locale = at.locale and
-          a.id = al.action_id and
-          al.location_id = l.id
-        group by
-          a.id,
-          a.status,
-          at.locale,
-          at.title,
-          at.name,
-          at.short_description,
-          at.full_description
-      )
-      select
-        tmp.*,
-        ai.image_url,
-        null as locations,
-        null as dates,
+    const { rows: actions } = await client.query(
+      `select
+      	tmp.id, tmp.status,
+        tmp.price_min, tmp.price_max,
+        tmp.name,
+        tmp.image_url,
+      	array[]::int[] as subjects,
+      	null as locations,
+      	null as dates,
         count( 1 ) over ()
       from (
-        select
-          ae.id, ae.status, ae.name, ae.price_min, ae.price_max,
-          array_agg( distinct c.name ) as companions,
-          array_agg( distinct s.name ) as subjects
-        from
-          actions_extended as ae,
-          actions_companions as ac,
-          companions as c,
-          actions_subjects as acsu,
-          subjects as s
-        where
-          c.locale = ae.locale and
-          s.locale = ae.locale and
-          ${filters}
-          ac.companion_id = c.id and
-          ac.action_id = ae.id and
-          acsu.subject_id = s.id and
-          acsu.action_id = ae.id
-        group by ae.id, ae.status, ae.name, ae.price_min, ae.price_max ) as tmp
-        left join action_dates as ad
-        on ad.action_id = tmp.id
-        left join action_images as ai
-        on ai.action_id = tmp.id and ai.is_main = true
-      ${datesFilter}
-      group by
-        tmp.id,
-        tmp.status,
-        tmp.name,
-        tmp.price_min,
-        tmp.price_max,
-        tmp.companions,
-        tmp.subjects,
-        ai.image_url,
-        ad.date_start,
-        ad.date_end
-      order by ad.date_start, ad.date_end, tmp.id
-      ${limit}
-      ${offset_}`,
+      	select distinct
+      		a.id, a.status,
+      		coalesce( min( ab.price ), 0 ) as price_min,
+      		coalesce( max( ab.price ), 0 ) as price_max,
+          at.name, ai.image_url,
+      		min( ad.date_start ) as date_start
+      	from
+      		actions as a
+      		left join action_buyable as ab
+      		on a.id = ab.action_id
+          left join action_images as ai
+          on a.id = ai.action_id and ai.is_main = true
+      		left join actions_locations as al
+      		on a.id = al.action_id
+      		left join actions_companions as ac
+      		on a.id = ac.action_id
+      		left join actions_subjects as asu
+      		on a.id = asu.action_id
+      		left join action_dates as ad
+      		on a.id = ad.action_id,
+      		actions_translates as at
+      	where
+      		at.locale = $1 and
+      		${status}
+      		${filters}
+      		a.id = at.action_id
+      	group by a.id, at.name, ai.image_url ) as tmp
+      ${priceFilters}
+      order by tmp.date_start, tmp.id`,
       params
-    ) ).rows;
+    );
 
-    const map = createMap( rows, "id" );
+    const map = createMap( actions, "id" );
     const actionIds = Object.keys( map );
+
+    const { rows: subjects_ } = await super.query(
+      `select asu.action_id, s.name
+      from
+      	actions_subjects as asu,
+      	subjects as s
+      where
+      	s.locale = $1 and
+      	asu.action_id = any( $2 ) and
+      	asu.subject_id = s.id`,
+      [ locale, actionIds ]
+    );
 
     const { rows: locations_ } = await super.query(
       `select
@@ -264,10 +252,11 @@ export default class extends Foundation{
       [ actionIds ]
     );
 
-    mergeMultiple( rows, locations_, "action_id", "locations", { map, remove: true } );
-    mergeMultiple( rows, dates, "action_id", "dates", { map, remove: true } );
+    mergeMultiple( actions, subjects_, "action_id", "subjects", { map, field: "name" } );
+    mergeMultiple( actions, locations_, "action_id", "locations", { map, remove: true } );
+    mergeMultiple( actions, dates, "action_id", "dates", { map, remove: true } );
 
-    return super.success( 0, rows );
+    return actions;
   }
 
   async getOne( allStatuses, id, locale ){
