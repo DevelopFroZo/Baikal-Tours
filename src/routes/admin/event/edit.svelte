@@ -40,7 +40,8 @@
         partners: [],
         tours: [],
         excursions: [],
-        buyable: []
+        buyable: [],
+        locations2: []
       };
 
     let result_filters = await fetcher.get("/api/dataForFilters", {
@@ -66,6 +67,10 @@
         count: 8
       }
     }));
+
+    let newLocations = (await fetcher.get(`/api/locations2`, {
+      credentials: "same-origin"
+    })).data;
 
     let hotelsCount = allHotels.count;
     allHotels = allHotels.hotels;
@@ -97,7 +102,8 @@
         allExcursions,
         allTours,
         allHotels,
-        hotelsCount
+        hotelsCount,
+        newLocations
       };
     }
       
@@ -162,7 +168,9 @@
     allHotels,
     locale,
     buyable = [],
-    hotelsCount;
+    hotelsCount,
+    locations2 = [],
+    newLocations;
 
   const fetcher = new Fetcher();
   const _ = i18n(locale);
@@ -186,11 +194,18 @@
   companions = edit.cloneArray(actionData.companions);
   buyable = edit.cloneArray(actionData.buyable);
   organizer_ids = edit.cloneArray(actionData.organizer_ids);
+  locations2 = edit.cloneArray(actionData.locations2);
 
   if(actionData.dates)
     for(let i = 0; i < actionData.dates.length; i++)
       if(actionData.dates[i].days)
         dates[i].days = Object.assign([], actionData.dates[i].days)
+
+  for(let location of locations2){
+    location.button = null;
+    location.isShow = false;
+  }
+    
 
   subjects = edit.getIds(subjects);
   transfers = edit.getIds(transfers);
@@ -219,7 +234,8 @@
     save,
     hideMap = true,
     activeLocation = null,
-    mapIsLoad = false;
+    mapIsLoad = false,
+    newLocationsData = [];
 
   if (organizer_payment !== null) participation = "organizer";
   else if (site_payment === true) participation = "site";
@@ -314,6 +330,21 @@
       "locations",
       newData
     );
+  }
+
+  //Локации2
+  $: {
+    if(!locations2.length) add2Location();
+
+    let location2Data = locations2.map(el => {return el.id}).filter(el => el);
+    let oldLocation2Data = actionData.locations2.map(el => {return el.id}).filter(el => el);
+
+    newLocationsData = edit.formatArrays(
+      location2Data,
+      oldLocation2Data,
+      "location2Ids",
+      newLocationsData
+    )
   }
 
   //Тематики
@@ -820,7 +851,20 @@
           name: ticket.name,
           price: ticket.price
         })
-      
+    
+    if(newLocationsData.location2Ids){
+      let data = newLocationsData.location2Ids;
+      if(data.create)
+        for(let id of data.create)
+          await fetcher.post(`/api/actions/${actionId}/locations2`, {
+            location2Id: id
+          });
+          
+      if(data.del)
+        for(let id of data.del)
+          await fetcher.delete(`/api/actions/${actionId}/locations2/${id}`)
+        
+    }
 
     result = await fetcher.put(`/api/actions/${actionId}`, newData);
 
@@ -1146,6 +1190,18 @@
     }
 
     return "";
+  }
+
+  function add2Location(){
+    locations2.push({
+      name: null,
+      id: null,
+      n0: 0,
+      n1: 0,
+      n2: 0
+    })
+
+    locations2 = locations2;
   }
 </script>
 
@@ -1696,6 +1752,79 @@
     height: 350px;
     position: relative;
   }
+
+  .new-locations{
+    margin-top: 20px;
+
+    > .new-location-block{
+      position: relative;
+      display: flex;
+      align-items: center;
+      margin-top: 10px;
+
+      > .new-location-button{
+        width: 250px;
+        height: 30px;
+        text-align: left;
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        background: white;
+        border: 1px solid $Gray;
+        box-sizing: border-box;
+        
+        padding-left: 10px;
+      }
+
+      ul{
+        position: absolute;
+        top: 35px;
+        left: 0;
+        background: white;
+        width: 250px;
+        border: 1px solid $Gray;
+        padding: 10px;
+        max-height: 400px;
+        z-index: 1;
+        overflow: auto;
+
+        > li{
+          margin-left: 0;
+          font-weight: bold;
+
+          &.secondLocation{margin-left: 15px;}
+          &.thridLocation{
+            margin-left: 30px;
+            font-weight: normal;
+          }
+
+          & > button{
+            font-weight: inherit;
+            text-align: left;
+          }
+
+          &:not(:first-child) > button{
+            padding-top: 10px;
+          }
+        }
+      }
+
+      > *:not(:first-child){
+        margin-left: 20px;
+      }
+
+      > .add-location2{
+        width: 20px;
+        height: 20px;
+        font-size: 20px;
+        overflow: hidden;
+      }
+
+      > .delete-location2 > img{
+        width: 10px;
+      }
+    }
+  }
 </style>
 
 <svelte:head>
@@ -1889,6 +2018,40 @@
             <button class="add-date" on:click={addDate}>
               +{_('add_date')}
             </button>
+          {/if}
+        </div>
+      {/each}
+    </div>
+
+    <div class="new-locations">
+      <label>
+        {_('new_location')}
+      </label>
+      {#each locations2 as location, i}
+        <div class="new-location-block">
+          <button class="new-location-button" bind:this={location.button} on:click={() => location.isShow = true}>
+            {edit.getLocationNameById(newLocations, location.id)}
+          </button>
+          <ClickOutside on:clickoutside={() => location.isShow = false} exclude={[location.button]}>
+            {#if location.isShow}
+              <ul class="new-locations">
+                {#each newLocations as newLocation}
+                  <li class:secondLocation={newLocation.n1 && !newLocation.n2} class:thridLocation={newLocation.n1 && newLocation.n2}>
+                    <button on:click={() => {
+                      location.id = newLocation.id;
+                      location.isShow = false;
+                    }}>{newLocation.name}</button>
+                  </li>
+                {/each}
+              </ul>
+            {/if}
+          </ClickOutside>
+          <button class="add-location2" on:click={add2Location}> + </button>
+          {#if i === locations2.length - 1}
+            <button class="delete-location2" on:click={() => {
+              locations2.splice(i, 1);
+              locations2 = locations2;
+            }}> <img src="/img/cross.svg" alt="add"> </button>
           {/if}
         </div>
       {/each}

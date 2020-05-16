@@ -196,13 +196,18 @@
       display: block;
       width: 380px;
       padding: 15px;
-      background: $Blue_Gradient;
+      background: #117BCD;
       border-radius: 100px;
       margin: 65px auto 0;
       text-align: center;
       color: white;
       font-family: $Gilroy;
       font-size: $LowBig_Font_Size;
+      transition: 0.3s;
+
+      &:hover{
+        background: #0052B4;
+      }
     }
 
     & > .form-width {
@@ -329,13 +334,20 @@
       margin-top: 30px;
 
       & > button {
-        background: $Blue_Gradient;
+        background: #117BCD;
         border-radius: 100px;
         color: white;
         font-size: $LowBig_Font_Size;
         font-family: $Gilroy;
         width: 200px;
         padding: 15px 0;
+        transition: 0.3s;
+        position: relative;
+        z-index: 3;
+
+        &:hover{
+          background: #0052B4;
+        }
       }
     }
   }

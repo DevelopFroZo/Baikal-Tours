@@ -200,8 +200,13 @@
     & > button {
       margin-left: 115px;
       width: 200px;
-      background: linear-gradient(109.85deg, #0a92db 7.11%, #117bcd 78.9%);
+      background: #117BCD;
       box-shadow: 0px 0px 70px rgba(40, 39, 49, 0.1);
+      transition: 0.3s;
+
+      &:hover{
+        background: #0052B4;
+      }
     }
   }
 

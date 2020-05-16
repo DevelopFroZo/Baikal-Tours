@@ -394,5 +394,7 @@ export default ( {
   location_from_booking:      "Локация из Booking",
   new_hotel:                  "Новый отель",
 
-  events_for_main:            "Изрбанные для главной"
+  events_for_main:            "Изрбанные для главной",
+  delete_second_location:     "Удалить локацию",
+  new_location:               "Новая локация"
 } );
