@@ -46,7 +46,8 @@ export async function get( req, res ){
     if( priceMin < 0 || priceMax < 0 )
       return res.error( 8 );
 
-    actions = ( await req.database.actions.filter(
+    actions = await req.database.actions.filter(
+      req.database.pool,
       allStatuses,
       locale,
       dateStart,
@@ -59,7 +60,7 @@ export async function get( req, res ){
       priceMax,
       count,
       offset
-    ) ).data;
+    );
   }
 
   if( actions.length > 0 ){
