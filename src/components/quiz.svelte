@@ -254,7 +254,7 @@
   .next-page,
   .back-page {
     display: block;
-    background: $Blue_Gradient;
+    background: #117BCD;
     border-radius: 100px;
     width: 250px;
     padding: 15px 0;
@@ -274,6 +274,14 @@
       font-family: $Gilroy;
       font-size: $LowBig_Font_Size;
       color: white;
+    }
+  }
+
+  .next-page{
+    transition: 0.3s;
+
+    &:hover{
+      background: #0052B4;
     }
   }
 

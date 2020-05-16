@@ -21,7 +21,7 @@
   async function addEvent(eventInfo) {
     let bl = true;
     for (let event of events) {
-      if (event.id === eventInfo.id) {
+      if (event.action_id === eventInfo.id) {
         bl = false;
         break;
       }
@@ -33,7 +33,10 @@
         actionId: eventInfo.id
       });
       if (result.ok) {
-        eventInfo.favorite_id = result.data;
+        eventInfo = Object.assign({}, eventInfo);
+        eventInfo.action_id = eventInfo.id;
+        delete eventInfo.id;
+        eventInfo.id = result.data;
         events.push(eventInfo);
         events = events;
         showEvents = false;
@@ -79,6 +82,8 @@
         subjects: id
       }
     })).actions;
+
+    console.log(events)
 
     find = true;
   }

@@ -371,7 +371,7 @@
       else
         alert(_("action_register_success"))
     }
-    else alert("Произошла ошибка на сервере")
+    else alert(reservationResult.message)
   }
 
   function startEditor(){
@@ -478,7 +478,7 @@
     visibleDates = visibleDates.sort();
 
     if(visibleDates.length <= 1 || !result_action.buyable.length){
-      userDate = visibleDates.length ? reverseDate(visibleDates[0]) : parseDate( new Date() );
+      userDate = visibleDates.length ? reverseDate(visibleDates[visibleDates.length - 1]) : parseDate( new Date() );
       showDateChange = false;
     }
   }
@@ -671,13 +671,17 @@
 
   .register-button {
     display: block;
-    background: $Blue_Gradient;
+    background: #117BCD;
     box-shadow: 0px 23px 70px rgba(77, 80, 98, 0.1), inset 0px 0px 50px rgba(255, 255, 255, 0.15);
     border-radius: 100px;
     padding: 15px 50px;
     color: white;
     font-size: $LowBig_Font_Size;
     transition: 0.3s;
+
+    &:hover{
+      background: #0052B4;
+    }
   }
 
   ul {

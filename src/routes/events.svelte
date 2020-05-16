@@ -597,7 +597,7 @@
 
     & > button {
       border-radius: 100px;
-      background: $Dark_Blue_Gradient;
+      background: #117BCD;
       box-shadow: 0px 23px 70px rgba(77, 80, 98, 0.1),
         inset 0px 0px 50px rgba(255, 255, 255, 0.15);
       color: white;
@@ -605,12 +605,22 @@
       font-family: $Gilroy;
       font-size: $LowBig_Font_Size;
       position: relative;
+      transition: 0.3s;
+
+      &:hover{
+        background: #0052B4;
+
+        > img{
+          bottom: 20px;
+        }
+      }
 
       & > img {
         position: absolute;
         bottom: 15px;
         right: 10px;
         width: 40px;
+        transition: 0.3s;
       }
     }
   }

@@ -37,7 +37,7 @@ h2 {
 }
 
 .blue-button {
-  background: $Blue;
+  background: #117BCD;
   padding: 15px 0;
   color: white;
   font-size: $LowBig_Font_Size;
@@ -48,6 +48,10 @@ h2 {
   &:disabled{
     background: #E7E7E7;
     color: #C1C1C1;
+  }
+
+  &:enabled:hover{
+    background: #0052B4;
   }
 }
 

@@ -18,7 +18,8 @@ export {
     parseTickets,
     formatArrays,
     getRundomObjects,
-    formatStringArrays
+    formatStringArrays,
+    getLocationNameById
 }
 
 function getIds(obj) {
@@ -147,7 +148,6 @@ function formatDates(dates, actionData) {
                     if(startData.dateStart) startData.dateStart = parseDate(new Date(startData.dateStart))
                     if(startData.dateEnd) startData.dateEnd = parseDate(new Date(startData.dateEnd))
                     startData.dateEnd = parseDate(new Date(startData.dateEnd))
-                    console.log(startData, editData)
                     for (let key of keys) {
                         if (startData[key] !== editData[key]) {
                             newData.edit.push(editData);
@@ -551,8 +551,7 @@ function formatArrays(newArr, oldArr, key, obj) {
     if (!newData.create.length) delete newData.create;
     if (!newData.del.length) delete newData.del;
 
-    if (Object.keys(newData).length)
-        obj[key] = newData;
+    obj[key] = newData;
 
     return obj;
 }
@@ -621,4 +620,11 @@ function formatStringArrays(newObj, oldObj){
     }
 
     return data;
+}
+
+function getLocationNameById(locations, id){
+    for(let location of locations)
+        if(location.id === id)
+            return location.name;
+    return "";
 }

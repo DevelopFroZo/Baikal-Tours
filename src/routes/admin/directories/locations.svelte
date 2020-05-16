@@ -38,6 +38,8 @@
   let searchBooking = "";
   let findedLocations = [];
   let findedBookingLocations = [];
+  let filteredOldLocations = Object.assign([], oldLocations);
+  let filteredBookingLocations = Object.assign([], bookingLocations);
   let addedLocation = {
     index: null,
     id: null
@@ -47,22 +49,44 @@
     place: null
   };
 
-  $: findedLocations = oldLocations.filter(
+  let i = 0,
+    j;
+  for (let location of locations) {
+    j = 0;
+    for (let oldLocation of filteredOldLocations) {
+      if (oldLocation.id === location.location_id) {
+        filteredOldLocations.splice(j, 1);
+        break;
+      }
+      j++;
+    }
+    j = 0;
+    for (let bookingLocation of bookingLocations) {
+      if (bookingLocation.id === location.booking_location_id) {
+        filteredBookingLocations.splice(j, 1);
+        break;
+      }
+      j++;
+    }
+    i++;
+  }
+
+  $: findedLocations = filteredOldLocations.filter(
     el => el.name.toLowerCase().indexOf(searchLocations.toLowerCase()) !== -1
   );
 
-  $: findedBookingLocations = bookingLocations.filter(
+  $: findedBookingLocations = filteredBookingLocations.filter(
     el => el.name.toLowerCase().indexOf(searchBooking.toLowerCase()) !== -1
   );
 
   function addSecondLocation(place, id, n0) {
-    place++;
-    for (let i = place; i < locations.length; i++)
+    for (let i = place; i < locations.length; i++) {
+      if (!locations[i + 1]) i++;
       if (!locations[i] || locations[i].n0 !== locations[place].n0) {
         place = i;
         break;
       }
-
+    }
     changedAdding.id = id;
     changedAdding.place = place;
 
@@ -70,8 +94,8 @@
   }
 
   function addThridLocation(place, id, n0, n1) {
-    place++;
-    for (let i = place + 1; i < locations.length; i++) {
+    for (let i = place; i < locations.length; i++) {
+      if (!locations[i + 1]) i++;
       if (
         !locations[i] ||
         locations[i].n0 !== locations[place].n0 ||
@@ -109,6 +133,8 @@
         n0: result.data.n0,
         n1: result.data.n1,
         n2: result.data.n2,
+        location_id: null,
+        booking_location_id: null,
         name: addingName
       });
       locations = locations;
@@ -125,18 +151,40 @@
     if (!result.ok) alert(result.message);
   }
 
-  async function deleteFirstLocation(id, n0) {
+  async function deleteFirstLocation(id, n0, index) {
     let result = await fetcher.delete(`/api/locations2/${id}`);
 
-    if (result.ok) locations = locations.filter(el => !(el.n0 === n0));
-    else alert(result.message);
+    if (result.ok) {
+      while (index < locations.length) {
+        if (locations[index].n0 !== n0) break;
+
+        addBookingAndOld(index);
+
+        locations.splice(index, 1);
+      }
+
+      locations = locations;
+      filteredOldLocations = filteredOldLocations;
+      filteredBookingLocations = filteredBookingLocations;
+    } else alert(result.message);
   }
 
-  async function deleteSecondLocation(id, n0, n1) {
+  async function deleteSecondLocation(id, n0, n1, index) {
     let result = await fetcher.delete(`/api/locations2/${id}`);
 
-    if (result.ok)
-      locations = locations.filter(el => !(el.n0 === n0 && el.n1 === n1));
+    if (result.ok){
+      while (index < locations.length) {
+        if (locations[index].n0 !== n0 || locations[index].n1 !== n1) break;
+
+        addBookingAndOld(index);
+
+        locations.splice(index, 1);
+      }
+
+      locations = locations;
+      filteredOldLocations = filteredOldLocations;
+      filteredBookingLocations = filteredBookingLocations;
+    }
     else alert(result.message);
   }
 
@@ -144,8 +192,11 @@
     let result = await fetcher.delete(`/api/locations2/${id}`);
 
     if (result.ok) {
+      addBookingAndOld(index);
       locations.splice(index, 1);
       locations = locations;
+      filteredOldLocations = filteredOldLocations;
+      filteredBookingLocations = filteredBookingLocations;
     } else alert(result.message);
   }
 
@@ -160,6 +211,38 @@
     });
 
     if (result.ok) {
+      if (!addedLocation.id) {
+        locations[addedLocation.index].location_id = null;
+        let i = 0;
+        for (let location of oldLocations) {
+          if (location.name === locations[addedLocation.index].location_name) {
+            filteredOldLocations.splice(i, 0, location);
+            break;
+          }
+          i++;
+        }
+      } else {
+        locations[addedLocation.index].location_id = id;
+        let i = 0;
+        for (let location of oldLocations) {
+          if (location.name === locations[addedLocation.index].location_name) {
+            filteredOldLocations.splice(i, 0, location);
+            break;
+          }
+          i++;
+        }
+        i = 0;
+        for (let location of filteredOldLocations) {
+          if (location.name === name) {
+            filteredOldLocations.splice(i, 1);
+            break;
+          }
+          i++;
+        }
+      }
+
+      filteredOldLocations = filteredOldLocations;
+
       locations[addedLocation.index].location_name = name;
       showOldLocationsWindow = false;
       searchLocations = "";
@@ -174,12 +257,70 @@
     });
 
     if (result.ok) {
+      if (!addedLocation.id) {
+        locations[addedLocation.index].booking_location_id = null;
+        let i = 0;
+        for (let location of bookingLocations) {
+          if (location.name === locations[addedLocation.index].location_name) {
+            filteredBookingLocations.splice(i, 0, location);
+            break;
+          }
+          i++;
+        }
+      } else {
+        locations[addedLocation.index].booking_location_id = id;
+        let i = 0;
+        for (let location of bookingLocations) {
+          if (
+            location.name === locations[addedLocation.index].location_name &&
+            locations[addedLocation.index].location_name
+          ) {
+            filteredBookingLocations.splice(i, 0, location);
+            break;
+          }
+          i++;
+        }
+        i = 0;
+        for (let location of filteredBookingLocations) {
+          if (location.name === name) {
+            filteredBookingLocations.splice(i, 1);
+            break;
+          }
+          i++;
+        }
+      }
+
+      filteredBookingLocations = filteredBookingLocations;
+
       locations[addedLocation.index].booking_location_name = name;
       showBookingLocationsWindow = false;
       searchBooking = "";
       addedLocation.index = null;
       addedLocation.id = null;
     } else alert(result.message);
+  }
+
+  function addBookingAndOld(index) {
+    if (locations[index].location_name) {
+      let i = 0;
+      for (let location of oldLocations) {
+        if (location.name === locations[index].location_name) {
+          filteredOldLocations.splice(i, 0, location);
+          break;
+        }
+        i++;
+      }
+    }
+    if (locations[index].booking_location_name) {
+      let i = 0;
+      for (let location of bookingLocations) {
+        if (location.name === locations[index].booking_location_name) {
+          filteredBookingLocations.splice(i, 0, location);
+          break;
+        }
+        i++;
+      }
+    }
   }
 </script>
 
@@ -361,10 +502,20 @@
     overflow: auto;
     white-space: nowrap;
   }
+
+  .adding-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    > .delete-location {
+      width: 200px !important;
+    }
+  }
 </style>
 
 <svelte:head>
-  <title>{_("locations")}</title>
+  <title>{_('locations')}</title>
 </svelte:head>
 
 <AdminPage {locale} {_} {fetcher} page={2}>
@@ -407,7 +558,7 @@
             <button
               class="delete-location"
               on:click={() => {
-                if (confirm(_('delete_list').replace(/{text}/g, location.name))) deleteSecondLocation(location.id, location.n0, location.n1);
+                if (confirm(_('delete_list').replace(/{text}/g, location.name))) deleteSecondLocation(location.id, location.n0, location.n1, i);
               }}>
               <img src="/img/cross.svg" alt="delete" />
             </button>
@@ -473,7 +624,7 @@
             <button
               class="delete-location"
               on:click={() => {
-                if (confirm(_('delete_list').replace(/{text}/g, location.name))) deleteFirstLocation(location.id, location.n0);
+                if (confirm(_('delete_list').replace(/{text}/g, location.name))) deleteFirstLocation(location.id, location.n0, i);
               }}>
               <img src="/img/cross.svg" alt="delete" />
             </button>
@@ -512,7 +663,17 @@
       class="close-adding-window"
       on:click={() => (showOldLocationsWindow = false)} />
     <div class="adding-window-block">
-      <h3>{_('location_validate')}</h3>
+      <div class="adding-head">
+        <h3>{_('location_validate')}</h3>
+        <button
+          class="delete-location"
+          on:click={() => {
+            addedLocation.id = null;
+            changeOldLocation(locations[addedLocation.index].location_id, null);
+          }}>
+          {_('delete_second_location')}
+        </button>
+      </div>
       <input
         type="text"
         bind:value={searchLocations}
@@ -537,7 +698,17 @@
       class="close-adding-window"
       on:click={() => (showBookingLocationsWindow = false)} />
     <div class="adding-window-block">
-      <h3>{_('booking_locations')}</h3>
+      <div class="adding-head">
+        <h3>{_('booking_locations')}</h3>
+        <button
+          class="delete-location"
+          on:click={() => {
+            addedLocation.id = null;
+            changeBookingLocation(locations[addedLocation.index].booking_location_id, null);
+          }}>
+          {_('delete_second_location')}
+        </button>
+      </div>
       <input type="text" bind:value={searchBooking} placeholder={_('search')} />
       <ul>
         {#each findedBookingLocations as location}

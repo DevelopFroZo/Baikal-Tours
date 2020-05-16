@@ -126,9 +126,13 @@ input {
   width: 100%;
   font-size: $LowBig_Font_Size;
   color: white;
-  background: $Blue;
+  background: #117BCD;
   border-radius: 100px;
   transition: 0.3s;
+
+  &:enabled:hover{
+    background: #0052B4;
+  }
 
   &:disabled {
     background: #E7E7E7;

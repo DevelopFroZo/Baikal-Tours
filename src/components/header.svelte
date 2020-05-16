@@ -159,11 +159,16 @@
       margin-left: 23px;
       padding: 15px 30px;
       border-radius: 100px;
-      background: $Blue_Gradient;
+      background: #117BCD;
       display: flex;
       align-items: center;
       color: white;
       box-sizing: border-box;
+      transition: 0.3s;
+
+      &:hover{
+        background: #0052B4;
+      }
 
       & > img {
         width: 20px;

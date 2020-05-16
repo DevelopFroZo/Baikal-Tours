@@ -129,9 +129,14 @@
       padding-left: 10px;
       padding-right: 10px;
       box-sizing: border-box;
-      background: linear-gradient(114.29deg, #0a92db 7.11%, #117bcd 78.9%);
+      background: #117BCD;
       box-shadow: 0px 23px 70px rgba(77, 80, 98, 0.1),
         inset 0px 0px 50px rgba(255, 255, 255, 0.15);
+      transition: 0.3s;
+
+      &:hover{
+        background: #0052B4;
+      }
     }
 
     & > .cansel {
