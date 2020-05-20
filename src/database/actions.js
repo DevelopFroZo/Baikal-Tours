@@ -29,38 +29,41 @@ export default class extends Foundation{
     const offset_ = offset && offset > -1 ? `offset ${offset}` : "";
 
     const rows = ( await super.query(
-      `select
-        a.id, a.status, at.name,
-        ai.image_url,
-        array_agg( distinct s.name ) as subjects,
-        coalesce( min( ab.price ), 0 ) as price_min,
-        coalesce( max( ab.price ), 0 ) as price_max,
-        null as locations,
-        null as dates,
-        count( 1 ) over ()
-      from
-        actions as a
-        left join action_dates as ad
-        on a.id = ad.action_id
-        left join action_images as ai
-        on a.id = ai.action_id and ai.is_main = true
-        left join actions_subjects as acsu
-        on a.id = acsu.action_id
-        left join subjects as s
-        on acsu.subject_id = s.id and s.locale = $1
-        left join actions_locations as al
-        on a.id = al.action_id
-        left join locations as l
-        on al.location_id = l.id and l.locale = $1
-        left join action_buyable as ab
-        on a.id = ab.action_id and ab.type = 'ticket',
-        actions_translates as at
-      where
-        ${status}
-        a.id = at.action_id and
-        at.locale = $1
-      group by a.id, a.status, at.name, ai.image_url, ad.date_start, ad.date_end
-      order by ad.date_start, ad.date_end, a.id
+      `select *
+      from (
+      	select
+      		a.id, a.status, at.name,
+      		ai.image_url,
+      		array_agg( distinct s.name ) as subjects,
+      		coalesce( min( ab.price ), 0 ) as price_min,
+      		coalesce( max( ab.price ), 0 ) as price_max,
+      		min( ad.date_start ) as date_start,
+      		null as locations,
+      		null as dates,
+      		count( 1 ) over ()
+      	from
+      		actions as a
+      		left join action_dates as ad
+      		on a.id = ad.action_id
+      		left join action_images as ai
+      		on a.id = ai.action_id and ai.is_main = true
+      		left join actions_subjects as acsu
+      		on a.id = acsu.action_id
+      		left join subjects as s
+      		on acsu.subject_id = s.id and s.locale = $1
+      		left join actions_locations as al
+      		on a.id = al.action_id
+      		left join locations as l
+      		on al.location_id = l.id and l.locale = $1
+      		left join action_buyable as ab
+      		on a.id = ab.action_id and ab.type = 'ticket',
+      		actions_translates as at
+      	where
+      		${status}
+      		a.id = at.action_id and
+      		at.locale = $1
+      	group by a.id, a.status, at.name, ai.image_url ) as tmp
+      order by date_start, id
       ${limit}
       ${offset_}`,
       [ locale ]
@@ -212,7 +215,9 @@ export default class extends Foundation{
       		a.id = at.action_id
       	group by a.id, at.name, ai.image_url ) as tmp
       ${priceFilters}
-      order by tmp.date_start, tmp.id`,
+      order by tmp.date_start, tmp.id
+      ${limit}
+      ${offset_}`,
       params
     );
 
