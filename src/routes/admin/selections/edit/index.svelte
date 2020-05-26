@@ -103,7 +103,8 @@
     uploadImg,
     showEvents = false,
     save,
-    newImage = image_url === null;
+    newImage = image_url === null,
+    message;
 
   dates = edit.cloneArray(compiliationData.dates);
   subject_ids = edit.cloneArray(compiliationData.subject_ids);
@@ -292,9 +293,9 @@
     image_url = null;
   }
 
-  function changeAction(e) {
+  async function changeAction(e) {
     let action = e.detail.action;
-    action.description = null;
+    action.description = (await fetcher.get(`/api/actions/${action.id}`)).data.short_description;
 
     actions.push({ ...action });
     actions = actions;
@@ -406,8 +407,9 @@
         { image: image_url },
         { bodyType: "formData" }
       );
-
-    document.location.href = `/admin/selections/${newData.url}`;
+    
+    if(!newData.url) document.location.href = `/admin/selections/${url}`;
+    else document.location.href = `/admin/selections/${newData.url}`;
   }
 </script>
 
@@ -547,7 +549,7 @@
     <h1>
       {compiliationId === undefined ? _('creating_compiliation') : _('editing_compiliation')}
     </h1>
-    <button class="save" on:click={() => (save = saveCompiliation())}>
+    <button class="save" on:click={() => {save = saveCompiliation(); message = _('saving_compiliation')}}>
       {_('save')}
     </button>
   </div>
@@ -822,7 +824,7 @@
   {showEvents}
   {actions}
   {fetcher}
-  on:changeAction={changeAction}
+  on:changeAction={(e) => {save = changeAction(e); message = _('pasting_event')}}
   on:hideActionWindow={e => (showEvents = false)} />
 
-<Loading promice={save} message={_('saving_compiliation')} />
+<Loading promice={save} message={message} />

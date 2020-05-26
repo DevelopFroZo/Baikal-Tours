@@ -675,7 +675,7 @@
   <a href="/events">{_('find_your_adventure')}</a>
 </div>
 
-<div class="form-width mail-block">
+<!-- <div class="form-width mail-block">
   <h3>
     {_('without_internet')}
     <br />
@@ -710,5 +710,5 @@
       shuttle bus?
     </p>
   </div>
-</div>
+</div> -->
 <Footer {locale} />

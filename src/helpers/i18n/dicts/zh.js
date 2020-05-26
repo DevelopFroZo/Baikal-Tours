@@ -398,5 +398,13 @@ export default ( {
   location_from_booking:          "从预订位置",
   new_hotel:                      "新酒店",
 
-  events_for_main:                "主页的收藏夹"
+  events_for_main:                "主页的收藏夹",
+
+  delete_second_location:         "删除位置",
+  new_location:                   "新位置",
+  pasting_event:                  "添加事件",
+  all_events:                     "所有事件",
+  required_subjects:              "添加至少一个主题",
+  required_companion:             "指定您可以与谁一起参加活动",
+  required_locations:             "添加至少一个位置"
 } );        

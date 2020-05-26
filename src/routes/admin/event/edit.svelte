@@ -777,6 +777,28 @@
       return null;
     }
 
+    if(!subjects || !subjects.length){
+      alert(_("required_subjects"));
+      return null;
+    }
+
+    if(!companions || !companions.length){
+      alert(_("required_companion"));
+      return null;
+    }
+
+    let bl = false;
+    for(let location of locations)
+      if(location.location_id){
+        bl = true;
+        break;
+      }
+
+    if(!bl){
+      alert(_("required_locations"))
+      return null;
+    }
+
     if (actionId === undefined) {
       actionId = Number((await fetcher.post("/api/actions")).data);
       if (newImages.length !== 0) {

@@ -397,5 +397,13 @@ export default ({
   location_from_booking:      "Location from Booking",
   new_hotel:                  "New hotel",
 
-  events_for_main:            "Favorites for the main page"
+  events_for_main:            "Favorites for the main page",
+
+  delete_second_location:     "Delete location",
+  new_location:               "New location",
+  pasting_event:              "Adding an event",
+  all_events:                 "All events",
+  required_subjects:          "Add at least one topic",
+  required_companion:         "Specify who you can go to the event with",
+  required_locations:         "Add at least one location"
 });

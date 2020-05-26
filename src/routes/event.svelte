@@ -1455,7 +1455,7 @@
     opacity: 0;
     transition: 0.3s;
 
-    > button{
+    > button:not(.gallary-cross){
       width: 100%;
       height: 100vh;
       position: absolute;
@@ -1481,7 +1481,7 @@
 
       img{
         max-width: 70%;
-        max-height: 80vh;
+        height: 80vh;
         width: auto !important;
       }
     }
@@ -1492,9 +1492,42 @@
     opacity: 1;
   }
 
+  .gallary-cross{
+    position: absolute;
+    top: 30px;
+    right: 30px;
+    z-index: 2;
+
+    > img{
+      width: 40px;
+    }
+  }
+
+  .register-header{
+    margin-top: 90px;
+    font-size: $UltraBig_Font_Size;
+    font-family: $Playfair;
+  }
+
   @media only screen and (max-width: 768px) {
     h1 {
       font-size: $Big_Font_Size;
+    }
+
+    .gallary-block img{
+      width: 80% !important;
+      max-width: auto !important;
+      height: auto !important;
+      max-height: 80vh !important;
+    }
+
+    .gallary-cross{
+      top: 10px;
+      right: 10px;
+
+      > img{
+        width: 20px;
+      }
     }
 
     .info-block {
@@ -1570,6 +1603,12 @@
       margin-left: 0 !important;
     }
 
+    .register-header{
+      margin-top: 30px;
+      font-size: 24px;
+      font-family: $Playfair;
+    }
+
     .contacts-block{
       padding-top: 40px;
       width: 100%;
@@ -1636,7 +1675,7 @@
     }
 
     .register-form{
-      margin-top: 75px;
+      margin-top: 30px;
       padding: 35px 15px;
 
       & > .register-info-blocks{
@@ -1831,7 +1870,7 @@
   <meta name="description" content={result_action.short_description}>
 </svelte:head>
 
-<Header {locale} />
+<Header {locale} transp={true}/>
 <!-- <BreadCrumbs
   path={[{ name: _('event_catalog'), url: actionsParams }, { name: result_action.name, url: './action?id=' + actionId }]} /> -->
 <div
@@ -1903,14 +1942,6 @@
   {/if}
 
   <div id="description-block"></div>
-
-  <!-- <ul class="italic">
-    <li>{_('organizer')}: {result_action.organizer_name}</li>
-    <li>
-      {_('how_to_get')}:
-      {transfers.join("; ")}
-    </li>
-  </ul> -->
 
   {#if result_action.partners.length > 0}
     <div class="partners-block">
@@ -2096,6 +2127,7 @@
 
 <div class="form-width" bind:this={registerBlock}>
   {#if $session.isLogged}
+    <h2 class="register-header">{_('email.subscribe.subject')}</h2>
     {#if result_action.organizer_payment && result_action.organizer_payment.length}
       <div class="organizer-payment">
         <span>{_("organizer_payment_message")}</span>
@@ -2260,7 +2292,7 @@
   {#if result_action.hotels.length}
     <div class="banners-block">
       <div class="banners-info">
-        <h2>{_('hotels')}</h2>
+        <h2>{_('hotels_nearby')}</h2>
         <a href="https://fanatbaikala.ru/tours" target="_blank">{_('more_hotels')}</a>
       </div>
       <div class="banners">
@@ -2271,14 +2303,16 @@
     </div>
   {/if}
 
-  <div class="similar-events-block">
-    <h2>{_('similar_events')}</h2>
-    <div class="similar-events">
-      {#each similar_events as favorite}
-        <SimilarEvent {_} {favorite}/>
-      {/each}
+  {#if similar_events.length}
+    <div class="similar-events-block">
+      <h2>{_('similar_events')}</h2>
+      <div class="similar-events">
+        {#each similar_events as favorite}
+          <SimilarEvent {_} {favorite}/>
+        {/each}
+      </div>
     </div>
-  </div>
+  {/if}
 </div>
 <Footer {locale} />
 
@@ -2347,6 +2381,7 @@
 
 <div class="gallary-window" class:showGallary>
   <button on:click={() => showGallary = false}></button>
+  <button class="gallary-cross" on:click={() => showGallary = false}> <img src="/img/cross.svg" alt="close"> </button>
   <div class="gallary-block" bind:this={fullWindowGallaryBlock}>
     <div class="swiper-wrapper">
       {#each result_action.images as img}

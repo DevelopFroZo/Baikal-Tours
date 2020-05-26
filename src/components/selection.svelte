@@ -13,6 +13,10 @@
     box-shadow: inset 0px -75px 100px -13px rgba(0, 0, 0, 1);
     position: relative;
     display: block;
+
+    > :global(img){
+      z-index: -1 !important;
+    }
   }
 
   p {

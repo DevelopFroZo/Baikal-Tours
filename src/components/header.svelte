@@ -15,7 +15,8 @@
     mobile,
     compiliations = [],
     subjects = [],
-    searchText = "";
+    searchText = "",
+    transp = false;
 
   const fetcher = new Fetcher();
   const { session, page } = stores();
@@ -361,6 +362,10 @@
     }
   }
 
+  .transp{
+    background: rgba(255, 255, 255, 0.7);
+  }
+
   @media only screen and (max-width: 768px) {
     .user-info {
       display: none;
@@ -534,7 +539,7 @@
   }
 </style>
 
-<header class="form-width line">
+<header class="form-width line" class:transp>
   <div class="left-side" class:showSearch>
     <a class="header-name" href="./events">
       <h2>{_('event_calendar')}</h2>

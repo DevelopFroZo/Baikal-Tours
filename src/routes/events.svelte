@@ -947,7 +947,7 @@
   </div>
 
   <div class="more-events">
-    <h2>{_('more_events')}</h2>
+    <h2>{_('all_events')}</h2>
     <button class="show-card" on:click={showCard}>
       {_('show_on_card')}
       <img src="/img/placeholder-map.svg" alt="placeholder" />

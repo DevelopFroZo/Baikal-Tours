@@ -70,11 +70,7 @@
     height: 700px;
     position: relative;
     overflow: hidden;
-    background: linear-gradient(
-      137.19deg,
-      rgba(255, 255, 255, 0.6) 52.07%,
-      rgba(255, 255, 255, 0)
-    );
+    background: linear-gradient(360deg, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.3) 100%);
     background-blend-mode: lighten, normal;
 
     & > :global(img) {
@@ -83,7 +79,7 @@
   }
 
   h1 {
-    color: black;
+    color: white;
     font-size: $MaxBig_Font_Size;
     position: absolute;
     top: 50%;
@@ -363,7 +359,7 @@
   <meta name="description" content={compiliation_result.tagline}>
 </svelte:head>
 
-<Header {locale} />
+<Header {locale} transp={true}/>
 
 <div class="main-block">
   <Image src={compiliation_result.image_url} alt="test" />

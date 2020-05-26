@@ -395,6 +395,12 @@ export default ( {
   new_hotel:                  "Новый отель",
 
   events_for_main:            "Изрбанные для главной",
+  
   delete_second_location:     "Удалить локацию",
-  new_location:               "Новая локация"
+  new_location:               "Новая локация",
+  pasting_event:              "Добавляем событие",
+  all_events:                 "Все события",
+  required_subjects:          "Добавьте хоть одну тематику",
+  required_companion:         "Укажите, с кем можно пойти на событие",
+  required_locations:         "Добавьте хоть одну локацию"
 } );
