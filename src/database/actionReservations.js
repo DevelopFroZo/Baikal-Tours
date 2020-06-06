@@ -1,6 +1,12 @@
 "use strict";
 
-export async function create( client, userId, actionId, name, surname, phone, email, date, buyable ){
+export {
+  create,
+  getByUserId,
+  checkOrderNumber
+};
+
+async function create( client, userId, actionId, name, surname, phone, email, date, buyable ){
   const { rows: [ { id } ] } = await client.query(
     `insert into action_reservations( user_id, action_id, name, surname, phone, email, date )
     values( $1, $2, $3, $4, $5, $6, $7 )
@@ -30,7 +36,7 @@ export async function create( client, userId, actionId, name, surname, phone, em
   return id;
 }
 
-export async function getByUserId( client, locale, userId ){
+async function getByUserId( client, locale, userId ){
   const { rows } = await client.query(
     `select
       ar.id as action_reservation_id, ar.paid, ar.date,
@@ -47,4 +53,15 @@ export async function getByUserId( client, locale, userId ){
   );
 
   return rows;
+}
+
+async function checkOrderNumber( c, orderNumber ){
+  const { rowCount } = await c.query(
+    `select 1
+    from action_reservations
+    where order_number = $1`,
+    [ orderNumber ]
+  );
+
+  return rowCount === 1;
 }

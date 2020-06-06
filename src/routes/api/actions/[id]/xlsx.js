@@ -103,13 +103,13 @@ export async function get( {
 
       if( type === "ticket" ){
         if( paid === true ){
-          sum += price;
+          sum += price * count;
           tickets.paid.push( st );
         }
         else tickets.nonPaid.push( st );
       } else {
         if( paid === true ){
-          sum += price;
+          sum += price * count;
           additionals.paid.push( st );
         }
         else additionals.nonPaid.push( st );

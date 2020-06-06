@@ -34,12 +34,34 @@ export async function post( req, res ){
 
   await transaction.query( "begin" );
 
+  const { rows: [ { organizer_payment } ] } = await transaction.query(
+    `select organizer_payment
+    from actions
+    where id = $1`,
+    [ actionId ]
+  );
+
+  if( typeof organizer_payment === "string" && organizer_payment !== "" ){
+    await transaction.query( "rollback" );
+    transaction.release();
+
+    return res.json( {
+      ok: false,
+      message: `Payment on the organizer (${organizer_payment}) site`
+    } );
+  }
+
   const actionDates = await req.database.actionDates.getByActionId( transaction, actionId );
 
   if(
     actionDates.length > 0 &&
     !actionDates.some( actionDate => isValidActionDate( actionDate, date ) )
-  ) return res.error( 18 );
+  ){
+    await transaction.query( "rollback" );
+    transaction.release();
+
+    return res.error( 18 );
+  }
 
   if(
     !Array.isArray( buyable ) ||
@@ -55,10 +77,15 @@ export async function post( req, res ){
       [ actionId ]
     );
 
-    if( rowCount > 0 ) return res.json( {
-      ok: false,
-      message: "Tickets must be sended for this action"
-    } );
+    if( rowCount > 0 ){
+      await transaction.query( "rollback" );
+      transaction.release();
+
+      return res.json( {
+        ok: false,
+        message: "Tickets must be sended for this action"
+      } );
+    }
 
     buyable = null;
   }
