@@ -95,7 +95,7 @@ export async function post( req, res ){
   await transaction.query( "commit" );
   await transaction.release();
 
-  res.success();
+  res.success( 0, result );
 }
 
 export async function get( {

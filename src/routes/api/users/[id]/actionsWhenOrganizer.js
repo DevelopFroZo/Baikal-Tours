@@ -27,7 +27,7 @@ export async function get( {
 
   const { rows: actions } = await transaction.query(
     `select
-      a.id, at.name,
+      a.id, at.name, a.balance,
       null as locations,
       null as dates,
       null as buyable,
