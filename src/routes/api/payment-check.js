@@ -43,7 +43,14 @@ async function get( {
     return res.json( { status: 502, message: "See server logs" } );
   }
 
-  if( OrderStatus === 2 || OrderStatus === 7 ){
+  if( OrderStatus === 0 || OrderStatus === 2 || OrderStatus === 7 ){
+    const { rows: [ name, surname, formUrl ] } = await pool.query(
+      `select name, surname, form_url
+      from action_reservations
+      where order_id = $1`,
+      [ orderId ]
+    );
+
     if( OrderStatus === 2 ) await pool.query(
       `update action_reservations
       set
@@ -52,7 +59,7 @@ async function get( {
       where order_id = $1`,
       [ orderId ]
     );
-    else await pool.query(
+    else if( OrderStatus === 7 ) await pool.query(
       `update action_reservations
       set form_url = null
       where order_id = $1`,
@@ -63,7 +70,10 @@ async function get( {
       ok: true,
       data: {
         orderStatus: OrderStatus,
-        orderStatusMessage: OrderStatusMessage
+        orderStatusMessage: OrderStatusMessage,
+        name,
+        surname,
+        formUrl
       }
     } );
   }
