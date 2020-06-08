@@ -44,7 +44,7 @@ async function get( {
   }
 
   if( OrderStatus === 0 || OrderStatus === 2 || OrderStatus === 7 ){
-    const { rows: [ { name, surname, formUrl } ] } = await pool.query(
+    const { rows: [ { name, surname, form_url: formUrl } ] } = await pool.query(
       `select name, surname, form_url
       from action_reservations
       where order_id = $1`,
