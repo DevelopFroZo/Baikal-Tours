@@ -44,27 +44,58 @@ async function get( {
   }
 
   if( OrderStatus === 0 || OrderStatus === 2 || OrderStatus === 7 ){
-    const { rows: [ { name, surname, form_url: formUrl } ] } = await pool.query(
-      `select name, surname, form_url
-      from action_reservations
-      where order_id = $1`,
+    const transaction = await pool.connect();
+
+    await transaction.query( "begin" );
+
+    const { rows: [ {
+      action_id: actionId,
+      name,
+      surname,
+      form_url: formUrl,
+      amount
+    } ] } = await transaction.query(
+      `select
+      	ar.action_id, ar.name, ar.surname, ar.form_url,
+        sum( ab.price * arb.count )::int as amount
+      from
+      	action_reservations as ar,
+        action_reservations_buyable as arb,
+        action_buyable as ab
+      where
+      	order_id = $1 and
+        ar.id = arb.action_reservation_id and
+        arb.action_buyable_id = ab.id
+      group by ar.action_id, ar.name, ar.surname, ar.form_url`,
       [ orderId ]
     );
 
-    if( OrderStatus === 2 ) await pool.query(
-      `update action_reservations
-      set
-        paid = true,
-        form_url = null
-      where order_id = $1`,
-      [ orderId ]
-    );
-    else if( OrderStatus === 7 ) await pool.query(
+    if( OrderStatus === 2 ){
+      await transaction.query(
+        `update action_reservations
+        set
+          paid = true,
+          form_url = null
+        where order_id = $1`,
+        [ orderId ]
+      );
+
+      await transaction.query(
+        `update actions
+        set balance = balance + $1
+        where id = $2`,
+        [ amount, actionId ]
+      );
+    }
+    else if( OrderStatus === 7 ) await transaction.query(
       `update action_reservations
       set form_url = null
       where order_id = $1`,
       [ orderId ]
     );
+
+    await transaction.query( "commit" );
+    transaction.release();
 
     return res.json( {
       ok: true,
