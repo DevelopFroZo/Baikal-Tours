@@ -148,4 +148,7 @@ export default ( server ) => {
   server.post( "/api/locations2", secureAPI( "admin" ) );
   server.put( "/api/locations2/:id", secureAPI( "admin" ) );
   server.delete( "/api/locations2/:id", secureAPI( "admin" ) );
+
+  server.get( "/api/withdraws/:id/accept", secureAPI( "admin" ) );
+  server.post( "/api/withdraws/:id/reject", secureAPI( "admin" ) );
 };
