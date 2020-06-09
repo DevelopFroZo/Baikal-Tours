@@ -116,22 +116,6 @@ async function post( {
   } );
 }
 
-async function get( {
-  session: { isLogged, role, userId },
-  query: { userId: userId_ },
-  database: { pool }
-}, res ){
-  if( !isLogged ) return res.json( {
-    ok: false,
-    message: "Unauthorized"
-  } );
-
-  const userId__ = toInt( userId_ );
-
-  if( role !== "admin" && userId !== userId__ )
-    return res.error( 12 );
-
-  const withdraws = await getMany( pool, userId__ );
-
-  res.success( 0, withdraws );
+async function get( { database: { pool } }, res ){
+  res.success( 0, await getMany( pool ) );
 }

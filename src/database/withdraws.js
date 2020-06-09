@@ -3,6 +3,7 @@
 export {
   create,
   getMany,
+  getByUserId,
   edit
 };
 
@@ -43,7 +44,24 @@ async function create(
   return id;
 }
 
-async function getMany( c, userId ){
+async function getMany( c ){
+  const { rows: withdraws } = await c.query(
+    `select
+    	w.id, w.user_id, w.recipient, w.bank,
+      w.account_number, w.bik, w.inn, w.kpp,
+      w.status, w.fail_message, sum( wa.amount )::int
+    from
+    	withdraws as w,
+      withdraw_actions as wa
+    where w.id = wa.withdraw_id
+    group by w.id
+    order by w.created_at desc`
+  );
+
+  return withdraws;
+}
+
+async function getByUserId( c, userId ){
   const { rows: withdraws } = await c.query(
     `select w.id, sum( wa.amount )::int, w.status, w.fail_message
     from
@@ -53,7 +71,7 @@ async function getMany( c, userId ){
     	user_id = $1 and
       w.id = wa.withdraw_id
     group by w.id, w.status, w.fail_message, w.created_at
-    order by w.created_at`,
+    order by w.created_at desc`,
     [ userId ]
   );
 
