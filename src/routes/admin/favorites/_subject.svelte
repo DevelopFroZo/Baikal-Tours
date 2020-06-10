@@ -83,8 +83,6 @@
       }
     })).actions;
 
-    console.log(events)
-
     find = true;
   }
 

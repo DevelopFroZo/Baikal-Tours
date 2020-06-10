@@ -81,7 +81,7 @@
         margin-top: 15px;
         font-size: $LowBig_Font_Size;
 
-        &_reject {
+        &_rejected {
           color: red;
           font-size: inherit;
         }

@@ -8,8 +8,6 @@
   let hideForm = false,
     hideApplications = false;
 
-  console.log(organizerPayouts);
-
   let tickets, additions;
 
   let allBalance = organizerEvents
@@ -94,8 +92,6 @@
       userId: $session.userId,
       ...data
     });
-
-    console.log(payoutResult);
 
     if (payoutResult.ok) {
       organizerPayouts.unshift({

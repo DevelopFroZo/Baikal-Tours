@@ -54,8 +54,6 @@
     image_url,
     locations;
 
-  console.log(hotelData)
-
   const fetcher = new Fetcher();
   const _ = i18n(locale);
 
@@ -63,8 +61,6 @@
     save,
     uploadImg,
     newImage = image_url === null;
-
-  $: console.log(newData)
 
   //Название отеля
   $: newData = validateNewData(name, hotelData.name, "name", newData);

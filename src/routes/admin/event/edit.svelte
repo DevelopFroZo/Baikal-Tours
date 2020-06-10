@@ -260,8 +260,6 @@
   if((!actionData.title || !actionData.title.length) && actionId)
     title = actionData.name;
 
-  $: console.log(newData)
-
   //Title
   $: {
     newData = edit.validateNewtranslateData(

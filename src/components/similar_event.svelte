@@ -73,6 +73,10 @@
           font-size: $LowBig_Font_Size;
           color: $Orange;
           font-weight: 600;
+
+          > time{
+            color: inherit;
+          }
         }
       }
     }

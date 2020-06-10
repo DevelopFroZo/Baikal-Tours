@@ -181,9 +181,8 @@
     fullWindowGallaryBlock,
     showGallary = false,
     priceMin = null,
+    priceMax = null,
     reservationId = null;
-
-  console.log(result_action)
 
   $: {
     total = 0;
@@ -262,11 +261,14 @@
     for(let transfer of result_action.transfers)
       transfers.push(transfer.name);
 
-    second_price = parsePrice(result_action.price_min, result_action.price_max, _);
-
-    for(let ticket of result_action.buyable)
+    for(let ticket of result_action.buyable){
       if(ticket.type === "ticket" && ticket.price < priceMin || !priceMin)
         priceMin = ticket.price;
+      if(ticket.type === "ticket" && ticket.price > priceMax || !priceMax)
+        priceMax = ticket.price;
+    }
+
+    second_price = parsePrice(priceMin, priceMax, _);
 
     tickets = result_action.buyable.filter(el => el.type === "ticket");
     additionals = result_action.buyable.filter(el => el.type === "additional");
@@ -533,8 +535,15 @@
 <style lang="scss">
   @import "./styles/global";
 
-  .hiddenPrice{
-    display: none;
+  .head-price{
+    margin-top: 40px;
+    font-size: 24px;
+    color: white;
+
+    > span{
+      color: inherit;
+      font-weight: 600;
+    }
   }
 
   .form-width {
@@ -755,7 +764,7 @@
       }
 
       & > button{
-        margin-top: 40px;
+        margin-top: 20px;
       }
     }
 
@@ -1944,6 +1953,13 @@
           </ul>
         </div>
       {/if}
+      <div class="head-price" itemscope itemprop="offers" itemtype="http://schema.org/Offer">
+        <span>{second_price === _("free") ? second_price : `${second_price}${_("rub")}`}</span>
+        <meta itemprop="price" content={priceMin}>
+        {#if priceMin}
+          <meta itemprop="priceCurrency" content="RUB">
+        {/if}
+      </div>
       {#if $session.isLogged}
         <button class="register-button" on:click={() => {
           animateScroll.scrollTo({offset: registerBlock.offsetTop - 150, duration: 1500})
@@ -2157,12 +2173,6 @@
   </div>
 
   <div class="form-width" bind:this={registerBlock}>
-    <div class="hiddenPrice" itemscope itemprop="offers" itemtype="http://schema.org/Offer">
-      <span itemprop="price">{priceMin ? priceMin : _("free")}</span>
-      {#if priceMin}
-        <meta itemprop="priceCurrency" content="RUB">
-      {/if}
-    </div>
     {#if $session.isLogged}
       <h2 class="register-header">{_('email.subscribe.subject')}</h2>
       {#if result_action.organizer_payment && result_action.organizer_payment.length}

@@ -47,8 +47,6 @@
         }
       })
 
-      console.log(canselResult);
-
       if(canselResult.ok)
         dispatch("canselReservation");
       else
