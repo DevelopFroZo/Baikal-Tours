@@ -179,7 +179,11 @@
     dateInput,
     fullWindowGallary = null,
     fullWindowGallaryBlock,
-    showGallary = false;
+    showGallary = false,
+    priceMin = null,
+    reservationId = null;
+
+  console.log(result_action)
 
   $: {
     total = 0;
@@ -259,6 +263,10 @@
       transfers.push(transfer.name);
 
     second_price = parsePrice(result_action.price_min, result_action.price_max, _);
+
+    for(let ticket of result_action.buyable)
+      if(ticket.type === "ticket" && ticket.price < priceMin || !priceMin)
+        priceMin = ticket.price;
 
     tickets = result_action.buyable.filter(el => el.type === "ticket");
     additionals = result_action.buyable.filter(el => el.type === "additional");
@@ -366,6 +374,7 @@
     let reservationResult = await fetcher.post(`/api/actionReservations`, reservationData);
 
     if(reservationResult.ok){
+      reservationId = reservationResult.data;
       if(additionalsWithCount.length || ticketsWithCount.length)
         showBuyWindow = true;
       else
@@ -508,10 +517,25 @@
     fullWindowGallary.slideTo(el, 0);
     showGallary = true;
   }
+
+  async function payTickets(){
+    const payHref = await fetcher.post(`/api/actionReservations/${reservationId}/pay`, {
+      userId
+    })
+
+    if(payHref.ok)
+      document.location.href = payHref.data;
+    else
+      alert(_("transaction_error"))
+  }
 </script>
 
 <style lang="scss">
   @import "./styles/global";
+
+  .hiddenPrice{
+    display: none;
+  }
 
   .form-width {
     margin: 15px auto 15px;
@@ -1437,6 +1461,10 @@
       font-size: $Big_Font_Size;
       font-weight: 600;
 
+      > time{
+        color: inherit;
+      }
+
       &:not(:first-child){
         margin-top: 5px;
       }
@@ -1873,395 +1901,404 @@
 <Header {locale} transp={true}/>
 <!-- <BreadCrumbs
   path={[{ name: _('event_catalog'), url: actionsParams }, { name: result_action.name, url: './action?id=' + actionId }]} /> -->
-<div
-  class="main-block">
-  {#if result_action.images.length && result_action.images.filter(el => el.is_main)[0]}
-    <Image
-      src={result_action.images.filter(el => el.is_main)[0].image_url}
-      alt={result_action.name} />
-  {/if}
-  <div class="form-width">
-    {#if result_action.subjects.length > 0}
-      <ul class="subjects-block">
-        {#each result_action.subjects as subjects, i}
-          <li>{subjects.name}
-            {#if result_action.subjects.length !== i + 1}
-              <div class="point" />
-            {/if}
-          </li>
-        {/each}
-      </ul>
+<div itemscope itemtype="http://schema.org/Event">
+  <div
+    class="main-block">
+    {#if result_action.images.length && result_action.images.filter(el => el.is_main)[0]}
+      <Image
+        src={result_action.images.filter(el => el.is_main)[0].image_url}
+        alt={result_action.name} />
     {/if}
-    <h1>{result_action.name}</h1>
-    <div class="locations-block">
-      {#if result_action.locations && result_action.locations.length > 0}
-        <ul>
-          {#each result_action.locations as location}
-            <li>
-              {location.name + (location.address === null ? '' : ', ' + location.address)}
+    <div class="form-width">
+      {#if result_action.subjects.length > 0}
+        <ul class="subjects-block">
+          {#each result_action.subjects as subjects, i}
+            <li>{subjects.name}
+              {#if result_action.subjects.length !== i + 1}
+                <div class="point" />
+              {/if}
             </li>
           {/each}
         </ul>
       {/if}
-    </div>
-    {#if result_action.dates}
-      <div class="dates-block">
-        <ul>
-          {#each result_action.dates as date}
-            <li>
-              {dateToString(date, _)}
-            </li>
-          {/each} 
-        </ul>
+      <h1 itemprop="name">{result_action.name}</h1>
+      <div class="locations-block">
+        {#if result_action.locations && result_action.locations.length > 0}
+          <ul>
+            {#each result_action.locations as location}
+              <li>
+                {location.name + (location.address === null ? '' : ', ' + location.address)}
+              </li>
+            {/each}
+          </ul>
+        {/if}
       </div>
-    {/if}
-    {#if $session.isLogged}
-      <button class="register-button" on:click={() => {
-        animateScroll.scrollTo({offset: registerBlock.offsetTop - 150, duration: 1500})
-      }}>{_("register")}</button>
-    {/if}
-  </div>
-
-</div>
-<div class="form-width">
-  <!-- <p class="italic-bold">{result_action.tagline}</p> -->
-  <p class="short-description">{result_action.short_description}</p>
-
-  {#if result_action.images.length}
-    <div class="main-carousel">
-      <Carousel data={{slidesPerView: 'auto', preloadImages: "false", centeredSlides: true, spaceBetween: 25, speed: 750, navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' }, initialSlide: 1}}
-      mainSlide={1}
-      carouselData={result_action.images}>
-        {#each result_action.images as img, i}
-          <button class="carousel-cell swiper-slide" on:click={() => showGallaryWindow(i)}>
-            <Image src={img.image_url} alt={"img"}/>
-          </button>
-        {/each}       
-      </Carousel>
+      {#if result_action.dates}
+        <div class="dates-block">
+          <ul>
+            {#each result_action.dates as date}
+              <li>
+                <time itemprop="startDate" datetime={parseDate(new Date(date.date_start ? date.date_start : (date.date_end ? date_end : "")))}>{dateToString(date, _)}</time>
+              </li>
+            {/each} 
+          </ul>
+        </div>
+      {/if}
+      {#if $session.isLogged}
+        <button class="register-button" on:click={() => {
+          animateScroll.scrollTo({offset: registerBlock.offsetTop - 150, duration: 1500})
+        }}>{_("register")}</button>
+      {/if}
     </div>
-  {/if}
 
-  <div id="description-block"></div>
+  </div>
+  <div class="form-width">
+    <!-- <p class="italic-bold">{result_action.tagline}</p> -->
+    <p class="short-description" itemprop="description">{result_action.short_description}</p>
 
-  {#if result_action.partners.length > 0}
-    <div class="partners-block">
-      <h3>{_('action_partners')}</h3>
-
-      <div class="partners-carousel">
-        <Carousel data={{slidesPerView: 'auto', spaceBetween: (mobile ? 10 : 25), speed: 750, navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' }}}
-        carouselData={result_action.partners}>
-          {#each result_action.partners as partner}
-          <div class="partner-container swiper-slide">
-            <div class="partner-block">
-              <img
-                src={partner.image_url}
-                alt={partner.name === null ? 'partner' : partner.name} />
-            </div>
-            <span>{partner.name}</span>
-          </div>
-            
-          {/each}
+    {#if result_action.images.length}
+      <div class="main-carousel">
+        <Carousel data={{slidesPerView: 'auto', preloadImages: "false", centeredSlides: true, spaceBetween: 25, speed: 750, navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' }, initialSlide: 1}}
+        mainSlide={1}
+        carouselData={result_action.images}>
+          {#each result_action.images as img, i}
+            <button class="carousel-cell swiper-slide" on:click={() => showGallaryWindow(i)}>
+              <Image src={img.image_url} alt={"img"}/>
+            </button>
+          {/each}       
         </Carousel>
       </div>
-    </div>
-  {/if}
-</div>
+    {/if}
 
-<div class="contacts-block">
-  <div class="form-width contacts-and-place" class:hideMap={!coords.length}>
-    <div class="contacts-block">
-      <div class="contacts">
-        <h2>{_('contacts')}</h2>
-        {#if result_action.locations && !coords.length}
-          <div class="location-block map-without-coords">
-            <h3>{_('venue')}: 
-            {#each result_action.locations as location}
-              <span>
-                {location.name + (location.address === null ? '' : ', ' + location.address) + "\n"}
-              </span>
+    <div id="description-block"></div>
+
+    {#if result_action.partners.length > 0}
+      <div class="partners-block">
+        <h3>{_('action_partners')}</h3>
+
+        <div class="partners-carousel">
+          <Carousel data={{slidesPerView: 'auto', spaceBetween: (mobile ? 10 : 25), speed: 750, navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' }}}
+          carouselData={result_action.partners}>
+            {#each result_action.partners as partner}
+            <div class="partner-container swiper-slide">
+              <div class="partner-block">
+                <img
+                  src={partner.image_url}
+                  alt={partner.name === null ? 'partner' : partner.name} />
+              </div>
+              <span>{partner.name}</span>
+            </div>
+
             {/each}
-            </h3>
-          </div>
-          {/if}
-          {#if result_action.emails !== null}
-          <div class="line" class:contacts-flex={result_action.emails.length > 0}>
-            <div class="img-block">
-              <img src="/img/mail.svg" alt="email">
-            </div>
-            <ul> 
-              {#each result_action.emails as email}
-                <li>
-                  {email}
-                </li>
-              {/each}
-            </ul>
-          </div>
-          {/if}
-
-          {#if result_action.phones !== null}
-          <div class="line" class:contacts-flex={result_action.phones.length > 0}>
-            <div class="img-block">
-              <img src="/img/phone-call.svg" alt="phone">
-            </div>
-            <ul> 
-              {#each result_action.phones as phone}
-                <li>
-                  {phone}
-                </li>
-              {/each}
-            </ul>
-          </div>
-          {/if}
-
-          {#if result_action.websites !== null}
-          <div class="line contacts-flex">
-            <div class="img-block">
-              <img src="/img/internet.svg" alt="site">
-            </div>
-            <ul>
-              <li>
-                <a href={result_action.websites[0]} target="_blank">
-                  {result_action.websites[0]}
-                </a>
-              </li>
-            </ul>
-          </div>
-          {/if}
-
-          {#if result_action.vk_link !== null}
-            <div class="line contacts-flex">
-              <div class="img-block vk">
-                <img src="/img/vk-white.svg" alt="vk">
-              </div>
-              <ul>
-                <li>
-                  <a href={result_action.vk_link} target="_blank">{result_action.vk_link}</a>
-                </li>
-              </ul>
-            </div>
-          {/if}
-
-          {#if result_action.instagram_link !== null}
-            <div class="line contacts-flex">
-              <div class="img-block instagram">
-                <img src="/img/insta-white.svg" alt="instagram">
-              </div>
-              <ul>
-                <li>
-                  <a href={result_action.instagram_link} target="_blank">{result_action.instagram_link}</a>
-                </li>
-              </ul>
-            </div>
-          {/if}
-
-          {#if result_action.facebook_link !== null}
-            <div class="line contacts-flex">
-              <div class="img-block facebook">
-                <img src="/img/facebook-white.svg" alt="facebook">
-              </div>
-              <ul>
-                <li>
-                  <a href={result_action.facebook_link} target="_blank">{result_action.facebook_link}</a>
-                </li>
-              </ul>
-            </div>
-          {/if}
-
-          {#if result_action.twitter_link !== null}
-            <div class="line contacts-flex">
-              <div class="img-block twitter">
-                <img src="/img/twitter.svg" alt="twitter">
-              </div>
-              <ul>
-                <li>
-                  <a href={result_action.twitter_link} target="_blank">{result_action.twitter_link}</a>
-                </li>
-              </ul>
-            </div>
-          {/if}
+          </Carousel>
+        </div>
       </div>
-    </div>
-    <div class="map-block">
-      {#if coords.length}
-        <div class="map">
-          {#if result_action.locations}
-            <div class="location-block">
-              <h3>{_('venue')}: 
-              {#each result_action.locations as location}
-                <span>
-                  {location.name + (location.address === null ? '' : ', ' + location.address)}
-                </span>
-              {/each}
-              </h3>
+    {/if}
+  </div>
+
+  <div class="contacts-block">
+    <div class="form-width contacts-and-place" class:hideMap={!coords.length}>
+      <div class="contacts-block">
+        <div class="contacts">
+          <h2>{_('contacts')}</h2>
+            {#if result_action.locations && result_action.locations.length && !coords.length}
+              <div class="location-block map-without-coords">
+                <h3>{_('venue')}: 
+                {#each result_action.locations as location}
+                  <span>
+                    {location.name + (location.address === null ? '' : ', ' + location.address) + "\n"}
+                  </span>
+                {/each}
+                </h3>
+              </div>
+            {/if}
+            <div class="organizationInfo">
+            {#if result_action.emails !== null}
+            <div class="line" class:contacts-flex={result_action.emails.length > 0}>
+              <div class="img-block">
+                <img src="/img/mail.svg" alt="email">
+              </div>
+              <ul> 
+                {#each result_action.emails as email}
+                  <li>
+                    {email}
+                  </li>
+                {/each}
+              </ul>
             </div>
-          {/if}
-          <YandexMap
-            {apiKey}
-            {customIcon}
-            center={[ 52.285725130459866, 104.28156685575135 ]}
-            staticPlacemarks={coords}
-          />
+            {/if}
+
+            {#if result_action.phones !== null}
+            <div class="line" class:contacts-flex={result_action.phones.length > 0}>
+              <div class="img-block">
+                <img src="/img/phone-call.svg" alt="phone">
+              </div>
+              <ul> 
+                {#each result_action.phones as phone}
+                  <li>
+                    {phone}
+                  </li>
+                {/each}
+              </ul>
+            </div>
+            {/if}
+
+            {#if result_action.websites !== null}
+            <div class="line contacts-flex">
+              <div class="img-block">
+                <img src="/img/internet.svg" alt="site">
+              </div>
+              <ul>
+                <li>
+                  <a href={result_action.websites[0]} target="_blank">
+                    {result_action.websites[0]}
+                  </a>
+                </li>
+              </ul>
+            </div>
+            {/if}
+
+            {#if result_action.vk_link !== null}
+              <div class="line contacts-flex">
+                <div class="img-block vk">
+                  <img src="/img/vk-white.svg" alt="vk">
+                </div>
+                <ul>
+                  <li>
+                    <a href={result_action.vk_link} target="_blank">{result_action.vk_link}</a>
+                  </li>
+                </ul>
+              </div>
+            {/if}
+
+            {#if result_action.instagram_link !== null}
+              <div class="line contacts-flex">
+                <div class="img-block instagram">
+                  <img src="/img/insta-white.svg" alt="instagram">
+                </div>
+                <ul>
+                  <li>
+                    <a href={result_action.instagram_link} target="_blank">{result_action.instagram_link}</a>
+                  </li>
+                </ul>
+              </div>
+            {/if}
+
+            {#if result_action.facebook_link !== null}
+              <div class="line contacts-flex">
+                <div class="img-block facebook">
+                  <img src="/img/facebook-white.svg" alt="facebook">
+                </div>
+                <ul>
+                  <li>
+                    <a href={result_action.facebook_link} target="_blank">{result_action.facebook_link}</a>
+                  </li>
+                </ul>
+              </div>
+            {/if}
+
+            {#if result_action.twitter_link !== null}
+              <div class="line contacts-flex">
+                <div class="img-block twitter">
+                  <img src="/img/twitter.svg" alt="twitter">
+                </div>
+                <ul>
+                  <li>
+                    <a href={result_action.twitter_link} target="_blank">{result_action.twitter_link}</a>
+                  </li>
+                </ul>
+              </div>
+            {/if}
+            </div>
         </div>
-      {/if}
-      <div class="share">
-        {_('share')}
-        <div>
-          <a
-            class="twitter-share-button"
-            href="https://twitter.com/intent/tweet?text={twitterHref}"
-            target="_blank">
-            <img src="/img/twitter-grey.svg" alt="twitter" />
-          </a>
-          <a
-            href="https://www.facebook.com/sharer/sharer.php?u={facebookHref}"
-            target="_blank">
-            <img src="/img/facebook-grey.svg" alt="facebook" />
-          </a>
+      </div>
+      <div class="map-block">
+        {#if coords.length}
+          <div class="map">
+            {#if result_action.locations}
+              <div class="location-block">
+                <h3>{_('venue')}: 
+                {#each result_action.locations as location}
+                  <span>
+                    {location.name + (location.address === null ? '' : ', ' + location.address)}
+                  </span>
+                {/each}
+                </h3>
+              </div>
+            {/if}
+            <YandexMap
+              {apiKey}
+              {customIcon}
+              center={[ 52.285725130459866, 104.28156685575135 ]}
+              staticPlacemarks={coords}
+            />
+          </div>
+        {/if}
+        <div class="share">
+          {_('share')}
+          <div>
+            <a
+              class="twitter-share-button"
+              href="https://twitter.com/intent/tweet?text={twitterHref}"
+              target="_blank">
+              <img src="/img/twitter-grey.svg" alt="twitter" />
+            </a>
+            <a
+              href="https://www.facebook.com/sharer/sharer.php?u={facebookHref}"
+              target="_blank">
+              <img src="/img/facebook-grey.svg" alt="facebook" />
+            </a>
+          </div>
+
+          {@html vkHref}
         </div>
-        
-        {@html vkHref}
       </div>
     </div>
   </div>
-</div>
 
-<div class="form-width" bind:this={registerBlock}>
-  {#if $session.isLogged}
-    <h2 class="register-header">{_('email.subscribe.subject')}</h2>
-    {#if result_action.organizer_payment && result_action.organizer_payment.length}
-      <div class="organizer-payment">
-        <span>{_("organizer_payment_message")}</span>
-        <div class="organizer-site">
-          <div class="image">
-            <img src="/img/internet.svg" alt="organizer site">
+  <div class="form-width" bind:this={registerBlock}>
+    <div class="hiddenPrice" itemscope itemprop="offers" itemtype="http://schema.org/Offer">
+      <span itemprop="price">{priceMin ? priceMin : _("free")}</span>
+      {#if priceMin}
+        <meta itemprop="priceCurrency" content="RUB">
+      {/if}
+    </div>
+    {#if $session.isLogged}
+      <h2 class="register-header">{_('email.subscribe.subject')}</h2>
+      {#if result_action.organizer_payment && result_action.organizer_payment.length}
+        <div class="organizer-payment">
+          <span>{_("organizer_payment_message")}</span>
+          <div class="organizer-site">
+            <div class="image">
+              <img src="/img/internet.svg" alt="organizer site">
+            </div>
+            <a href={result_action.organizer_payment}>{result_action.organizer_payment}</a>
           </div>
-          <a href={result_action.organizer_payment}>{result_action.organizer_payment}</a>
         </div>
-      </div>
-    {:else}
-      <div class="register-center">
-        <div class="register-form">
-          <div class="register-info-blocks">
-            <div class="inputs-block" class:only-inputs={result_action.buyable.length === 0}>
-              <div class="input-block" class:requiredField={requiredField && !userName.length}>
-                <input type="text" bind:value={userName} placeholder={_("name")}/>
-                <div class="img-block">
-                  <img src="/img/user-black.svg" alt="user">
-                </div>
-              </div>
-              <div class="input-block" class:requiredField={requiredField && !surname.length}>
-                <input type="text" bind:value={surname} placeholder={_("surname")}/>
-                <div class="img-block">
-                  <img src="/img/user-black.svg" alt="user">
-                </div>
-              </div>
-              <div class="input-block" class:requiredField={requiredField && !userPhone.length}>
-                <input
-                  type="text"
-                  bind:value={userPhone}
-                  on:keydown={validatePhone} 
-                  placeholder={_("phone")}/>
-                <div class="img-block">
-                  <img src="/img/phone-call.svg" alt="phone">
-                </div>
-              </div>
-              <div class="input-block" class:requiredField={requiredField && ( !validateMail(userMail) || !userMail.length)}>
-                <input type="text" bind:value={userMail} placeholder="e-mail"/>
-                <div class="img-block">
-                  <img src="/img/mail.svg" alt="e-mail">
-                </div>
-              </div>
-              {#if showDateChange && (tickets.length || additionals.length)}
-                <div class="input-block date-picker" class:requiredField={requiredField && !userDate.length}>
-                  <input 
-                    use:imask={{mask: "00.00.0000" }} 
-                    bind:value={userDate} 
-                    placeholder="ДД.ММ.ГГГГ" 
-                    bind:this={dateInput}
-                    on:focus={() => showDatePicker = true}
-                    />
+      {:else}
+        <div class="register-center">
+          <div class="register-form">
+            <div class="register-info-blocks">
+              <div class="inputs-block" class:only-inputs={result_action.buyable.length === 0}>
+                <div class="input-block" class:requiredField={requiredField && !userName.length}>
+                  <input type="text" bind:value={userName} placeholder={_("name")}/>
                   <div class="img-block">
-                    <img src="/img/calendar.png" alt="date">
+                    <img src="/img/user-black.svg" alt="user">
                   </div>
-                  <div class="all-dates">
-                    <ClickOutside on:clickoutside={() => showDatePicker = false} exclude={[dateInput]} hideByExclude={false}>
-                      {#if showDatePicker && userDate.length < 10}
-                        <ul class="date-list" transition:slide>
-                          {#each visibleDates.filter(el => userDate.length ? reverseDate(el).indexOf(userDate) === 0 : true) as date}
-                            <li>
-                              <button on:click={() => {
-                                userDate = reverseDate(date);
-                                showDatePicker = false;
-                              }}>
-                                {reverseDate(date)}
-                              </button>
-                            </li>
-                          {/each}
-                        </ul>
-                      {/if}
-                    </ClickOutside>
+                </div>
+                <div class="input-block" class:requiredField={requiredField && !surname.length}>
+                  <input type="text" bind:value={surname} placeholder={_("surname")}/>
+                  <div class="img-block">
+                    <img src="/img/user-black.svg" alt="user">
+                  </div>
+                </div>
+                <div class="input-block" class:requiredField={requiredField && !userPhone.length}>
+                  <input
+                    type="text"
+                    bind:value={userPhone}
+                    on:keydown={validatePhone} 
+                    placeholder={_("phone")}/>
+                  <div class="img-block">
+                    <img src="/img/phone-call.svg" alt="phone">
+                  </div>
+                </div>
+                <div class="input-block" class:requiredField={requiredField && ( !validateMail(userMail) || !userMail.length)}>
+                  <input type="text" bind:value={userMail} placeholder="e-mail"/>
+                  <div class="img-block">
+                    <img src="/img/mail.svg" alt="e-mail">
+                  </div>
+                </div>
+                {#if showDateChange && (tickets.length || additionals.length)}
+                  <div class="input-block date-picker" class:requiredField={requiredField && !userDate.length}>
+                    <input 
+                      use:imask={{mask: "00.00.0000" }} 
+                      bind:value={userDate} 
+                      placeholder="ДД.ММ.ГГГГ" 
+                      bind:this={dateInput}
+                      on:focus={() => showDatePicker = true}
+                      />
+                    <div class="img-block">
+                      <img src="/img/calendar.png" alt="date">
+                    </div>
+                    <div class="all-dates">
+                      <ClickOutside on:clickoutside={() => showDatePicker = false} exclude={[dateInput]} hideByExclude={false}>
+                        {#if showDatePicker && userDate.length < 10}
+                          <ul class="date-list" transition:slide>
+                            {#each visibleDates.filter(el => userDate.length ? reverseDate(el).indexOf(userDate) === 0 : true) as date}
+                              <li>
+                                <button on:click={() => {
+                                  userDate = reverseDate(date);
+                                  showDatePicker = false;
+                                }}>
+                                  {reverseDate(date)}
+                                </button>
+                              </li>
+                            {/each}
+                          </ul>
+                        {/if}
+                      </ClickOutside>
+                    </div>
+                  </div>
+                {/if}
+              </div>
+
+              {#if tickets.length > 0}
+                <div class="register-categoty-block">
+                  <h2>{_('ticket_categories')}</h2>
+                  <div class="tickets-block">
+                    {#each tickets as ticket}
+                      <div class="ticket-block">
+                        <div>
+                          <div>{ticket.name}</div>
+                          <div class="ticket-price">{ticket.price} {_('rub')}</div>
+                        </div>
+                        <div class="counter">
+                          <button on:click={() => ticket.count = ticket.count - 1 < 0 ? 0 : ticket.count - 1 }>-</button>
+                          <div class="couter-value">{ticket.count}</div>
+                          <button on:click={() => ticket.count++}>+</button>
+                        </div>
+                      </div>
+                    {/each}
+                  </div>
+                </div>
+              {/if}
+
+              {#if additionals.length > 0}
+                <div class="register-categoty-block">
+                  <h2>{_('additionally')}</h2>
+                  <div class="tickets-block">
+                    {#each additionals as ticket}
+                      <div class="ticket-block">
+                        <div>
+                          <div>{ticket.name}</div>
+                          <div class="ticket-price">{ticket.price} {_('rub')}</div>
+                        </div>
+                        <div class="counter">
+                          <button on:click={() => ticket.count = ticket.count - 1 < 0 ? 0 : ticket.count - 1}>-</button>
+                          <div class="couter-value">{ticket.count}</div>
+                          <button on:click={() => ticket.count++}>+</button>
+                        </div>
+                      </div>
+                    {/each}
                   </div>
                 </div>
               {/if}
             </div>
-
-            {#if tickets.length > 0}
-              <div class="register-categoty-block">
-                <h2>{_('ticket_categories')}</h2>
-                <div class="tickets-block">
-                  {#each tickets as ticket}
-                    <div class="ticket-block">
-                      <div>
-                        <div>{ticket.name}</div>
-                        <div class="ticket-price">{ticket.price} {_('rub')}</div>
-                      </div>
-                      <div class="counter">
-                        <button on:click={() => ticket.count = ticket.count - 1 < 0 ? 0 : ticket.count - 1 }>-</button>
-                        <div class="couter-value">{ticket.count}</div>
-                        <button on:click={() => ticket.count++}>+</button>
-                      </div>
-                    </div>
-                  {/each}
-                </div>
-              </div>
-            {/if}
-
-            {#if additionals.length > 0}
-              <div class="register-categoty-block">
-                <h2>{_('additionally')}</h2>
-                <div class="tickets-block">
-                  {#each additionals as ticket}
-                    <div class="ticket-block">
-                      <div>
-                        <div>{ticket.name}</div>
-                        <div class="ticket-price">{ticket.price} {_('rub')}</div>
-                      </div>
-                      <div class="counter">
-                        <button on:click={() => ticket.count = ticket.count - 1 < 0 ? 0 : ticket.count - 1}>-</button>
-                        <div class="couter-value">{ticket.count}</div>
-                        <button on:click={() => ticket.count++}>+</button>
-                      </div>
-                    </div>
-                  {/each}
-                </div>
-              </div>
-            {/if}
-          </div>
-          <hr />
-          <div class="final-price-block">
-            {#if tickets.length || additionalsWithCount.length}
-              <div class="total-price">{_("total")}<span>{total} {_('rub')}</span></div>
-            {/if}
-            <button class="register-button" on:click={subscribeUser}>
-              {!tickets.length && !additionalsWithCount.length ? _('register') : _("buy_tickets")}
-            </button>
+            <hr />
+            <div class="final-price-block">
+              {#if tickets.length || additionalsWithCount.length}
+                <div class="total-price">{_("total")}<span>{total} {_('rub')}</span></div>
+              {/if}
+              <button class="register-button" on:click={subscribeUser}>
+                {!tickets.length && !additionalsWithCount.length ? _('register') : _("buy_tickets")}
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      {/if}
     {/if}
-  {/if}
 
-  {#if result_action.excursions.length > 0}
+    {#if result_action.excursions.length > 0}
     <div class="banners-block">
       <div class="banners-info">
         <h2>{_('excursions')}</h2>
@@ -2273,9 +2310,9 @@
         {/each}
       </div>
     </div>
-  {/if}
+    {/if}
 
-  {#if result_action.tours.length > 0}
+    {#if result_action.tours.length > 0}
     <div class="banners-block">
       <div class="banners-info">
         <h2>{_('tours')}</h2>
@@ -2287,32 +2324,33 @@
         {/each}
       </div>
     </div>
-  {/if}
+    {/if}
 
-  {#if result_action.hotels.length}
-    <div class="banners-block">
-      <div class="banners-info">
-        <h2>{_('hotels_nearby')}</h2>
-        <a href="https://fanatbaikala.ru/tours" target="_blank">{_('more_hotels')}</a>
+    {#if result_action.hotels.length}
+      <div class="banners-block">
+        <div class="banners-info">
+          <h2>{_('hotels_nearby')}</h2>
+          <a href="https://fanatbaikala.ru/tours" target="_blank">{_('more_hotels')}</a>
+        </div>
+        <div class="banners">
+          {#each result_action.hotels as hotel}
+            <BannerBlock {...hotel} {_} site={hotel.booking_url} noFollow={true}/>
+          {/each}
+        </div>
       </div>
-      <div class="banners">
-        {#each result_action.hotels as hotel}
-          <BannerBlock {...hotel} {_} site={hotel.booking_url} noFollow={true}/>
-        {/each}
-      </div>
-    </div>
-  {/if}
+    {/if}
 
-  {#if similar_events.length}
-    <div class="similar-events-block">
-      <h2>{_('similar_events')}</h2>
-      <div class="similar-events">
-        {#each similar_events as favorite}
-          <SimilarEvent {_} {favorite}/>
-        {/each}
+    {#if similar_events.length}
+      <div class="similar-events-block">
+        <h2>{_('similar_events')}</h2>
+        <div class="similar-events" itemscope itemtype="http://schema.org/ItemList">
+          {#each similar_events as favorite}
+            <SimilarEvent {_} {favorite}/>
+          {/each}
+        </div>
       </div>
-    </div>
-  {/if}
+    {/if}
+  </div>
 </div>
 <Footer {locale} />
 
@@ -2371,7 +2409,7 @@
             <span class="blue">{total} {_("rub")}.</span>
           </div>
           <div class="buttons-block">
-            <button class="blue-button">{_("pay").toUpperCase()}</button>
+            <button class="blue-button" on:click={payTickets}>{_("pay").toUpperCase()}</button>
             <button class="back" on:click={() => showBuyWindow = false}><img src="/img/right-arrow.svg" alt="back">{_("back")}</button>
           </div>
         </div>

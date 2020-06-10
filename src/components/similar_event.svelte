@@ -1,5 +1,6 @@
 <script>
   import { dateToString } from "/helpers/converters.js";
+  import { parseDate } from "/helpers/parsers.js";
   import Image from "/components/imageCenter.svelte";
 
   export let _, favorite;
@@ -14,7 +15,11 @@
     position: relative;
     overflow: hidden;
     box-shadow: 0px 0px 70px rgba(40, 39, 49, 0.1);
-    background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.6) 100%);
+    background: linear-gradient(
+      180deg,
+      rgba(0, 0, 0, 0) 0%,
+      rgba(0, 0, 0, 0.6) 100%
+    );
     border-radius: 10px;
     display: block;
 
@@ -40,7 +45,11 @@
       color: #34353f;
       width: 100%;
       height: 100%;
-      background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.6) 100%);
+      background: linear-gradient(
+        180deg,
+        rgba(0, 0, 0, 0) 0%,
+        rgba(0, 0, 0, 0.6) 100%
+      );
       box-shadow: 0px 0px 70px rgba(40, 39, 49, 0.1);
       border-radius: 10px;
       text-align: left;
@@ -59,8 +68,8 @@
 
       & > ul {
         margin-top: 15px;
-        
-        & > li{
+
+        & > li {
           font-size: $LowBig_Font_Size;
           color: $Orange;
           font-weight: 600;
@@ -69,40 +78,51 @@
     }
   }
 
-  @media only screen and (max-width: 768px){
-    .similar-block{
+  @media only screen and (max-width: 768px) {
+    .similar-block {
       width: 100%;
       height: 165px;
 
-      > div{
+      > div {
         padding: 10px;
       }
     }
 
-    h4{
+    h4 {
       font-size: $LowBig_Font_Size !important;
     }
 
-    ul{
+    ul {
       margin-top: 5px !important;
     }
 
-    li{
+    li {
       font-size: $LowMedium_Font_Size !important;
     }
   }
 </style>
 
-<a class="similar-block" href={`/event?id=${favorite.id}`}>
+<a
+  class="similar-block"
+  href={`/event?id=${favorite.id}`}
+  itemscope
+  itemtype="http://schema.org/Event"
+  itemprop="itemListElement">
   {#if favorite.image_url !== null}
-    <Image src={favorite.image_url} alt={favorite.name}/>
+    <Image src={favorite.image_url} alt={favorite.name} />
   {/if}
   <div>
-    <h4>{favorite.name}</h4>
+    <h4 itemprop="name">{favorite.name}</h4>
     {#if favorite.dates}
       <ul class="dates">
         {#each favorite.dates as date}
-          <li>{dateToString(date, _)}</li>
+          <li>
+            <time
+              itemprop="startDate"
+              datetime={parseDate(new Date(date.date_start ? date.date_start : date.date_end ? date_end : ''))}>
+              {dateToString(date, _)}
+            </time>
+          </li>
         {/each}
       </ul>
     {/if}

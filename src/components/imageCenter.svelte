@@ -23,9 +23,7 @@
       };
 
       img.src = src;
-    }
-    else
-        start = true;
+    } else start = true;
   });
 </script>
 
@@ -51,9 +49,16 @@
     height: auto !important;
   }
 
-  .start{
-      opacity: 1;
+  .start {
+    opacity: 1;
   }
 </style>
 
-<img {src} {alt} class:vertical bind:this={image} class:autoWidth class:start/>
+<img
+  {src}
+  {alt}
+  class:vertical
+  bind:this={image}
+  class:autoWidth
+  class:start
+  itemprop="image"/>

@@ -4,13 +4,27 @@
   import { dateToString } from "/helpers/converters.js";
   import Fetcher from "/helpers/fetcher.js";
 
-  export let _, organizerEvents;
+  export let _, organizerEvents, organizerPayouts;
   let hideForm = false,
     hideApplications = false;
 
+  console.log(organizerPayouts);
+
   let tickets, additions;
 
-  const { session } = stores()
+  let allBalance = organizerEvents
+    ? organizerEvents.reduce((cur, sec) => cur + sec.balance, 0)
+    : 0;
+
+  let recipient = "";
+  let bank = "";
+  let accountNumber = "";
+  let bik = "";
+  let inn = "";
+  let kpp = "";
+  let amount = "";
+
+  const { session } = stores();
   const fetcher = new Fetcher();
 
   function getCount(ticket, bl) {
@@ -35,19 +49,80 @@
     if (!tickets) return 0;
 
     let total = 0;
-    for (let ticket of tickets)
+    for (let ticket of tickets) {
       if (ticket.count)
-        for (let count of ticket.count) total += count.count * ticket.price;
+        for (let paid of ticket.count)
+          if (paid.paid) total += paid.count * ticket.price;
+    }
 
     return total;
   }
 
-  async function downloadFile(id){
-    const response = await fetch(`/api/actions/${id}/xlsx?userId=${$session.userId}`)
+  async function downloadFile(id) {
+    const response = await fetch(
+      `/api/actions/${id}/xlsx?userId=${$session.userId}`
+    );
     const blob = await response.blob();
     const url = URL.createObjectURL(blob);
 
-    window.open(url)
+    window.open(url);
+  }
+
+  async function sendPayout() {
+    let data = {
+      recipient,
+      bank,
+      accountNumber,
+      bik,
+      inn,
+      kpp,
+      amount: Number(amount)
+    };
+
+    for (let key of Object.keys(data))
+      if (!(data[key] + "").length) {
+        alert(_("required_field_message").replace(/{field}/g, _(key)));
+        return;
+      }
+
+    if (amount > allBalance) {
+      alert(_("amount_error"));
+      return;
+    }
+
+    const payoutResult = await fetcher.post(`/api/withdraws`, {
+      userId: $session.userId,
+      ...data
+    });
+
+    console.log(payoutResult);
+
+    if (payoutResult.ok) {
+      organizerPayouts.unshift({
+        sum: amount,
+        status: "process",
+        fail_message: null
+      });
+      organizerPayouts = organizerPayouts;
+
+      organizerEvents = (await fetcher.get(
+        `/api/users/${$session.userId}/actionsWhenOrganizer`
+      )).data;
+
+      allBalance = organizerEvents
+        ? organizerEvents.reduce((cur, sec) => cur + sec.balance, 0)
+        : 0;
+
+      recipient = "";
+      bank = "";
+      accountNumber = "";
+      bik = "";
+      inn = "";
+      kpp = "";
+      amount = "";
+
+      alert(_("payout_send_message"));
+    } else alert(_("payout_send_error"));
   }
 </script>
 
@@ -129,6 +204,7 @@
     box-sizing: border-box;
     border-radius: 100px;
     box-shadow: 0px 0px 20px rgba(229, 229, 229, 0.35);
+    font-size: $LowBig_Font_Size;
   }
 
   .payment-info-block {
@@ -200,12 +276,12 @@
     & > button {
       margin-left: 115px;
       width: 200px;
-      background: #117BCD;
+      background: #117bcd;
       box-shadow: 0px 0px 70px rgba(40, 39, 49, 0.1);
       transition: 0.3s;
 
-      &:hover{
-        background: #0052B4;
+      &:hover {
+        background: #0052b4;
       }
     }
   }
@@ -247,6 +323,7 @@
 
             &:hover + div {
               visibility: visible;
+              opacity: 1;
             }
           }
 
@@ -254,11 +331,13 @@
             visibility: hidden;
             position: absolute;
             bottom: 30px;
-            right: 0;
+            left: 170px;
             background: white;
             border: $Gray;
             padding: 10px;
             width: 200px;
+            transition: 0.3s;
+            opacity: 0;
           }
         }
       }
@@ -329,13 +408,18 @@
     align-items: center;
     justify-content: space-between;
 
-    & > div {
+    li {
       font-size: 24px;
       font-weight: 600;
 
-      & > span {
+      > span {
         color: $Blue;
         margin-left: 20px;
+      }
+
+      &:last-child {
+        font-size: 20px;
+        margin-top: 15px;
       }
     }
   }
@@ -459,7 +543,7 @@
     }
   }
 
-  .rightElements{
+  .rightElements {
     justify-content: flex-end;
   }
 
@@ -642,6 +726,15 @@
       flex-direction: column;
       align-items: flex-start;
       justify-content: flex-start;
+
+      li {
+        font-size: $LowBig_Font_Size !important;
+
+        > span {
+          margin-left: 50px;
+          font-size: inherit !important;
+        }
+      }
     }
 
     .download-info-block {
@@ -715,7 +808,7 @@
   <div class="balance-block">
     <div class="balance-info-block">
       <h2>{_('balance_status')}</h2>
-      <div>10 500 {_('rub')}</div>
+      <div>{allBalance} {_('rub')}</div>
     </div>
     <button class="hide" on:click={() => (hideForm = !hideForm)}>
       <span>
@@ -733,81 +826,85 @@
           <div>
             <div>
               <label for="name">{_('recipient')}</label>
-              <input type="text" name="name" />
+              <input type="text" name="name" bind:value={recipient} />
             </div>
             <div>
               <label for="bank">{_('recipient_bank')}</label>
-              <input type="text" name="bank" />
+              <input type="text" name="bank" bind:value={bank} />
             </div>
             <div>
               <label for="number">{_('account_number')}</label>
-              <input type="text" name="number" />
+              <input type="text" name="number" bind:value={accountNumber} />
             </div>
           </div>
           <div>
             <div>
               <label for="bik">{_('bik')}</label>
-              <input type="text" name="bik" />
+              <input type="text" name="bik" bind:value={bik} />
             </div>
             <div>
               <label for="inn">{_('inn')}</label>
-              <input type="text" name="inn" />
+              <input type="text" name="inn" bind:value={inn} />
             </div>
             <div>
               <label for="kpp">{_('kpp')}</label>
-              <input type="text" name="kpp" />
+              <input type="text" name="kpp" bind:value={kpp} />
             </div>
           </div>
         </div>
         <div class="price-block">
           <label for="price">{_('amount')}</label>
           <div>
-            <input type="text" name="price" />
+            <input type="text" name="price" bind:value={amount} />
             <span class="ruble">₽</span>
           </div>
-          <button class="blue-button">{_('send_request')}</button>
+          <button class="blue-button" on:click={sendPayout}>
+            {_('send_request')}
+          </button>
         </div>
       </div>
     {/if}
-    <button
-      class="hide"
-      on:click={() => (hideApplications = !hideApplications)}>
-      <span>
-        {#if !hideApplications}
-          {_('hide_all_applications')}
-        {:else}{_('show_all_applications')}{/if}
-      </span>
-      <img src="/img/next.svg" alt="hide" class:rotate={hideApplications} />
-    </button>
-    {#if !hideApplications}
-      <div class="price-list-block" transition:slide>
-        <table class="price-list">
-          <tr>
-            <td>{_('amount')}</td>
-            <td>{_('order_status')}</td>
-          </tr>
-          <tr>
-            <td>8900{_('rub')}</td>
-            <td class="gray">{_('processed')}</td>
-          </tr>
-          <tr>
-            <td>3900{_('rub')}</td>
-            <td>
-              <div class="red">
-                {_('rejected')}
-                <button class="info">
-                  <img src="/img/tooltip.png" alt="tooltip" />
-                </button>
-                <div class="info-hover">*сообщение с ошибкой*</div>
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <td>1900{_('rub')}</td>
-            <td class="green">{_('paid')}</td>
-          </tr>
-        </table>
-      </div>
+    {#if organizerPayouts.length}
+      <button
+        class="hide"
+        on:click={() => (hideApplications = !hideApplications)}>
+        <span>
+          {#if !hideApplications}
+            {_('hide_all_applications')}
+          {:else}{_('show_all_applications')}{/if}
+        </span>
+        <img src="/img/next.svg" alt="hide" class:rotate={hideApplications} />
+      </button>
+      {#if !hideApplications}
+        <div class="price-list-block" transition:slide>
+          <table class="price-list">
+            <tr>
+              <td>{_('amount')}</td>
+              <td>{_('order_status')}</td>
+            </tr>
+            {#each organizerPayouts as payout}
+              <tr>
+                <td>{payout.sum}{_('rub')}</td>
+                {#if payout.status === 'process'}
+                  <td class="gray">{_('processed')}</td>
+                {:else if payout.status === 'rejected'}
+                  <td>
+                    <div class="red">
+                      {_('rejected')}
+                      <button class="info">
+                        <img src="/img/tooltip.png" alt="tooltip" />
+                      </button>
+                      <div class="info-hover">{payout.fail_message}</div>
+                    </div>
+                  </td>
+                {:else}
+                  <td class="green">{_('paid')}</td>
+                {/if}
+              </tr>
+            {/each}
+          </table>
+        </div>
+      {/if}
     {/if}
   </div>
 
@@ -898,10 +995,16 @@
             <hr />
             <div class="payed" class:rightElements={!event.buyable}>
               {#if event.buyable}
-                <div class="paid-info">
-                  {_('paid2')}
-                  <span>{getAllAmount(event.buyable)}{_('rub')}</span>
-                </div>
+                <ul class="paid-info">
+                  <li>
+                    {_('paid2')}
+                    <span>{getAllAmount(event.buyable)}{_('rub')}</span>
+                  </li>
+                  <li>
+                    {_('balance')}:
+                    <span>{event.balance}{_('rub')}</span>
+                  </li>
+                </ul>
               {/if}
               <div class="download-info-block">
                 <button on:click={() => downloadFile(event.id)}>

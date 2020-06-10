@@ -27,7 +27,7 @@
         <div class="input-block">
           <input
             name="password"
-            type="text"
+            type="password"
             bind:value={password}
             placeholder={_('password')} />
           <div class="img-block">

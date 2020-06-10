@@ -181,10 +181,11 @@ function formatLocations(locations, actionData) {
 
     for (let i = 0; i < locations.length; i++) {
         let location = Object.assign({}, locations[i]);
-        keys = Object.keys(location);
 
         location.locationId = location.location_id;
         delete location.location_id;
+
+        keys = Object.keys(location);
 
         let bl = false;
         for (let key of keys) {

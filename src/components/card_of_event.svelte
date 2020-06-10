@@ -1,5 +1,5 @@
 <script>
-  import { parsePrice } from "/helpers/parsers.js";
+  import { parsePrice, parseDate } from "/helpers/parsers.js";
   import i18n from "/helpers/i18n/index.js";
   import Image from "/components/imageCenter.svelte";
   import { dateToString } from "/helpers/converters.js";
@@ -42,6 +42,10 @@
     }
   }
 
+  .priceCurrency{
+    display: none;
+  }
+
   h4 {
     font-size: 24px;
     font-family: $Playfair;
@@ -54,14 +58,15 @@
     align-items: center;
     margin-top: 20px;
 
-    & > div:not(.img), ul {
+    & > div:not(.img),
+    ul {
       margin-left: 30px;
       font-size: $Mini_Font_Size;
       font-size: $LowBig_Font_Size;
       font-family: $Gilroy;
       color: #434343;
 
-      & > li:not(:first-child){
+      & > li:not(:first-child) {
         margin-top: 5px;
       }
     }
@@ -129,7 +134,7 @@
     .card {
       width: 100%;
 
-      & > *{
+      & > * {
         padding: 0 10px !important;
       }
     }
@@ -138,27 +143,28 @@
       height: 200px;
     }
 
-    h4{
+    h4 {
       font-size: $LowBig_Font_Size !important;
     }
 
-    *{
+    * {
       font-size: $LowMedium_Font_Size !important;
     }
 
-    .line{
-      & > .img{
+    .line {
+      & > .img {
         min-width: 20px;
         max-width: 20px;
         height: 20px;
         margin-left: 0 !important;
 
-        & > img{
+        & > img {
           width: 14px;
         }
       }
 
-      & > div, ul{
+      & > div,
+      ul {
         margin-left: 10px !important;
       }
     }
@@ -166,11 +172,15 @@
 </style>
 
 <div
+  itemscope
+  itemtype="http://schema.org/Event"
+  itemprop="itemListElement"
   class="card swiper-slide"
   on:click={() => {
     if (saveURL) localStorage.setItem('actionsParams', document.location.href);
     document.location.href = './event?id=' + id;
   }}>
+  <link itemprop="url" href={`./event?id=${id}`}>
   <div class="image-and-price">
     <div class="image">
       <Image
@@ -178,14 +188,23 @@
         alt="image of event"
         autoWidth={image_url === null} />
     </div>
-    <div class="price">{second_price}</div>
+    <div
+      class="price"
+      itemprop="offers"
+      itemscope
+      itemtype="http://schema.org/Offer">
+      <span itemprop="price">{second_price}</span>
+      {#if second_price !== _("free")}
+        <meta itemprop="priceCurrency" content="RUB"> ₽
+      {/if}
+    </div>
   </div>
-  <h4>{name}</h4>
+  <h4 itemprop="name">{name}</h4>
   {#if dates && dates.length !== 0}
     <ul class="date-block">
       {#each dates as date}
         <li>
-          {dateToString(date, _)}
+          <time itemprop="startDate" datetime={parseDate(new Date(date.date_start ? date.date_start : (date.date_end ? date_end : "")))}>{dateToString(date, _)}</time>
         </li>
       {/each}
     </ul>
@@ -195,17 +214,24 @@
       <div class="img">
         <img src="img/star.svg" alt="category" />
       </div>
-      <div>{subjects.join('; ')}</div>
+      <div>
+        {#each subjects as subject, i}
+          <span>{subject}</span>
+          {#if subjects.length - 1 !== i}, {/if}
+        {/each}
+      </div>
     </div>
   {/if}
   {#if locations && locations.length !== 0 && locations[0] !== null}
     <div class="line">
       <div class="img">
-        <img src="img/placeholder.svg" alt="kategory" />
+        <img src="img/placeholder.svg" alt="Category" />
       </div>
       <ul>
         {#each locations as location}
-          <li>{location.name}{location.address ? `, ${location.address}` : ""}</li>
+          <li>
+            <span itemprop="location">{location.name}{location.address ? `, ${location.address}` : ''}</span>
+          </li>
         {/each}
       </ul>
     </div>

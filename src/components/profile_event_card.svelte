@@ -1,6 +1,9 @@
 <script>
   import { parseDate } from "/helpers/parsers.js";
   import Image from "/components/imageCenter.svelte";
+  import Fetcher from "/helpers/fetcher.js";
+  import { stores } from "@sapper/app";
+  import { createEventDispatcher } from "svelte";
 
   export let action_reservation_id,
     action_id,
@@ -14,12 +17,44 @@
     _,
     prev = false;
 
+  const fetcher = new Fetcher();
+  const { session } = stores();
+  const dispatch = createEventDispatcher();
+
   if(!buyable) buyable = [];
 
   let tickets = buyable.filter(el => el.type === "ticket");
   let additions = buyable.filter(el => el.type === "additional");
 
   date = parseDate(new Date(date));
+
+  async function startPay(){
+    const payHref = await fetcher.post(`/api/actionReservations/${action_reservation_id}/pay`, {
+      userId: $session.userId
+    })
+
+    if(payHref.ok)
+      document.location.href = payHref.data;
+    else
+      alert(_("transaction_error"))
+  }
+
+  async function canselReservation(){
+    if(confirm(_("cansel_reservation_message"))){
+      const canselResult = await fetcher.delete(`/api/actionReservations/${action_reservation_id}`, {
+        query: {
+          userId: $session.userId
+        }
+      })
+
+      console.log(canselResult);
+
+      if(canselResult.ok)
+        dispatch("canselReservation");
+      else
+        alert(_("cansel_reservation_error"))
+    }
+  }
 </script>
 
 <style lang="scss">
@@ -134,7 +169,7 @@
         inset 0px 0px 50px rgba(255, 255, 255, 0.15);
       transition: 0.3s;
 
-      &:hover{
+      &:not(.cansel):hover{
         background: #0052B4;
       }
     }
@@ -294,10 +329,10 @@
         </p>
         {#if !paid}
           <div class="buttons">
-            <button class="blue-button cansel">
+            <button class="blue-button cansel" on:click={canselReservation}>
               {_('cansel_reservation')}
             </button>
-            <button class="blue-button">{_('pay_ticket')}</button>
+            <button class="blue-button" on:click={startPay}>{_('pay_ticket')}</button>
           </div>
         {/if}
       {/if}
@@ -307,8 +342,8 @@
   </div>
   {#if !paid && !prev}
     <div class="mobile-buttons">
-      <button class="blue-button cansel">{_('cansel_reservation')}</button>
-      <button class="blue-button">{_('pay_ticket')}</button>
+      <button class="blue-button cansel" on:click={canselReservation}>{_('cansel_reservation')}</button>
+      <button class="blue-button" on:click={startPay}>{_('pay_ticket')}</button>
     </div>
   {/if}
 </div>

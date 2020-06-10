@@ -40,7 +40,11 @@
       credentials: "same-origin"
     })).data;
 
-    return { locale, section, userInfo, subjectsInfo, reservations, organizerEvents};
+    let organizerPayouts = (await fetcher.get(`/api/users/${session.userId}/withdraws`, {
+      credentials: "same-origin"
+    })).data;
+
+    return { locale, section, userInfo, subjectsInfo, reservations, organizerEvents, organizerPayouts};
   }
 </script>
 
@@ -53,7 +57,7 @@
   import { goto } from "@sapper/app";
   import i18n from "/helpers/i18n/index.js";
 
-  export let locale, section, userInfo, subjectsInfo, reservations, organizerEvents;
+  export let locale, section, userInfo, subjectsInfo, reservations, organizerEvents, organizerPayouts;
 
   const _ = i18n( locale );
 
@@ -116,8 +120,8 @@
     <Settings {userInfo} {...userInfo} {subjectsInfo} {_}/>
   {:else if section === 'actions'}
     <Actions {_} {reservations}/>
-  {:else if section === 'organizer'}
-    <Organizer {_} {organizerEvents}/>
+  {:else if section === 'organizer' && organizerEvents.length}
+    <Organizer {_} {organizerEvents} {organizerPayouts}/>
   {/if}
 </div>
 

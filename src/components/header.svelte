@@ -12,8 +12,7 @@
   import ClickOutside from "/components/clickOutside.svelte";
 
   export let locale,
-    mobile,
-    compiliations = [],
+      compiliations = [],
     subjects = [],
     searchText = "",
     transp = false;

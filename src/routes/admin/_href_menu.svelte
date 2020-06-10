@@ -138,6 +138,12 @@
     href="./admin/favorites">
     {_("featured_events")}
   </a>
+  <a
+    class="category-href"
+    class:active-page={page === 9}
+    href="./admin/payouts">
+    {_("payouts")}
+  </a>
   <div class="bottom">
     <select
       bind:value={secondLanguage}

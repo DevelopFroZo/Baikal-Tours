@@ -61,8 +61,8 @@
   </div>
   {#if section === 'next'}
     {#if secondActions.length !== 0}
-      {#each secondActions as action}
-        <Action {...action} {_} />
+      {#each secondActions as action, i}
+        <Action {...action} {_} on:canselReservation={() => {secondActions.splice(i, 1); secondActions = secondActions;}}/>
       {/each}
     {:else}
       <h2 class="not-found">{_("next_events_not_found")}</h2>

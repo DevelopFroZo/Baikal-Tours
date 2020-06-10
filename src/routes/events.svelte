@@ -940,7 +940,7 @@
     on:closeFilter={closeFilter}
     on:closePrice={closePrice} />
 
-  <div class="selections-block">
+  <div class="selections-block" itemscope itemtype="http://schema.org/ItemList">
     {#each result_favorites as favorite}
       <SimilarEvent {_} {favorite} />
     {/each}
@@ -954,7 +954,7 @@
     </button>
   </div>
 
-  <div class="cards-block" bind:this={head}>
+  <div class="cards-block" bind:this={head} itemscope itemtype="http://schema.org/ItemList">
     {#each cards as cardInfo (cardInfo.id)}
       <Card {...cardInfo} {locale} />
     {/each}
