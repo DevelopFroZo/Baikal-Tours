@@ -60,6 +60,22 @@
     }
     else alert(result.message)
   }
+
+  async function logout(){
+
+    $session.isLogged = false;
+    $session.name = "";
+    $session.surname = "";
+    $session.email = "";
+    $session.userId = 0;
+    $session.role = "user";
+
+    const result = await fetch(`/logout`, {
+      type: "GET"
+    });
+
+    document.location.href = "/";
+  }
 </script>
 
 <style lang="scss">
@@ -572,7 +588,7 @@
         <a href="./profile?section=settings" class="my-page">
           {`${$session.name} ${$session.surname}`}
         </a>
-        <a class="logout" href="/logout">{_('logout')}</a>
+        <button class="logout" on:click={logout}>{_('logout')}</button>
       {/if}
     </div>
     <div class="navigate-block">

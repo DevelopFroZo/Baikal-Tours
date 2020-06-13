@@ -23,6 +23,11 @@
     let result = await fetcher.post("/api/signin", data);
 
     if (result.ok){
+      $session.email = result.data.email;
+      $session.name = result.data.name;
+      $session.surname = result.data.surname;
+      $session.userId = result.data.userId;
+      $session.isLogged = true;
       document.location.href =
         page.query.redirect === undefined ? parseUrlByPage(page, ["window"], {}) : page.query.redirect;
     }

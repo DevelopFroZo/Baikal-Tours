@@ -1,11 +1,14 @@
 <script>
   import { fade } from "svelte/transition";
   import { createEventDispatcher } from "svelte";
+  import { stores } from "@sapper/app";
   import Register from "./start_register.svelte";
   import ConfirmPassword from "./confirm_password.svelte";
   import { parseUrlByPage } from "/helpers/parsers.js";
 
   export let _, fetcher, page;
+
+  const { session } = stores();
 
   let registerStatus;
 
@@ -38,6 +41,13 @@
 
     if (result.ok) {
       localStorage.removeItem("email");
+
+      $session.email = result.data.email;
+      $session.name = result.data.name;
+      $session.surname = result.data.surname;
+      $session.userId = result.data.userId;
+      $session.isLogged = true;
+
       document.location.href = parseUrlByPage(page, ["window"], {});
     } else {
       alert(result.message);
