@@ -21,5 +21,10 @@ export async function post( req, res ){
   req.session.userId = result.data.userId;
   req.session.role = result.data.role;
 
-  res.success();
+  res.success( 0, {
+    name: result.data.name,
+    surname: result.data.surname,
+    email: result.data.email,
+    userId: result.data.userId
+  } );
 }
