@@ -53,6 +53,7 @@ export async function post( req, res ){
     req.session.isLogged = true;
     req.session.name = result.data.name;
     req.session.surname = result.data.surname;
+    req.session.phone = result.data.phone;
     req.session.email = result.data.email;
     req.session.userId = result.data.userId;
     req.session.role = result.data.role;
