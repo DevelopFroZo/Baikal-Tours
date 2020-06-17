@@ -6,7 +6,8 @@ export {
     setFilterData,
     setFilterFromUrl,
     showActiveFilters,
-    parseFilterDataForHotels
+    parseFilterDataForHotels,
+    setNewLocationsData
 }
 
 function setFilterData(res) {
@@ -20,6 +21,20 @@ function setFilterData(res) {
         });
     }
 
+    return data;
+}
+
+function setNewLocationsData(locations){
+    let data = [];
+    for(let location of locations){
+        location.value = location.name;
+        delete location.name;
+        data.push({
+            ...location,
+            active: false
+        })
+    }
+    
     return data;
 }
 

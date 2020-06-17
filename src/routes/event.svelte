@@ -20,10 +20,10 @@
 
       if(result_action.excursions.length < 3 || result_action.excursions.length < 3 || result_action.tours.length < 3){
         let findedLocations = [];
-        for(let { location_id } of result_action.locations)
-          if(findedLocations[location_id] === undefined){
-            locationIds.push(location_id);
-            findedLocations[location_id] = location_id;
+        for(let { location2_id } of result_action.locations)
+          if(findedLocations[location2_id] === undefined){
+            locationIds.push(location2_id);
+            findedLocations[location2_id] = location2_id;
           }
       }
 
@@ -243,10 +243,10 @@
   }
 
   function changeAllData(){
-    userName = "";
-    surname = "";
-    userPhone = "";
-    userMail = "";
+    userName = $session.name;
+    surname = $session.surname;
+    userPhone = $session.phone;
+    userMail = $session.email;
     tickets = [];
     additionals = [];
     ticketsWithCount = [];

@@ -4,7 +4,8 @@
     parseFilterData,
     setFilterData,
     setFilterFromUrl,
-    showActiveFilters
+    showActiveFilters,
+    setNewLocationsData
   } from "/helpers/filter.js";
   import { isMobile } from "/helpers/validators.js";
   import { parseStringToWords } from "/helpers/parsers.js";
@@ -49,7 +50,7 @@
       compiliationQuery,
       result_favorites;
 
-    filter[1] = setFilterData(result_filters.data.locations);
+    filter[1] = setNewLocationsData(result_filters.data.locations);
     filter[2] = setFilterData(result_filters.data.companions);
     filter[3] = setFilterData(result_filters.data.subjects);
 
@@ -245,7 +246,8 @@
     innerHeight,
     compiliations,
     swiper = null,
-    visibleCards = 0;
+    visibleCards = 0,
+    cardFilter;
 
   let options = [];
 
@@ -269,11 +271,16 @@
     visibleCards += 15;
 
   function checkActiveFilter() {
+    let pFilter = parseFilterData(filter).params;
     if (showFilter) {
-      parseFilter = parseFilterData(filter).params;
+      parseFilter = pFilter
       date = parseDateForActiveFilter(filter);
       price = parsePriceForActiveFilter(filter, _);
     }
+    
+    if (Object.keys(pFilter).length > 1)
+      cardFilter = `/map${fetcher.makeQuery({ query: pFilter })}`;
+    else cardFilter = `/map`;
   }
 
   function changeFilter() {
@@ -389,6 +396,14 @@
 
 <style lang="scss">
   @import "./styles/global";
+
+  .secondLocation{
+    padding-left: 30px !important;
+  }
+
+  .thridLocation{
+    padding-left: 45px !important;
+  }
 
   .form-width {
     margin: 15px auto 15px;
@@ -595,7 +610,7 @@
       margin: 0;
     }
 
-    & > button {
+    & > a {
       border-radius: 100px;
       background: #117BCD;
       box-shadow: 0px 23px 70px rgba(77, 80, 98, 0.1),
@@ -803,6 +818,7 @@
           <div class="option" bind:this={options[0].option} transition:slide>
             {#each filter[1] as city, i}
               <div
+                class:secondLocation={city.n1 && !city.n2} class:thridLocation={city.n1 && city.n2}
                 on:click={() => {
                   city.active = !city.active;
                   animateScroll.scrollTo({ offset: scrollY, duration: 300 });
@@ -948,10 +964,10 @@
 
   <div class="more-events">
     <h2>{_('all_events')}</h2>
-    <button class="show-card" on:click={showCard}>
+    <a class="show-card" href={cardFilter}>
       {_('show_on_card')}
       <img src="/img/placeholder-map.svg" alt="placeholder" />
-    </button>
+    </a>
   </div>
 
   <div class="cards-block" bind:this={head} itemscope itemtype="http://schema.org/ItemList">

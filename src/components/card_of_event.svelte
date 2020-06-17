@@ -171,15 +171,13 @@
   }
 </style>
 
-<div
+<a
   itemscope
   itemtype="http://schema.org/Event"
   itemprop="itemListElement"
   class="card swiper-slide"
-  on:click={() => {
-    if (saveURL) localStorage.setItem('actionsParams', document.location.href);
-    document.location.href = './event?id=' + id;
-  }}>
+  href="./event?id={id}"
+  >
   <link itemprop="url" href={`./event?id=${id}`}>
   <div class="image-and-price">
     <div class="image">
@@ -236,4 +234,4 @@
       </ul>
     </div>
   {/if}
-</div>
+</a>

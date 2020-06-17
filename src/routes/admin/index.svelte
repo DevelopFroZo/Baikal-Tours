@@ -4,7 +4,8 @@
     setFilterData,
     parseFilterDataForAdmin,
     setFilterFromUrl,
-    showActiveFilters
+    showActiveFilters,
+    setNewLocationsData
   } from "/helpers/filter.js";
   import { parseStringToWords } from "/helpers/parsers.js";
 
@@ -43,7 +44,7 @@
     });
 
     filter.subjects = setFilterData(result_filters.data.subjects);
-    filter.locations = setFilterData(result_filters.data.locations);
+    filter.locations = setNewLocationsData(result_filters.data.locations);
 
     let paramsKeys = Object.keys(params);
 
@@ -445,7 +446,13 @@
     border-radius: 0;
   }
 
+  .secondLocation{
+    padding-left: 15px !important;
+  }
 
+  .thridLocation{
+    padding-left: 30px !important;
+  }
 </style>
 
 <svelte:head>
@@ -535,6 +542,7 @@
           <div class="option" bind:this={options[1].option}>
             {#each filter.locations as location}
               <div
+                class:secondLocation={location.n1 && !location.n2} class:thridLocation={location.n1 && location.n2}
                 on:click={() => {
                   location.active = !location.active;
                   changeFilter();
