@@ -42,11 +42,10 @@ async function getAll( client, count, offset, search, locationIds, bookingLocati
     params.push( search );
   }
 
-  // #fix
-  // if( locationIds !== null ){
-  //   filters.push( `h.location_id = any( $${i++} )` );
-  //   params.push( locationIds );
-  // }
+  if( locationIds !== null ){
+    filters.push( `bl.location2_id = any( $${i++} )` );
+    params.push( locationIds );
+  }
 
   if( bookingLocationIds !== null ){
     filters.push( `h.booking_location_id = any( $${i++} )` );

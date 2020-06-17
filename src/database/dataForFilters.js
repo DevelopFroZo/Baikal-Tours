@@ -11,8 +11,8 @@ export default class extends Foundation{
     const transaction = await super.transaction();
 
     const locations = ( await transaction.query(
-      `select id, name
-      from locations
+      `select id, n0, n1, n2, name
+      from locations2
       where locale = $1
       order by id`,
       [ locale ]

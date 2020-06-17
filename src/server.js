@@ -66,6 +66,7 @@ server.use( ( req, res, next ) => {
   if( !req.session.name ) req.session.name = "";
   if( !req.session.surname ) req.session.surname = "";
   if( !req.session.email ) req.session.email = "";
+  if( !req.session.phone ) req.session.phone = "";
   if( !req.session.userId ) req.session.userId = 0;
   if( !req.session.role ) req.session.role = "user";
   if( !req.session.locale ) req.session.locale = "ru";
