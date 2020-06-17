@@ -51,10 +51,10 @@ export default class extends Foundation{
       		on a.id = acsu.action_id
       		left join subjects as s
       		on acsu.subject_id = s.id and s.locale = $1
-      		left join actions_locations as al
-      		on a.id = al.action_id
-      		left join locations as l
-      		on al.location_id = l.id and l.locale = $1
+      		left join actions_locations2 as al2
+      		on a.id = al2.action_id
+      		left join locations2 as l2
+      		on al2.location2_id = l2.id and l2.locale = $1
       		left join action_buyable as ab
       		on a.id = ab.action_id and ab.type = 'ticket',
       		actions_translates as at
@@ -74,15 +74,15 @@ export default class extends Foundation{
 
     const { rows: locations } = await super.query(
       `select
-        al.action_id, al.address, al.coords,
-        l.name
+        al2.action_id, al2.address, al2.coords,
+        l2.name
       from
-        actions_locations as al,
-        locations as l
+        actions_locations2 as al2,
+        locations2 as l2
       where
-        l.locale = $1 and
+        l2.locale = $1 and
         action_id = any( $2 ) and
-        al.location_id = l.id`,
+        al2.location2_id = l2.id`,
       [ locale, actionIds ]
     );
 
@@ -133,7 +133,7 @@ export default class extends Foundation{
     }
 
     if( locations ){
-      filters.push( `al.location_id = any( $${i++} )` );
+      filters.push( `al2.location2_id = any( $${i++} )` );
       params.push( locations );
     }
 
@@ -199,8 +199,8 @@ export default class extends Foundation{
       		on a.id = ab.action_id
           left join action_images as ai
           on a.id = ai.action_id and ai.is_main = true
-      		left join actions_locations as al
-      		on a.id = al.action_id
+      		left join actions_locations2 as al2
+      		on a.id = al2.action_id
       		left join actions_companions as ac
       		on a.id = ac.action_id
       		left join actions_subjects as asu
@@ -238,15 +238,15 @@ export default class extends Foundation{
 
     const { rows: locations_ } = await super.query(
       `select
-        al.action_id, al.address, al.coords,
-        l.name
+        al2.action_id, al2.address, al2.coords,
+        l2.name
       from
-        actions_locations as al,
-        locations as l
+        actions_locations2 as al2,
+        locations2 as l2
       where
-        l.locale = $1 and
+        l2.locale = $1 and
         action_id = any( $2 ) and
-        al.location_id = l.id`,
+        al2.location2_id = l2.id`,
       [ locale, actionIds ]
     );
 
@@ -326,18 +326,18 @@ export default class extends Foundation{
     ) ).rows;
 
     main.locations = ( await transaction.query(
-      `select l.id as location_id, l.name, al.id, al.address, al.coords
+      `select l2.id as location_id, l2.name, al2.id, al2.address, al2.coords
       from
-        actions_locations as al,
-        locations as l
+        actions_locations2 as al2,
+        locations2 as l2
       where
-        al.action_id = $1 and
-        l.locale = $2 and
-        l.id = al.location_id`,
+        al2.action_id = $1 and
+        l2.locale = $2 and
+        l2.id = al2.location2_id`,
       [ id, locale ]
     ) ).rows;
 
-    main.locations2 = ( await transaction.query(
+    main.locations2 = main.locations;/*( await transaction.query(
       `select
       	al2.address, al2.coords,
       	l2.id, l2.name
@@ -348,7 +348,7 @@ export default class extends Foundation{
       	al2.action_id = $1 and
       	al2.location2_id = l2.id`,
       [ id ]
-    ) ).rows;
+    ) ).rows;*/
 
     main.subjects = ( await transaction.query(
       `select s.id, s.name
