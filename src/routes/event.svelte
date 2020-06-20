@@ -131,7 +131,7 @@
   import { fade } from "svelte/transition";
   import isValidActionDate from "/helpers/isValidActionDate.js";
   import YandexMap from "/components/yandexMap/index.svelte";
-  import { imask } from 'svelte-imask';
+  import imask from "/helpers/svelte-imask.js";
   import ClickOutside from "/components/clickOutside.svelte";
   import Swiper from "swiper";
 
@@ -182,7 +182,8 @@
     showGallary = false,
     priceMin = null,
     priceMax = null,
-    reservationId = null;
+    reservationId = null,
+    mask;
 
   $: {
     total = 0;
@@ -2226,18 +2227,21 @@
                       placeholder="ДД.ММ.ГГГГ" 
                       bind:this={dateInput}
                       on:focus={() => showDatePicker = true}
+                      on:init={({detail: mask2}) => mask = mask2}
                       />
                     <div class="img-block">
                       <img src="/img/calendar.png" alt="date">
                     </div>
                     <div class="all-dates">
                       <ClickOutside on:clickoutside={() => showDatePicker = false} exclude={[dateInput]} hideByExclude={false}>
-                        {#if showDatePicker && userDate.length < 10}
+                        {#if showDatePicker}
                           <ul class="date-list" transition:slide>
-                            {#each visibleDates.filter(el => userDate.length ? reverseDate(el).indexOf(userDate) === 0 : true) as date}
+                            {#each userDate.length === 10 ? visibleDates : visibleDates.filter(el => userDate.length ? reverseDate(el).indexOf(userDate) === 0 : true) as date}
                               <li>
                                 <button on:click={() => {
                                   userDate = reverseDate(date);
+                                  mask.typedValue = userDate;
+                                  mask.updateValue();
                                   showDatePicker = false;
                                 }}>
                                   {reverseDate(date)}
@@ -2340,7 +2344,7 @@
       <div class="banners-block">
         <div class="banners-info">
           <h2>{_('hotels_nearby')}</h2>
-          <a href="https://fanatbaikala.ru/tours" target="_blank">{_('more_hotels')}</a>
+          <a href="https://www.booking.com/discover/region/ru/irkutsk.ru.html" rel="nofollow" target="_blank">{_('more_hotels')}</a>
         </div>
         <div class="banners">
           {#each result_action.hotels as hotel}

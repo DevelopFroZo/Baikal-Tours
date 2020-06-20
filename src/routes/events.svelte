@@ -430,6 +430,11 @@
 
     &.date {
       position: relative;
+      -moz-user-select: -moz-none;
+      -o-user-select: none;
+      -khtml-user-select: none;
+      -webkit-user-select: none;
+      user-select: none;   
 
       &:last-child {
         margin-left: 30px;
@@ -453,11 +458,15 @@
   }
 
   .date::-webkit-calendar-picker-indicator {
-    background-color: transparent;
     position: absolute;
-    right: 3px;
-    top: 50%;
-    transform: translateY(-50%);
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: auto;
+    height: auto;
+    color: transparent;
+    background: transparent;
   }
 
   .filters {

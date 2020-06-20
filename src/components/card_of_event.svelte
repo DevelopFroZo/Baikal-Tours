@@ -213,10 +213,7 @@
         <img src="img/star.svg" alt="category" />
       </div>
       <div>
-        {#each subjects as subject, i}
-          <span>{subject}</span>
-          {#if subjects.length - 1 !== i}, {/if}
-        {/each}
+        {subjects.join(", ")}
       </div>
     </div>
   {/if}
