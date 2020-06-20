@@ -108,12 +108,14 @@
       disabled={section === 'actions'}>
       {_("my_events")}
     </button>
-    <button
-      class:active={section === 'organizer'}
-      on:click={() => setSection('organizer')}
-      disabled={section === 'organizer'}>
-      {_("organizer_office")}
-    </button>
+    {#if organizerEvents.length}
+      <button
+        class:active={section === 'organizer'}
+        on:click={() => setSection('organizer')}
+        disabled={section === 'organizer'}>
+        {_("organizer_office")}
+      </button>
+    {/if}
   </div>
 
   {#if section === 'settings'}

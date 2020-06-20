@@ -67,7 +67,38 @@
   }
 
   async function sendPayout() {
-    let data = {
+    let data = [
+      {
+        value: recipient,
+        name: "recipient"
+      },
+      {
+        value: bank,
+        name: "recipient_bank"
+      },
+      {
+        value: accountNumber,
+        name: "account_number"
+      },
+      {
+        value: bik,
+        name: "bik"
+      },
+      {
+        value: inn,
+        name: "inn"
+      },
+      {
+        value: kpp,
+        name: "kpp"
+      },
+      {
+        value: Number(amount),
+        name: "amount"
+      }
+    ];
+
+    let sendData = {
       recipient,
       bank,
       accountNumber,
@@ -77,9 +108,9 @@
       amount: Number(amount)
     };
 
-    for (let key of Object.keys(data))
-      if (!(data[key] + "").length) {
-        alert(_("required_field_message").replace(/{field}/g, _(key)));
+    for (let key of data)
+      if (!(key.value + "").length) {
+        alert(_("required_field_message").replace(/{field}/g, _(key.name)));
         return;
       }
 
@@ -90,7 +121,7 @@
 
     const payoutResult = await fetcher.post(`/api/withdraws`, {
       userId: $session.userId,
-      ...data
+      ...sendData
     });
 
     if (payoutResult.ok) {
@@ -880,7 +911,7 @@
             </tr>
             {#each organizerPayouts as payout}
               <tr>
-                <td>{payout.sum}{_('rub')}</td>
+                <td>{payout.sum} {_('rub')}</td>
                 {#if payout.status === 'process'}
                   <td class="gray">{_('processed')}</td>
                 {:else if payout.status === 'rejected'}

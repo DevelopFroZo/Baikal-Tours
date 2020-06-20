@@ -15,9 +15,9 @@
       price: null
     };
 
-    let locations = (await fetcher.get("/api/dataForFilters", {
+    let locations = (await fetcher.get("/api/locations", {
       credentials: "same-origin"
-    })).data.locations;
+    })).data;
 
     if (id) {
       excursion_data = (await fetcher.get(`/api/excursions/${id}`, {

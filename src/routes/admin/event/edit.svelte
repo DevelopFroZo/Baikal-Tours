@@ -48,6 +48,10 @@
       credentials: "same-origin"
     });
 
+    let allLocations = (await fetcher.get(`/api/locations`, {
+      credentials: "same-origin"
+    })).data;
+
     let result_users = await fetcher.get("/api/users", {
       credentials: "same-origin"
     });
@@ -103,7 +107,8 @@
         allTours,
         allHotels,
         hotelsCount,
-        newLocations
+        newLocations,
+        allLocations
       };
     }
       
@@ -170,7 +175,8 @@
     buyable = [],
     hotelsCount,
     locations2 = [],
-    newLocations;
+    newLocations,
+    allLocations;
 
   const fetcher = new Fetcher();
   const _ = i18n(locale);
@@ -237,6 +243,8 @@
     mapIsLoad = false,
     newLocationsData = [];
 
+  console.log(locations, allLocations)
+
   if (organizer_payment !== null) participation = "organizer";
   else if (site_payment === true) participation = "site";
 
@@ -259,8 +267,6 @@
 
   if((!actionData.title || !actionData.title.length) && actionId)
     title = actionData.name;
-
-  $: console.log(newData);
 
   //Title
   $: {
@@ -347,6 +353,8 @@
       "location2Ids",
       newLocationsData
     )
+
+    console.log(newLocationsData)
   }
 
   //Тематики
@@ -428,6 +436,8 @@
       newData
     );
   }
+
+  $: console.log(newData)
 
   //Контактные лица
   $: {
@@ -885,8 +895,10 @@
           });
           
       if(data.del)
-        for(let id of data.del)
-          await fetcher.delete(`/api/actions/${actionId}/locations2/${id}`)
+        for(let id of data.del){
+          let result = await fetcher.delete(`/api/actions/${actionId}/locations2/${id}`);
+        }
+          
         
     }
 
@@ -2090,7 +2102,7 @@
             </label>
             <select name="location" bind:value={location.location_id}>
               <option value={null} />
-              {#each result_filters.locations as locationName}
+              {#each allLocations as locationName}
                 <option value={locationName.id}>{locationName.name}</option>
               {/each}
             </select>
@@ -2678,7 +2690,7 @@
   {hotelsCount} 
   {fetcher} 
   {hotelsCount} 
-  locations={result_filters.locations} 
+  locations={allLocations} 
   on:change={addHotel}
   {_}
   on:closeWindow={() => showHotels = false}

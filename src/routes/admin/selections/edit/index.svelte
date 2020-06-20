@@ -21,6 +21,10 @@
       }
     })).actions;
 
+    let allLocations = (await fetcher.get(`/api/locations`, {
+      credentials: "same-origin"
+    })).data;
+
     if (compiliationUrl) {
       compiliationData = await fetcher.get(
         `/api/compiliations/${compiliationUrl}`,
@@ -57,7 +61,8 @@
         result_filters,
         result_actions,
         ...compiliationData,
-        compiliationData
+        compiliationData,
+        allLocations
       };
 
     this.error(404, "page not found");
@@ -89,7 +94,8 @@
     dates,
     location_ids,
     subject_ids,
-    image_url;
+    image_url,
+    allLocations;
 
   const _ = i18n(locale);
   const fetcher = new Fetcher();
@@ -216,7 +222,7 @@
       location_ids = [];
     }
 
-    locationsNames = edit.getNamesById(result_filters.locations, location_ids);
+    locationsNames = edit.getNamesById(allLocations, location_ids);
 
     newData = edit.validateEditArray(
       location_ids,
@@ -757,7 +763,7 @@
                 class="option"
                 class:option-visible={options[1].isVisible}
                 bind:this={options[1].option}>
-                {#each result_filters.locations as location}
+                {#each allLocations as location}
                   <div
                     on:click={() => (location_ids = edit.parseDataToIds(location_ids, location.id))}>
                     <label>{location.name}</label>
