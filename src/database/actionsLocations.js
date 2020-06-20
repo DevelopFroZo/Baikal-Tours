@@ -38,7 +38,7 @@ export default class extends Foundation{
     if( client === undefined ) client = this.modules.pool;
 
     await client.query(
-      `insert into actions_locations( action_id, location_id, address, coords )
+      `insert into actions_locations2( action_id, location2_id, address, coords )
       values ${values}`,
       params
     );
@@ -50,7 +50,7 @@ export default class extends Foundation{
     let i = 2;
 
     if( typeof locationId === "number" ){
-      sets.push( `location_id = $${i++}` );
+      sets.push( `location2_id = $${i++}` );
       params.push( locationId );
     }
 
@@ -70,7 +70,7 @@ export default class extends Foundation{
     sets = sets.join( "," );
 
     await client.query(
-      `update actions_locations
+      `update actions_locations2
       set ${sets}
       where id = $1`,
       params
@@ -83,7 +83,7 @@ export default class extends Foundation{
     if( client === undefined ) client = this.modules.pool;
 
     await client.query(
-      `delete from actions_locations
+      `delete from actions_locations2
       where id = any( $1 )`,
       [ actionLocationIds ]
     );
