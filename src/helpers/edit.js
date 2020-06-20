@@ -204,7 +204,7 @@ function formatLocations(locations, actionData) {
             let location = actionData.locations[i]
             let bl = true;
             for (let j = 0; j < data.length; j++) {
-                if (location.id === data[i].id) {
+                if (location.id === data[j].id) {
                     bl = false;
                     break;
                 }

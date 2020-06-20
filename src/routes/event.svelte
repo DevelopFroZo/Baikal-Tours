@@ -20,7 +20,7 @@
 
       if(result_action.excursions.length < 3 || result_action.excursions.length < 3 || result_action.tours.length < 3){
         let findedLocations = [];
-        for(let { location_id } of result_action.locations2)
+        for(let { location_id } of result_action.locations)
           if(findedLocations[location_id] === undefined){
             locationIds.push(location_id);
             findedLocations[location_id] = location_id;

@@ -131,6 +131,7 @@
   import YandexMap from "/components/yandexMap/index.svelte";
   import HotelsWindow from "./_hotels_window.svelte";
   import UsersBlock from "./_users_window.svelte";
+  import LocationsList from "/components/adminLocations.svelte";
 
   export let actionId,
     result_filters,
@@ -243,8 +244,6 @@
     mapIsLoad = false,
     newLocationsData = [];
 
-  console.log(locations, allLocations)
-
   if (organizer_payment !== null) participation = "organizer";
   else if (site_payment === true) participation = "site";
 
@@ -340,23 +339,6 @@
     );
   }
 
-  //Локации2
-  $: {
-    if(!locations2.length) add2Location();
-
-    let location2Data = locations2.map(el => {return el.id}).filter(el => el);
-    let oldLocation2Data = actionData.locations2.map(el => {return el.id}).filter(el => el);
-
-    newLocationsData = edit.formatArrays(
-      location2Data,
-      oldLocation2Data,
-      "location2Ids",
-      newLocationsData
-    )
-
-    console.log(newLocationsData)
-  }
-
   //Тематики
   $: {
     if (subjects === null) {
@@ -436,8 +418,6 @@
       newData
     );
   }
-
-  $: console.log(newData)
 
   //Контактные лица
   $: {
@@ -2059,40 +2039,6 @@
       {/each}
     </div>
 
-    <div class="new-locations">
-      <label>
-        {_('new_location')}
-      </label>
-      {#each locations2 as location, i}
-        <div class="new-location-block">
-          <button class="new-location-button" bind:this={location.button} on:click={() => location.isShow = true}>
-            {edit.getLocationNameById(newLocations, location.id)}
-          </button>
-          <ClickOutside on:clickoutside={() => location.isShow = false} exclude={[location.button]}>
-            {#if location.isShow}
-              <ul class="new-locations">
-                {#each newLocations as newLocation}
-                  <li class:secondLocation={newLocation.n1 && !newLocation.n2} class:thridLocation={newLocation.n1 && newLocation.n2}>
-                    <button on:click={() => {
-                      location.id = newLocation.id;
-                      location.isShow = false;
-                    }}>{newLocation.name}</button>
-                  </li>
-                {/each}
-              </ul>
-            {/if}
-          </ClickOutside>
-          <button class="add-location2" on:click={add2Location}> + </button>
-          {#if i === locations2.length - 1}
-            <button class="delete-location2" on:click={() => {
-              locations2.splice(i, 1);
-              locations2 = locations2;
-            }}> <img src="/img/cross.svg" alt="add"> </button>
-          {/if}
-        </div>
-      {/each}
-    </div>
-
     <div class="locations-block">
       {#each locations as location, i}
         <div class="location-block">
@@ -2100,12 +2046,14 @@
             <label for="location" class:hide-label={i !== 0}>
               {_('location')}
             </label>
-            <select name="location" bind:value={location.location_id}>
-              <option value={null} />
-              {#each allLocations as locationName}
-                <option value={locationName.id}>{locationName.name}</option>
-              {/each}
-            </select>
+            <LocationsList 
+              allLocations={newLocations}
+              changedLocation={location.location_id}
+              on:change={({detail}) => {
+                console.log(detail, location)
+                location.location_id = detail.id;
+              }}
+            />
           </div>
 
           <div class="location-name">
