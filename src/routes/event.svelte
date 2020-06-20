@@ -20,10 +20,10 @@
 
       if(result_action.excursions.length < 3 || result_action.excursions.length < 3 || result_action.tours.length < 3){
         let findedLocations = [];
-        for(let { location2_id } of result_action.locations)
-          if(findedLocations[location2_id] === undefined){
-            locationIds.push(location2_id);
-            findedLocations[location2_id] = location2_id;
+        for(let { location_id } of result_action.locations2)
+          if(findedLocations[location_id] === undefined){
+            locationIds.push(location_id);
+            findedLocations[location_id] = location_id;
           }
       }
 
@@ -70,7 +70,7 @@
       if(result_action.hotels.length < 3){
         let hotels;
 
-        if(locationIds.length){
+        if(locationIds && locationIds.length){
           hotels = (await fetcher.get(`/api/hotels`, {
             credentials: "same-origin",
             query: {
