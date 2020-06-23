@@ -14,6 +14,20 @@ export default ( {
   "date_to_string.in": "在",
   "date_to_string.year": "年",
 
+  // #fix
+  "january.PC": "january",
+  "february.PC": "february",
+  "march.PC": "march",
+  "april.PC": "april",
+  "may.PC": "may",
+  "june.PC": "june",
+  "july.PC": "july",
+  "august.PC": "august",
+  "september.PC": "september",
+  "october.PC": "october",
+  "november.PC": "november",
+  "december.PC": "december",
+
   every_day: "每一天",
   "monday.short": "星期一",
   "tuesday.short": "星期二",
