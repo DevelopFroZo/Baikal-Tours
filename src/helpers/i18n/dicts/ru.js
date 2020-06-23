@@ -10,6 +10,9 @@ export default ( {
 
   "date_to_string.start": "с",
   "date_to_string.end": "до",
+  "date_to_string.by": "по",
+  "date_to_string.in": "в",
+  "date_to_string.year": "года",
 
   every_day: "каждый день",
   "monday.short": "ПН",
@@ -341,7 +344,7 @@ export default ( {
   pay:                        "Оплатить",
   date_not_correct:           "Событие не проходит в выбранный день",
   event_calendar_info:        "При поддержке Агентства по туризму Иркутской области и Центра кластерного развития",
-  
+
   name2:                      "Наименование",
   booked:                     "Забронировано",
   paid3:                      "Оплачено",
@@ -395,7 +398,7 @@ export default ( {
   new_hotel:                  "Новый отель",
 
   events_for_main:            "Изрбанные для главной",
-  
+
   delete_second_location:     "Удалить локацию",
   new_location:               "Новая локация",
   pasting_event:              "Добавляем событие",

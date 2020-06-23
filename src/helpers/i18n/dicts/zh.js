@@ -10,6 +10,9 @@ export default ( {
 
   "date_to_string.start": "從",
   "date_to_string.end": "到",
+  "date_to_string.by": "到",
+  "date_to_string.in": "在",
+  "date_to_string.year": "年",
 
   every_day: "每一天",
   "monday.short": "星期一",
@@ -204,7 +207,7 @@ export default ( {
   organizer_site_href:            "链接到组织者的页面",
 
   search:                         "搜索",
-  locations:                      "地點", 
+  locations:                      "地點",
   transfers:                      "班车服务",
   image_not_load:                 "图像{img}无法上传，因为它超过了1MB的大小",
 
@@ -431,4 +434,4 @@ export default ( {
   payout_accepted:                "批准申请",
   payout_rejected:                "申请被拒绝的消息: ",
   payout_required_message:        "写拒绝的原因"
-} );        
+} );
