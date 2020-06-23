@@ -21,7 +21,7 @@
 <script>
   import AdminPage from "../_admin_page.svelte";
   import i18n from "/helpers/i18n/index.js";
-  import { dateToString } from "/helpers/converters.js";
+  import dateToString from "/helpers/dateToString.js";
 
   export let locale, url, compiliationInfo;
 

@@ -27,7 +27,7 @@
   import Footer from "/components/footer.svelte";
   import i18n from "/helpers/i18n/index.js";
   import { onMount } from "svelte";
-  import { dateToString } from "/helpers/converters.js";
+  import dateToString from "/helpers/dateToString.js";
   import { parsePrice } from "/helpers/parsers.js";
   import Image from "/components/imageCenter.svelte";
 

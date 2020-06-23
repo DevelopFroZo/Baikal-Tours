@@ -1,7 +1,7 @@
 <script>
   import { slide } from "svelte/transition";
   import { stores } from "@sapper/app";
-  import { dateToString } from "/helpers/converters.js";
+  import dateToString from "/helpers/dateToString.js";
   import Fetcher from "/helpers/fetcher.js";
 
   export let _, organizerEvents, organizerPayouts;

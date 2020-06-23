@@ -119,7 +119,7 @@
   import Footer from "/components/footer.svelte";
   import { parsePrice } from "/helpers/parsers.js";
   import { validateMail, validatePhone } from "/helpers/validators.js";
-  import { contactsToString, dateToString } from "/helpers/converters.js";
+  import dateToString from "/helpers/dateToString.js";
   import i18n from "/helpers/i18n/index.js";
   import { stores } from "@sapper/app";
   import SimilarEvent from "/components/similar_event.svelte";

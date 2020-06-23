@@ -1,6 +1,6 @@
 <script>
   import Image from "/components/imageCenter.svelte";
-  import { dateToString } from "/helpers/converters.js";
+  import dateToString from "/helpers/dateToString.js";
 
   export let name, dates, location, image_url, id, _;
 </script>

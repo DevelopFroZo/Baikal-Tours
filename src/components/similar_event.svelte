@@ -1,5 +1,5 @@
 <script>
-  import { dateToString } from "/helpers/converters.js";
+  import dateToString from "/helpers/dateToString.js";
   import { parseDate } from "/helpers/parsers.js";
   import Image from "/components/imageCenter.svelte";
 

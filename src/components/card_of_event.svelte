@@ -2,7 +2,7 @@
   import { parsePrice, parseDate } from "/helpers/parsers.js";
   import i18n from "/helpers/i18n/index.js";
   import Image from "/components/imageCenter.svelte";
-  import { dateToString } from "/helpers/converters.js";
+  import dateToString from "/helpers/dateToString.js";
 
   export let name,
     dates,

@@ -78,7 +78,7 @@
   import tr from "transliteration";
   import ClickOutside from "/components/clickOutside.svelte";
   import Loading from "/components/adminLoadingWindow.svelte";
-  import { dateToString } from "/helpers/converters.js";
+  import dateToString from "/helpers/dateToString.js";
 
   export let locale,
     compiliationId,

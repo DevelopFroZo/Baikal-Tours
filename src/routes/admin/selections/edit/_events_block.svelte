@@ -8,7 +8,7 @@
   } from "/helpers/filter.js";
   import ClickOutside from "/components/clickOutside.svelte";
   import { parseStringToWords } from "/helpers/parsers.js";
-  import { dateToString } from "/helpers/converters.js";
+  import dateToString from "/helpers/dateToString.js";
 
   export let _,
     result_filters,

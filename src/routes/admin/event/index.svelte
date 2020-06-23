@@ -26,7 +26,8 @@
   import AdminPage from "../_admin_page.svelte";
   import i18n from "/helpers/i18n/index.js";
   import { parsePrice } from "/helpers/parsers.js";
-  import { contactsToString, dateToString } from "/helpers/converters.js";
+  import { contactsToString } from "/helpers/converters.js";
+  import dateToString from "/helpers/dateToString.js";
   import { onMount } from "svelte";
   import AdminCard from "/components/admin_card.svelte";
 

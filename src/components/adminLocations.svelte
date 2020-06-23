@@ -115,7 +115,8 @@
     </button>
     <ClickOutside
         on:clickoutside={hideLocationsList}
-        exclude={[locationNameBlock]}>
+        exclude={[locationNameBlock]}
+    >
         {#if showLocations}
             <ul class="locations-list">
                 {#each allLocations as location}
