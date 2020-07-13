@@ -148,15 +148,15 @@ async function getByUrl( client, locale, url ){
 
   const locations = ( await client.query(
     `select
-    	al.action_id, al.address,
-    	l.name
+    	al2.action_id, al2.address,
+    	l2.name
     from
-    	actions_locations as al,
-    	locations as l
+    	actions_locations2 as al2,
+    	locations2 as l2
     where
-    	l.locale = $1 and
-    	al.action_id = any( $2 ) and
-    	al.location_id = l.id`,
+    	l2.locale = $1 and
+    	al2.action_id = any( $2 ) and
+    	al2.location2_id = l2.id`,
     [ locale, actionIds ]
   ) ).rows;
 
