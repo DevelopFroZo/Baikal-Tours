@@ -1,7 +1,7 @@
 "use strict";
 
 import fetch from "node-fetch";
-import { transliterate } from "transliteration";
+import { transliterate, slugify } from "transliteration";
 import Foundation from "./helpers/foundation";
 import Translator from "/helpers/translator/index";
 import yandexEngineBuilder from "/helpers/translator/engines/yandex";
@@ -32,7 +32,7 @@ export default class extends Foundation{
       `select *
       from (
       	select
-      		a.id, a.status, at.name,
+      		a.id, a.slug, a.status, at.name,
       		ai.image_url,
       		array_agg( distinct s.name ) as subjects,
       		coalesce( min( ab.price ), 0 ) as price_min,
@@ -62,7 +62,7 @@ export default class extends Foundation{
       		${status}
       		a.id = at.action_id and
       		at.locale = $1
-      	group by a.id, a.status, at.name, ai.image_url ) as tmp
+      	group by a.id, a.slug, a.status, at.name, ai.image_url ) as tmp
       order by date_start, id
       ${limit}
       ${offset_}`,
@@ -178,7 +178,7 @@ export default class extends Foundation{
 
     const { rows: actions } = await client.query(
       `select
-      	tmp.id, tmp.status,
+      	tmp.id, tmp.slug, tmp.status,
         tmp.price_min, tmp.price_max,
         tmp.name,
         tmp.image_url,
@@ -188,7 +188,7 @@ export default class extends Foundation{
         count( 1 ) over ()
       from (
       	select distinct
-      		a.id, a.status,
+      		a.id, a.slug, a.status,
       		coalesce( min( ab.price ), 0 ) as price_min,
       		coalesce( max( ab.price ), 0 ) as price_max,
           at.name, ai.image_url,
@@ -213,7 +213,7 @@ export default class extends Foundation{
       		${status}
       		${filters}
       		a.id = at.action_id
-      	group by a.id, at.name, ai.image_url ) as tmp
+      	group by a.id, a.slug, at.name, ai.image_url ) as tmp
       ${priceFilters}
       order by tmp.date_start, tmp.id
       ${limit}
@@ -457,6 +457,201 @@ export default class extends Foundation{
     return super.success( 0, main );
   }
 
+  async getOneBySlug( allStatuses, slug, locale ){
+    const status = allStatuses ? "" : "a.status = 'active' and";
+    const transaction = await super.transaction();
+
+    const main = ( await transaction.query(
+      `select
+        a.*, at.*
+      from
+        actions as a,
+        actions_translates as at
+      where
+        ${status}
+        a.slug = $1 and
+        a.id = at.action_id and
+        at.locale = $2`,
+      [ slug, locale ]
+    ) ).rows[0];
+
+    if( main === undefined ){
+      await transaction.end();
+
+      return super.error( 10 );
+    }
+
+    const id = main.action_id;
+
+    delete main.locale;
+    delete main.action_id;
+
+    main.dates = ( await transaction.query(
+      `select id, date_start, date_end, time_start, time_end, days
+      from action_dates
+      where action_id = $1
+      order by date_start`,
+      [ id ]
+    ) ).rows;
+
+    main.images = ( await transaction.query(
+      `select id, image_url, is_main
+      from action_images
+      where action_id = $1`,
+      [ id ]
+    ) ).rows;
+
+    main.partners = ( await transaction.query(
+      `select id, name, image_url
+      from action_partners
+      where action_id = $1`,
+      [ id ]
+    ) ).rows;
+
+    main.companions = ( await transaction.query(
+      `select c.id, c.name
+      from
+        actions_companions as ac,
+        companions as c
+      where
+        ac.action_id = $1 and
+        c.locale = $2 and
+        c.id = ac.companion_id`,
+      [ id, locale ]
+    ) ).rows;
+
+    main.locations = ( await transaction.query(
+      `select l2.id as location_id, l2.name, al2.id, al2.address, al2.coords
+      from
+        actions_locations2 as al2,
+        locations2 as l2
+      where
+        al2.action_id = $1 and
+        l2.locale = $2 and
+        l2.id = al2.location2_id`,
+      [ id, locale ]
+    ) ).rows;
+
+    main.locations2 = main.locations;/*( await transaction.query(
+      `select
+      	al2.address, al2.coords,
+      	l2.id, l2.name
+      from
+      	actions_locations2 as al2,
+      	locations2 as l2
+      where
+      	al2.action_id = $1 and
+      	al2.location2_id = l2.id`,
+      [ id ]
+    ) ).rows;*/
+
+    main.subjects = ( await transaction.query(
+      `select s.id, s.name
+      from
+        actions_subjects as acsu,
+        subjects as s
+      where
+        acsu.action_id = $1 and
+        s.locale = $2 and
+        s.id = acsu.subject_id`,
+      [ id, locale ]
+    ) ).rows;
+
+    main.transfers = ( await transaction.query(
+      `select t.id, t.name
+      from
+        actions_transfers as at,
+        transfers as t
+      where
+        at.action_id = $1 and
+        t.locale = $2 and
+        t.id = at.transfer_id`,
+      [ id, locale ]
+    ) ).rows;
+
+    main.excursions = ( await transaction.query(
+      `select e.*, et.name
+      from
+        actions_excursions as ae,
+        excursions as e,
+        excursions_translates as et
+      where
+        ae.action_id = $1 and
+        et.locale = $2 and
+        ae.excursion_id = e.id and
+        e.id = et.excursion_id
+      order by ae.number`,
+      [ id, locale ]
+    ) ).rows;
+
+    main.tours = ( await transaction.query(
+      `select t.*, tt.name
+      from
+        actions_tours as at,
+        tours as t,
+        tours_translates as tt
+      where
+        at.action_id = $1 and
+        tt.locale = $2 and
+        at.tour_id = t.id and
+        t.id = tt.tour_id
+      order by at.number`,
+      [ id, locale ]
+    ) ).rows;
+
+    main.buyable = ( await transaction.query(
+      `select ab.id, ab.type, ab.price, abt.name
+      from
+        action_buyable as ab,
+        action_buyable_translates as abt
+      where
+        ab.action_id = $1 and
+        abt.locale = $2 and
+        ab.id = abt.action_buyable_id`,
+      [ id, locale ]
+    ) ).rows;
+
+    main.hotels = ( await transaction.query(
+      `select
+      	h.id, h.booking_url, h.name,
+        h.image_url, h.price, h.rating
+      from
+      	actions_hotels as ah,
+        hotels as h
+      where
+      	ah.action_id = $1 and
+      	ah.hotel_id = h.id
+      order by ah.number`,
+      [ id ]
+    ) ).rows;
+
+    await transaction.end();
+
+    if( locale !== "ru" ){
+      main.locations = main.locations.map( location => {
+        if( location.address ) location.address = transliterate( location.address );
+
+        return location;
+      } );
+
+      // #fix add locations2 (address)
+
+      main.partners = main.partners.map( partner => {
+        partner.name = transliterate( partner.name );
+
+        return partner;
+      } );
+
+      main.hotels = main.hotels.map( hotel => {
+        hotel.name = transliterate( hotel.name );
+
+        return hotel;
+      } );
+    }
+
+    return super.success( 0, main );
+  }
+
   // #fix переделать (???)
   async getOneForEmail( id, locale ){
     const result = ( await super.query(
@@ -478,7 +673,7 @@ export default class extends Foundation{
   }
 
   async edit( id, {
-    status, organizer_ids,
+    slug, status, organizer_ids,
     site_payment, organizer_payment, emails, phones,
     websites, vk_link, facebook_link, instagram_link,
     twitter_link, title, name,
@@ -495,6 +690,11 @@ export default class extends Foundation{
     const yandexEngineHTML = yandexEngineBuilder( process.env.YANDEX_TRANSLATE_API_KEY, fetch, { format: "html" } );
     const translator = new Translator( yandexEngine );
     const translatorHTML = new Translator( yandexEngineHTML );
+
+    if( slug ){
+      set.push( `slug = $${sc++}` );
+      params.push( slug );
+    }
 
     if( status ){
       set.push( `status = $${sc++}` );
@@ -584,6 +784,9 @@ export default class extends Foundation{
 
       if( name.autoTranslate === true )
         translator.add( "name", name.text, locale, name.toLocales );
+
+      if( !slug && !name.toLocales.includes( "en" ) )
+        translator.add( "name", name.text, locale, "en" );
     }
 
     if( short_description ){
@@ -669,6 +872,13 @@ export default class extends Foundation{
 
     for( let key in translated )
       await this.modules.actionsTranslates.createOrEdit( transaction, id, key, translated[ key ] );
+
+    if( !slug && name ) await transaction.query(
+      `update actions
+      set slug = $1
+      where id = $2`,
+      [ slugify( translator.translated.name.en ), id ]
+    );
 
     // Action dates
     if( dates ){
