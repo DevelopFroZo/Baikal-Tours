@@ -114,7 +114,7 @@ async function getByUrl( client, locale, url ){
 
   main.actions = ( await client.query(
     `select
-    	ca.action_id as id, ca.description,
+    	a.slug, ca.action_id as id, ca.description,
     	at.name, ai.image_url,
     	coalesce( min( ab.price ), 0 ) as price_min,
     	coalesce( max( ab.price ), 0 ) as price_max,
@@ -122,6 +122,7 @@ async function getByUrl( client, locale, url ){
       null as dates
     from
     	compiliations_actions as ca,
+      actions as a,
     	actions_translates as at
     	left join action_images as ai
     	on at.action_id = ai.action_id and ai.is_main = true
@@ -131,8 +132,9 @@ async function getByUrl( client, locale, url ){
     	ca.locale = $1 and
     	at.locale = ca.locale and
     	ca.compiliation_id = $2 and
+      ca.action_id = a.id and
     	ca.action_id = at.action_id
-    group by ca.action_id, ca.description, at.name, ai.image_url`,
+    group by a.slug, ca.action_id, ca.description, at.name, ai.image_url`,
     [ locale, main.id ]
   ) ).rows;
 
