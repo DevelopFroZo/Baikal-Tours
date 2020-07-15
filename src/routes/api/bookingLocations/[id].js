@@ -22,11 +22,21 @@ async function put( {
     ( !Number.isInteger( location2Id ) || location2Id < 1 )
   ) return res.error( 13 );
 
-  // #fix transaction
-  const result = await edit( pool, id, location2Id );
+  const transaction = await pool.connect();
 
-  if( result !== true )
+  await transaction.query( "begin" );
+
+  const result = await edit( transaction, id, location2Id );
+
+  if( result !== true ){
+    await transaction.query( "rollback" );
+    transaction.release();
+
     return res.json( { errors: [ result ] } );
+  }
+
+  await transaction.query( "commit" );
+  transaction.release();
 
   res.success();
 }

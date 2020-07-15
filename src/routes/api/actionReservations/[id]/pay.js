@@ -92,10 +92,10 @@ export async function post( {
       orderNumber,
       amount: price * 100,
       currency: 643,
-      returnUrl: "http://baikal.events/payment",
-      failUrl: "http://baikal.events/payment",
-      // #fix localize
+      returnUrl: process.env.SBER_RETURN_URL,
+      failUrl: process.env.SBER_FAIL_URL,
       description: `Оплата билетов и дополнительных услуг события номер ${id}`,
+      // #fix localize
       language: "ru",
       pageView: "DESKTOP"
     } );

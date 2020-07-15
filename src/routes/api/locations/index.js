@@ -11,6 +11,5 @@ async function get( {
 }, res ){
   location2name = typeof location2name === "string" ? true : false;
 
-  // #fix localise
   res.json( await locations.getAll( locale, location2name ) );
 }

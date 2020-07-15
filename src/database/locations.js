@@ -28,26 +28,35 @@ export default class extends Foundation{
   }
 
   async edit( id, location2Id ){
+    const transaction = await super.transaction();
+
     try{
-      if( location2Id !== null ) await super.query(
+      if( location2Id !== null ) await transaction.query(
         `update locations
         set location2_id = null
         where location2_id = $1`,
         [ location2Id ]
       );
 
-      const { rowCount } = await super.query(
+      const { rowCount } = await transaction.query(
         `update locations
         set location2_id = $1
         where id = $2`,
         [ location2Id, id ]
       );
 
-      if( rowCount === 0 )
+      if( rowCount === 0 ){
+        await transaction.end( false );
+
         return `Invalid ID (${id})`;
+      }
+
+      await transaction.end();
 
       return true;
     } catch( e ) {
+      await transaction.end( false );
+
       if( e.code === "23503" )
         return `Invalid location2 ID (${location2Id})`;
 

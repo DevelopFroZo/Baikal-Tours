@@ -439,8 +439,6 @@ export default class extends Foundation{
         return location;
       } );
 
-      // #fix add locations2 (address)
-
       main.partners = main.partners.map( partner => {
         partner.name = transliterate( partner.name );
 
@@ -633,8 +631,6 @@ export default class extends Foundation{
 
         return location;
       } );
-
-      // #fix add locations2 (address)
 
       main.partners = main.partners.map( partner => {
         partner.name = transliterate( partner.name );
