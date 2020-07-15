@@ -43,7 +43,7 @@ export default class extends Foundation{
     return super.success( 0, rows[0] );
   }
 
-  async edit( id, { name, surname, phone, email, oldPassword, newPassword, role } ){
+  async edit( id, { name, surname, phone, email, oldPassword, newPassword, role, digestSubjects, digestPeriod } ){
     const dbHashAndSalt = ( await super.query(
       `select password
       from users
@@ -105,6 +105,16 @@ export default class extends Foundation{
     if( typeof role === "string" && role !== "" ){
       sets.push( `role = $${i++}` );
       params.push( role );
+    }
+
+    if( digestSubjects === null || Array.isArray( digestSubjects ) && digestSubjects.length > 0 ){
+      sets.push( `digest_subjects = $${i++}` );
+      params.push( digestSubjects );
+    }
+
+    if( [ "month", "2months", "halfYear", null ].includes( digestPeriod ) ){
+      sets.push( `digest_period = $${i++}` );
+      params.push( digestPeriod );
     }
 
     if( sets.length > 0 ){
