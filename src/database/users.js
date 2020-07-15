@@ -19,7 +19,7 @@ export default class extends Foundation{
     else search = "";
 
     const rows = ( await super.query(
-      `select id, name, surname, phone, email, image_path, password_confirmed, role
+      `select id, name, surname, phone, email, image_path, password_confirmed, role, digest_subjects, digest_period
       from users
       ${search}
       order by id`,
@@ -31,7 +31,7 @@ export default class extends Foundation{
 
   async getById( id ){
     const rows = ( await super.query(
-      `select id, name, surname, phone, email, image_path, password_confirmed, role
+      `select id, name, surname, phone, email, image_path, password_confirmed, role, digest_subjects, digest_period
       from users
       where id = $1`,
       [ id ]
