@@ -73,19 +73,19 @@ export default class extends Foundation{
     } );
   }
 
-  async restorePassword( userId ){
+  async restorePassword( email ){
     const { password, hashAndSalt } = this.createPassword();
 
     const { rows: [ row ] } = await super.query(
       `update users
       set password = $1
-      where id = $2
+      where email = $2
       returning email`,
-      [ hashAndSalt, userId ]
+      [ hashAndSalt, email ]
     );
 
     if( row === undefined )
-      return { errors: [ `User ${userId} not found` ] };
+      return { errors: [ `Email ${email} not found` ] };
 
     return {
       email: row.email,
