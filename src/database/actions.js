@@ -678,7 +678,7 @@ export default class extends Foundation{
     websites, vk_link, facebook_link, instagram_link,
     twitter_link, title, name,
     short_description, full_description,
-    organizer_name, contact_faces, dates, companions,
+    organizer_name, contact_faces, alt, dates, companions,
     locations, subjects, transfers
   } ){
     let set = [];
@@ -851,6 +851,18 @@ export default class extends Foundation{
           translated[ toLocale ].contact_faces = translited;
         } );
       }
+    }
+
+    if( alt ){
+      const locale = alt.locale;
+
+      if( translated[ locale ] === undefined )
+        translated[ locale ] = {};
+
+      translated[ locale ].alt = alt.text;
+
+      if( alt.autoTranslate === true )
+        translator.add( "alt", alt.text, locale, alt.toLocales );
     }
 
     await translator.translate();
