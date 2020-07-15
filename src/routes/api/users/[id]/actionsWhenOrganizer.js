@@ -27,7 +27,7 @@ export async function get( {
 
   const { rows: actions } = await transaction.query(
     `select
-      a.id, at.name, a.balance,
+      a.id, a.slug, at.name, a.balance,
       null as locations,
       null as dates,
       null as buyable,
@@ -43,7 +43,7 @@ export async function get( {
     	at.locale = $1 and
     	not array_position( a.organizer_ids, $2 ) is null and
     	a.id = at.action_id
-    group by a.id, at.name, ad.date_start
+    group by a.id, a.slug, at.name, ad.date_start
     order by ad.date_start`,
     [ locale, id ]
   );

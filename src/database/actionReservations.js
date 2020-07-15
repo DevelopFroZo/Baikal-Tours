@@ -40,13 +40,15 @@ async function getByUserId( client, locale, userId ){
   const { rows } = await client.query(
     `select
       ar.id as action_reservation_id, ar.paid, ar.date,
-      at.action_id, at.name
+      a.slug, at.action_id, at.name
     from
       action_reservations as ar,
+      actions as a,
       actions_translates as at
     where
       at.locale = $1 and
       ar.user_id = $2 and
+      ar.action_id = a.id and
       ar.action_id = at.action_id
     order by ar.date`,
     [ locale, userId ]
