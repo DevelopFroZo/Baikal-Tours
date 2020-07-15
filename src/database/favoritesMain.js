@@ -72,7 +72,7 @@ async function create( client, actionId, before ){
 async function getAll( client, locale ){
   const { rows: main } = await client.query(
     `select
-      f.*, at.name,
+      f.*, a.slug, at.name,
       ai.image_url,
       null as locations,
       coalesce( min( ab.price ), 0 ) as price_min,
@@ -85,11 +85,13 @@ async function getAll( client, locale ){
       on f.action_id = ai.action_id and ai.is_main = true
       left join action_buyable as ab
       on f.action_id = ab.action_id and ab.type = 'ticket',
+      actions as a,
       actions_translates as at
     where
       at.locale = $1 and
+      f.action_id = a.id and
       f.action_id = at.action_id
-    group by f.id, at.name, ai.image_url
+    group by f.id, a.slug, at.name, ai.image_url
     order by f.number`,
     [ locale ]
   );
