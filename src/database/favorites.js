@@ -87,7 +87,7 @@ export default class extends Foundation{
 
     const { rows: main } = await transaction.query(
       `select
-        f.*, a.slug, at.name,
+        f.*, a.slug, at.name, at.alt,
         ai.image_url,
         null as locations,
         null as dates,

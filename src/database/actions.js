@@ -32,7 +32,7 @@ export default class extends Foundation{
       `select *
       from (
       	select
-      		a.id, a.slug, a.status, at.name,
+      		a.id, a.slug, a.status, at.name, at.alt,
       		ai.image_url,
       		array_agg( distinct s.name ) as subjects,
       		coalesce( min( ab.price ), 0 ) as price_min,
@@ -62,7 +62,7 @@ export default class extends Foundation{
       		${status}
       		a.id = at.action_id and
       		at.locale = $1
-      	group by a.id, a.slug, a.status, at.name, ai.image_url ) as tmp
+      	group by a.id, a.slug, a.status, at.name, at.alt, ai.image_url ) as tmp
       order by date_start, id
       ${limit}
       ${offset_}`,
@@ -180,7 +180,7 @@ export default class extends Foundation{
       `select
       	tmp.id, tmp.slug, tmp.status,
         tmp.price_min, tmp.price_max,
-        tmp.name,
+        tmp.name, tmp.alt,
         tmp.image_url,
       	array[]::int[] as subjects,
       	null as locations,
@@ -191,7 +191,7 @@ export default class extends Foundation{
       		a.id, a.slug, a.status,
       		coalesce( min( ab.price ), 0 ) as price_min,
       		coalesce( max( ab.price ), 0 ) as price_max,
-          at.name, ai.image_url,
+          at.name, at.alt, ai.image_url,
       		min( ad.date_start ) as date_start
       	from
       		actions as a
@@ -213,7 +213,7 @@ export default class extends Foundation{
       		${status}
       		${filters}
       		a.id = at.action_id
-      	group by a.id, a.slug, at.name, ai.image_url ) as tmp
+      	group by a.id, a.slug, at.name, at.alt, ai.image_url ) as tmp
       ${priceFilters}
       order by tmp.date_start, tmp.id
       ${limit}

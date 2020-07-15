@@ -115,7 +115,7 @@ async function getByUrl( client, locale, url ){
   main.actions = ( await client.query(
     `select
     	a.slug, ca.action_id as id, ca.description,
-    	at.name, ai.image_url,
+    	at.name, at.alt, ai.image_url,
     	coalesce( min( ab.price ), 0 ) as price_min,
     	coalesce( max( ab.price ), 0 ) as price_max,
       null as locations,
@@ -134,7 +134,7 @@ async function getByUrl( client, locale, url ){
     	ca.compiliation_id = $2 and
       ca.action_id = a.id and
     	ca.action_id = at.action_id
-    group by a.slug, ca.action_id, ca.description, at.name, ai.image_url`,
+    group by a.slug, ca.action_id, ca.description, at.name, at.alt, ai.image_url`,
     [ locale, main.id ]
   ) ).rows;
 
