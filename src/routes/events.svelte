@@ -763,7 +763,7 @@
 
 <svelte:head>
   <title>{_('event_catalog')}</title>
-  <link rel="stylesheet" href="https://unpkg.com/swiper/css/swiper.css" />
+  <!-- <link rel="stylesheet" href="https://unpkg.com/swiper/css/swiper.css" /> -->
 </svelte:head>
 
 <svelte:window bind:scrollY bind:innerHeight />

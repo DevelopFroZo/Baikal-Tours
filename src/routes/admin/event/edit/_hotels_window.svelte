@@ -6,7 +6,8 @@
     setFilterData,
     setFilterFromUrl,
     showActiveFilters,
-    parseFilterDataForHotels
+    parseFilterDataForHotels,
+    setNewLocationsData
   } from "/helpers/filter.js";
   import { parseStringToWords } from "/helpers/parsers.js";
   import { createEventDispatcher } from "svelte";
@@ -37,7 +38,7 @@
   let search = "";
   let activeLocations = "";
 
-  filter.locationIds = setFilterData(locations);
+  filter.locationIds = setNewLocationsData(locations);
 
   $: {
     pagData = {
@@ -159,6 +160,14 @@
       overflow: hidden;
       text-overflow: ellipsis;
   }
+
+  .secondLocation{
+    padding-left: 15px !important;
+  }
+
+  .thridLocation{
+    padding-left: 30px !important;
+  }
 </style>
 
 {#if showHotels}
@@ -192,12 +201,14 @@
               {activeLocations.length === 0 ? _('locations') : activeLocations}
             </button>
             <ClickOutside
-              on:clickoutside={() => (locationsBlock.isVisible = false)}
+              on:clickoutside={() => locationsBlock.isVisible = false}
               exclude={[locationsBlock.btn]}>
               {#if locationsBlock.isVisible}
                 <div class="option">
                   {#each filter.locationIds as location}
                     <div
+                      class:secondLocation={location.n1 && !location.n2} 
+                      class:thridLocation={location.n1 && location.n2}
                       on:click={() => {
                         location.active = !location.active;
                         changeFilter();

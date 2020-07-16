@@ -1,14 +1,15 @@
 <script>
   import { validatePhone, validateMail } from "/helpers/validators";
-  import { validateNewData } from "/helpers/edit.js";
+  import { validateNewData, validateEditArray, formatIdsArrays } from "/helpers/edit.js";
   import Fetcher from "/helpers/fetcher.js";
   import { stores } from "@sapper/app";
 
-  export let userInfo, name, surname, phone, email, subjectsInfo, _;
+  export let userInfo, name, surname, phone, email, subjectsInfo, _, digest_period, digest_subjects;
 
   let userName = [name, surname].filter(el => el !== null).join(" ");
   let newEditData = {},
     newPasswordData = {},
+    newDigestData = {},
     oldPassword = null,
     newPassword = null,
     confirmNewPassword = "";
@@ -55,6 +56,27 @@
     );
   }
 
+  $: {
+    newDigestData = validateNewData(
+      digest_period,
+      userInfo.digest_period,
+      "digestPeriod",
+      newDigestData
+    )
+  }
+
+  $: {
+    if(digest_subjects === null)
+      digest_subjects = [];
+
+    newDigestData = validateEditArray(
+      digest_subjects,
+      userInfo.digest_subjects,
+      "digestSubjects",
+      newDigestData
+    );
+  }
+
   async function saveEditData() {
     if (email !== null && !validateMail(email)) {
       alert(_("uncorrect_mail"));
@@ -96,6 +118,16 @@
       newPassword = null;
       confirmNewPassword = "";
     } else alert(result.message);
+  }
+
+  async function saveDigest(){
+    let result = await fetcher.put(
+      `/api/users/${$session.userId}`,
+      newDigestData
+    );
+
+    if(result.ok)
+      alert(_("success_digest_edit"));
   }
 </script>
 
@@ -440,7 +472,7 @@
         {#each subjectsInfo as subject}
           <label for="sport">
             <div class="input-block">
-              <input type="checkbox" name="sport" />
+              <input type="checkbox" name="sport" bind:group={digest_subjects} value={subject.id}/>
               <div class="changed-input-block">
                 <img src="/img/tick.svg" alt="tick" />
               </div>
@@ -453,7 +485,7 @@
       <div class="periodicity-block">
         <label for="periodicity">
           <div class="input-block">
-            <input type="radio" name="periodicity" />
+            <input type="radio" name="periodicity" bind:group={digest_period} value={"month"}/>
             <div class="changed-input-block">
               <img src="/img/tick.svg" alt="tick" />
             </div>
@@ -462,7 +494,7 @@
         </label>
         <label for="periodicity">
           <div class="input-block">
-            <input type="radio" name="periodicity" />
+            <input type="radio" name="periodicity" bind:group={digest_period} value={"2months"}/>
             <div class="changed-input-block">
               <img src="/img/tick.svg" alt="tick" />
             </div>
@@ -471,7 +503,7 @@
         </label>
         <label for="periodicity">
           <div class="input-block">
-            <input type="radio" name="periodicity" />
+            <input type="radio" name="periodicity" bind:group={digest_period} value={"halfYear"}/>
             <div class="changed-input-block">
               <img src="/img/tick.svg" alt="tick" />
             </div>
@@ -480,7 +512,7 @@
         </label>
         <label for="periodicity">
           <div class="input-block">
-            <input type="radio" name="periodicity" />
+            <input type="radio" name="periodicity" bind:group={digest_period} value={null}/>
             <div class="changed-input-block">
               <img src="/img/tick.svg" alt="tick" />
             </div>
@@ -488,7 +520,7 @@
           {_('cancel_digest')}
         </label>
       </div>
-      <button class="blue-button">{_('save').toUpperCase()}</button>
+      <button class="blue-button" on:click={saveDigest} disabled={!(Object.keys(newDigestData).length)}>{_('save').toUpperCase()}</button>
     </div>
   </div>
 </div>

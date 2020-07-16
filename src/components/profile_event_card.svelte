@@ -15,7 +15,8 @@
     buyable,
     paid,
     _,
-    prev = false;
+    prev = false,
+    slug;
 
   const fetcher = new Fetcher();
   const { session } = stores();
@@ -279,7 +280,7 @@
     <Image src={image_url} alt="image" />
   </div>
   <div class="action-info-block">
-    <h3> <a href={`/event?id=${action_id}`}>{name}</a></h3>
+    <h3> <a href={`/event/${slug}`}>{name}</a></h3>
     <div class="action-info">
       <ul>
         {#each locations as location}

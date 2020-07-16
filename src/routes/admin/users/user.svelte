@@ -157,7 +157,7 @@
       <div class="user-events-block">
         {#each userEvents as event}
           <div class="event-block">
-            <h3><a href={`/admin/event?id=${event.action_id}`}>{event.name}</a></h3>
+            <h3><a href={`/admin/event/${event.slug}`}>{event.name}</a></h3>
             <span class="event-date">{parseDate(new Date(event.date))}</span>
             {#if event.buyable}
               <div class="event-tickets">

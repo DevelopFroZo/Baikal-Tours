@@ -153,7 +153,7 @@
     <div class="actions-block">
       {#each compiliationInfo.actions as action}
         <div class="action-block">
-          <a class="action" href={`/admin/event?id=${action.id}`}>
+          <a class="action" href={`/admin/event/${action.id}`}>
             <h3>{action.name}</h3>
             <div>
               <!-- <span>

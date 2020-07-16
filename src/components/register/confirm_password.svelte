@@ -18,7 +18,7 @@
 <div class="body" transition:fade={{duration: 150}}>
   <div class="register-block">
     <div class="in-block">
-      <button class="close-window" on:click={() => goto(parseUrlByPage(page, [], {}))}>
+      <button class="close-window" on:click={() => goto(parseUrlByPage(page, ["window"], {}))}>
         <img src="/img/cross.svg" alt="cross" />
       </button>
       <h2>{_('registration')}</h2>

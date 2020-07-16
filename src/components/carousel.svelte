@@ -60,7 +60,7 @@
 </style>
 
 <svelte:head>
-  <link rel="stylesheet" href="https://unpkg.com/swiper/css/swiper.css" />
+  <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css">
 </svelte:head>
 
 <div class="swiper-block" bind:this={carouselBlock}>

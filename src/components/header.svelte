@@ -51,14 +51,16 @@
   }
 
   async function restorePassword({detail}){
-    let result = await fetcher.get(`/api/restorePassword`, detail);
+    let result = await fetcher.get(`/api/restorePassword`, {
+      query: {email: detail.email}
+    });
 
     if(result.ok){
       goto(parseUrlByPage($page, ['window'], {
         window: 'login'
       }))
     }
-    else alert(result.message)
+    else alert(result.errors[0])
   }
 
   async function logout(){

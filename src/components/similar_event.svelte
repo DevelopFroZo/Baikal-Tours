@@ -4,6 +4,8 @@
   import Image from "/components/imageCenter.svelte";
 
   export let _, favorite;
+
+  console.log(favorite)
 </script>
 
 <style lang="scss">
@@ -108,7 +110,7 @@
 
 <a
   class="similar-block"
-  href={`/event?id=${favorite.id}`}
+  href={`/event/${favorite.slug}`}
   itemscope
   itemtype="http://schema.org/Event"
   itemprop="itemListElement">

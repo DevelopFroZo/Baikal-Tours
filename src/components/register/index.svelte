@@ -42,6 +42,8 @@
     if (result.ok) {
       localStorage.removeItem("email");
 
+      console.log($session.email, result)
+
       $session.email = result.data.email;
       $session.name = result.data.name;
       $session.surname = result.data.surname;

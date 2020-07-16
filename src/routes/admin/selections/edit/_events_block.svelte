@@ -4,7 +4,8 @@
   import {
     setFilterData,
     parseFilterDataForAdmin,
-    showActiveFilters
+    showActiveFilters,
+    setNewLocationsData
   } from "/helpers/filter.js";
   import ClickOutside from "/components/clickOutside.svelte";
   import { parseStringToWords } from "/helpers/parsers.js";
@@ -32,7 +33,7 @@
 
   let search = "";
   filter.subjects = setFilterData(result_filters.subjects);
-  filter.locations = setFilterData(result_filters.locations);
+  filter.locations = setNewLocationsData(result_filters.locations);
 
   let options = [];
   for (let i = 0; i < 2; i++)
@@ -93,6 +94,14 @@
 
 <style lang="scss">
   @import "./styles/admin.scss";
+
+  .secondLocation{
+    padding-left: 15px !important;
+  }
+
+  .thridLocation{
+    padding-left: 30px !important;
+  }
 
   .events-window {
     position: fixed;
@@ -250,6 +259,8 @@
               <div class="option" bind:this={options[1].option}>
                 {#each filter.locations as location}
                   <div
+                    class:secondLocation={location.n1 && !location.n2} 
+                    class:thridLocation={location.n1 && location.n2}
                     on:click={() => {
                       location.active = !location.active;
                       changeFilter();

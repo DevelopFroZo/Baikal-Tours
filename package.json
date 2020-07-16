@@ -34,7 +34,7 @@
     "sapper-page-loading-bar": "^1.0.0",
     "sirv": "^0.4.2",
     "svelte-loading-spinners": "0.0.16",
-    "swiper": "^5.3.6",
+    "swiper": "^6.0.2",
     "transliteration": "^2.1.8",
     "xlsx": "^0.15.6"
   },

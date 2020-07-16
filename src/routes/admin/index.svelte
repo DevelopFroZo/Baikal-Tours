@@ -599,7 +599,7 @@
         <a
           class="event-block"
           on:click={() => localStorage.setItem('adminActionParams', document.location.href)}
-          href={'./admin/event?id=' + card.id}>
+          href='./admin/event/{card.slug}'>
           <div class="event">
             <div class="event-name-block">{card.name}</div>
             <div class="event-info-block">

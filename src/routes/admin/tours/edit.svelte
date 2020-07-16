@@ -15,7 +15,7 @@
       price: null
     };
 
-    let locations = (await fetcher.get("/api/locations", {
+    let locations = (await fetcher.get("/api/locations2", {
       credentials: "same-origin"
     })).data;
 
@@ -283,6 +283,14 @@
 <style lang="scss">
   @import "./styles/admin.scss";
 
+  .secondLocation{
+    padding-left: 15px !important;
+  }
+
+  .thridLocation{
+    padding-left: 30px !important;
+  }
+
   .edit-block > *:not(:first-child) {
     display: block;
     margin-top: 20px;
@@ -411,6 +419,8 @@
               <div class="option" bind:this={options[0].option}>
                 {#each locations as location}
                   <div
+                    class:secondLocation={location.n1 && !location.n2} 
+                    class:thridLocation={location.n1 && location.n2}
                     on:click={() => (location_ids = edit.parseDataToIds(location_ids, location.id))}>
                     <label>{location.name}</label>
                     <input

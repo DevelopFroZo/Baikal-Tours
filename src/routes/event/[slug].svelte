@@ -6,17 +6,20 @@
 
   export async function preload(page, session) {
     const fetcher = new Fetcher(this.fetch);
-    let actionId = page.query.id;
+    let actionId = null;
     let locale = session.locale;
     let userId = session.userId;
 
-    let result_action = await fetcher.get(`/api/actions/${actionId}`, {
+    const slug = page.params.slug;
+
+    let result_action = await fetcher.get(`/api/actions/${slug}`, {
       credentials: "same-origin"
     });
 
     if (result_action.ok){
       result_action = result_action.data;
       let locationIds = [];
+      actionId = result_action.id;
 
       if(result_action.excursions.length < 3 || result_action.excursions.length < 3 || result_action.tours.length < 3){
         let findedLocations = [];
@@ -225,6 +228,7 @@
     }
 
     let date = new Date(reverseDate(userDate, false));
+    console.log(date, result_action.dates)
     if( showDateChange){
 
       if(dates[0].time_start !== null)
@@ -490,6 +494,7 @@
     visibleDates = visibleDates.sort();
 
     if(visibleDates.length <= 1 || !result_action.buyable.length){
+      console.log(visibleDates)
       userDate = visibleDates.length ? reverseDate(visibleDates[visibleDates.length - 1]) : parseDate( new Date() );
       showDateChange = false;
     }
@@ -1917,7 +1922,7 @@
     {#if result_action.images.length && result_action.images.filter(el => el.is_main)[0]}
       <Image
         src={result_action.images.filter(el => el.is_main)[0].image_url}
-        alt={result_action.name} />
+        alt={result_action.alt || result_action.name} />
     {/if}
     <div class="form-width">
       {#if result_action.subjects.length > 0}

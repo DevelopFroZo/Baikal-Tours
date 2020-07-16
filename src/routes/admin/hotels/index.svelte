@@ -4,7 +4,8 @@
     setFilterData,
     setFilterFromUrl,
     showActiveFilters,
-    parseFilterDataForHotels
+    parseFilterDataForHotels,
+    setNewLocationsData
   } from "/helpers/filter.js";
   import { parseStringToWords } from "/helpers/parsers.js";
 
@@ -24,7 +25,7 @@
     let count = 16;
     let paramsKeys = Object.keys(params);
     let showFilter = false;
-    let locations = (await fetcher.get("/api/bookingLocations", {
+    let locations = (await fetcher.get("/api/locations2", {
       credentials: "same-origin"
     })).data;
     let str = "";
@@ -32,7 +33,7 @@
     if (params.offset !== undefined) offset = parseInt(params.offset);
     if (params.count !== undefined) count = parseInt(params.count);
 
-    filter.bookingLocationIds = setFilterData(locations);
+    filter.locationIds = setNewLocationsData(locations);
 
     if (
       paramsKeys[0] === "filter" &&
@@ -48,10 +49,10 @@
           filter.search.active = true;
         }
       }
-      if (params.bookingLocationIds !== undefined)
-        filter.bookingLocationIds = setFilterFromUrl(
-          params.bookingLocationIds.split(","),
-          filter.bookingLocationIds
+      if (params.locationIds !== undefined)
+        filter.locationIds = setFilterFromUrl(
+          params.locationIds.split(","),
+          filter.locationIds
         );
 
       hotels = await fetcher.get("api/hotels", {
@@ -130,7 +131,7 @@
 
     if (showFilter){
         parseFilter = parseFilterDataForHotels(filter);
-        for(let location of filter.bookingLocationIds)
+        for(let location of filter.locationIds)
             if(location.active)
                 secondLocations.push(location.value);
     }
@@ -285,6 +286,14 @@
       text-align: center;
       display: block;
   }
+
+  .secondLocation{
+    padding-left: 15px !important;
+  }
+
+  .thridLocation{
+    padding-left: 30px !important;
+  }
 </style>
 
 <svelte:head>
@@ -325,8 +334,10 @@
         exclude={[locationsBlock.btn]}>
         {#if locationsBlock.isVisible}
           <div class="option">
-            {#each filter.bookingLocationIds as location}
+            {#each filter.locationIds as location}
               <div
+                class:secondLocation={location.n1 && !location.n2} 
+                class:thridLocation={location.n1 && location.n2}
                 on:click={() => {
                   location.active = !location.active;
                   changeFilter();

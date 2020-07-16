@@ -3,10 +3,10 @@
 
   export async function preload(page, session) {
     const fetcher = new Fetcher(this.fetch);
-    let actionId = page.query.id;
+    const slug = page.params.slug;
     let locale = session.locale;
 
-    let result_action = await fetcher.get("/api/actions/" + actionId, {
+    let result_action = await fetcher.get(`/api/actions/${slug}`, {
       query: {
         getSubscribers: ""
       },
@@ -15,7 +15,7 @@
 
     if (result_action.ok) {
       result_action = result_action.data;
-      return { result_action, actionId, locale };
+      return { result_action, slug, locale };
     }
 
     this.error(404, "page not found");
@@ -23,7 +23,7 @@
 </script>
 
 <script>
-  import AdminPage from "../_admin_page.svelte";
+  import AdminPage from "../../_admin_page.svelte";
   import i18n from "/helpers/i18n/index.js";
   import { parsePrice } from "/helpers/parsers.js";
   import { contactsToString } from "/helpers/converters.js";
@@ -31,7 +31,7 @@
   import { onMount } from "svelte";
   import AdminCard from "/components/admin_card.svelte";
 
-  export let result_action, actionId, locale;
+  export let result_action, slug, locale;
 
   const _ = i18n(locale),
     fetcher = new Fetcher();
@@ -61,7 +61,7 @@
     start = false;
 
   async function changeStatus() {
-    await fetcher.put("/api/actions/" + actionId, {
+    await fetcher.put("/api/actions/" + slug, {
       status: result_action.status
     });
   }
@@ -269,7 +269,7 @@
         <option value="hidden">{_('hidden')}</option>
         <option value="archive">{_('archive')}</option>
       </select>
-      <a href={`/admin/event/edit?id=${actionId}`}>{_('edit')}</a>
+      <a href={`/admin/event/${slug}/edit`}>{_('edit')}</a>
     </div>
     <h1>{result_action.name}</h1>
     <div id="description-block"></div>

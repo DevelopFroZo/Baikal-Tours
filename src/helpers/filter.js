@@ -26,7 +26,8 @@ function setFilterData(res) {
 
 function setNewLocationsData(locations){
     let data = [];
-    for(let location of locations){
+    for(let location of Object.assign([], locations)){
+        location = Object.assign({}, location);
         location.value = location.name;
         delete location.name;
         data.push({
@@ -110,8 +111,8 @@ function parseFilterDataForHotels(filter) {
 
     if (filter.search.active || filter.search.value.length > 0) params.search = encodeURIComponent(filter.search.value);
 
-    arrData = getActiveOption(filter.bookingLocationIds);
-    if (arrData.length) params.bookingLocationIds = arrData;
+    arrData = getActiveOption(filter.locationIds );
+    if (arrData.length) params.locationIds = arrData;
 
     if(Object.keys(params).length === 1)
         params = {};

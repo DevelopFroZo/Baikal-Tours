@@ -420,7 +420,7 @@
             {parsePrice(action.price_min, action.price_max, _)}
           </b>
           <div class="action-description">{action.description}</div>
-          <a href={`/event?id=${action.id}`}>{_('detailed')}</a>
+          <a href={`/event/${action.slug}`}>{_('detailed')}</a>
         </div>
       </div>
     {/each}

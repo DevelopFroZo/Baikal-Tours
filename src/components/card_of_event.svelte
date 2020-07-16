@@ -15,7 +15,8 @@
     locale,
     companions = "",
     saveURL = true,
-    status = "";
+    status = "",
+    slug;
 
   const _ = i18n(locale);
 
@@ -176,9 +177,9 @@
   itemtype="http://schema.org/Event"
   itemprop="itemListElement"
   class="card swiper-slide"
-  href="./event?id={id}"
+  href="./event/{slug}"
   >
-  <link itemprop="url" href={`./event?id=${id}`}>
+  <link itemprop="url" href={`./event/${slug}`}>
   <div class="image-and-price">
     <div class="image">
       <Image

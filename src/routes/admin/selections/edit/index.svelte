@@ -21,7 +21,7 @@
       }
     })).actions;
 
-    let allLocations = (await fetcher.get(`/api/locations`, {
+    let allLocations = (await fetcher.get(`/api/locations2`, {
       credentials: "same-origin"
     })).data;
 
@@ -422,6 +422,11 @@
 <style lang="scss">
   @import "./styles/admin.scss";
 
+  .option_top{
+    bottom: 27px;
+    top: auto;
+  }
+
   .head-line {
     display: flex;
     align-items: center;
@@ -541,6 +546,14 @@
 
   .actions-block {
     margin-top: 20px;
+  }
+
+  .secondLocation{
+    padding-left: 15px !important;
+  }
+
+  .thridLocation{
+    padding-left: 30px !important;
   }
 </style>
 
@@ -726,8 +739,9 @@
             exclude={[options[0].btn]}>
             {#if options[0].isVisible}
               <div
-                class="option"
-                class:option-visible={options[0].isVisible}
+                class="option option_top"
+                class:secondLocation={location.n1 && !location.n2} 
+                class:thridLocation={location.n1 && location.n2}
                 bind:this={options[0].option}>
                 {#each result_filters.subjects as subject}
                   <div
@@ -760,11 +774,12 @@
             exclude={[options[1].btn]}>
             {#if options[1].isVisible}
               <div
-                class="option"
-                class:option-visible={options[1].isVisible}
+                class="option option_top"
                 bind:this={options[1].option}>
                 {#each allLocations as location}
                   <div
+                    class:secondLocation={location.n1 && !location.n2} 
+                    class:thridLocation={location.n1 && location.n2}
                     on:click={() => (location_ids = edit.parseDataToIds(location_ids, location.id))}>
                     <label>{location.name}</label>
                     <input

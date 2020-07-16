@@ -442,5 +442,7 @@ export default ( {
   payout_error:               "Произошла ошибка при изменении статуса заявки",
   payout_accepted:            "Заявка одобрена",
   payout_rejected:            "Заявка отклонена с сообщением: ",
-  payout_required_message:    "Напишите причину отклонения заявки"
+  payout_required_message:    "Напишите причину отклонения заявки",
+
+  success_digest_edit:        "Дайджест успешно изменен"
 } );

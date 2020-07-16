@@ -2,7 +2,7 @@
   import Image from "/components/imageCenter.svelte";
   import dateToString from "/helpers/dateToString.js";
 
-  export let name, dates, location, image_url, id, _;
+  export let name, dates, location, image_url, id, _, slug;
 </script>
 
 <style lang="scss">
@@ -105,7 +105,7 @@
       </ul>
     {/if}
     <span class="event-location">{location}</span>
-    <a href="/event?id={id}">{_('detailed')}</a>
+    <a href="/event/{slug}">{_('detailed')}</a>
   </div>
   {#if image_url}
     <div class="image-block">

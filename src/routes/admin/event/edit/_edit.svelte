@@ -1,123 +1,5 @@
-<script context="module">
-  import Fetcher from "/helpers/fetcher.js";
-  import { setDataToCK } from "/helpers/edit.js";
-
-  export async function preload(page, session) {
-    const fetcher = new Fetcher(this.fetch);
-
-    const locale = session.locale;
-
-    let actionId = page.query.id,
-      actionData = {
-        price_min: 0,
-        price_max: 0,
-        organizer_ids: null,
-        site_payment: false,
-        organizer_payment: null,
-        emails: null,
-        phones: null,
-        websites: null,
-        vk_link: null,
-        facebook_link: null,
-        instagram_link: null,
-        twitter_link: null,
-        status: "hidden",
-        is_favorite: false,
-        organizer_email: null,
-        organizer_phone: null,
-        title: "",
-        name: "",
-        short_description: "",
-        full_description: "",
-        organizer_name: "",
-        contact_faces: null,
-        images: [],
-        dates: null,
-        locations: null,
-        transfers: null,
-        subjects: null,
-        companions: null,
-        partners: [],
-        tours: [],
-        excursions: [],
-        buyable: [],
-        locations2: []
-      };
-
-    let result_filters = await fetcher.get("/api/dataForFilters", {
-      credentials: "same-origin"
-    });
-
-    let allLocations = (await fetcher.get(`/api/locations`, {
-      credentials: "same-origin"
-    })).data;
-
-    let result_users = await fetcher.get("/api/users", {
-      credentials: "same-origin"
-    });
-
-    let allExcursions = (await fetcher.get("/api/excursions", {
-      credentials: "same-origin"
-    })).data;
-
-    let allTours = (await fetcher.get("/api/tours", {
-      credentials: "same-origin"
-    })).data;
-
-    let allHotels = (await fetcher.get("/api/hotels", {
-      credentials: "same-origin",
-      query: {
-        offset: 0,
-        count: 8
-      }
-    }));
-
-    let newLocations = (await fetcher.get(`/api/locations2`, {
-      credentials: "same-origin"
-    })).data;
-
-    let hotelsCount = allHotels.count;
-    allHotels = allHotels.hotels;
-
-    result_filters = result_filters.data;
-    result_users = result_users.data;
-
-    if (actionId !== undefined) {
-      actionData = await fetcher.get("/api/actions/" + actionId, {
-        credentials: "same-origin"
-      });
-      
-      if(actionData.ok)
-        actionData.data.dates = setDataToCK(actionData.data.dates);
-    }
-
-    if(actionId === undefined || actionData.ok){
-      if(actionId !== undefined){
-        actionData = actionData.data;
-        actionId = Number(actionId)
-      }
-      return {
-        ...actionData,
-        actionData,
-        actionId,
-        result_filters,
-        result_users,
-        locale,
-        allExcursions,
-        allTours,
-        allHotels,
-        hotelsCount,
-        newLocations,
-        allLocations
-      };
-    }
-      
-    this.error(404, "page not found");
-  }
-</script>
-
 <script>
-  import AdminPage from "../_admin_page.svelte";
+  import AdminPage from "../../_admin_page.svelte";
   import i18n from "/helpers/i18n/index.js";
   import { parseDate } from "/helpers/parsers.js";
   import { onMount } from "svelte";
@@ -132,6 +14,8 @@
   import HotelsWindow from "./_hotels_window.svelte";
   import UsersBlock from "./_users_window.svelte";
   import LocationsList from "/components/adminLocations.svelte";
+  import Fetcher from "/helpers/fetcher.js";
+  import tr from "transliteration";
 
   export let actionId,
     result_filters,
@@ -177,8 +61,9 @@
     hotelsCount,
     locations2 = [],
     newLocations,
-    allLocations;
-
+    slug,
+    alt = "";
+  
   const fetcher = new Fetcher();
   const _ = i18n(locale);
   const customIcon = {
@@ -188,6 +73,7 @@
   };
   const center = [ 52.285725130459866, 104.28156685575135 ];
   const apiKey = "c7b75af8-80f3-4ff2-afb6-a05da8ecdeec";
+  const { slugify } = tr;
 
   emails = edit.cloneArray(actionData.emails);
   phones = edit.cloneArray(actionData.phones);
@@ -213,7 +99,6 @@
     location.isShow = false;
   }
     
-
   subjects = edit.getIds(subjects);
   transfers = edit.getIds(transfers);
   companions = edit.getIds(companions);
@@ -243,7 +128,7 @@
     activeLocation = null,
     mapIsLoad = false,
     newLocationsData = [];
-
+  
   if (organizer_payment !== null) participation = "organizer";
   else if (site_payment === true) participation = "site";
 
@@ -252,7 +137,7 @@
   else if (price_min !== 0 && price_max === 0) price = price_min;
   else if (price_min !== null && price_max !== null)
     price = price_min + "-" + price_max;
-
+  
   if (dates !== null) {
     let d = dates;
     for (let date of d) {
@@ -263,10 +148,9 @@
     }
     dates = d;
   }
-
   if((!actionData.title || !actionData.title.length) && actionId)
     title = actionData.name;
-
+  
   //Title
   $: {
     newData = edit.validateNewtranslateData(
@@ -297,6 +181,16 @@
     );
   }
 
+  //alt
+  $: {
+    newData = edit.validateNewtranslateData(
+      edit.setTextTranslation(alt, locale, actionId),
+      actionData.alt,
+      "alt",
+      newData
+    );
+  }
+  
   //Описание события
   $: {
     newData = edit.validateNewtranslateData(
@@ -310,12 +204,10 @@
   //Даты
   $: {
     if (dates !== null && dates.length === 0) dates = null;
-
     if (dates === null) {
       dates = [];
       addDate();
     }
-
     newData = edit.validateEditData(
       edit.formatDates(dates, actionData),
       "dates",
@@ -326,12 +218,10 @@
   //Локации
   $: {
     if (locations !== null && locations.length === 0) locations = null;
-
     if (locations === null) {
       locations = [];
       addLocation();
     }
-
     newData = edit.validateEditData(
       edit.formatLocations(locations, actionData),
       "locations",
@@ -344,9 +234,7 @@
     if (subjects === null) {
       subjects = [];
     }
-
     subjectsNames = edit.getNamesById(result_filters.subjects, subjects);
-
     newData = edit.validateEditData(
       edit.formatIdsArrays(subjects, actionData.subjects),
       "subjects",
@@ -359,31 +247,26 @@
     if (transfers === null) {
       transfers = [];
     }
-
     transfersNames = edit.getNamesById(result_filters.transfers, transfers);
-
     newData = edit.validateEditData(
       edit.formatIdsArrays(transfers, actionData.transfers),
       "transfers",
       newData
     );
   }
-
   //Компаньены
   $: {
     if (companions === null) {
       companions = [];
     }
-
     companionsNames = edit.getNamesById(result_filters.companions, companions);
-
     newData = edit.validateEditData(
       edit.formatIdsArrays(companions, actionData.companions),
       "companions",
       newData
     );
   }
-
+  
   //Организатор
   $: {
     newData = edit.validateNewtranslateData(
@@ -398,7 +281,6 @@
   $: {
     if(organizer_ids === null || organizer_ids.length === 0)
       organizer_ids = [{id: null, isVisible: false}];
-
     for(let i = 0; i <  organizer_ids.length; i++)
       if(typeof organizer_ids[i] !== "object")
         organizer_ids[i] = {
@@ -410,7 +292,6 @@
     for(let { id } of organizer_ids)
       if(id)
         ids.push(id)
-
     newData = edit.validateEditArray(
       ids,
       actionData.organizer_ids,
@@ -423,16 +304,11 @@
   $: {
     if (contact_faces !== null && contact_faces.length === 0)
       contact_faces = null;
-
     if (contact_faces === null) contact_faces = [""];
-
     let fContact_faces = [];
-
     for (let i = 0; i < contact_faces.length; i++)
       fContact_faces.push(contact_faces[i]);
-
     fContact_faces = edit.setTextTranslation(fContact_faces, locale, actionId);
-
     newData = edit.validateEditArray(
       fContact_faces,
       actionData.contact_faces,
@@ -445,7 +321,6 @@
   $: {
     if (phones !== null && phones.length === 0) phones = null;
     if (phones === null) phones = [""];
-
     newData = edit.validateEditArray(
       phones,
       actionData.phones,
@@ -458,7 +333,6 @@
   $: {
     if (emails !== null && emails.length === 0) emails = null;
     if (emails === null) emails = [""];
-
     newData = edit.validateEditArray(
       emails,
       actionData.emails,
@@ -471,7 +345,6 @@
   $: {
     if (websites !== null && websites.length === 0) websites = null;
     if (websites === null) websites = [""];
-
     newData = edit.validateEditArray(
       websites,
       actionData.websites,
@@ -483,7 +356,6 @@
   //Вконтакте
   $: {
     if (vk_link === "") vk_link = null;
-
     newData = edit.validateNewData(
       vk_link,
       actionData.vk_link,
@@ -495,7 +367,6 @@
   //Фейсбук
   $: {
     if (facebook_link === "") facebook_link = null;
-
     newData = edit.validateNewData(
       facebook_link,
       actionData.facebook_link,
@@ -507,7 +378,6 @@
   //Инстаграм
   $: {
     if (instagram_link === "") instagram_link = null;
-
     newData = edit.validateNewData(
       instagram_link,
       actionData.instagram_link,
@@ -519,7 +389,6 @@
   //Твиттер
   $: {
     if (twitter_link === "") twitter_link = null;
-
     newData = edit.validateNewData(
       twitter_link,
       actionData.twitter_link,
@@ -561,7 +430,6 @@
   $: {
     let tickets = buyable.filter(el => el.type === "ticket");
     let additions = buyable.filter(el => el.type === "additional")  
-
     if(!tickets.length)
       addBuyable("ticket")
     
@@ -569,15 +437,23 @@
       addBuyable("additional")
   }
 
-  let options = [];
+  //URL
+  $: {
+    newData = edit.validateNewData(
+      slugify(slug),
+      actionData.url,
+      "slug",
+      newData
+    );
+  }
 
+  let options = [];
   for (let i = 0; i < 3; i++)
     options.push({
       isVisible: false,
       option: null,
       btn: null
     });
-
   function addDate() {
     dates.push({
       dateStart: null,
@@ -586,7 +462,6 @@
       timeEnd: null,
       days: null
     });
-
     dates = dates;
   }
 
@@ -597,7 +472,6 @@
       location_id: null,
       coords: null
     });
-
     locations = locations;
   }
 
@@ -608,7 +482,6 @@
   async function changeImages() {
     let newSecondImages = [],
       result;
-
     let saveNewImage = !images.length && !newImages.length;
     for (let img of uploadImg.files) {
       let fileFormat = img.name.split(".").pop();
@@ -618,7 +491,6 @@
         newSecondImages.push(img);
       } else alert(_("image_not_load").replace(/{img}/g, img.name));
     }
-
     if (actionId !== undefined && newSecondImages.length !== 0) {
       result = (await fetcher.post(
         "/api/actionImages",
@@ -629,7 +501,6 @@
         { bodyType: "formData" }
       )).data;
     }
-
     for (let i = 0; i < newSecondImages.length; i++) {
       newImages.push({
         src: newSecondImages[i],
@@ -637,7 +508,6 @@
       });
     }
     newImages = newImages;
-
     if(newImages.length && saveNewImage){
       changeNewActiveImg(0, newImages[0].id);
     }
@@ -646,13 +516,11 @@
 
   async function changeActiveImg(main_img, id) {
     mainImg = null;
-
     for (let img of images)
       if (img.is_main === true) {
         img.is_main = false;
         break;
       }
-
     images[main_img].is_main = true;
     let saveImage = await fetcher.put(`/api/actionImages/${id}`, {
       isMain: true
@@ -665,7 +533,6 @@
         images[i].is_main = false;
         break;
       }
-
     mainImg = main_img;
     if (actionId !== undefined) {
       let saveImage = await fetcher.put(`/api/actionImages/${id}`, {
@@ -684,10 +551,8 @@
       newImages.length !== 0
     )
       mainImg = 0;
-
     images.splice(delete_img, 1);
     images = images;
-
     let newI = false, i = 0;
     for(let image of images){
       if(image.is_main){
@@ -697,10 +562,8 @@
       }
       i++;
     }
-
     if(!newI && newImages[mainImg])
       changeNewActiveImg(mainImg, newImages[mainImg].id)
-
     await fetcher.delete(`/api/actionImages/${id}`);
   }
 
@@ -715,30 +578,26 @@
       if (delete_img !== 0) mainImg = delete_img - 1;
       else mainImg = delete_img;
     else if (delete_img < mainImg) mainImg--;
-
     newImages.splice(delete_img, 1);
     newImages = newImages;
-
     if(mainImg){
       changeNewActiveImg(mainImg, newImages[mainImg].id)
     }
     else{
-       let i = 0;
-       for(let image of images){
-         if(image.is_main){
-           changeActiveImg(i, image.id)
-           break;
-         }
-         i++;
-       }
+      let i = 0;
+      for(let image of images){
+        if(image.is_main){
+          changeActiveImg(i, image.id)
+          break;
+        }
+        i++;
+      }
     }
-
     if (actionId !== undefined) await fetcher.delete(`/api/actionImages/${id}`);
   }
 
   async function saveAction() {
     let result;
-
     let requiredFields = [
       {
         field: short_description,
@@ -757,46 +616,39 @@
         name: "organizer"
       }
     ];
-
     for (let field of requiredFields)
       if (field.field === "" || field.field === null) {
         alert(_("required_field_message").replace(/{field}/g, _(field.name)));
         return null;
       }
-
     if (participation === "organizer" && organizer_payment === "") {
       alert(_("required_payment_message"));
       return null;
     }
-
     if(!subjects || !subjects.length){
       alert(_("required_subjects"));
       return null;
     }
-
     if(!companions || !companions.length){
       alert(_("required_companion"));
       return null;
     }
-
     let bl = false;
     for(let location of locations)
       if(location.location_id){
         bl = true;
         break;
       }
-
     if(!bl){
       alert(_("required_locations"))
       return null;
-    }
+    } 
 
     if (actionId === undefined) {
       actionId = Number((await fetcher.post("/api/actions")).data);
       if (newImages.length !== 0) {
         let fileImages = [];
         for (let img of newImages) fileImages.push(img.src);
-
         result = (await fetcher.post(
           "/api/actionImages",
           {
@@ -837,7 +689,6 @@
             actionId,
             tourId: tour.id
           })
-
       if(hotels.length){
         for(let hotel of hotels)
           result = await fetcher.post(`/api/actions/${actionId}/hotels`, {
@@ -845,9 +696,7 @@
           })
       }
     }
-
     let newTickets = edit.parseTickets(actionData.buyable, buyable, actionId, locale);
-
     if(newTickets.del !== undefined)
       for(let ticket of newTickets.del)
         await fetcher.delete(`/api/actionBuyable/${ticket}`)
@@ -878,13 +727,21 @@
         for(let id of data.del){
           let result = await fetcher.delete(`/api/actions/${actionId}/locations2/${id}`);
         }
-          
-        
     }
+
+    let url;
+
+    if(!slug)
+      newData.slug = slugify(name);
+
+    url = newData.slug;
 
     result = await fetcher.put(`/api/actions/${actionId}`, newData);
 
-    document.location.href = `/admin/event?id=${actionId}`;
+    console.log(newData.slug)
+
+    if(!url) document.location.href = `/admin/event/${actionData.slug}`;
+    else document.location.href = `/admin/event/${url}`;
   }
 
   async function changePartners() {
@@ -902,7 +759,6 @@
         };
       } else alert(_("image_not_load").replace(/{img}/g, img[0].name));
     }
-
     if (actionId !== undefined && Object.keys(newPartner).length !== 0) {
       result = (await fetcher.post(
         `/api/actionPartners`,
@@ -913,13 +769,10 @@
         },
         { bodyType: "formData" }
       )).data;
-
       newPartner.id = result;
     }
-
     newPartners.push(newPartner);
     newPartners = newPartners;
-
     newPartnerName = "";
   }
 
@@ -965,20 +818,15 @@
     };
 
     var editor = new Quill('#editor', options);
-
     editor.setContents(editor.clipboard.convert(full_description.replace(/\n/g, "</br>")));
-
     full_description = document.querySelector(".ql-editor").innerHTML;
-
     editor.on('text-change', function(delta, oldDelta, source){
       full_description = document.querySelector(".ql-editor").innerHTML;
     })
-
   }
 
   async function sortTours(e){
     let newTours = e.detail, i = 0;
-
     if(actionId !== undefined){
       for (let tour of tours) {
         if (tour.id !== newTours[i].id) {
@@ -1006,7 +854,6 @@
 
   async function sortExcursions(e){
     let newExcursions = e.detail, i = 0;
-
     if(actionId !== undefined){
       for (let excursion of excursions) {
         if (excursion.id !== newExcursions[i].id) {
@@ -1035,7 +882,6 @@
 
   async function sortHotels(e){
     let newHotels = e.detail, i = 0;
-
     if(actionId !== undefined){
       for (let hotel of hotels) {
         if (hotel.id !== newHotels[i].id) {
@@ -1062,43 +908,37 @@
 
   async function addTour(e){
     let newTour = e.detail;
-
     for(let tour of tours)
       if(tour.id === newTour.id){
         alert(_("already_added_tour"))
         return null;
       }
       
-
     if(actionId !== undefined){
       let result = await fetcher.post("/api/actionsTours", {
         actionId,
         tourId: newTour.id
       })
     }
-
     tours.push(newTour);
     tours = tours;
     showTours = false;
   }
-
+  
   async function addExcursion(e){
     let newExcursion = e.detail;
-
     for(let excursion of excursions)
       if(excursion.id === newExcursion.id){
         alert(_("already_added_tour"))
         return null;
       }
       
-
     if(actionId !== undefined){
       let result = await fetcher.post("/api/actionsExcursions", {
         actionId,
         excursionId: newExcursion.id
       })
     }
-
     excursions.push(newExcursion);
     excursions = excursions;
     showExcursions = false;
@@ -1106,20 +946,17 @@
 
   async function addHotel(e){
     let newHotel = e.detail;
-
     for(let hotel of hotels)
       if(hotel.id === newHotel.id){
         alert(_("already_added_tour"))
         return null;
       }
       
-
     if(actionId !== undefined){
       let result = await fetcher.post(`/api/actions/${actionId}/hotels`, {
         hotelId: newHotel.id
       })
     }
-
     hotels.push(newHotel);
     hotels = hotels;
     showHotels = false;
@@ -1134,7 +971,6 @@
         }
       })
     }
-
     tours.splice(i, 1);
     tours = tours;
   }
@@ -1148,7 +984,6 @@
         }
       })
     }
-
     excursions.splice(i, 1);
     excursions = excursions;
   }
@@ -1167,7 +1002,6 @@
         name: "",
         price: ""
     })
-
     buyable = buyable;
   }
 
@@ -1204,7 +1038,6 @@
         return name;
       }
     }
-
     return "";
   }
 
@@ -1216,18 +1049,15 @@
       n1: 0,
       n2: 0
     })
-
     locations2 = locations2;
   }
 </script>
 
 <style lang="scss">
   @import "./styles/admin.scss";
-
   .title-h1 {
     font-size: 18px;
   }
-
   .save {
     margin-left: 18px;
     padding: 10px 15px;
@@ -1236,18 +1066,15 @@
     background: $Green;
     border-radius: 5px;
   }
-
   .line-center {
     display: flex;
     align-items: center;
   }
-
   label {
     margin-top: 10px;
     font-weight: bold;
     display: block;
   }
-
   input[type="text"],
   textarea,
   input[type="number"],
@@ -1261,12 +1088,10 @@
     box-sizing: border-box;
     height: 24px;
   }
-
   textarea {
     resize: none;
     min-height: 200px;
   }
-
   .img > button {
     position: absolute;
     top: 5px;
@@ -1277,7 +1102,6 @@
     width: 20px;
     height: 20px;
     overflow: hidden;
-
     & > img{
       position: absolute;
       top: 50%;
@@ -1286,103 +1110,83 @@
       width: 10px;
     }
   }
-
   .block-name {
     font-size: $Big_Font_Size;
     margin-bottom: 15px;
     font-weight: bold;
   }
-
   .locations-block {
     margin-top: 35px;
   }
-
   .location-block {
     display: flex;
     align-items: flex-end;
     margin-top: 15px;
-
     & > .location-select {
       width: auto;
-
       & > select {
         width: 165px;
       }
     }
-
     & > .location-name {
       width: auto;
       margin-left: 7px;
-
       & > input {
         width: 525px;
       }
     }
-
     & > button:not(.delete) {
       margin-left: 15px;
       width: 24px;
       height: 24px;
     }
-
     & > .delete {
       height: 30px;
       margin-left: 15px;
     }
   }
-
   .organisators-block {
     display: flex;
     margin-top: 35px;
-
     & > div {
       & select,
       input {
         width: 400px;
       }
     }
-
     & > div:last-child{
       margin-left: 40px;
     }
   }
-
   .contacts-block {
     display: flex;
     margin-top: 35px;
-
     & label {
       font-weight: normal;
       font-size: $LowMedium_Font_Size;
       margin: 0 5px 0 0;
       width: 70px;
     }
-
     & .block-name {
       font-size: $Medium_Font_Size;
       font-weight: bold;
       margin-bottom: 10px;
     }
-
     & input {
       width: 170px;
       margin-top: 0;
     }
-
     & > .contacts-block-info {
       & > div {
         display: flex;
         align-items: flex-start;
-
         & > div {
           & > div {
             display: flex;
             align-items: center;
-
             & > button {
               margin-left: 10px;
             }
-
             & > .delete {
               margin-left: 5px;
               font-size: 25px;
@@ -1392,50 +1196,40 @@
         }
       }
     }
-
     & > .messengers-block-info {
       margin-left: 50px;
-
       & > div {
         display: flex;
         align-items: center;
       }
     }
-
     & > div {
       & > div:not(:first-child) {
         margin-top: 10px;
       }
     }
   }
-
   .pay-block {
     margin-top: 35px;
-
     & label {
       font-size: $Medium_Font_Size;
       margin: 0;
       font-weight: normal;
     }
-
     & > div {
       display: flex;
       align-items: center;
-
       & > *:not(:first-child) {
         margin-left: 10px;
       }
-
       & > input[type="text"] {
         width: 320px;
       }
     }
-
     & > div:not(:first-child) {
       margin-top: 10px;
     }
   }
-
   .partner {
     display: grid;
     grid-template-columns: repeat(4, 150px);
@@ -1443,17 +1237,14 @@
     grid-row-gap: 20px;
     margin-top: 15px;
   }
-
   .partners-block {
     margin-top: 35px;
   }
-
   .empty {
     position: relative;
     width: 150px;
     height: 100px;
     background: $Gray;
-
     & > div {
       position: absolute;
       top: 50%;
@@ -1463,7 +1254,6 @@
       border-radius: 100%;
       width: 36px;
       height: 36px;
-
       & > div {
         position: absolute;
         top: 50%;
@@ -1473,7 +1263,6 @@
         font-size: 50px;
       }
     }
-
     & > input {
       position: absolute;
       top: 0;
@@ -1484,27 +1273,22 @@
       cursor: pointer;
     }
   }
-
   .hide-label {
     height: 0;
     overflow: hidden;
     margin: 0;
   }
-
   :global(.edit-block .ql-editor){
     min-height: 300px;
     max-height: 300px;
   }
-
   :global(#editor){
     min-height: 300px;
     max-height: 300px;
   }
-
   :global(.ql-toolbar){
     margin-top: 10px;
   }
-
   .all-tours-block{
     position: fixed;
     top: 0;
@@ -1512,7 +1296,6 @@
     width: 100%;
     height: 100vh;
     z-index: 2;
-
     & > button{
       position: absolute;
       top: 0;
@@ -1522,14 +1305,12 @@
       background: #00000088;
       z-index: 1;
     }
-
     & > div{
       position: absolute;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
       z-index: 2;
-
       & > h4{
         font-size: 20px;
         color: white;
@@ -1551,29 +1332,24 @@
       }
     }
   }
-
   .windows-block{
     margin-top: 35px;
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-
     & > div{
       width: 250px;
     }
   }
-
   .banner-block{
     width: 225px;
     height: 150px;
     position: relative;
     box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
     overflow: hidden;
-
     & > :global(img){
       pointer-events: none;
     }
-
     & > .banner-data{
       position: absolute;
       bottom: 0px;
@@ -1588,24 +1364,20 @@
       #3b394a 100%
       );
       box-sizing: border-box;
-
       & > *{
         color: white;
       }
     }
   }
-
   .add{
     margin-top: 20px;
     box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
     padding: 20px;
   }
-
   .tours, .excursions, .hotels {
     & :global(li){
       width: 225px;
     }
-
     & .delete{
       position: absolute;
       top: 10px;
@@ -1615,7 +1387,6 @@
       background: white;
       border-radius: 100px;
       box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
-
       & > img{
         width: 12px;
         position: absolute;
@@ -1625,55 +1396,45 @@
       }
     }
   }
-
   .tickets-block{
     display: flex;
     align-items: flex-start;
     margin-top: 35px;
-
     & > div:last-child{
       margin-left: 40px;
     }
   }
-
   .all-tickets{
     & > div{
       display: grid;
       grid-template-columns: 150px 150px 20px 25px;
       grid-column-gap: 15px;
       margin-top: 10px;
-
       & > input, label{
         width: 150px;
       }
-
       & > .add-ticket{
         font-size: 25px;
         width: 25px;
       }
-
       & > .delete{
         font-size: 30px;
         width: 20px;
       }
     }
   }
-
   .organizer-line{
     display: flex;
     align-items: center;
     margin-top: 8px;
     height: 24px;
     position: relative;
-
     & > .add-оrganizer{
       font-size: 25px;
     }
-
     & > button:not(.organizer-user){
       margin-left: 10px;
     }
-
     & > .organizer-user{
       margin-top: 0;
       border: 1px solid $Gray;
@@ -1682,7 +1443,6 @@
       text-align: left;
       height: 24px;
       position: relative;
-
       &:before{
         position: absolute;
         top: 50%;
@@ -1697,7 +1457,6 @@
       }
     }
   }
-
   .map-block{
     position: fixed;
     width: 90%;
@@ -1707,18 +1466,15 @@
     z-index: 5;
     box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
     background: white;
-
     & > .hide-map-button{
       position: absolute;
       right: 30px;
       top: 30px;
       z-index: 1;
-
       & > img{
         width: 40px;
       }
     }
-
     & > .delete-placeholder{
       position: absolute;
       left: 30px;
@@ -1729,7 +1485,6 @@
       box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
       z-index: 1;
     }
-
     & > span{
       position: absolute;
       top: 50%;
@@ -1743,18 +1498,15 @@
       z-index: 1;
     }
   }
-
   .hideMap{
     display: none;
   }
-
   .editor-load-block{
     height: 100%;
     position: absolute;
     width: 100%;
     top: 0;
     left: 0;
-
     & > span{
       position: absolute;
       top: 50%;
@@ -1763,21 +1515,17 @@
       font-weight: bold;
     }
   }
-
   .description-block{
     height: 350px;
     position: relative;
   }
-
   .new-locations{
     margin-top: 20px;
-
     > .new-location-block{
       position: relative;
       display: flex;
       align-items: center;
       margin-top: 10px;
-
       > .new-location-button{
         width: 250px;
         height: 30px;
@@ -1791,7 +1539,6 @@
         
         padding-left: 10px;
       }
-
       ul{
         position: absolute;
         top: 35px;
@@ -1803,39 +1550,32 @@
         max-height: 400px;
         z-index: 1;
         overflow: auto;
-
         > li{
           margin-left: 0;
           font-weight: bold;
-
           &.secondLocation{margin-left: 15px;}
           &.thridLocation{
             margin-left: 30px;
             font-weight: normal;
           }
-
           & > button{
             font-weight: inherit;
             text-align: left;
           }
-
           &:not(:first-child) > button{
             padding-top: 10px;
           }
         }
       }
-
       > *:not(:first-child){
         margin-left: 20px;
       }
-
       > .add-location2{
         width: 20px;
         height: 20px;
         font-size: 20px;
         overflow: hidden;
       }
-
       > .delete-location2 > img{
         width: 10px;
       }
@@ -1878,6 +1618,9 @@
 
     <label for="name">{_('event_name')}</label>
     <input type="text" name="name" bind:value={name} />
+
+    <label for="URL">URL</label>
+    <input type="text" name="URL" bind:value={slug} />
 
     <label for="description">{_('event_description')}</label>
     <div class="description-block">
@@ -1934,6 +1677,9 @@
         on:change={changeImages}
         name="uploadImg" />
     </button>
+
+    <label for="alt">ALT</label>
+    <input type="text" name="alt" bind:value={alt} />
 
     <div class="dates-block">
       {#each dates as date, i}
@@ -2638,7 +2384,7 @@
   {hotelsCount} 
   {fetcher} 
   {hotelsCount} 
-  locations={allLocations} 
+  locations={newLocations} 
   on:change={addHotel}
   {_}
   on:closeWindow={() => showHotels = false}
