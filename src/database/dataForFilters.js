@@ -11,10 +11,10 @@ export default class extends Foundation{
     const transaction = await super.transaction();
 
     const locations = ( await transaction.query(
-      `select id, n0, n1, n2, name
+      `select id, n0, n1, n2, name, slug
       from locations2
       where locale = $1
-      order by id`,
+      order by n0, n1, n2`,
       [ locale ]
     ) ).rows;
 
@@ -27,7 +27,7 @@ export default class extends Foundation{
     ) ).rows;
 
     const subjects = ( await transaction.query(
-      `select id, name
+      `select id, name, slug
       from subjects
       where locale = $1
       order by id`,
