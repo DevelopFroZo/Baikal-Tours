@@ -88,20 +88,23 @@ function space( result, st ){
   return st.length > 0 ? `${st[0].toUpperCase()}${st.slice( 1, st.length )}` : "";
 }
 
-function index( { time_start, date_start, time_end, date_end, days }, _ ){
+function index( { time_start, date_start, date_end, days }, _ ){
   if( _ === undefined ) return null;
 
   let result = "";
-  let timeStarts;
+  let dateStarts = _( "date_to_string.start" );
+  const timeStarts = _( "date_to_string.in" );
 
   if( date_start ) date_start = parseDate( date_start, _ );
   if( time_start ) time_start = parseTime( time_start );
   if( date_end ) date_end = parseDate( date_end, _ );
-  if( time_end ) time_end = parseTime( time_end );
   if( days ) days = parseDays( days, _ );
 
   if( date_start && date_end ){
-    if( datesEquals( date_start, date_end ) ) date_end = undefined;
+    if( datesEquals( date_start, date_end ) ){
+      date_end = undefined;
+      dateStarts = "";
+    }
     else if( date_start[2] === date_end[2] ){
       date_start.pop();
 
@@ -112,18 +115,9 @@ function index( { time_start, date_start, time_end, date_end, days }, _ ){
   date_start = dateToString( date_start, _ );
   date_end = dateToString( date_end, _ );
 
-  if( time_start === time_end ){
-    timeStarts = _( "date_to_string.in" );
-    time_end = undefined;
-  }
-  else timeStarts = _( "date_to_string.start" );
-
-  if( date_start ) result = `${space( result, _( "date_to_string.start" ) )} ${date_start}`;
+  if( date_start ) result = `${space( result, dateStarts )} ${date_start}`;
   if( date_end ) result += `${space( result, _( "date_to_string.by" ) )} ${date_end}`;
-
   if( time_start ) result += `${space( result, timeStarts )} ${time_start}`;
-  if( time_end ) result += `${space( result, _( "date_to_string.end" ) )} ${time_end}`;
-
   if( days ) result += `${space( result, _( "date_to_string.by" ) )} ${days}`;
 
   return result;
