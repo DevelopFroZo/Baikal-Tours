@@ -7,27 +7,31 @@ export {
   del
 };
 
-async function create( client, name, id, isChild ){
+async function create( client, locale, name, slug, id, isChild ){
   let n0, n1, n2;
   let insertParams;
 
   if( id === null ){
-    const { rows: [ { n0: tmp } ] } = await client.query(
-      `select coalesce( max( n0 ), 0 ) + 1 as n0
-      from locations2`
+    const { rows: [ { q } ] } = await client.query(
+      `select coalesce( max( n0 ), 0 ) + 1 as q
+      from locations2
+      where locale = $1`,
+      [ locale ]
     );
 
-    insertParams = [ tmp, 0, 0, name ];
+    insertParams = [ q, 0, 0, locale, name, slug ];
   } else {
     const { rows: [ row ] } = await client.query(
       `select n0 as n0_, n1 as n1_, n2 as n2_
       from locations2
-      where id = $1`,
-      [ id ]
+      where
+        id = $1 and
+        locale = $2`,
+      [ id, locale ]
     );
 
     if( row === undefined )
-      return `Invalid ID (${id})`;
+      return `Invalid pair of ID (${id}) and locale (${locale})`;
 
     const { n0_, n1_, n2_ } = row;
     let where = "";
@@ -35,14 +39,14 @@ async function create( client, name, id, isChild ){
     let index;
 
     if( n2_ !== 0 || n1_ !== 0 && isChild ){
-      where = "where n0 = $1 and n1 = $2";
-      searchParams = [ n0_, n1_ ];
+      where = "where locale = $1 and n0 = $2 and n1 = $3";
+      searchParams = [ locale, n0_, n1_ ];
       insertParams = [ n0_, n1_ ];
       index = 2;
     }
     else if( n1_ !== 0 || n0_ !== 0 && isChild ){
-      where = "where n0 = $1";
-      searchParams = [ n0_ ];
+      where = "where locale = $1 and n0 = $2";
+      searchParams = [ locale, n0_ ];
       insertParams = [ n0_, 0, 0 ];
       index = 1;
     } else {
@@ -58,12 +62,12 @@ async function create( client, name, id, isChild ){
     );
 
     insertParams[ index ] = q;
-    insertParams.push( name );
+    insertParams = [ ...insertParams, locale, name, slug ];
   }
 
   const { rows: [ row ] } = await client.query(
-    `insert into locations2( n0, n1, n2, name )
-    values( $1, $2, $3, $4 )
+    `insert into locations2( n0, n1, n2, locale, name, slug )
+    values( $1, $2, $3, $4, $5, $6 )
     returning id, n0, n1, n2`,
     insertParams
   );
@@ -74,12 +78,17 @@ async function create( client, name, id, isChild ){
 async function getAll( client, locale, ln, bln ){
   let fields = "";
   let from = "";
-  const params = [];
+  let where = "";
+  let params;
+
+  if( locale ){
+    where = "where locale = $1";
+    params = [ locale ];
+  }
 
   if( ln ){
     fields += ", l.id as location_id, l.name as location_name";
-    from += " left join locations as l on l2.id = l.location2_id and l.locale = $1";
-    params.push( locale );
+    from += " left join locations as l on l2.id = l.location2_id and l2.locale = l.locale";
   }
 
   if( bln ){
@@ -90,6 +99,7 @@ async function getAll( client, locale, ln, bln ){
   const { rows } = await client.query(
     `select l2.*${fields}
     from locations2 as l2${from}
+    ${where}
     order by l2.n0, l2.n1, l2.n2`,
     params
   );
@@ -97,16 +107,33 @@ async function getAll( client, locale, ln, bln ){
   return rows;
 }
 
-async function edit( client, id, name ){
+async function edit( client, id, { name, slug } ){
+  let set;
+  let condition = "";
+  let params = [];
+
+  if( name !== null && typeof name === "object" && !Array.isArray( name ) ){
+    set = "name = $1";
+    condition = "where id = $2 and locale = $3";
+    params = [ name.text, id, name.locale ];
+  }
+  else if( slug ){
+    set = "slug = $1";
+    condition = "where id = $2";
+    params = [ slug, id ];
+  }
+
   const { rowCount } = await client.query(
     `update locations2
-    set name = $1
-    where id = $2`,
-    [ name, id ]
+    set ${set}
+    where ${condition}`,
+    params
   );
 
-  if( rowCount === 0 )
-    return `Invalid ID (${id})`;
+  if( rowCount === 0 ){
+    if( locale ) return `Invalid pair ID (${id}) and locale (${locale})`;
+    else return `Invalid ID (${id})`;
+  }
 
   return true;
 }

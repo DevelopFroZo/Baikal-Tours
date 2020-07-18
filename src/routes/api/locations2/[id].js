@@ -1,5 +1,7 @@
 "use strict";
 
+import { transliterate } from "transliteration";
+
 import { toInt } from "/helpers/converters";
 import { edit, del as del_ } from "/database/locations2";
 
@@ -10,7 +12,7 @@ export {
 
 async function put( {
   params: { id },
-  body: { name },
+  body: { name, slug },
   database: { pool }
 }, res ){
   const id_ = toInt( id );
@@ -18,13 +20,44 @@ async function put( {
   if( id_ === null || id_ < 1 )
     return res.error( 9 );
 
-  if( typeof name !== "string" || name === "" )
-    return res.error( 13 );
+  const client = await pool.connect();
 
-  const result = await edit( pool, id_, name );
+  await client.query( "begin" );
 
-  if( result !== true )
-    return res.json( { errors: [ result ] } );
+  if( name !== null && typeof name === "object" && !Array.isArray( name ) ){
+    const translated = {
+      [ name.locale ]: { name: name.text }
+    };
+
+    if( name.autoTranslate ) for( const locale of name.toLocales )
+      translated[ locale ] = { name: transliterate( name.text ) };
+
+    for( const locale in translated ){
+      const { name: name_ } = translated[ locale ];
+      const result = await edit( client, id_, { name: { locale, text: name_ } } );
+
+      if( result !== true ){
+        await client.query( "rollback" );
+        client.release();
+
+        return res.json( { errors: [ result ] } );
+      }
+    }
+  }
+
+  if( typeof slug === "string" && slug !== "" ){
+    const result = await edit( client, id_, { slug } );
+
+    if( result !== true ){
+      await client.query( "rollback" );
+      client.release();
+
+      return res.json( { errors: [ result ] } );
+    }
+  }
+
+  await client.query( "commit" );
+  client.release();
 
   res.success();
 }
