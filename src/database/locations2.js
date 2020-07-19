@@ -82,7 +82,7 @@ async function getAll( client, locale, ln, bln ){
   let params;
 
   if( locale ){
-    where = "where locale = $1";
+    where = "where l2.locale = $1";
     params = [ locale ];
   }
 
