@@ -11,10 +11,17 @@ export default class extends Foundation{
     const transaction = await super.transaction();
 
     const locations = ( await transaction.query(
-      `select id, n0, n1, n2, name, slug
-      from locations2
-      where locale = $1
-      order by n0, n1, n2`,
+      `select distinct l2.id, l2.n0, l2.n1, l2.n2, l2.name, l2.slug
+      from
+      	locations2 as l2,
+      	actions_locations2 as al2,
+      	actions as a
+      where
+      	l2.locale = $1 and
+      	a.status = 'active' and
+      	l2.id = al2.location2_id and
+      	al2.action_id = a.id
+      order by l2.n0, l2.n1, l2.n2`,
       [ locale ]
     ) ).rows;
 
