@@ -24,11 +24,11 @@ async function get( {
   session.role = "user";
 
   mail.send(
-    result.email,
+    email,
     // #fix нормальная тема
     _( "email.confirm_password.subject" ),
     // #fix нормальный текст
-    result.password
+    result
   );
 
   res.success();

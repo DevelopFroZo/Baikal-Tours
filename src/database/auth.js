@@ -74,22 +74,51 @@ export default class extends Foundation{
   }
 
   async restorePassword( email ){
-    const { password, hashAndSalt } = this.createPassword();
+    const client = await super.transaction();
 
-    const { rows: [ row ] } = await super.query(
-      `update users
-      set password = $1
-      where email = $2
-      returning email`,
-      [ hashAndSalt, email ]
+    const { rows: [ row ] } = await client.query(
+      `select restore_expires, restore_count
+      from users
+      where email = $1`,
+      [ email ]
     );
 
-    if( row === undefined )
-      return { errors: [ `Email ${email} not found` ] };
+    if( row === undefined ){
+      await client.end( false );
 
-    return {
-      email: row.email,
-      password
-    };
+      return { errors: [ `Email ${email} not found` ] };
+    }
+
+    let { restore_expires, restore_count } = row;
+    const { password, hashAndSalt } = this.createPassword();
+    const sets = [ `password = $1` ];
+    const params = [ hashAndSalt, email ];
+    let i = 3;
+    const now = Math.floor( Date.now() / 1000 );
+
+    if( restore_expires === null || restore_expires <= now ){
+      sets.push( `restore_expires = $${i++}` );
+      sets.push( `restore_count = $${i++}` );
+      params.push( now + 30 * 24 * 60 * 60 );
+      params.push( 1 );
+    }
+    else if( ++restore_count > 4 ){
+      await client.end( false );
+
+      return { errors: [ `Restoring password must be maximum 4 times per month` ] };
+    } else {
+      sets.push( `restore_count = $${i++}` );
+      params.push( restore_count );
+    }
+
+    await client.query(
+      `update users
+      set ${sets}
+      where email = $2`,
+      params
+    );
+    await client.end();
+
+    return password;
   }
 }
