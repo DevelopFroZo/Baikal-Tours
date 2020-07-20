@@ -5,34 +5,55 @@ import { toInt } from "/helpers/converters";
 import Translator from "/helpers/translator/index";
 import yandexEngineBuilder from "/helpers/translator/engines/yandex";
 
-export async function put( req, res ){
-  const id = toInt( req.params.id );
+export async function put( {
+  params: { id },
+  body: { name, slug },
+  database: { subjects }
+}, res ){
+  const id_ = toInt( id );
 
-  if( id === null || id < 1 )
+  if( id_ === null || id_ < 1 )
     return res.error( 9 );
 
-  let translated = {};
+  if( name !== null && typeof name === "object" && !Array.isArray( name ) ){
+    let translated = {
+      [ name.locale ]: name.text
+    };
 
-  translated[ req.body.locale ] = req.body.name;
+    if( name.autoTranslate === true ){
+      const yandexEngine = yandexEngineBuilder( process.env.YANDEX_TRANSLATE_API_KEY, fetch );
+      const translator = new Translator( yandexEngine );
 
-  if( req.body.autoTranslate === true ){
-    const yandexEngine = yandexEngineBuilder( process.env.YANDEX_TRANSLATE_API_KEY, fetch );
-    const translator = new Translator( yandexEngine );
+      translator.add( "name", name.text, name.locale, name.toLocales );
+      await translator.translate();
 
-    translator.add( "name", req.body.name, req.body.locale, req.body.toLocales );
-    await translator.translate();
+      translated = { ...translated, ...translator.translated.name };
+    }
 
-    translated = { ...translated, ...translator.translated.name };
+    const result = await subjects.edit( id_, { translated } );
+
+    if( typeof result === "string" )
+      return res.json( { errors: [ result ] } );
   }
 
-  res.json( await req.database.subjects.edit( id, translated ) );
+  if( typeof slug === "string" && slug !== "" ){
+    const result = await subjects.edit( id_, { slug } );
+
+    if( typeof result === "string" )
+      return res.json( { errors: [ result ] } );
+  }
+
+  res.success();
 }
 
-export async function del( req, res ){
-  const id = toInt( req.params.id );
+export async function del( {
+  params: { id },
+  database: { subjects }
+}, res ){
+  const id_ = toInt( id );
 
-  if( id === null || id < 1 )
+  if( id_ === null || id_ < 1 )
     return res.error( 9 );
 
-  res.json( await req.database.subjects.del( id ) );
+  res.json( await subjects.del( id_ ) );
 }
