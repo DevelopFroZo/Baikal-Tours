@@ -109,24 +109,24 @@ async function getAll( client, locale, ln, bln ){
 
 async function edit( client, id, { name, slug } ){
   let set;
-  let condition = "";
+  let conditions = "";
   let params = [];
 
   if( name !== null && typeof name === "object" && !Array.isArray( name ) ){
     set = "name = $1";
-    condition = "where id = $2 and locale = $3";
+    conditions = "id = $2 and locale = $3";
     params = [ name.text, id, name.locale ];
   }
   else if( slug ){
     set = "slug = $1";
-    condition = "where id = $2";
+    conditions = "id = $2";
     params = [ slug, id ];
   }
 
   const { rowCount } = await client.query(
     `update locations2
     set ${set}
-    where ${condition}`,
+    where ${conditions}`,
     params
   );
 
