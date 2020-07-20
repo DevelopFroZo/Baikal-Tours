@@ -12,7 +12,7 @@ export default ( {
   "date_to_string.end": "до",
   "date_to_string.by": "по",
   "date_to_string.in": "в",
-  "date_to_string.year": "года",
+  "date_to_string.year": "г.",
 
   "january.PC": "января",
   "february.PC": "февраля",

@@ -12,7 +12,7 @@ export default ( {
   "date_to_string.end": "到",
   "date_to_string.by": "到",
   "date_to_string.in": "在",
-  "date_to_string.year": "年",
+  "date_to_string.year": "",
 
   // #fix
   "january.PC": "january",

@@ -12,7 +12,7 @@ export default ({
   "date_to_string.end": "to",
   "date_to_string.by": "to",
   "date_to_string.in": "at",
-  "date_to_string.year": "year",
+  "date_to_string.year": "",
 
   "january.PC": "january",
   "february.PC": "february",

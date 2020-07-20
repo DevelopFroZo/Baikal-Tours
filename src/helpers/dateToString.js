@@ -73,7 +73,7 @@ function dateToString( date, _ ){
     st = date[0];
 
     if( date[1] ) st += ` ${date[1]}`;
-    if( date[2] ) st += ` ${date[2]} ${_( "date_to_string.year" )}`;
+    if( date[2] ) st += ` ${date[2]}${_( "date_to_string.year" )}`;
   }
 
   return st;
