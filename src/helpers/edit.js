@@ -365,19 +365,12 @@ function validateNewtranslateData(newObj, oldObj, key, newData) {
 }
 
 function setTextTranslation(text, locale, actionId) {
-    // let locales = ["ru", "en", "zh"];
-    // let spliceLocales = [],
+    let locales = ["ru", "en", "zh"];
     let data = {
         locale: "ru",
-        autoTranslate: true,
-        toLocales: ["en", "zh"]
+        autoTranslate: !(Boolean(actionId)),
+        toLocales: locales.filter(el => el !== locale)
     };
-
-    // if (data.autoTranslate) {
-    //     for (let local of locales)
-    //         if (local !== locale) spliceLocales.push(local);
-    //     data.toLocales = spliceLocales;
-    // }
 
     if (Array.isArray(text)) data.source = text;
     else data.text = text;
@@ -570,7 +563,7 @@ function getRundomObjects(start, max, obj) {
     return randObjs;
 }
 
-function formatStringArrays(newObj, oldObj){
+function formatStringArrays(newObj, oldObj, locale){
     let data = {
         create: [],
         edit: [],
@@ -579,14 +572,14 @@ function formatStringArrays(newObj, oldObj){
 
     newObj = newObj.map(el => {
         return Object.assign({}, el);
-      });
+    });
     oldObj = oldObj.map(el => {
         return Object.assign({}, el);
-      });
+    });
 
     for(let obj of newObj)
         if(!obj.id && obj.name.length){
-            obj.name = setTextTranslation(obj.name);
+            obj.name = setTextTranslation(obj.name, locale, false);
             data.create.push(obj)
         }
     
@@ -612,7 +605,7 @@ function formatStringArrays(newObj, oldObj){
                         edit[key] = newj[key];
                 }
 
-                if(edit.name) edit.name = setTextTranslation(newj.name)
+                if(edit.name) edit.name = setTextTranslation(newj.name, locale, true)
             }
         }
 

@@ -1,4 +1,5 @@
 import { parseDate } from "./parsers.js";
+import { featurePolicy } from "helmet";
 
 export {
     parseFilterDataForAdmin,
@@ -7,7 +8,9 @@ export {
     setFilterFromUrl,
     showActiveFilters,
     parseFilterDataForHotels,
-    setNewLocationsData
+    setNewLocationsData,
+    createFilterWithSlug,
+    setFilterBySlug
 }
 
 function setFilterData(res) {
@@ -17,7 +20,8 @@ function setFilterData(res) {
         data.push({
             id: res[i].id,
             value: res[i].name,
-            active: false
+            active: false,
+            slug: res[i].slug
         });
     }
 
@@ -39,48 +43,113 @@ function setNewLocationsData(locations){
     return data;
 }
 
-function parseFilterData(filter) {
+function parseFilterData(filter, isCreate) {
     let params = {
         filter: "",
     },
-        compiliationsParams = {
-            filter: "",
-        },
-        arrData, dateStart, dateEnd;
+    compiliationsParams = {
+        filter: "",
+    },
+    arrData;
 
-    if (filter[0][0].active) {
-        dateStart = new Date(filter[0][0].value).toISOString();
-        params.dateStart = parseDate(new Date(dateStart));
-        compiliationsParams.dateStart = parseDate(new Date(dateStart));
-    }
+    const { dateStart, dateEnd } = changeDateByFilter(filter.date);
 
-    if (filter[0][1].active) {
-        dateEnd = new Date(filter[0][1].value).toISOString();
-        params.dateEnd = parseDate(new Date(dateEnd));
-        compiliationsParams.dateEnd = parseDate(new Date(dateEnd));
-    }
+    if (dateStart) 
+        params.dateStart = compiliationsParams.dateStart = dateStart;
 
-    arrData = getActiveOption(filter[1]);
-    if (arrData.length !== 0) {
-        params.locations = arrData;
-        compiliationsParams.locationIds = arrData;
-    }
+    if(dateEnd)
+        params.dateEnd = compiliationsParams.dateEnd = dateEnd;
 
-    arrData = getActiveOption(filter[2]);
-    if (arrData.length !== 0)
+
+    arrData = getActiveOption(filter.locations);
+    if (arrData.length) 
+        params.locations = compiliationsParams.locationIds = arrData;
+    
+    arrData = getActiveOption(filter.companions);
+    if (arrData.length)
         params.companions = arrData;
 
-    arrData = getActiveOption(filter[3]);
-    if (arrData.length !== 0) {
-        params.subjects = arrData;
-        compiliationsParams.subjectIds = arrData;
+    arrData = getActiveOption(filter.subjects);
+    if (arrData.length){
+        params.subjects = compiliationsParams.subjectIds = arrData;
     }
+        
 
-    if (filter[4][0].active) params.priceMin = parseInt(filter[4][0].value);
-
-    if (filter[4][1].active) params.priceMax = parseInt(filter[4][1].value);
+    if (filter.price.priceMin.active) params.priceMin = parseInt(filter.price.priceMin.value);
+    if (filter.price.priceMax.active) params.priceMax = parseInt(filter.price.priceMax.value);
 
     return { params, compiliationsParams };
+}
+
+function changeDateByFilter(date){
+    let dateStart;
+    let dateEnd;
+
+    if (date.dateStart.active) 
+        dateStart = parseDate(new Date(date.dateStart.value));
+    
+
+    if (date.dateEnd.sctive) 
+        dateEnd = parseDate(new Date(date.dateEnd.value));
+
+    return {dateStart, dateEnd}
+}
+
+function changePriceByFilter(price){
+    let priceMin;
+    let priceMax;
+
+    if (price.priceMin.active) priceMin = parseInt(price.priceMin.value);
+    if (price.priceMax.active) priceMax = parseInt(price.priceMax.value);
+
+    return {priceMax, priceMin}
+}
+
+function createFilterWithSlug(filter, fetcher, search){
+    let params = { filter: "" }
+
+    const { dateStart, dateEnd } = changeDateByFilter(filter.date);
+    const { priceMax, priceMin } = changePriceByFilter(filter.price);
+
+    if(dateStart)   params.dateStart = dateStart;
+    if(dateEnd)     params.dateEnd = dateEnd;
+
+    if(priceMin)    params.priceMin = priceMin;
+    if(priceMax)    params.priceMax = priceMax;
+
+    if(search)      params.search = $page.query.search;
+
+    const slug =    createSlugByFilter(filter);
+
+    const arrData = getActiveOption(filter.companions);
+    if (arrData.length)
+        params.companions = arrData;
+
+    if(Object.keys(params).length > 1)   return slug + fetcher.makeQuery({ query: params });
+    else                                 return slug;
+}
+
+function setFilterBySlug(filter, slug){
+    const activeFilters = slug.split("_");
+
+    for(let key of ["locations", "subjects"])
+        for(let obj of filter[key])
+            for(let activeSlug of activeFilters)
+                if(obj.slug === activeSlug)
+                    obj.active = true;
+
+    return filter;
+}
+
+function createSlugByFilter(filter){
+    let activeFilters = [];
+
+    for(let key of ["locations", "subjects"])
+        for(let obj of filter[key])
+            if(obj.active)
+                activeFilters.push(obj.slug);
+
+    return activeFilters.length ? "/" + activeFilters.join("_") : "";
 }
 
 function parseFilterDataForAdmin(filter) {

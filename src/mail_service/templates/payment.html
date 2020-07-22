@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
+<body
+    style="
+        margin-top:0;margin-bottom:0;margin-right:0;margin-left:0;padding-top:0;padding-bottom:0;padding-right:0;padding-left:0;">
+    <table class="body" border="0" cellpadding="0" cellspacing="0"
+        style="background-color:#E5E5E5;margin-top:0;margin-bottom:0;margin-right:0;margin-left:0;padding-top:10px;padding-bottom:10px;padding-right:10px;padding-left:10px;width:100%;">
+        <tr>
+            <td>
+                <table class="container" border="0" cellpadding="0" cellspacing="0"
+                    style="width:100%;max-width:600px;margin-top:60px;margin-bottom:0;margin-right:auto;margin-left:auto;">
+                    <tr class="logo">
+                        <td class="logo__image-row">
+                            <center class="logo__center"><img src="./images/logo_all.png" alt="logo" class="logo__image"
+                                    style="width:200px;margin-bottom:20px;"></center>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <table class="message" border="0" cellpadding="0" cellspacing="0"
+                                style="width:100%;border-radius:10px 10px 0 0;overflow:hidden;">
+
+                                <tr class="header">
+                                    <td class="header__column"
+                                        style="background-color:#0A92DB;color:#ffffff;padding-top:30px;padding-bottom:30px;padding-right:0;padding-left:0;font-size:36px;">
+                                        <center class="header__text">{header}</center>
+                                    </td>
+                                </tr>
+
+                            </table>
+                            <table class="main" border="0" cellpadding="0" cellspacing="0"
+                                style="background-color:#ffffff;border-radius:0 0px 10px 10px;width:100%;overflow:hidden;padding-top:30px;padding-bottom:50px;padding-right:50px;padding-left:50px;">
+                                <tr class="order">
+                                    <td class="order__column">
+                                        <center>
+                                            <span class="order__text"
+                                                style="display:block;font-size:24px;color:#4F4F4F;">
+                                                {orderHeader}
+                                            </span>
+                                            <!--Дата-->
+                                            <span class="order__date"
+                                                style="display:block;margin-top:10px;color:#C4C4C4;font-size:14px;">
+                                                {date}
+                                            </span>
+                                            <!--Конец даты-->
+                                        </center>
+                                    </td>
+                                </tr>
+                                <!--Блок билетов и дополнительных услуг-->
+                                <tr>
+                                    <td>
+                                        <!--Таблица билетов-->
+                                        <table class="tickets" border="0" cellpadding="0" cellspacing="0"
+                                            style="margin-top:25px;width:100%;">
+                                            <!--Загаловок таблицы-->
+                                            <tr class="tickets__header">
+                                                <th class="tickets__left" style="text-align:left;padding-bottom:15px;">
+                                                    <span class="tickets__name"
+                                                        style="color:#4F4F4F;font-size:18px;"><b>{tickets}</b></span>
+                                                </th>
+                                            </tr>
+                                            <!--Конец загаловка-->
+                                            <!--Билет-->
+                                            <tr class="tickets__ticket">
+                                                <td class="tickets__left" style="text-align:left;padding-top:10px;">
+                                                    <span class="tickets__name"
+                                                        style="color:#4F4F4F;font-size:18px;">
+                                                        {ticket}
+                                                    </span>
+                                                </td>
+                                                <td class="tickets__right" style="text-align:right;padding-top:10px;">
+                                                    <span class="tickets__price"
+                                                        style="color:#0A92DB;letter-spacing:0.03em;">
+                                                        <b>{price}</b>
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                            <!--Конец билета-->
+                                        </table>
+                                        <!--Конец таблицы билетов-->
+                                        <!--Таблица дополнительных услуг-->
+                                        <table class="tickets" border="0" cellpadding="0" cellspacing="0"
+                                            style="margin-top:25px;width:100%;">
+                                            <!--Загаловок таблицы-->
+                                            <tr class="tickets__header">
+                                                <th class="tickets__left" style="text-align:left;padding-bottom:15px;">
+                                                    <span class="tickets__name"
+                                                        style="color:#4F4F4F;font-size:18px;">
+                                                        <b>{additionals}</b>
+                                                    </span>
+                                                </th>
+                                            </tr>
+                                            <!--Конец загаловка-->
+                                            <!--Услуга-->
+                                            <tr class="tickets__ticket">
+                                                <td class="tickets__left" style="text-align:left;padding-top:10px;">
+                                                    <span class="tickets__name"
+                                                        style="color:#4F4F4F;font-size:18px;">
+                                                        {additional}
+                                                    </span>
+                                                </td>
+                                                <td class="tickets__right" style="text-align:right;padding-top:10px;">
+                                                    <span class="tickets__price"
+                                                        style="color:#0A92DB;letter-spacing:0.03em;">
+                                                        <b>{price}</b>
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                            <!--Конец услуги-->
+                                        </table>
+                                        <!--Конец таблицы дополнительных услуг-->
+                                        <!--Таблица итого-->
+                                        <table class="total" border="0" cellpadding="0" cellspacing="0"
+                                            style="margin-top:20px;width:100%;padding-top:10px;border-top-width:1px;border-top-style:solid;border-top-color:#F0F0F0;">
+                                            <tr class="total__left">
+                                                <td class="total__left">
+                                                    <span class="total__text"
+                                                        style="text-transform:uppercase;color:#4F4F4F;font-size:18px;">
+                                                        <b>{total}</b>
+                                                    </span>
+                                                </td>
+                                                <td class="total__right" style="text-align:right;">
+                                                    <span
+                                                        class="total__price"
+                                                        style="color:#0A92DB;letter-spacing:0.03em;font-size:18px;">
+                                                        <b>{price}</b>
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                        <!--Конец таблицы итого-->
+                                    </td>
+                                </tr>
+                                <!--Конец блока билетов и дополнительных услуг-->
+                                <tr>
+                                    <td>
+                                        <table class="data" border="0" cellpadding="0" cellspacing="0"
+                                            style="width:100%;">
+                                            <tr class="data__block">
+                                                <td class="data__header">
+                                                    <span class="data__text"
+                                                        style="display:block;font-size:24px;color:#4F4F4F;margin-top:50px;">
+                                                        <center>{userData}</center>
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                            <!--Блок имени и фамилии-->
+                                            <tr class="data__block">
+                                                <td class="data__info-block" style="padding-top:25px;">
+                                                    <span class="data__label"
+                                                        style="display:block;font-size:18px;color:#4F4F4F;">
+                                                        {fio}
+                                                    </span>
+                                                    <span class="data__info"
+                                                        style="margin-top:5px;display:block;font-size:18px;color:#4F4F4F;">
+                                                        <b>{userFio}</b>
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                            <!--Конец блока имени и фамилии-->
+                                            <!--Блок телефона-->
+                                            <tr class="data__block">
+                                                <td class="data__info-block" style="padding-top:25px;">
+                                                    <span class="data__label"
+                                                        style="display:block;font-size:18px;color:#4F4F4F;">
+                                                        {phone}
+                                                    </span>
+                                                    <span
+                                                        class="data__info"
+                                                        style="margin-top:5px;display:block;font-size:18px;color:#4F4F4F;">
+                                                        <b>{userPhone}</b>
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                            <!--Конец блока телефона-->
+                                            <!--Блок почты-->
+                                            <tr class="data__block">
+                                                <td class="data__info-block" style="padding-top:25px;">
+                                                    <span class="data__label"
+                                                        style="display:block;font-size:18px;color:#4F4F4F;">
+                                                        E-mail
+                                                    </span>
+                                                    <span class="data__info"
+                                                        style="margin-top:5px;display:block;font-size:18px;color:#4F4F4F;">
+                                                        <b>{userEmail}</b>
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                            <!--Конец блока почты-->
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr class="mailing">
+                        <td>
+                            <span class="mailing__text"
+                                style="display:block;margin-top:30px;color:#4F4F4F;font-size:14px;">
+                                {mailingText}
+                                <a href="http://baikal.events" class="mailing__link" target="_blank"
+                                    style="color:#0A92DB;text-decoration:none;">
+                                    baikal.events
+                                </a>
+                            </span>
+                            <a href="http://baikal.events" class="mailing__disabling" target="_blank"
+                                style="display:block;margin-top:30px;font-size:18px;color:#4F4F4F;text-decoration:none;">
+                                {disableMailing}
+                            </a>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+    </td>
+    </tr>
+    </table>
+</body>
+
+</html>

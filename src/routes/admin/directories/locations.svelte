@@ -24,11 +24,14 @@
 <script>
   import i18n from "/helpers/i18n/index.js";
   import AdminPage from "../_admin_page.svelte";
+  import tr from "transliteration";
 
   export let locale, locations, oldLocations, bookingLocations;
 
   const fetcher = new Fetcher();
   const _ = i18n(locale);
+  const { slugify } = tr;
+  const allLocales = ["ru", "en", "zh"];
 
   let showAddingWindow = false;
   let showOldLocationsWindow = false;
@@ -119,7 +122,17 @@
   }
 
   async function addLocation() {
-    let data = { name: addingName };
+    const slug = slugify(addingName);
+    let data = {
+      name: {
+        text: addingName,
+        locale: locale,
+        autoTranslate: true,
+        toLocales: allLocales.filter(el => el !== locale),
+      },
+      isChild: true,
+      slug
+    };
     if (changedAdding.id !== null) data.id = changedAdding.id;
 
     let result = await fetcher.post(`/api/locations2`, {
@@ -135,7 +148,8 @@
         n2: result.data.n2,
         location_id: null,
         booking_location_id: null,
-        name: addingName
+        name: addingName,
+        slug
       });
       locations = locations;
       changedAdding.id = null;
@@ -146,9 +160,16 @@
   }
 
   async function editLocationName(id, name) {
-    let result = await fetcher.put(`/api/locations2/${id}`, { name });
+    let result = await fetcher.put(`/api/locations2/${id}`, {
+      name: {
+        text: name,
+        locale: locale,
+        autoTranslate: false,
+        toLocales: allLocales.filter(el => el !== locale),
+      }
+    });
 
-    if (!result.ok) alert(result.message);
+    if (!result.ok) alert(result.error);
   }
 
   async function deleteFirstLocation(id, n0, index) {
@@ -322,6 +343,14 @@
       }
     }
   }
+
+  async function editLocationSlug({id, slug}){
+    let result = await fetcher.put(`/api/locations2/${id}`, {
+      slug
+    })
+
+    if(!result.ok) alert(result.error)
+  }
 </script>
 
 <style lang="scss">
@@ -334,16 +363,20 @@
   .first-level {
     margin-left: 0;
 
-    input {
+    input:not(.slug-input) {
       font-weight: 900;
       width: 250px;
     }
   }
 
+  .slug-input{
+    width: 200px;
+  }
+
   .second-level {
     margin-left: 15px;
 
-    input {
+    input:not(.slug-input) {
       font-weight: 600;
       width: 235px;
     }
@@ -352,7 +385,7 @@
   .thrid-level {
     margin-left: 30px;
 
-    input {
+    input:not(.slug-input) {
       width: 220px;
     }
 
@@ -522,7 +555,7 @@
   <h1>{_('locations')}</h1>
   <div class="head-line">
     <h3 class="name">{_('location_name')}</h3>
-    <h3 class="old-name">{_('old_location_name')}</h3>
+    <h3 class="old-name">URL</h3>
     <h3 class="booking-location-name">{_('booking_location')}</h3>
   </div>
   <div class="locations-block">
@@ -533,20 +566,25 @@
             <input
               type="text"
               bind:value={location.name}
-              on:blur={() => editLocationName(location.id, location.name)} />
+              on:blur={() => editLocationName(location.id, location.name)} 
+              class = "name-input"/>
             <button
               class="add-location"
               on:click={() => addThridLocation(i, location.id, location.n0, location.n1)}>
               {_('add_thrid_level_location')}
             </button>
-            <button
+            <!-- <button
               class="old-location"
               on:click={() => {
                 editOldLocation(location.id, i);
                 showOldLocationsWindow = true;
               }}>
               {location.location_name ? location.location_name : ''}
-            </button>
+            </button> -->
+            <input type="text" bind:value={location.slug} on:blur={() => {
+              location.slug = slugify(location.slug).replace(/_/, "-");
+              editLocationSlug(location)
+            }} class="slug-input"/>
             <button
               class="booking-location"
               on:click={() => {
@@ -568,16 +606,21 @@
             <input
               type="text"
               bind:value={location.name}
-              on:blur={() => editLocationName(location.id, location.name)} />
+              on:blur={() => editLocationName(location.id, location.name)} 
+              class = "name-input"/>
             <button class="add-location" />
-            <button
+            <!-- <button
               class="old-location"
               on:click={() => {
                 editOldLocation(location.id, i);
                 showOldLocationsWindow = true;
               }}>
               {location.location_name ? location.location_name : ''}
-            </button>
+            </button> -->
+            <input type="text" bind:value={location.slug} on:blur={() => {
+              location.slug = slugify(location.slug).replace(/_/, "-");
+              editLocationSlug(location)
+            }} class="slug-input"/>
             <button
               class="booking-location"
               on:click={() => {
@@ -599,20 +642,25 @@
             <input
               type="text"
               bind:value={location.name}
-              on:blur={() => editLocationName(location.id, location.name)} />
+              on:blur={() => editLocationName(location.id, location.name)} 
+              class = "name-input"/>
             <button
               class="add-location"
               on:click={() => addSecondLocation(i, location.id, location.n0)}>
               {_('add_second_level_location')}
             </button>
-            <button
+            <!-- <button
               class="old-location"
               on:click={() => {
                 editOldLocation(location.id, i);
                 showOldLocationsWindow = true;
               }}>
               {location.location_name ? location.location_name : ''}
-            </button>
+            </button> -->
+            <input type="text" bind:value={location.slug} on:blur={() => {
+              location.slug = slugify(location.slug).replace(/_/, "-");
+              editLocationSlug(location)
+            }} class="slug-input"/>
             <button
               class="booking-location"
               on:click={() => {

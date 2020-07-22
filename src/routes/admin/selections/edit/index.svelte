@@ -740,8 +740,6 @@
             {#if options[0].isVisible}
               <div
                 class="option option_top"
-                class:secondLocation={location.n1 && !location.n2} 
-                class:thridLocation={location.n1 && location.n2}
                 bind:this={options[0].option}>
                 {#each result_filters.subjects as subject}
                   <div

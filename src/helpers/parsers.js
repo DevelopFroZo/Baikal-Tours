@@ -43,10 +43,10 @@ function parsePrice(price_min, price_max, _) {
 function parseDateForActiveFilter(filter) {
     let date;
 
-    if (filter[0][0].active && filter[0][1].active)
-        date = filter[0][0].value + " - " + filter[0][1].value;
-    else if (filter[0][0].active) date = filter[0][0].value;
-    else if (filter[0][1].active) date = filter[0][1].value;
+    if (filter.date.dateStart.active && filter.date.dateEnd.active)
+        date = filter.date.dateStart.value + " - " + filter.date.dateEnd.value;
+    else if (filter.date.dateStart.active) date = filter.date.dateStart.value;
+    else if (filter.date.dateEnd.active) date = filter.date.dateEnd.value;
     else date = "";
 
     return date;
@@ -55,20 +55,20 @@ function parseDateForActiveFilter(filter) {
 function parsePriceForActiveFilter(filter, _) {
     let price;
 
-    if (filter[4][0].active && filter[4][1].active)
+    if (filter.price.priceMin.active && filter.price.priceMax.active)
         price =
             _("from") +
             " " +
-            filter[4][0].value +
+            filter.price.priceMin.value +
             "₽ " +
             _("to") +
             " " +
-            filter[4][1].value +
+            filter.price.priceMax.value +
             "₽";
-    else if (filter[4][0].active)
-        price = _("from") + " " + filter[4][0].value + "₽";
-    else if (filter[4][1].active)
-        price = _("to") + " " + filter[4][1].value + "₽";
+    else if (filter.price.priceMin.active)
+        price = _("from") + " " + filter.price.priceMin.value + "₽";
+    else if (filter.price.priceMax.active)
+        price = _("to") + " " + filter.price.priceMax.value + "₽";
     else price = "";
 
     return price;

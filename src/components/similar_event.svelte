@@ -4,8 +4,6 @@
   import Image from "/components/imageCenter.svelte";
 
   export let _, favorite;
-
-  console.log(favorite)
 </script>
 
 <style lang="scss">

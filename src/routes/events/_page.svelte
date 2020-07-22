@@ -1,407 +1,209 @@
-<script context="module">
-  import Fetcher from "/helpers/fetcher.js";
-  import {
+<script>
+import Header from "/components/header.svelte";
+import Footer from "/components/footer.svelte";
+import Card from "/components/card_of_event.svelte";
+import BreadCrumbs from "/components/breadcrumbs.svelte";
+import {
+  parseDate,
+  parseDateForActiveFilter,
+  parsePriceForActiveFilter
+} from "/helpers/parsers.js";
+import {
     parseFilterData,
     setFilterData,
     setFilterFromUrl,
-    showActiveFilters,
-    setNewLocationsData
-  } from "/helpers/filter.js";
-  import { isMobile } from "/helpers/validators.js";
-  import { parseStringToWords } from "/helpers/parsers.js";
+    setNewLocationsData,
+    createFilterWithSlug
+} from "/helpers/filter.js";
+import i18n from "/helpers/i18n/index.js";
+import { goto, stores } from "@sapper/app";
+import { onMount, afterUpdate, onDestroy } from "svelte";
+import ActiveFilters from "/components/active_filters.svelte";
+import Selection from "/components/selection.svelte";
+import { slide } from "svelte/transition";
+import * as animateScroll from "svelte-scrollto";
+import SimilarEvent from "/components/similar_event.svelte";
+import Carousel from "/components/carousel.svelte";
+import ClickOutside from "/components/clickOutside.svelte";
+import Fetcher from "/helpers/fetcher.js";
 
-  export async function preload(page, session) {
-    const fetcher = new Fetcher(this.fetch);
+export let result_cards,
+  result_filters,
+  locale,
+  filter,
+  showFilter,
+  result_compiliations,
+  result_favorites,
+  mobile;
 
-    let params = page.query,
-      filter = [
-        [
-          {
-            value: "",
-            active: false
-          },
-          {
-            value: "",
-            active: false
-          }
-        ],
-        [],
-        [],
-        [],
-        [
-          {
-            value: "",
-            active: false
-          },
-          {
-            value: "",
-            active: false
-          }
-        ]
-      ],
-      result_cards,
-      showFilter = false;
+const fetcher = new Fetcher();
+const _ = i18n(locale);
+const { page } = stores();
 
-    let result_filters = await fetcher.get("/api/dataForFilters", {
-        credentials: "same-origin"
-      }),
-      result_compiliations,
-      query,
-      compiliationQuery,
-      result_favorites;
+let date = "",
+  price = "",
+  priceStart = "",
+  priceEnd = "",
+  resp,
+  cards = [],
+  leftRange = true,
+  rightRange = true,
+  parseFilter = {},
+  selectionsCarousel,
+  start = false,
+  head,
+  scrollY,
+  clientHeight,
+  innerHeight,
+  compiliations,
+  swiper = null,
+  visibleCards = 0,
+  cardFilter;
 
-    filter[1] = setNewLocationsData(result_filters.data.locations);
-    filter[2] = setFilterData(result_filters.data.companions);
-    filter[3] = setFilterData(result_filters.data.subjects);
+let options = [];
 
-    let paramsKeys = Object.keys(params);
-
-    if (paramsKeys.length > 1 && paramsKeys[0] === "filter") {
-      if (paramsKeys.filter(el => el !== "filter" && el !== "search").length)
-        showFilter = true;
-
-      if (params.dateStart !== undefined) {
-        filter[0][0].active = true;
-        filter[0][0].value = params.dateStart;
-      }
-      if (params.dateEnd !== undefined) {
-        filter[0][1].active = true;
-        filter[0][1].value = params.dateEnd;
-      }
-      if (params.locations !== undefined) {
-        filter[1] = setFilterFromUrl(params.locations.split(","), filter[1]);
-      }
-      if (params.companions !== undefined) {
-        filter[2] = setFilterFromUrl(params.companions.split(","), filter[2]);
-      }
-      if (params.subjects !== undefined) {
-        filter[3] = setFilterFromUrl(params.subjects.split(","), filter[3]);
-      }
-      if (params.priceMin !== undefined) {
-        filter[4][0].active = true;
-        filter[4][0].value = params.priceMin;
-      }
-      if (params.priceMax !== undefined) {
-        filter[4][1].active = true;
-        filter[4][1].value = params.priceMax;
-      }
-
-      let filterParams = parseFilterData(filter);
-      query = filterParams.params;
-      compiliationQuery = filterParams.compiliationsParams;
-
-      if (params.search) query.search = parseStringToWords(params.search);
-
-      result_compiliations = (await fetcher.get("/api/compiliations", {
-        credentials: "same-origin",
-        query: compiliationQuery
-      })).data;
-
-      result_cards = await fetcher.get("api/actions", {
-        credentials: "same-origin",
-        query
-      });
-    } else {
-      result_cards = await fetcher.get("api/actions", {
-        credentials: "same-origin"
-      });
-      result_compiliations = (await fetcher.get("/api/compiliations", {
-        credentials: "same-origin"
-      })).data;
-    }
-
-    if (params.subjects !== undefined) {
-      let subjectIds = params.subjects.split(",").map(el => {
-        return Number(el);
-      });
-
-      let data = (await fetcher.get("/api/favorites/", {
-        credentials: "same-origin",
-        query: {
-          filter: "",
-          favoritesOnly: "",
-          subjectIds
-        }
-      })).data;
-
-      if (subjectIds.length === 1) {
-        result_favorites = data;
-      } else if (subjectIds.length === 2) {
-        let newData = [];
-        for (let subject of subjectIds) {
-          let i = 0;
-          for (let favorite of data) {
-            if (favorite.subject_id === subject) {
-              i++;
-              newData.push(favorite);
-              if (i === 2) break;
-            }
-          }
-        }
-        result_favorites = newData;
-      } else if (subjectIds.length === 3) {
-        let newData = [];
-        let twoFavorites = true;
-        for (let subject of subjectIds) {
-          let i = 0;
-          for (let favorite of data) {
-            if (favorite.subject_id === subject) {
-              i++;
-              newData.push(favorite);
-              if (i === 2 && twoFavorites) {
-                twoFavorites = false;
-                break;
-              } else if (i === 1 && !twoFavorites) break;
-            }
-          }
-        }
-        result_favorites = newData;
-      } else {
-        let newData = [];
-        for (let subject of subjectIds) {
-          for (let favorite of data) {
-            if (favorite.subject_id === subject) {
-              newData.push(favorite);
-              break;
-            }
-          }
-        }
-        result_favorites = newData;
-      }
-    } else {
-      result_favorites = (await fetcher.get("/api/favorites/main", {
-        credentials: "same-origin"
-      })).data;
-    }
-
-    for(let favorite of result_favorites)
-      favorite.id = favorite.action_id;
-
-    result_cards = result_cards.actions;
-
-    let locale = session.locale;
-    let mobile = isMobile(session["user-agent"]);
-
-    return {
-      result_cards,
-      result_filters,
-      locale,
-      filter,
-      showFilter,
-      result_compiliations,
-      result_favorites,
-      mobile
-    };
-  }
-</script>
-
-<script>
-  import Header from "/components/header.svelte";
-  import Footer from "/components/footer.svelte";
-  import Card from "/components/card_of_event.svelte";
-  import BreadCrumbs from "/components/breadcrumbs.svelte";
-  import {
-    parseDate,
-    parseDateForActiveFilter,
-    parsePriceForActiveFilter
-  } from "/helpers/parsers.js";
-  import i18n from "/helpers/i18n/index.js";
-  import { goto, stores } from "@sapper/app";
-  import { onMount, afterUpdate } from "svelte";
-  import ActiveFilters from "/components/active_filters.svelte";
-  import Selection from "/components/selection.svelte";
-  import { slide } from "svelte/transition";
-  import * as animateScroll from "svelte-scrollto";
-  import SimilarEvent from "/components/similar_event.svelte";
-  import Carousel from "/components/carousel.svelte";
-  import ClickOutside from "/components/clickOutside.svelte";
-
-  export let result_cards,
-    result_filters,
-    locale,
-    filter,
-    showFilter,
-    result_compiliations,
-    result_favorites,
-    mobile;
-
-  const fetcher = new Fetcher();
-  const _ = i18n(locale);
-  const { page } = stores();
-
-  let date = "",
-    price = "",
-    priceStart = "",
-    priceEnd = "",
-    resp,
-    cards,
-    leftRange = true,
-    rightRange = true,
-    parseFilter = {},
-    selectionsCarousel,
-    start = false,
-    head,
-    scrollY,
-    clientHeight,
-    innerHeight,
-    compiliations,
-    swiper = null,
-    visibleCards = 0,
-    cardFilter;
-
-  let options = [];
-
-  for (let i = 0; i < 5; i++)
-    options.push({
-      isVisible: false,
-      option: null,
-      btn: null
-    });
-
-  $: {
-    cards = result_cards.slice(0, visibleCards);
-
-    checkActiveFilter();
-  }
-
-  $: if (
-    scrollY + innerHeight > clientHeight &&
-    visibleCards < result_cards.length
-  )
-    visibleCards += 15;
-
-  function checkActiveFilter() {
-    let pFilter = parseFilterData(filter).params;
-    if (showFilter) {
-      parseFilter = pFilter
-      date = parseDateForActiveFilter(filter);
-      price = parsePriceForActiveFilter(filter, _);
-    }
-    
-    if (Object.keys(pFilter).length > 1)
-      cardFilter = `/map${fetcher.makeQuery({ query: pFilter })}`;
-    else cardFilter = `/map`;
-  }
-
-  function changeFilter() {
-    //change date status and her correct view
-    if (
-      new Date(filter[0][0].value) > new Date(filter[0][1].value) &&
-      filter[0][0].value !== "" &&
-      filter[0][1].value !== ""
-    )
-      filter[0][0].value = filter[0][1].value;
-
-    filter[0][0].active = filter[0][0].value === "" ? false : true;
-    filter[0][1].active = filter[0][1].value === "" ? false : true;
-
-    date = parseDateForActiveFilter(filter);
-
-    if (filter[0][0].active && filter[0][1].active)
-      date = filter[0][0].value + " - " + filter[0][1].value;
-    else if (filter[0][0].active) date = filter[0][0].value;
-    else if (filter[0][1].active) date = filter[0][1].value;
-    else date = "";
-
-    //change price status and her correct
-
-    if (
-      filter[4][0].value > filter[4][1].value &&
-      filter[4][0].value !== "" &&
-      filter[4][1].value !== ""
-    ) {
-      priceStart = filter[4][1].value;
-      filter[4][0].value = filter[4][1].value;
-    }
-
-    if (filter[4][0].value === "" || filter[4][0].value === undefined)
-      filter[4][0].active = false;
-    else filter[4][0].active = true;
-
-    if (filter[4][1].value === "" || filter[4][1].value === undefined)
-      filter[4][1].active = false;
-    else filter[4][1].active = true;
-
-    price = parsePriceForActiveFilter(filter, _);
-
-    parseFilter = parseFilterData(filter).params;
-
-    if ($page.query.search) parseFilter.search = $page.query.search;
-
-    if (Object.keys(parseFilter).length === 1) parseFilter = null;
-
-    visibleCards = 0;
-    setURL();
-  }
-
-  function setPrice() {
-    animateScroll.scrollTo({ offset: scrollY, duration: 300 });
-
-    let bl = false;
-
-    if (filter[4][0].value !== priceStart) {
-      filter[4][0].value = priceStart;
-      bl = true;
-    }
-
-    if (filter[4][1].value !== priceEnd) {
-      filter[4][1].value = priceEnd;
-      bl = true;
-    }
-
-    if (bl) changeFilter();
-  }
-
-  function setURL() {
-    let URL = fetcher.makeQuery({ query: parseFilter });
-
-    //#fix переписать логику на сторы
-    goto(`/events${URL}`);
-  }
-
-  onMount(() => {
-    localStorage.removeItem("actionsParams");
+for (let i = 0; i < 5; i++)
+  options.push({
+    isVisible: false,
+    option: null,
+    btn: null
   });
 
-  function closePrice(e) {
-    animateScroll.scrollTo({ offset: scrollY, duration: 300 });
+$: {
+  console.log(result_cards)
+  cards = result_cards.slice(0, visibleCards);
 
-    priceStart = "";
-    priceEnd = "";
+  checkActiveFilter();
+}
 
-    setPrice();
+$: if (
+  scrollY + innerHeight > clientHeight &&
+  visibleCards < result_cards.length
+)
+    visibleCards += 15;
+
+function checkActiveFilter() {
+  let pFilter = parseFilterData(filter).params;
+  if (showFilter) {
+    parseFilter = pFilter;
+    date = parseDateForActiveFilter(filter);
+    price = parsePriceForActiveFilter(filter, _);
   }
 
-  function closeFilter(e) {
-    filter = e.detail.filter;
+  if (Object.keys(pFilter).length > 1)
+    cardFilter = `/map${fetcher.makeQuery({ query: pFilter })}`;
+  else cardFilter = `/map`;
+}
 
-    animateScroll.scrollTo({ offset: scrollY, duration: 300 });
+function changeFilter() {
+  //change date status and her correct view
+  if (
+    new Date(filter.date.dateStart.value) > new Date(filter.date.dateEnd.value) &&
+    filter.date.dateStart.value !== "" &&
+    filter.date.dateEnd.value !== ""
+  )
+    filter.date.dateStart.value = filter.date.dateStart.value;
 
-    changeFilter();
+  filter.date.dateStart.active = filter.date.dateStart.value === "" ? false : true;
+  filter.date.dateEnd.active = filter.date.dateEnd.value === "" ? false : true;
+
+  date = parseDateForActiveFilter(filter);
+
+  if (filter.date.dateStart.active && filter.date.dateEnd.active)
+    date = filter.date.dateStart.value + " - " + filter.date.dateEnd.value;
+  else if (filter.date.dateStart.active) date = filter.date.dateStart.value;
+  else if (filter.date.dateEnd.active) date = filter.date.dateEnd.value;
+  else date = "";
+
+  //change price status and her correct
+
+  if (
+    filter.price.priceMin.value > filter.price.priceMax.value &&
+    filter.price.priceMin.value !== "" &&
+    filter.price.priceMax.value !== ""
+  ) {
+    priceStart = filter.price.priceMax.value;
+    filter.price.priceMin.value = filter.price.priceMax.value;
   }
 
-  function fLoad() {
-    selectionsStart = true;
-    if (start) startSelection();
+  if (filter.price.priceMin.value === "" || filter.price.priceMin.value === undefined)
+    filter.price.priceMin.active = false;
+  else filter.price.priceMin.active = true;
+
+  if (filter.price.priceMax.value === "" || filter.price.priceMax.value === undefined)
+    filter.price.priceMax.active = false;
+  else filter.price.priceMax.active = true;
+
+  price = parsePriceForActiveFilter(filter, _);
+
+  parseFilter = createFilterWithSlug(filter, fetcher, $page.query.search);
+
+  visibleCards = 0;
+
+  window.location.href = `/events${parseFilter}`;
+}
+
+function setPrice() {
+  animateScroll.scrollTo({ offset: scrollY, duration: 300 });
+
+  let bl = false;
+
+  if (filter.price.priceMin.value !== priceStart) {
+    filter.price.priceMin.value = priceStart;
+    bl = true;
   }
 
-  function showCard() {
-    let cardFilter = parseFilterData(filter).params;
-
-    if (Object.keys(cardFilter).length > 1)
-      window.location.href = `/map${fetcher.makeQuery({ query: cardFilter })}`;
-    else window.location.href = `/map`;
+  if (filter.price.priceMax.value !== priceEnd) {
+    filter.price.priceMax.value = priceEnd;
+    bl = true;
   }
+
+  if (bl) changeFilter();
+}
+
+onMount(() => {
+  localStorage.removeItem("actionsParams");
+});
+
+function closePrice(e) {
+  animateScroll.scrollTo({ offset: scrollY, duration: 300 });
+
+  priceStart = "";
+  priceEnd = "";
+
+  setPrice();
+}
+
+function closeFilter(e) {
+  filter = e.detail.filter;
+
+  animateScroll.scrollTo({ offset: scrollY, duration: 300 });
+
+  changeFilter();
+}
+
+function fLoad() {
+  selectionsStart = true;
+  if (start) startSelection();
+}
+
+function showCard() {
+  let cardFilter = parseFilterData(filter).params;
+
+  if (Object.keys(cardFilter).length > 1)
+    window.location.href = `/map${fetcher.makeQuery({ query: cardFilter })}`;
+  else window.location.href = `/map`;
+}
 </script>
 
 <style lang="scss">
   @import "./styles/global";
 
-  .secondLocation{
+  .secondLocation {
     padding-left: 30px !important;
   }
 
-  .thridLocation{
+  .thridLocation {
     padding-left: 45px !important;
   }
 
@@ -434,7 +236,7 @@
       -o-user-select: none;
       -khtml-user-select: none;
       -webkit-user-select: none;
-      user-select: none;   
+      user-select: none;
 
       &:last-child {
         margin-left: 30px;
@@ -621,7 +423,7 @@
 
     & > a {
       border-radius: 100px;
-      background: #117BCD;
+      background: #117bcd;
       box-shadow: 0px 23px 70px rgba(77, 80, 98, 0.1),
         inset 0px 0px 50px rgba(255, 255, 255, 0.15);
       color: white;
@@ -631,10 +433,10 @@
       position: relative;
       transition: 0.3s;
 
-      &:hover{
-        background: #0052B4;
+      &:hover {
+        background: #0052b4;
 
-        > img{
+        > img {
           bottom: 20px;
         }
       }
@@ -795,7 +597,7 @@
         placeholder={_('date_from')}
         class="date"
         type="date"
-        bind:value={filter[0][0].value}
+        bind:value={filter.date.dateStart.value}
         on:change={() => {
           animateScroll.scrollTo({ offset: scrollY, duration: 300 });
           changeFilter();
@@ -804,7 +606,7 @@
         placeholder={_('date_by')}
         class="date"
         type="date"
-        bind:value={filter[0][1].value}
+        bind:value={filter.date.dateEnd.value}
         on:change={() => {
           animateScroll.scrollTo({ offset: scrollY, duration: 300 });
           changeFilter();
@@ -825,9 +627,10 @@
         exclude={[options[0].btn]}>
         {#if options[0].isVisible}
           <div class="option" bind:this={options[0].option} transition:slide>
-            {#each filter[1] as city, i}
+            {#each filter.locations as city, i}
               <div
-                class:secondLocation={city.n1 && !city.n2} class:thridLocation={city.n1 && city.n2}
+                class:secondLocation={city.n1 && !city.n2}
+                class:thridLocation={city.n1 && city.n2}
                 on:click={() => {
                   city.active = !city.active;
                   animateScroll.scrollTo({ offset: scrollY, duration: 300 });
@@ -856,7 +659,7 @@
         exclude={[options[1].btn]}>
         {#if options[1].isVisible}
           <div class="option" bind:this={options[1].option} transition:slide>
-            {#each filter[2] as companios}
+            {#each filter.companions as companios}
               <div
                 on:click={() => {
                   companios.active = !companios.active;
@@ -885,7 +688,7 @@
         exclude={[options[2].btn]}>
         {#if options[2].isVisible}
           <div class="option" bind:this={options[2].option} transition:slide>
-            {#each filter[3] as subjects}
+            {#each filter.subjects as subjects}
               <div
                 on:click={() => {
                   subjects.active = !subjects.active;
@@ -959,8 +762,6 @@
     {showFilter}
     {date}
     {price}
-    min={0}
-    max={4}
     {_}
     on:closeFilter={closeFilter}
     on:closePrice={closePrice} />
@@ -979,7 +780,11 @@
     </a>
   </div>
 
-  <div class="cards-block" bind:this={head} itemscope itemtype="http://schema.org/ItemList">
+  <div
+    class="cards-block"
+    bind:this={head}
+    itemscope
+    itemtype="http://schema.org/ItemList">
     {#each cards as cardInfo (cardInfo.id)}
       <Card {...cardInfo} {locale} />
     {/each}

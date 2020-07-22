@@ -5,13 +5,11 @@
     showFilter,
     date = "",
     price = "",
-    min,
-    max,
     _,
     search = "",
     white = false;
 
-  $: if (search !== "") filter[0][0].value = search;
+  // $: if (search !== "") filter.date.dateStart.value = search;
 
   const dispatch = createEventDispatcher();
 
@@ -65,7 +63,7 @@
     }
   }
 
-  .white{
+  .white {
     background: white !important;
   }
 </style>
@@ -79,8 +77,8 @@
         <button
           class="delete-filter"
           on:click={() => {
-            filter[0][0].value = '';
-            filter[0][1].value = '';
+            filter.date.dateStart.value = '';
+            filter.date.dateEnd.value = '';
             closeFilter();
           }}>
           <img src="img/cross-grey.svg" alt="clear" />
@@ -88,24 +86,22 @@
       </div>
     {/if}
 
-    {#each filter as filt, i}
-      {#if i > min && i < max}
-        {#each filt as fl, j}
-          {#if fl.active}
-            <div class="active-filter" class:white>
-              {fl.value}
-              <button
-                class="delete-filter"
-                on:click={() => {
-                  fl.active = false;
-                  closeFilter();
-                }}>
-                <img src="img/cross-grey.svg" alt="clear" />
-              </button>
-            </div>
-          {/if}
-        {/each}
-      {/if}
+    {#each ['locations', 'subjects', 'companions'] as key, i}
+      {#each filter[key] as fl, j}
+        {#if fl.active}
+          <div class="active-filter" class:white>
+            {fl.value}
+            <button
+              class="delete-filter"
+              on:click={() => {
+                fl.active = false;
+                closeFilter();
+              }}>
+              <img src="img/cross-grey.svg" alt="clear" />
+            </button>
+          </div>
+        {/if}
+      {/each}
     {/each}
 
     {#if price !== ''}

@@ -18,6 +18,7 @@
   import AdminPage from "../_admin_page.svelte";
   import { formatStringArrays } from "/helpers/edit.js";
   import Loading from "/components/adminLoadingWindow.svelte";
+  import tr from "transliteration";
 
   export let locale;
   export let directories;
@@ -33,9 +34,13 @@
 
   const fetcher = new Fetcher();
   const _ = i18n(locale);
+  const {slugify} = tr;
+
+  $: console.log(editData)
+  $: console.log(newData)
 
   $: {
-    data = formatStringArrays(directories, directoriesClone);
+    data = formatStringArrays(directories, directoriesClone, locale);
 
     newData = data.create;
     editData = data.edit;
@@ -44,17 +49,19 @@
 
   async function saveDirectories() {
     for (let directory of newData) {
-      directory.name.name = directory.name.text;
-      delete directory.name.text;
 
-      await fetcher.post(`/api/subjects`, directory.name);
+      if(directory.slug)
+        directory.slug = slugify(directory.slug)
+
+      await fetcher.post(`/api/subjects`, directory);
     }
 
     for (let directory of editData) {
-      directory.name.name = directory.name.text;
-      delete directory.name.text;
 
-      await fetcher.put(`/api/subjects/${directory.id}`, directory.name);
+      if(directory.slug)
+        directory.slug = slugify(directory.slug)
+
+      await fetcher.put(`/api/subjects/${directory.id}`, directory);
     }
 
     for (let directory of deleteData)
@@ -88,6 +95,10 @@
         border: 1px solid $Gray;
         padding: 5px;
         width: 300px;
+
+        &:not(:first-child){
+          margin-left: 15px;
+        }
       }
 
       & > button {
@@ -129,6 +140,7 @@
     {#each directories as directory, i}
       <li class="line">
         <input type="text" bind:value={directory.name} />
+        <input type="text" bind:value={directory.slug} />
         <button
           on:click={() => {
             directories.splice(i, 1);
@@ -143,7 +155,7 @@
   <button
     class="add-directory"
     on:click={() => {
-      directories.push({ name: '' });
+      directories.push({ name: '', slug: '' });
       directories = directories;
     }}>
     {_('add_subject')}

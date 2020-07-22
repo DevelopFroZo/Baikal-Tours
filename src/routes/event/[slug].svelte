@@ -228,11 +228,12 @@
     }
 
     let date = new Date(reverseDate(userDate, false));
-    console.log(date, result_action.dates)
+    date.setMilliseconds(date.getTimezoneOffset() * 60 * 1000 - 60 * 1000);
+
     if( showDateChange){
 
       if(dates[0].time_start !== null)
-        date.setHours(Number(dates[0].time_start.split(":")[0]))
+        date.setMilliseconds(Number((dates[0].time_start.split(":")[0]) + date.getTimezoneOffset()) * 60 * 1000)
       
       if( !dates.some(el => isValidActionDate(el, date))){
         alert(_("date_not_correct"))
@@ -358,6 +359,9 @@
       return;
     }
 
+    const date = new Date(reverseDate(userDate, false))
+    date.setMilliseconds(date.getTimezoneOffset() * 60 * 1000)
+
     let reservationData = {
       userId: Number(userId),
       actionId: Number(actionId),
@@ -365,7 +369,7 @@
       name: userName,
       phone: userPhone,
       email: userMail,
-      date: new Date(reverseDate(userDate, false)).toISOString()
+      date: date.toISOString()
     }
 
     let countedTickets = [];
@@ -494,7 +498,6 @@
     visibleDates = visibleDates.sort();
 
     if(visibleDates.length <= 1 || !result_action.buyable.length){
-      console.log(visibleDates)
       userDate = visibleDates.length ? reverseDate(visibleDates[visibleDates.length - 1]) : parseDate( new Date() );
       showDateChange = false;
     }

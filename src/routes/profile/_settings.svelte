@@ -97,7 +97,7 @@
 
       alert(_("data_change_successful"));
       newEditData = {};
-    } else alert(result.message);
+    } else alert(result.error);
   }
 
   async function savePasswordData() {
@@ -117,7 +117,7 @@
       oldPassword = null;
       newPassword = null;
       confirmNewPassword = "";
-    } else alert(result.message);
+    } else alert(result.error);
   }
 
   async function saveDigest(){

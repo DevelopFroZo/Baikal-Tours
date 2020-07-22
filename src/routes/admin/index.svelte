@@ -118,7 +118,6 @@
   import dateToString from "/helpers/dateToString.js";
   import Pagination from "/components/pagination.svelte";
   import { goto } from "@sapper/app";
-  import ActiveFilters from "/components/active_filters.svelte";
   import { onMount } from "svelte";
   import ClickOutside from "/components/clickOutside.svelte";
 

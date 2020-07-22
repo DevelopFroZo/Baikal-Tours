@@ -1,6 +1,5 @@
 <script>
   import { createEventDispatcher } from "svelte";
-  import ActiveFilters from "/components/active_filters.svelte";
   import {
     setFilterData,
     parseFilterDataForAdmin,
