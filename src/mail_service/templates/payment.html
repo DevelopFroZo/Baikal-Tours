@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html lang="en">
 
 <head>
@@ -53,90 +53,7 @@
                                     </td>
                                 </tr>
                                 <!--Блок билетов и дополнительных услуг-->
-                                <tr>
-                                    <td>
-                                        <!--Таблица билетов-->
-                                        <table class="tickets" border="0" cellpadding="0" cellspacing="0"
-                                            style="margin-top:25px;width:100%;">
-                                            <!--Загаловок таблицы-->
-                                            <tr class="tickets__header">
-                                                <th class="tickets__left" style="text-align:left;padding-bottom:15px;">
-                                                    <span class="tickets__name"
-                                                        style="color:#4F4F4F;font-size:18px;"><b>{tickets}</b></span>
-                                                </th>
-                                            </tr>
-                                            <!--Конец загаловка-->
-                                            <!--Билет-->
-                                            <tr class="tickets__ticket">
-                                                <td class="tickets__left" style="text-align:left;padding-top:10px;">
-                                                    <span class="tickets__name"
-                                                        style="color:#4F4F4F;font-size:18px;">
-                                                        {ticket}
-                                                    </span>
-                                                </td>
-                                                <td class="tickets__right" style="text-align:right;padding-top:10px;">
-                                                    <span class="tickets__price"
-                                                        style="color:#0A92DB;letter-spacing:0.03em;">
-                                                        <b>{price}</b>
-                                                    </span>
-                                                </td>
-                                            </tr>
-                                            <!--Конец билета-->
-                                        </table>
-                                        <!--Конец таблицы билетов-->
-                                        <!--Таблица дополнительных услуг-->
-                                        <table class="tickets" border="0" cellpadding="0" cellspacing="0"
-                                            style="margin-top:25px;width:100%;">
-                                            <!--Загаловок таблицы-->
-                                            <tr class="tickets__header">
-                                                <th class="tickets__left" style="text-align:left;padding-bottom:15px;">
-                                                    <span class="tickets__name"
-                                                        style="color:#4F4F4F;font-size:18px;">
-                                                        <b>{additionals}</b>
-                                                    </span>
-                                                </th>
-                                            </tr>
-                                            <!--Конец загаловка-->
-                                            <!--Услуга-->
-                                            <tr class="tickets__ticket">
-                                                <td class="tickets__left" style="text-align:left;padding-top:10px;">
-                                                    <span class="tickets__name"
-                                                        style="color:#4F4F4F;font-size:18px;">
-                                                        {additional}
-                                                    </span>
-                                                </td>
-                                                <td class="tickets__right" style="text-align:right;padding-top:10px;">
-                                                    <span class="tickets__price"
-                                                        style="color:#0A92DB;letter-spacing:0.03em;">
-                                                        <b>{price}</b>
-                                                    </span>
-                                                </td>
-                                            </tr>
-                                            <!--Конец услуги-->
-                                        </table>
-                                        <!--Конец таблицы дополнительных услуг-->
-                                        <!--Таблица итого-->
-                                        <table class="total" border="0" cellpadding="0" cellspacing="0"
-                                            style="margin-top:20px;width:100%;padding-top:10px;border-top-width:1px;border-top-style:solid;border-top-color:#F0F0F0;">
-                                            <tr class="total__left">
-                                                <td class="total__left">
-                                                    <span class="total__text"
-                                                        style="text-transform:uppercase;color:#4F4F4F;font-size:18px;">
-                                                        <b>{total}</b>
-                                                    </span>
-                                                </td>
-                                                <td class="total__right" style="text-align:right;">
-                                                    <span
-                                                        class="total__price"
-                                                        style="color:#0A92DB;letter-spacing:0.03em;font-size:18px;">
-                                                        <b>{price}</b>
-                                                    </span>
-                                                </td>
-                                            </tr>
-                                        </table>
-                                        <!--Конец таблицы итого-->
-                                    </td>
-                                </tr>
+                                {ticketsBlock}
                                 <!--Конец блока билетов и дополнительных услуг-->
                                 <tr>
                                     <td>
@@ -155,11 +72,11 @@
                                                 <td class="data__info-block" style="padding-top:25px;">
                                                     <span class="data__label"
                                                         style="display:block;font-size:18px;color:#4F4F4F;">
-                                                        {fio}
+                                                        {name}
                                                     </span>
                                                     <span class="data__info"
                                                         style="margin-top:5px;display:block;font-size:18px;color:#4F4F4F;">
-                                                        <b>{userFio}</b>
+                                                        <b>{userName}</b>
                                                     </span>
                                                 </td>
                                             </tr>
