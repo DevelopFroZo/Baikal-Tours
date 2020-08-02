@@ -1,9 +1,3 @@
-export {
-    ticket,
-    ticketsTable,
-    ticketsBlock
-}
-
 const ticket =          "<tr class=\"tickets__ticket\">" +
                             "<td class=\"tickets__left\" style=\"text-align:left;padding-top:10px;\">" +
                                 "<span class=\"tickets__name\"" +
@@ -56,3 +50,11 @@ const ticketsBlock =    "<tr>" +
                                 "</table>" +
                             "</td>" +
                         "</tr>"
+
+
+
+export {
+    ticket,
+    ticketsTable,
+    ticketsBlock
+}
