@@ -133,22 +133,22 @@ function eventRegistration(template, text, data){
 
 function registration(template, text, data){
 
-    // text = {
-    //     header:             "Вы зарегистрированы!",
-    //     greeting:           "Здравствуйте",
-    //     successRegister:    "Благодарим вас за регистрацию на сайте. Очень рекомедуем сохранить это сообщение. Ваши данные для входа:",
-    //     password:           "Пароль",
-    //     goToSite:           "Перейти на сайт",
-    //     disableLink:        "Если у вас не работает кнопка “Перейти на сайт”, скопируйте данную ссылку и откройте в браузере:",
-    //     mailingText:        "Вы получаете новостную рассылку, потому что вы подписались на нашу рассылку через:",
-    //     disabledMailing:     "Отказаться от подписки"
-    // }
+    text = {
+        header:             "Вы зарегистрированы!",
+        greeting:           "Здравствуйте",
+        successRegister:    "Благодарим вас за регистрацию на сайте. Очень рекомедуем сохранить это сообщение. Ваши данные для входа:",
+        password:           "Пароль",
+        goToSite:           "Перейти на сайт",
+        disableLink:        "Если у вас не работает кнопка “Перейти на сайт”, скопируйте данную ссылку и откройте в браузере:",
+        mailingText:        "Вы получаете новостную рассылку, потому что вы подписались на нашу рассылку через:",
+        disabledMailing:     "Отказаться от подписки"
+    }
 
-    // data = {
-    //     userEmail:          "email",
-    //     userPassword:       "password"
-    //     siteLink:           "https://baikal.events"
-    // }
+    data = {
+        userEmail:          "email",
+        userPassword:       "password",
+        siteLink:           "https://baikal.events"
+    }
 
     return setData(template, {...text, ...data});
 }
@@ -240,10 +240,12 @@ function rejectedPayment(template, text, data){
     return setData(template, {...text, ...data});
 }
 
-const setData = (template, data) => {
-    for(const [key, value] of Object.entries(data))
-        template = template.replace(/`{${key}}`/g, value);
-
+function setData(template, data) {
+    for(const [key, value] of Object.entries(data)){
+        const replace = new RegExp(`{${key}}`, "g");
+        template = template.replace(replace, value);
+    }
+    
     template = template.replace(`{URL}`, process.env.SELF_URL);
     
     return template;
