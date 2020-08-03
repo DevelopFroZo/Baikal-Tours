@@ -1,6 +1,6 @@
-import {ticket, ticketsTable, ticketsBlock} from "./components";
+const  {ticket, ticketsTable, ticketsBlock} = require("./components");
 
-export default {
+module.exports = {
     payment,
     eventRegistration,
     registration,

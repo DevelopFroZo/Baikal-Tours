@@ -53,7 +53,7 @@ const ticketsBlock =    "<tr>" +
 
 
 
-export {
+module.exports = {
     ticket,
     ticketsTable,
     ticketsBlock
