@@ -1,5 +1,8 @@
 "use strict";
 
+import fillers from "/mail_service/fillers/index";
+import { getTemplate, getTemplateTexts } from "/mail_service/index";
+
 // Errors: 2, 3, 4, 5
 export async function post( req, res ){
   let result;
@@ -27,12 +30,26 @@ export async function post( req, res ){
 
     if( !result.ok ) return res.json( result );
 
+    const templateName = "registration";
+    // #fix проверка
+    const filler = fillers[ templateName ];
+    // #fix проверка
+    const template = await getTemplate( templateName );
+    // #fix проверка
+    const texts = await getTemplateTexts( req.database.pool, [ req.session.locale ], templateName );
+
+    const mail = filler( template, texts, {
+      userEmail: req.body.email,
+      userPassword: result.data,
+      siteLink: process.env.SELF_URL,
+      domain: process.env.SELF_URL
+    } );
+
     req.mail.send(
       req.body.email,
-      // #fix нормальная тема
-      req._( "email.confirm_password.subject" ),
-      // #fix нормальный текст
-      result.data
+      req._( "registration" ),
+      "",
+      mail
     );
 
     return res.success();
