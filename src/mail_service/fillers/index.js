@@ -83,14 +83,14 @@ function payment(template, text, data){
 
         if(tickets.length){
             ticketsTableС = ticketsTable;
-            ticketsTable = ticketsTable.replace("{ticketsHeader}", text.ticketsHeader);
-            ticketsTable = ticketsTable.replace("{tickets}", setTickets(tickets, ticket));
+            ticketsTableC = ticketsTableC.replace("{ticketsHeader}", text.ticketsHeader);
+            ticketsTableC = ticketsTableC.replace("{tickets}", setTickets(tickets, ticket));
         }
         
         if(additionals.length){
             additionalsTableС = ticketsTable;
-            additionalsTable = additionalsTable.replace("{ticketsHeader}", text.additionalsHeader);
-            additionalsTable = additionalsTable.replace("{tickets}", setTickets(additionals, ticket));
+            additionalsTableC = additionalsTableC.replace("{ticketsHeader}", text.additionalsHeader);
+            additionalsTableC = additionalsTableC.replace("{tickets}", setTickets(additionals, ticket));
         }
 
         ticketsblockС = ticketsBlockC.replace("{ticketsTable}", ticketsTableС);
