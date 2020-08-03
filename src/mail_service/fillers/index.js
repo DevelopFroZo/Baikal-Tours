@@ -133,23 +133,23 @@ function eventRegistration(template, text, data){
 
 function registration(template, text, data){
 
-    text = {
-        header:             "Вы зарегистрированы!",
-        greeting:           "Здравствуйте",
-        successRegister:    "Благодарим вас за регистрацию на сайте. Очень рекомедуем сохранить это сообщение. Ваши данные для входа:",
-        password:           "Пароль",
-        goToSite:           "Перейти на сайт",
-        disableLink:        "Если у вас не работает кнопка “Перейти на сайт”, скопируйте данную ссылку и откройте в браузере:",
-        mailingText:        "Вы получаете новостную рассылку, потому что вы подписались на нашу рассылку через:",
-        disabledMailing:     "Отказаться от подписки"
-    }
+    // text = {
+    //     header:             "Вы зарегистрированы!",
+    //     greeting:           "Здравствуйте",
+    //     successRegister:    "Благодарим вас за регистрацию на сайте. Очень рекомедуем сохранить это сообщение. Ваши данные для входа:",
+    //     password:           "Пароль",
+    //     goToSite:           "Перейти на сайт",
+    //     disableLink:        "Если у вас не работает кнопка “Перейти на сайт”, скопируйте данную ссылку и откройте в браузере:",
+    //     mailingText:        "Вы получаете новостную рассылку, потому что вы подписались на нашу рассылку через:",
+    //     disabledMailing:     "Отказаться от подписки"
+    // }
 
-    data = {
-        userEmail:          "email",
-        userPassword:       "password",
-        siteLink:           "https://baikal.events",
-        domain:             "https://baikal.events"
-    }
+    // data = {
+    //     userEmail:          "email",
+    //     userPassword:       "password",
+    //     siteLink:           "https://baikal.events",
+    //     domain:             "https://baikal.events"
+    // }
 
     return setData(template, {...text, ...data});
 }
