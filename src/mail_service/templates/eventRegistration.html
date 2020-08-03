@@ -14,7 +14,7 @@
                     <tr class="logo">
                         <td class="logo__image-row">
                             <center class="logo__center">
-                                <img src="{URL}/img/logo_all.png" alt="logo" class="logo__image" style="width:200px;margin-bottom:20px;" >
+                                <img src="{domain}/img/logo_all.png" alt="logo" class="logo__image" style="width:200px;margin-bottom:20px;" >
                             </center>
                         </td>
                     </tr>
@@ -71,15 +71,7 @@
                             <!--Конец основного контента-->
                         </td>
                     </tr>
-                    <tr class="mailing">
-                        <td>
-                            <span class="mailing__text" style="display:block;margin-top:30px;color:#4F4F4F;font-size:14px;" >
-                                {mailingText} <a
-                                    href="http://baikal.events" class="mailing__link" target="_blank" style="color:#0A92DB;text-decoration:none;" >baikal.events</a>
-                            </span>
-                            <a href="http://baikal.events" class="mailing__disabling" target="_blank" style="display:block;margin-top:30px;font-size:18px;color:#4F4F4F;text-decoration:none;" >{disabledMailing}</a>
-                        </td>
-                    </tr>
+                    {mailing}
                 </table>
             </td>
         </tr>

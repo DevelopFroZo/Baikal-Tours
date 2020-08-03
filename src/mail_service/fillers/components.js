@@ -51,10 +51,19 @@ const ticketsBlock =    "<tr>" +
                             "</td>" +
                         "</tr>"
 
-
+const mailing =         "<tr class=\"mailing\">" +
+                            "<td>" +
+                                "<span class=\"mailing__text\" style=\"display:block;margin-top:30px;color:#4F4F4F;font-size:14px;\" >" +
+                                    "{mailingText} " +
+                                    "<a href=\"{domain}\" class=\"mailing__link\" target=\"_blank\" style=\"color:#0A92DB;text-decoration:none;\" >{domainWithoutHttp}</a>" +
+                                "</span>" +
+                                "<a href=\"http://baikal.events\" class=\"mailing__disabling\" target=\"_blank\" style=\"display:block;margin-top:30px;font-size:18px;color:#4F4F4F;text-decoration:none;\" >{disabledMailing}</a>" +
+                            "</td>" +
+                        "</tr>"
 
 module.exports = {
     ticket,
     ticketsTable,
-    ticketsBlock
+    ticketsBlock,
+    mailing
 }

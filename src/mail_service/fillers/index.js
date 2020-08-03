@@ -1,4 +1,4 @@
-const  {ticket, ticketsTable, ticketsBlock} = require("./components");
+const  {ticket, ticketsTable, ticketsBlock, mailing} = require("./components");
 
 module.exports = {
     payment,
@@ -147,7 +147,8 @@ function registration(template, text, data){
     data = {
         userEmail:          "email",
         userPassword:       "password",
-        siteLink:           "https://baikal.events"
+        siteLink:           "https://baikal.events",
+        domain:             "https://baikal.events"
     }
 
     return setData(template, {...text, ...data});
@@ -241,12 +242,15 @@ function rejectedPayment(template, text, data){
 }
 
 function setData(template, data) {
+
+    data.domainWithoutHttp = data.domain.replace(/http.*:\/\//, "");
+
+    template = template.replace("{mailing}", mailing);
+
     for(const [key, value] of Object.entries(data)){
         const replace = new RegExp(`{${key}}`, "g");
         template = template.replace(replace, value);
     }
-    
-    template = template.replace(`{URL}`, process.env.SELF_URL);
     
     return template;
 }
