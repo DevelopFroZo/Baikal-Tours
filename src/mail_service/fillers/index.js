@@ -101,10 +101,7 @@ function payment(template, text, data){
 
     template = template.replace("{ticketsBlock}", ticketsBlockC);
 
-    for(const [key, value] of Object.entries({...text, ...data}))
-        template = template.replace(`{${key}}`, value);
-
-    return template;
+    return setData(template, {...text, ...data});
 }
 
 function eventRegistration(template, text, data){
@@ -130,11 +127,8 @@ function eventRegistration(template, text, data){
     //     eventDate:          "с 1 октября - по 30 сентября",
     //     siteLink:           "https://baikal.events"
     // }
-
-    for(const [key, value] of Object.entries({...text, ...data}))
-        template = template.replace(`{${key}}`, value);
     
-    return template;
+    return setData(template, {...text, ...data});
 }
 
 function registration(template, text, data){
@@ -156,10 +150,7 @@ function registration(template, text, data){
     //     siteLink:           "https://baikal.events"
     // }
 
-    for(const [key, value] of Object.entries({...text, ...data}))
-        template = template.replace(`{${key}}`, value);
-
-    return template;
+    return setData(template, {...text, ...data});
 }
 
 function newPassword(template, text, data){
@@ -181,10 +172,7 @@ function newPassword(template, text, data){
     //     siteLink:           "https://baikal.events"
     // }
 
-    for(const [key, value] of Object.entries({...text, ...data}))
-        template = template.replace(`{${key}}`, value);
-
-    return template;
+    return setData(template, {...text, ...data});
 }
 
 function organizerDisable(template, text, data){
@@ -205,10 +193,7 @@ function organizerDisable(template, text, data){
     //     siteLink:           "https://baikal.events"
     // }
 
-    for(const [key, value] of Object.entries({...text, ...data}))
-        template = template.replace(`{${key}}`, value);
-
-    return template;
+    return setData(template, {...text, ...data});
 }
 
 function successPayment(template, text, data){
@@ -230,10 +215,7 @@ function successPayment(template, text, data){
     //     siteLink:           "https://baikal.events"
     // }
 
-    for(const [key, value] of Object.entries({...text, ...data}))
-        template = template.replace(`{${key}}`, value);
-
-    return template;
+    return setData(template, {...text, ...data});
 }
 
 function rejectedPayment(template, text, data){
@@ -255,9 +237,15 @@ function rejectedPayment(template, text, data){
     //     siteLink:           "https://baikal.events"
     // }
 
-    for(const [key, value] of Object.entries({...text, ...data}))
-        template = template.replace(`{${key}}`, value);
+    return setData(template, {...text, ...data});
+}
 
+const setData = (template, data) => {
+    for(const [key, value] of Object.entries(data))
+        template = template.replace(/`{${key}}`/g, value);
+
+    template = template.replace(`{URL}`, process.env.SELF_URL);
+    
     return template;
 }
 
