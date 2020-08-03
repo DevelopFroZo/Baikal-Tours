@@ -1,13 +1,16 @@
-export {
+import {ticket, ticketsTable, ticketsBlock} from "./components";
+
+export default {
     payment,
     eventRegistration,
     registration,
     newPassword,
-    organizerDisable
+    organizerDisable,
+    successPayment,
+    rejectedPayment
 }
 
 function payment(template, text, data){
-    import {ticket, ticketsTable, ticketsBlock} from "./components";
 
     text = {
         header: "Спасибо за ваш заказ",
@@ -199,6 +202,56 @@ function organizerDisable(template, text, data){
     // data = {
     //     userName:           "Анастасия Захарова",
     //     event:              "Веревочные соревнования среди взрослых и детей в Вуки-Парк"
+    //     siteLink:           "https://baikal.events"
+    // }
+
+    for(const [key, value] of Object.entries({...text, ...data}))
+        template = template.replace(`{${key}}`, value);
+
+    return template;
+}
+
+function succesPayment(template, text, data){
+
+    // text = {
+    //     header:             "Снятие средств",
+    //     greeting:           "Здравствуйте, {userName}",
+    //     message:            "<b>Ваша заявка на вывод средств <span class=\"main-block__message_success\" style=\"color:#8CC261;\" >одобрена</span></b> на сумму" +
+    //                         "<span class=\"main-block__price\" style=\"font-weight:600;color:#0A92DB;\" >{amount} руб.</span> Проверьте балланс вашего счета в банке",
+    //     goToSite:           "Перейти на сайт",
+    //     disableLink:        "Если у вас не работает кнопка “Перейти на сайт”, скопируйте данную ссылку и откройте в браузере:",
+    //     mailingText:        "Вы получаете новостную рассылку, потому что вы подписались на нашу рассылку через:",
+    //     disabledMailing:    "Отказаться от подписки"
+    // }
+
+    // data = {
+    //     userName:           "Анастасия Захарова",
+    //     amount:             9500,
+    //     siteLink:           "https://baikal.events"
+    // }
+
+    for(const [key, value] of Object.entries({...text, ...data}))
+        template = template.replace(`{${key}}`, value);
+
+    return template;
+}
+
+function rejectedPayment(template, text, data){
+
+    // text = {
+    //     header:             "Снятие средств",
+    //     greeting:           "Здравствуйте, {userName}",
+    //     message:            "<b>Ваша заявка на вывод средств</b> на сумму  <span class=\"main-block__price\" style=\"font-weight:600;color:#0A92DB;\" >{amount} руб.</span>" +
+    //                         "<span class=\"main-block__message_danger\" style=\"color:#ED2D33;\" >отклонена</span> <b>по причине: </b>{rejectMessage}",
+    //     goToSite:           "Перейти на сайт",
+    //     disableLink:        "Если у вас не работает кнопка “Перейти на сайт”, скопируйте данную ссылку и откройте в браузере:",
+    //     mailingText:        "Вы получаете новостную рассылку, потому что вы подписались на нашу рассылку через:",
+    //     disabledMailing:    "Отказаться от подписки"
+    // }
+    // data = {
+    //     userName:           "Анастасия Захарова",
+    //     amount:             9500,
+    //     rejectMessage:      "Потому что отказано и все",
     //     siteLink:           "https://baikal.events"
     // }
 
