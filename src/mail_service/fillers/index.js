@@ -211,7 +211,7 @@ function organizerDisable(template, text, data){
     return template;
 }
 
-function succesPayment(template, text, data){
+function successPayment(template, text, data){
 
     // text = {
     //     header:             "Снятие средств",
