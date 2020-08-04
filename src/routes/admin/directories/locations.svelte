@@ -156,7 +156,7 @@
       changedAdding.place = null;
       addingName = "";
       showAddingWindow = false;
-    } else alert(result.message);
+    } else alert(result.error);
   }
 
   async function editLocationName(id, name) {
@@ -187,7 +187,7 @@
       locations = locations;
       filteredOldLocations = filteredOldLocations;
       filteredBookingLocations = filteredBookingLocations;
-    } else alert(result.message);
+    } else alert(result.error);
   }
 
   async function deleteSecondLocation(id, n0, n1, index) {
@@ -206,7 +206,7 @@
       filteredOldLocations = filteredOldLocations;
       filteredBookingLocations = filteredBookingLocations;
     }
-    else alert(result.message);
+    else alert(result.error);
   }
 
   async function deleteThridLocation(id, index) {
@@ -218,7 +218,7 @@
       locations = locations;
       filteredOldLocations = filteredOldLocations;
       filteredBookingLocations = filteredBookingLocations;
-    } else alert(result.message);
+    } else alert(result.error);
   }
 
   function editOldLocation(id, index) {
@@ -269,7 +269,7 @@
       searchLocations = "";
       addedLocation.index = null;
       addedLocation.id = null;
-    } else alert(result.message);
+    } else alert(result.error);
   }
 
   async function changeBookingLocation(id, name) {
@@ -318,7 +318,7 @@
       searchBooking = "";
       addedLocation.index = null;
       addedLocation.id = null;
-    } else alert(result.message);
+    } else alert(result.error);
   }
 
   function addBookingAndOld(index) {
