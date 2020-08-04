@@ -94,7 +94,8 @@ server
         email: req.session.email,
         userId: req.session.userId,
         role: req.session.role,
-        locale: req.session.locale
+        locale: req.session.locale,
+        phone: req.session.phone
       } )
     } )
   )
