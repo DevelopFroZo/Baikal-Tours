@@ -6,60 +6,62 @@ module.exports = {
     registration,
     newPassword,
     organizerDisable,
-    successPayment,
-    rejectedPayment
+    successWithdraw,
+    rejectedWithdraw
 }
 
 function payment(template, text, data){
 
-    // text = {
-    //     header: "Спасибо за ваш заказ",
-    //     orderHeader: "Ваш заказ",
-    //     greeting: "Здравствуйте, {userName}",
-    //     message: "Вы зарегистрировались на событие. Подтверждаем, что Ваша регистрация прошла успешно.",
-    //     userData: "Ваши данные",
-    //     name: "Имя Фамилия",
-    //     phone: "Телефон",
-    //     mailingText: "Вы получаете новостную рассылку, потому что вы подписались на нашу рассылку через:",
-    //     disableMailing: "Отказаться от подписки",
-    //     ticketsHeader: "Билеты",
-    //     additionalsHeader: "Дополнительно",
-    //     eventInfo: "Информация о событии",
-    //     eName: "Название",
-    //     location: "Место проведения",
-    //     eDate: "Дата и время",
-    //     goToSite: "Перейти на сайт",
-    //     disableLink: "Если у вас не работает кнопка “Перейти на сайт”, скопируйте данную ссылку и откройте в браузере:",
-    // }
+    text = {
+        header: "Спасибо за ваш заказ",
+        orderHeader: "Ваш заказ",
+        greeting: "Здравствуйте, {userName}",
+        message: "Вы зарегистрировались на событие. Подтверждаем, что Ваша регистрация прошла успешно.",
+        userData: "Ваши данные",
+        name: "Имя Фамилия",
+        phone: "Телефон",
+        mailingText: "Вы получаете новостную рассылку, потому что вы подписались на нашу рассылку через:",
+        disabledMailing: "Отказаться от подписки",
+        ticketsHeader: "Билеты",
+        additionalsHeader: "Дополнительно",
+        eventInfo: "Информация о событии",
+        eName: "Название",
+        location: "Место проведения",
+        eDate: "Дата и время",
+        goToSite: "Перейти на сайт",
+        disableLink: "Если у вас не работает кнопка “Перейти на сайт”, скопируйте данную ссылку и откройте в браузере:",
+    }
 
-    // data = {
-    //     date: "Понедельник, 20 июля 2020 г. , 8:00",
-    //     name: "Максим Жуков",
-    //     phone: "882281488",
-    //     email: "idinahuy@mail.com",
-    //     buyable: [
-    //         {
-    //             type: "ticket",
-    //             price: 1000,
-    //             count: 2,
-    //             name: "Детский"
-    //         },
-    //         {
-    //             type: "additional",
-    //             price: 500,
-    //             count: 1,
-    //             name: "Крутой"
-    //         }
-    //     ],
-    //     userName: "Анастасия Захарова",
-    //     eName: "Веревочные соревнования среди взрослых и детей в Вуки-Парк",
-    //     location: "г.Байкальск, горнолыжный курорт “Гора Соболинная”",
-    //     eDate: "с 1 октября - по 30 сентября",
-    //     _ :{
-    //         rub: "руб.",
-    //         pieces: "шт."
-    //     }
-    // }
+    data = {
+        date: "Понедельник, 20 июля 2020 г. , 8:00",
+        name: "Максим Жуков",
+        userPhone: "882281488",
+        userEmail: "idinahuy@mail.com",
+        buyable: [
+            {
+                type: "ticket",
+                price: 1000,
+                count: 2,
+                name: "Детский"
+            },
+            {
+                type: "additional",
+                price: 500,
+                count: 1,
+                name: "Крутой"
+            }
+        ],
+        userName: "Анастасия Захарова",
+        eventName: "Веревочные соревнования среди взрослых и детей в Вуки-Парк",
+        eventLocation: "г.Байкальск, горнолыжный курорт “Гора Соболинная”",
+        eventDate: "с 1 октября - по 30 сентября",
+        domain: "https://baikal.events",
+        siteLink: "https://baikal.events",
+        _ :{
+            rub: "руб.",
+            pieces: "шт."
+        }
+    }
 
     let ticketsblockС = "";
 
@@ -83,23 +85,23 @@ function payment(template, text, data){
 
         if(tickets.length){
             ticketsTableС = ticketsTable;
-            ticketsTableC = ticketsTableC.replace("{ticketsHeader}", text.ticketsHeader);
-            ticketsTableC = ticketsTableC.replace("{tickets}", setTickets(tickets, ticket));
+            ticketsTableС = ticketsTableС.replace("{ticketsHeader}", text.ticketsHeader);
+            ticketsTableС = ticketsTableС.replace("{tickets}", setTickets(tickets, ticket, data));
         }
         
         if(additionals.length){
             additionalsTableС = ticketsTable;
             additionalsTableC = additionalsTableC.replace("{ticketsHeader}", text.additionalsHeader);
-            additionalsTableC = additionalsTableC.replace("{tickets}", setTickets(additionals, ticket));
+            additionalsTableC = additionalsTableC.replace("{tickets}", setTickets(additionals, ticket, data));
         }
 
-        ticketsblockС = ticketsBlockC.replace("{ticketsTable}", ticketsTableС);
+        ticketsblockС = ticketsblockС.replace("{ticketsTable}", ticketsTableС);
         ticketsblockС = ticketsblockС.replace("{additionalsBlock}", additionalsTableC);
-        ticketsblockС = ticketsBlockC.replace("{total}", data.total);
-        ticketsblockС = ticketsBlockC.replace("{price}", `${total}${data._.rub}`);
+        ticketsblockС = ticketsblockС.replace("{total}", data.total);
+        ticketsblockС = ticketsblockС.replace("{price}", `${total}${data._.rub}`);
     }
 
-    template = template.replace("{ticketsBlock}", ticketsBlockC);
+    template = template.replace("{ticketsBlock}", ticketsblockС);
 
     return setData(template, {...text, ...data});
 }
@@ -125,7 +127,8 @@ function eventRegistration(template, text, data){
     //     eventName:          "Веревочные соревнования среди взрослых и детей в Вуки-Пар",
     //     eventLocation:      "г.Байкальск, горнолыжный курорт “Гора Соболинная”",
     //     eventDate:          "с 1 октября - по 30 сентября",
-    //     siteLink:           "https://baikal.events"
+    //     siteLink:           "https://baikal.events",
+    //     domain:             "https://baikal.events"
     // }
     
     return setData(template, {...text, ...data});
@@ -160,17 +163,19 @@ function newPassword(template, text, data){
     //     header:             "Восстановление пароля",
     //     greeting:           "Здравствуйте, {userName}",
     //     newPassword:        "Для вашей учетной записи username был запрошен сброс проля. Ваш новый пароль:",
-    //     password:           "Пароль"
+    //     password:           "Пароль",
     //     goToSite:           "Перейти на сайт",
     //     disableLink:        "Если у вас не работает кнопка “Перейти на сайт”, скопируйте данную ссылку и откройте в браузере:",
     //     mailingText:        "Вы получаете новостную рассылку, потому что вы подписались на нашу рассылку через:",
-    //     disabledMailing:    "Отказаться от подписки"
+    //     disabledMailing:    "Отказаться от подписки",
+    //     ignore:             "Если вы не запрашивали это сообщение, просто проигнорируйте его"
     // }
 
     // data = {
     //     userName:           "Анастасия Захарова",
-    //     userPassword:       "userpassword"
-    //     siteLink:           "https://baikal.events"
+    //     userPassword:       "userpassword",
+    //     siteLink:           "https://baikal.events",
+    //     domain:             "https://baikal.events"
     // }
 
     return setData(template, {...text, ...data});
@@ -181,7 +186,7 @@ function organizerDisable(template, text, data){
     // text = {
     //     header:             "Организация события",
     //     greeting:           "Здравствуйте, {userName}",
-    //     message:            "<b>Вы больше <span class="main-block__message_danger" style="color:#ED2D33;" >не являетесь организатором</span></b> события\"{event}\",
+    //     message:            "<b>Вы больше <span class=\"main-block__message_danger\" style=\"color:#ED2D33;\" >не являетесь организатором</span></b> события\"{event}\"",
     //     goToSite:           "Перейти на сайт",
     //     disableLink:        "Если у вас не работает кнопка “Перейти на сайт”, скопируйте данную ссылку и откройте в браузере:",
     //     mailingText:        "Вы получаете новостную рассылку, потому что вы подписались на нашу рассылку через:",
@@ -190,14 +195,15 @@ function organizerDisable(template, text, data){
 
     // data = {
     //     userName:           "Анастасия Захарова",
-    //     event:              "Веревочные соревнования среди взрослых и детей в Вуки-Парк"
-    //     siteLink:           "https://baikal.events"
+    //     event:              "Веревочные соревнования среди взрослых и детей в Вуки-Парк",
+    //     siteLink:           "https://baikal.events",
+    //     domain:             "https://baikal.events"
     // }
 
     return setData(template, {...text, ...data});
 }
 
-function successPayment(template, text, data){
+function successWithdraw(template, text, data){
 
     // text = {
     //     header:             "Снятие средств",
@@ -213,13 +219,14 @@ function successPayment(template, text, data){
     // data = {
     //     userName:           "Анастасия Захарова",
     //     amount:             9500,
-    //     siteLink:           "https://baikal.events"
+    //     siteLink:           "https://baikal.events",
+    //     domain:             "https://baikal.events"
     // }
 
     return setData(template, {...text, ...data});
 }
 
-function rejectedPayment(template, text, data){
+function rejectedWithdraw(template, text, data){
 
     // text = {
     //     header:             "Снятие средств",
@@ -235,7 +242,8 @@ function rejectedPayment(template, text, data){
     //     userName:           "Анастасия Захарова",
     //     amount:             9500,
     //     rejectMessage:      "Потому что отказано и все",
-    //     siteLink:           "https://baikal.events"
+    //     siteLink:           "https://baikal.events",
+    //     domain:             "https://baikal.events"
     // }
 
     return setData(template, {...text, ...data});
@@ -255,13 +263,13 @@ function setData(template, data) {
     return template;
 }
 
-function setTickets(tickets, ticket){
-    const ticketsС = "";
+function setTickets(tickets, ticket, data){
+    let ticketsС = "";
 
     for(let _ticket of tickets){
-        const ticketC = ticket;
+        let ticketC = ticket;
         ticketC = ticketC.replace("{ticketName}", `${ticket.name} - ${ticket.count}${data._.pieces}`);
-        ticketC = tickerC.replace("{ticketPrice}", `${ticker.price}${data._.rub}`);
+        ticketC = ticketC.replace("{ticketPrice}", `${ticket.price}${data._.rub}`);
         ticketsС += ticketC;
     }
 

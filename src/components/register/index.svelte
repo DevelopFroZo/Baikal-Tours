@@ -26,7 +26,7 @@
       localStorage.setItem("email", data.email);
       dispatch("confirmPassword");
     } else {
-      alert(result.message);
+      alert(result.replace);
     }
   }
 
@@ -52,7 +52,7 @@
 
       document.location.href = parseUrlByPage(page, ["window"], {});
     } else {
-      alert(result.message);
+      alert(result.replace);
     }
   }
 </script>
