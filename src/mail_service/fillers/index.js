@@ -8,7 +8,8 @@ module.exports = {
     removeFromOrganizers,
     successWithdraw,
     rejectedWithdraw,
-    addToOrganizers
+    addToOrganizers,
+    secondEvent
 }
 
 function payment(template, text, data) {
@@ -64,6 +65,8 @@ function payment(template, text, data) {
     //     }
     // }
 
+    data.eventLocation = data.eventLocation.join("<br>");
+
     return setData(setTicketsTable(template, text, data), { ...text, ...data });
 }
 
@@ -90,6 +93,8 @@ function eventRegistration(template, text, data) {
     //     eventDate:          "с 1 октября - по 30 сентября",
     //     domain:             "https://baikal.events"
     // }
+
+    data.eventLocation = data.eventLocation.join("<br>");
 
     return setData(template, { ...text, ...data });
 }
@@ -144,7 +149,7 @@ function removeFromOrganizers(template, text, data) {
     // text = {
     //     header:             "Организация события",
     //     greeting:           "Здравствуйте, {userName}",
-    //     message:            "<b>Вы больше <span class=\"main-block__message_danger\" style=\"color:#ED2D33;\" >не являетесь организатором</span></b> события\"{event}\"",
+    //     message:            "<b>Вы больше <span class=\"main-block__message_danger\" style=\"color:#ED2D33;\" >не являетесь организатором</span></br> события\"{event}\"",
     //     goToSite:           "Перейти на сайт",
     //     disableLink:        "Если у вас не работает кнопка “Перейти на сайт”, скопируйте данную ссылку и откройте в браузере:",
     //     mailingText:        "Вы получаете новостную рассылку, потому что вы подписались на нашу рассылку через:",
@@ -228,7 +233,68 @@ function addToOrganizers(template, text, data) {
     //     domain:             "https://baikal.events"
     // }
 
+    data.eventLocation = data.eventLocation.join("<br>");
+
     return setData(template, { ...text, ...data });
+}
+
+function secondEvent(template, text, data){
+    text = {
+        header:             "Спасибо за ваш заказ",
+        orderHeader:        "Ваш заказ",
+        greeting:           "Здравствуйте, {userName}",
+        message:            "Вы зарегистрировались на событие. Подтверждаем, что Ваша регистрация прошла успешно.",
+        userData:           "Ваши данные",
+        name:               "Имя Фамилия",
+        phone:              "Телефон",
+        mailingText:        "Вы получаете новостную рассылку, потому что вы подписались на нашу рассылку через:",
+        disabledMailing:    "Отказаться от подписки",
+        ticketsHeader:      "Билеты",
+        additionalsHeader:  "Дополнительно",
+        eventInfo:          "Информация о событии",
+        eName:              "Название",
+        location:           "Место проведения",
+        eDate:              "Дата и время",
+        goToSite:           "Перейти на сайт",
+        disableLink:        "Если у вас не работает кнопка “Перейти на сайт”, скопируйте данную ссылку и откройте в браузере:",
+        total:              "Итого",
+        reminderMessage:    "<b>Если вы еще не оплатили Ваш заказ, сделайте это сейчас!</b> Вот ссылка для оплаты: <br>"
+    }
+
+    data = {
+        date:               "Понедельник, 20 июля 2020 г. , 8:00",
+        name:               "Максим Жуков",
+        userPhone:          "882281488",
+        userEmail:          "idinahuy@mail.com",
+        buyable: [
+            {
+                type:       "ticket",
+                price:       1000,
+                count:       2,
+                name:       "Детский"
+            },
+            {
+                type:       "additional",
+                price:       500,
+                count:       1,
+                name:       "Крутой"
+            }
+        ],
+        userName:           "Анастасия Захарова",
+        eventName:          "Веревочные соревнования среди взрослых и детей в Вуки-Парк",
+        eventLocation:      ["г.Байкальск, горнолыжный курорт “Гора Соболинная”"],
+        eventDate:          "с 1 октября - по 30 сентября",
+        domain:             "https://baikal.events",
+        reminderLink:       "sberbank.ru",
+        _: {
+            rub:            "руб.",
+            pieces:         "шт."
+        }
+    }
+
+    data.eventLocation = data.eventLocation.join("<br>");
+
+    return setData(setTicketsTable(template, text, data), { ...text, ...data });
 }
 
 function setData(template, data) {
