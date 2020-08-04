@@ -1,5 +1,8 @@
 "use strict";
 
+import fillers from "/mail_service/fillers/index";
+import { getTemplate, getTemplateTexts } from "/mail_service/index";
+
 export {
   get
 };
@@ -7,7 +10,7 @@ export {
 async function get( {
   session,
   query: { email },
-  database: { auth },
+  database: { pool, auth },
   mail,
   _
 }, res ){
@@ -23,12 +26,25 @@ async function get( {
   session.userId = 0;
   session.role = "user";
 
+  const templateName = "newPassword";
+  // #fix проверка
+  const filler = fillers[ templateName ];
+  // #fix проверка
+  const template = await getTemplate( templateName );
+  // #fix проверка
+  const texts = await getTemplateTexts( pool, [ session.locale ], templateName );
+
+  const mail_ = filler( template, texts, {
+    // #fix добавить userName
+    userPassword: result,
+    domain: process.env.SELF_URL
+  } );
+
   mail.send(
     email,
-    // #fix нормальная тема
-    _( "email.confirm_password.subject" ),
-    // #fix нормальный текст
-    result
+    _( "new_password" ),
+    "",
+    mail_
   );
 
   res.success();
