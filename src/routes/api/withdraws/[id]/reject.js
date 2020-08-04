@@ -2,15 +2,20 @@
 
 import { toInt } from "/helpers/converters";
 import { edit } from "/database/withdraws";
+import fillers from "/mail_service/fillers/index";
+import { getTemplate, getTemplateTexts } from "/mail_service/index";
 
 export {
   post
 };
 
 async function post( {
+  session: { locale },
   params: { id },
   body: { failMessage },
-  database: { pool }
+  database: { pool },
+  mail,
+  _
 }, res ){
   const id_ = toInt( id );
 
@@ -25,9 +30,16 @@ async function post( {
   await transaction.query( "begin" );
 
   const { rows: [ row ] } = await transaction.query(
-    `select status
-    from withdraws
-    where id = $1`,
+    `select w.status, sum( wa.amount )::int as amount, u.email
+    from
+    	withdraws as w,
+    	withdraw_actions as wa,
+      users as u
+    where
+    	w.id = $1 and
+    	w.id = wa.withdraw_id and
+      w.user_id = u.id
+    group by w.status, u.email`,
     [ id_ ]
   );
 
@@ -65,10 +77,30 @@ async function post( {
     [ amount, action_id ]
   );
 
-  // #fix localize
   await edit( transaction, id_, "rejected", failMessage );
   await transaction.query( "commit" );
   transaction.release();
+
+  const templateName = "rejectedWithdraw";
+  // #fix проверка
+  const filler = fillers[ templateName ];
+  // #fix проверка
+  const template = await getTemplate( templateName );
+  // #fix проверка
+  const texts = await getTemplateTexts( pool, [ locale ], templateName );
+
+  const mail_ = filler( template, texts, {
+    amount: row.amount,
+    rejectMessage: failMessage,
+    domain: process.env.SELF_URL
+  } );
+
+  mail.send(
+    row.email,
+    _( "withdraw.rejected" ),
+    "",
+    mail_
+  );
 
   res.success();
 }

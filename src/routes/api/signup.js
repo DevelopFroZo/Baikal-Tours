@@ -41,7 +41,6 @@ export async function post( req, res ){
     const mail = filler( template, texts, {
       userEmail: req.body.email,
       userPassword: result.data,
-      siteLink: process.env.SELF_URL,
       domain: process.env.SELF_URL
     } );
 

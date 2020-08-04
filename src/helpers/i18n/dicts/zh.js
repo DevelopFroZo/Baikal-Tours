@@ -47,6 +47,9 @@ export default ( {
     "活動聯絡人:{contacts}\n\n" +
     "價錢: {price}",
 
+  "withdraw.accepted": "付款請求已批准",
+  "withdraw.rejected": "付款要求被拒絕",
+
   event_catalog: "事件目录",
   date_from: "从日期",
   date_by: "日期",

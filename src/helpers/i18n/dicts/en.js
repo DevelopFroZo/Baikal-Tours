@@ -46,6 +46,9 @@ export default ({
     "Event contacts:{contacts}\n\n" +
     "Price: {price}",
 
+  "withdraw.accepted": "Withdraw request accepted",
+  "withdraw.rejected": "Withdraw request rejected",
+
   event_catalog: "Event catalog",
   date_from: "Date from",
   date_by: "Date by",

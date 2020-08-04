@@ -46,6 +46,9 @@ export default ( {
     "Контакты мероприятия:{contacts}\n\n" +
     "Цена: {price}",
 
+  "withdraw.accepted": "Заявка на выплату одобрена",
+  "withdraw.rejected": "Заявка на выплату отклонена",
+
   event_catalog: "Каталог событий",
   date_from: "Дата с",
   date_by: "Дата по",
