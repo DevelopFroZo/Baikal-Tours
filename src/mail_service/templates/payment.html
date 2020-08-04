@@ -37,22 +37,22 @@
                                         <span class="order__message" style="color:#4F4F4F;font-size:18px;line-height:25px;margin-top:20px;display:block;" >{message}</span>
 
                                         <center>
-                                            <center>
-                                                <span class="order__text"
-                                                    style="display:block;font-size:24px;color:#4F4F4F;">
-                                                    {orderHeader}
-                                                </span>
-                                                <!--Дата-->
-                                                <span class="order__date"
-                                                    style="display:block;margin-top:10px;color:#C4C4C4;font-size:14px;">
-                                                    {date}
-                                                </span>
-                                                <!--Конец даты-->
-                                            </center>
+                                            <span class="order__text"
+                                                style="display:block;font-size:24px;color:#4F4F4F; margin-top: 60px">
+                                                {orderHeader}
+                                            </span>
+                                            <!--Дата-->
+                                            <span class="order__date"
+                                                style="display:block;margin-top:10px;color:#C4C4C4;font-size:14px;">
+                                                {date}
+                                            </span>
+                                            <!--Конец даты-->
                                         </center>
                                     </td>
                                 </tr>
+                                <!--Блок билетов-->
                                 {ticketsBlock}
+                                <!--Конец блока билетов-->
                                 <tr>
                                     <td>
                                         <table class="data" border="0" cellpadding="0" cellspacing="0"
@@ -128,11 +128,11 @@
                                                 {eventDate}
                                             </span>
                                         </span>
-                                        <a href="{siteLink}" class="main-block__link" style="display:inline-block;padding-top:15px;padding-bottom:15px;padding-right:35px;padding-left:35px;background-color:#0A92DB;background-image:none;background-repeat:repeat;background-position:top left;background-attachment:scroll;border-radius:100px;color:#ffffff;font-size:16px;text-decoration:none;margin-top:38px;" >Перейти на сайт</a>
+                                        <a href="{domain}" class="main-block__link" style="display:inline-block;padding-top:15px;padding-bottom:15px;padding-right:35px;padding-left:35px;background-color:#0A92DB;background-image:none;background-repeat:repeat;background-position:top left;background-attachment:scroll;border-radius:100px;color:#ffffff;font-size:16px;text-decoration:none;margin-top:38px;" >Перейти на сайт</a>
                                         <hr class="main-block__line" style="border-style:solid;border-color:#F0F0F0;border-width:1px 0 0 0;width:calc(100% + 50px * 2);margin-left:-50px;margin-top:20px;margin-bottom:20px;" >
                                         <span class="main-block__help" style="margin-top:20px;color:#4F4F4F;font-size:16px;line-height:19px;display:block;" >{disableLink}
                                             <span class="main-block__help_link" style="color:#C4C4C4;display:block;margin-top:10px;" >
-                                                {siteLink}
+                                                {domain}
                                             </span>
                                         </span>
                                     </td>
