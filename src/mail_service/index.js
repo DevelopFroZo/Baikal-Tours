@@ -20,8 +20,8 @@ async function getTemplate( templateName ){
 }
 
 async function getTemplateTexts( client, locales, templateName ){
-  const { rows: [ row ] } = await client.query(
-    `select mt_.texts
+  let { rows } = await client.query(
+    `select mt_.locale, mt_.texts
     from
     	mail_templates as mt,
     	mail_templates_ as mt_
@@ -32,5 +32,13 @@ async function getTemplateTexts( client, locales, templateName ){
     [ locales, templateName ]
   );
 
-  return row ? row.texts : null;
+  if( rows === undefined ) return null;
+
+  rows = rows.reduce( ( res, { locale, texts } ) => {
+    res[ locale ] = texts;
+
+    return res;
+  }, {} );
+
+  return rows;
 }
