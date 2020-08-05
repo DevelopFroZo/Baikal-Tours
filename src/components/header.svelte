@@ -60,7 +60,7 @@
         window: 'login'
       }))
     }
-    else alert(result.errors[0])
+    else alert(result.error)
   }
 
   async function logout(){

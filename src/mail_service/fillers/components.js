@@ -61,9 +61,23 @@ const mailing =         "<tr class=\"mailing\">" +
                             "</td>" +
                         "</tr>"
 
+const ticketsCategory = "<tr class=\"tickets-table__category\" colspan=\"5\">" +
+                            "<td style=\"color:#4F4F4F;padding-top:30px;font-size:12px;font-weight:600;\" >{category}</td>" +
+                        "</tr>"
+
+const ticketData =      "<tr class=\"tickets-table__ticket\">" +
+                            "<td style=\"font-size:14px;color:#4F4F4F;padding-top:10px;\" >{ticketName}</td>" +
+                            "<td class=\"tickets-table__ticket_center\" style=\"text-align:center;font-size:14px;color:#4F4F4F;padding-top:10px;\" >{ticketBookedCount}</td>" +
+                            "<td class=\"tickets-table__ticket_center\" style=\"text-align:center;font-size:14px;color:#4F4F4F;padding-top:10px;\" >{ticketPaidCount}</td>" +
+                            "<td class=\"tickets-table__ticket_center\" style=\"text-align:center;font-size:14px;color:#4F4F4F;padding-top:10px;\" >{ticketPrice}</td>" +
+                            "<td class=\"tickets-table__ticket_center\" style=\"text-align:center;font-size:14px;color:#4F4F4F;padding-top:10px;\" >{ticketAmount}</td>" +
+                        "</tr>"
+
 module.exports = {
     ticket,
     ticketsTable,
     ticketsBlock,
-    mailing
+    mailing,
+    ticketsCategory,
+    ticketData
 }

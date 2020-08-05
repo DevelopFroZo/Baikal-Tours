@@ -1,4 +1,4 @@
-const { ticket, ticketsTable, ticketsBlock, mailing } = require("./components");
+const { ticket, ticketsTable, ticketsBlock, mailing, ticketsCategory, ticketData } = require("./components");
 
 module.exports = {
     payment,
@@ -9,7 +9,8 @@ module.exports = {
     successWithdraw,
     rejectedWithdraw,
     addToOrganizers,
-    secondEvent
+    secondEvent,
+    paidTickets
 }
 
 function payment(template, text, data) {
@@ -17,7 +18,7 @@ function payment(template, text, data) {
     // text = {
     //     header:             "Спасибо за ваш заказ",
     //     orderHeader:        "Ваш заказ",
-    //     greeting:           "Здравствуйте, {userName}",
+    //     greeting:           "Здравствуйте, {name}",
     //     message:            "Вы зарегистрировались на событие. Подтверждаем, что Ваша регистрация прошла успешно.",
     //     userData:           "Ваши данные",
     //     name:               "Имя Фамилия",
@@ -56,10 +57,8 @@ function payment(template, text, data) {
     //             name:       "Крутой"
     //         }
     //     ],
-    //     userName:           "Анастасия Захарова",
     //     eventName:          "Веревочные соревнования среди взрослых и детей в Вуки-Парк",
     //     eventLocation:      ["г.Байкальск, горнолыжный курорт “Гора Соболинная”"],
-    //     eventDate:          "с 1 октября - по 30 сентября",
     //     domain:             "https://baikal.events",
     //     _: {
     //         rub:            "руб.",
@@ -241,62 +240,179 @@ function addToOrganizers(template, text, data) {
 }
 
 function secondEvent(template, text, data){
-    text = {
-        header:             "Спасибо за ваш заказ",
-        orderHeader:        "Ваш заказ",
-        greeting:           "Здравствуйте, {userName}",
-        message:            "Вы зарегистрировались на событие. Подтверждаем, что Ваша регистрация прошла успешно.",
-        userData:           "Ваши данные",
-        name:               "Имя Фамилия",
-        phone:              "Телефон",
-        mailingText:        "Вы получаете новостную рассылку, потому что вы подписались на нашу рассылку через:",
-        disabledMailing:    "Отказаться от подписки",
-        ticketsHeader:      "Билеты",
-        additionalsHeader:  "Дополнительно",
-        eventInfo:          "Информация о событии",
-        eName:              "Название",
-        location:           "Место проведения",
-        eDate:              "Дата и время",
-        goToSite:           "Перейти на сайт",
-        disableLink:        "Если у вас не работает кнопка “Перейти на сайт”, скопируйте данную ссылку и откройте в браузере:",
-        total:              "Итого",
-        reminderMessage:    "<b>Если вы еще не оплатили Ваш заказ, сделайте это сейчас!</b> Вот ссылка для оплаты: <br>"
-    }
+    // text = {
+    //     header:             "Спасибо за ваш заказ",
+    //     orderHeader:        "Ваш заказ",
+    //     greeting:           "Здравствуйте, {userName}",
+    //     message:            "Вы зарегистрировались на событие. Подтверждаем, что Ваша регистрация прошла успешно.",
+    //     userData:           "Ваши данные",
+    //     name:               "Имя Фамилия",
+    //     phone:              "Телефон",
+    //     mailingText:        "Вы получаете новостную рассылку, потому что вы подписались на нашу рассылку через:",
+    //     disabledMailing:    "Отказаться от подписки",
+    //     ticketsHeader:      "Билеты",
+    //     additionalsHeader:  "Дополнительно",
+    //     eventInfo:          "Информация о событии",
+    //     eName:              "Название",
+    //     location:           "Место проведения",
+    //     eDate:              "Дата и время",
+    //     goToSite:           "Перейти на сайт",
+    //     disableLink:        "Если у вас не работает кнопка “Перейти на сайт”, скопируйте данную ссылку и откройте в браузере:",
+    //     total:              "Итого",
+    //     reminderMessage:    "<b>Если вы еще не оплатили Ваш заказ, сделайте это сейчас!</b> Вот ссылка для оплаты: <br>"
+    // }
 
-    data = {
-        date:               "Понедельник, 20 июля 2020 г. , 8:00",
-        name:               "Максим Жуков",
-        userPhone:          "882281488",
-        userEmail:          "idinahuy@mail.com",
-        buyable: [
-            {
-                type:       "ticket",
-                price:       1000,
-                count:       2,
-                name:       "Детский"
-            },
-            {
-                type:       "additional",
-                price:       500,
-                count:       1,
-                name:       "Крутой"
-            }
-        ],
-        userName:           "Анастасия Захарова",
-        eventName:          "Веревочные соревнования среди взрослых и детей в Вуки-Парк",
-        eventLocation:      ["г.Байкальск, горнолыжный курорт “Гора Соболинная”"],
-        eventDate:          "с 1 октября - по 30 сентября",
-        domain:             "https://baikal.events",
-        reminderLink:       "sberbank.ru",
-        _: {
-            rub:            "руб.",
-            pieces:         "шт."
-        }
-    }
+    // data = {
+    //     date:               "Понедельник, 20 июля 2020 г. , 8:00",
+    //     name:               "Максим Жуков",
+    //     userPhone:          "882281488",
+    //     userEmail:          "idinahuy@mail.com",
+    //     buyable: [
+    //         {
+    //             type:       "ticket",
+    //             price:       1000,
+    //             count:       2,
+    //             name:       "Детский"
+    //         },
+    //         {
+    //             type:       "additional",
+    //             price:       500,
+    //             count:       1,
+    //             name:       "Крутой"
+    //         }
+    //     ],
+    //     userName:           "Анастасия Захарова",
+    //     eventName:          "Веревочные соревнования среди взрослых и детей в Вуки-Парк",
+    //     eventLocation:      ["г.Байкальск, горнолыжный курорт “Гора Соболинная”"],
+    //     eventDate:          "с 1 октября - по 30 сентября",
+    //     domain:             "https://baikal.events",
+    //     reminderLink:       "sberbank.ru",
+    //     _: {
+    //         rub:            "руб.",
+    //         pieces:         "шт."
+    //     }
+    // }
 
     data.eventLocation = data.eventLocation.join("<br>");
 
     return setData(setTicketsTable(template, text, data), { ...text, ...data });
+}
+
+function paidTickets(template, text, data){
+
+    // text = {
+    //     header:             "Забронированы билеты!",
+    //     greeting:           "Здравствуйте",
+    //     message:            "На Ваше событие <b>{eventName}</b> проходящее <b>{eventDate}</b> зарегистрировались.",
+    //     goToSite:           "Перейти на сайт",
+    //     name:               "Наименование",
+    //     booked:             "Забронировано",
+    //     paid:               "Оплачено",
+    //     price:              "Цена",
+    //     amount:             "Сумма",
+    //     tickets:            "Билеты",
+    //     additionals:        "Доп. услуги",
+    //     disableLink:        "Если у вас не работает кнопка “Перейти на сайт”, скопируйте данную ссылку и откройте в браузере:",
+    //     mailingText:        "Вы получаете новостную рассылку, потому что вы подписались на нашу рассылку через:",
+    //     disabledMailing:     "Отказаться от подписки"
+    // }
+
+    // data = {
+    //     eventName:          "Веревочные соревнования среди взрослых и детей в Вуки-Парк",
+    //     eventDate:          "с 1 октября - по 30 сентября",
+    //     domain:             "http://baikal.events",
+    //     buyable: [
+    //         {
+    //             type: "additional",
+    //             name: "Взрослый",
+    //             price: 1000,
+    //             count: [
+    //                 {
+    //                     paid: true,
+    //                     count: 5
+    //                 },
+    //                 {
+    //                     paid: false,
+    //                     count: 10
+    //                 }
+    //             ]
+    //         },
+    //         {
+    //             type: "additional",
+    //             name: "Взрослый",
+    //             price: 100,
+    //             count: [
+    //                 {
+    //                     paid: true,
+    //                     count: 0
+    //                 },
+    //                 {
+    //                     paid: false,
+    //                     count: 10
+    //                 }
+    //             ]
+    //         }
+    //     ],
+    //     _: {
+    //         rub:            "руб.",
+    //         pieces:         "шт."
+    //     }
+    // }
+
+    const tickets = [];
+    const additionals = [];
+    const total = data.buyable.reduce((sec, cur) => {
+
+        const {type, price, count } = cur;
+        const paidCount = count[0].paid ? count[0].count : count[1].count;
+
+        if(type === "ticket")
+            tickets.push(cur)
+        else
+            additionals.push(cur)
+
+        return sec + price * paidCount;
+    }, 0)
+
+    let ticketsBlock = "";
+
+    if(tickets.length){
+        ticketsBlock += ticketsCategory.replace("{category}", text.tickets);
+        ticketsBlock += setTicketsData(tickets, data);
+    }
+
+    if(additionals.length){
+        ticketsBlock += ticketsCategory.replace("{category}", text.additionals);
+        ticketsBlock += setTicketsData(additionals, data);
+    }
+
+    template = template.replace("{ticketsBlock}", ticketsBlock);
+    template = template.replace("{totalAmount}", `${total} ${data._.rub}`);
+
+    return setData(template, {...text, ...data});
+}
+
+function setTicketsData(tickets, data){
+    let ticketLine = ""
+
+    for(const {name, price, count} of tickets){
+
+        let ticketDataC = ticketData;
+
+        const paidCount =   count[0].paid ? count[0].count : count[1].count;
+        const bookedCount = count[0].paid ? count[1].count : count[0].count;
+        const ticketAmount = paidCount * price;
+
+        ticketDataC = ticketDataC.replace("{ticketName}", name);
+        ticketDataC = ticketDataC.replace("{ticketBookedCount}", bookedCount ? `${bookedCount} ${data._.pieces}` : "-");
+        ticketDataC = ticketDataC.replace("{ticketPaidCount}", paidCount ? `${paidCount} ${data._.pieces}` : "-");
+        ticketDataC = ticketDataC.replace("{ticketPrice}", `${price} ₽`);
+        ticketDataC = ticketDataC.replace("{ticketAmount}", ticketAmount ? `${ticketAmount} ₽` : "-");
+
+        ticketLine += ticketDataC;
+    }
+
+    return ticketLine;
 }
 
 function setData(template, data) {
