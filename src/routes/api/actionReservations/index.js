@@ -4,6 +4,8 @@ import isValidActionDate from "/helpers/isValidActionDate";
 import { create, getByUserId } from "/database/actionReservations";
 import { toInt } from "/helpers/converters";
 import { createMap, mergeSingle, mergeMultiple } from "/helpers/merger";
+import fillers from "/mail_service/fillers/index";
+import { getTemplate, getTemplateTexts } from "/mail_service/index";
 
 export async function post( req, res ){
   const { userId, actionId, name, surname, phone, email } = req.body;
@@ -94,6 +96,55 @@ export async function post( req, res ){
 
   await transaction.query( "commit" );
   await transaction.release();
+
+  const templateName = "eventRegistration";
+  // #fix проверка
+  const filler = fillers[ templateName ];
+  // #fix проверка
+  const template = await getTemplate( templateName );
+  // #fix проверка
+  const { [ req.session.locale ]: texts } = await getTemplateTexts( req.database.pool, [ req.session.locale ], templateName );
+
+  const { rows: [ { action_name } ] } = await req.database.pool.query(
+    `select name as action_name
+    from actions_translates
+    where
+    locale = $1 and
+    action_id = $2`,
+    [ req.session.locale, actionId ]
+  );
+
+  const locations = ( await req.database.pool.query(
+    `select
+    	l2.name ||
+    	case
+  			when al2.address is null then ''
+  			else ', ' || al2.address
+  		end as location
+    from
+    	actions_locations2 as al2,
+    	locations2 as l2
+    where
+    	l2.locale = $1 and
+    	al2.action_id = $2 and
+    	al2.location2_id = l2.id`,
+    [ req.session.locale, actionId ]
+  ) ).rows.map( ( { location } ) => location );
+
+  const mail = filler( template, texts, {
+    userName: name,
+    eventName: action_name,
+    eventLocation: locations,
+    eventDate: date,
+    domain: process.env.SELF_URL
+  } );
+
+  req.mail.send(
+    email,
+    req._( "action_register_success" ),
+    "",
+    mail
+  );
 
   res.success( 0, result );
 }
