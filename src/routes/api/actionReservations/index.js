@@ -109,8 +109,8 @@ export async function post( req, res ){
     `select name as action_name
     from actions_translates
     where
-    locale = $1 and
-    action_id = $2`,
+      locale = $1 and
+      action_id = $2`,
     [ req.session.locale, actionId ]
   );
 
@@ -132,9 +132,9 @@ export async function post( req, res ){
   ) ).rows.map( ( { location } ) => location );
 
   const mail = filler( template, texts, {
-    userName: name,
+    userName: `${name} ${surname}`,
     eventName: action_name,
-    eventLocation: locations,
+    eventLocations: locations,
     eventDate: date,
     domain: process.env.SELF_URL
   } );

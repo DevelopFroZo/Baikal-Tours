@@ -32,7 +32,7 @@ async function getTemplateTexts( client, locales, templateName ){
     [ locales, templateName ]
   );
 
-  if( rows === undefined ) return null;
+  if( rows.length === 0 ) return {};
 
   rows = rows.reduce( ( res, { locale, texts } ) => {
     res[ locale ] = texts;

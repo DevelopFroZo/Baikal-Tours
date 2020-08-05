@@ -49,6 +49,8 @@ export default ( {
   "withdraw.accepted": "Заявка на выплату одобрена",
   "withdraw.rejected": "Заявка на выплату отклонена",
 
+  "action.remove_from_organizers": "Вы больше не организатор",
+
   event_catalog: "Каталог событий",
   date_from: "Дата с",
   date_by: "Дата по",

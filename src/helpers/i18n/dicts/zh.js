@@ -50,6 +50,8 @@ export default ( {
   "withdraw.accepted": "付款請求已批准",
   "withdraw.rejected": "付款要求被拒絕",
 
+  "action.remove_from_organizers": "您不再是組織者",
+
   event_catalog: "事件目录",
   date_from: "从日期",
   date_by: "日期",
