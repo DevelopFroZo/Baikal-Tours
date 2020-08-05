@@ -61,10 +61,7 @@ function payment(template, text, data) {
     //     eventName:          "Веревочные соревнования среди взрослых и детей в Вуки-Парк",
     //     eventLocation:      ["г.Байкальск, горнолыжный курорт “Гора Соболинная”"],
     //     domain:             "https://baikal.events",
-    //     _: {
-    //         rub:            "руб.",
-    //         pieces:         "шт."
-    //     }
+    //     _
     // }
 
     data.eventLocations = data.eventLocations.join("<br>");
@@ -244,10 +241,10 @@ function secondEvent(template, text, data){
     // text = {
     //     header:             "Спасибо за ваш заказ",
     //     orderHeader:        "Ваш заказ",
-    //     greeting:           "Здравствуйте, {userName}",
+    //     greeting:           "Здравствуйте, {name}",
     //     message:            "Вы зарегистрировались на событие. Подтверждаем, что Ваша регистрация прошла успешно.",
     //     userData:           "Ваши данные",
-    //     name:               "Имя Фамилия",
+    //     fullName:           "Имя Фамилия",
     //     phone:              "Телефон",
     //     mailingText:        "Вы получаете новостную рассылку, потому что вы подписались на нашу рассылку через:",
     //     disabledMailing:    "Отказаться от подписки",
@@ -388,7 +385,7 @@ function paidTickets(template, text, data){
     }
 
     template = template.replace("{ticketsBlock}", ticketsBlock);
-    template = template.replace("{totalAmount}", `${total} ${data._.rub}`);
+    template = template.replace("{totalAmount}", `${total} ${data._("rub")}`);
 
     return setData(template, {...text, ...data});
 }
@@ -430,8 +427,8 @@ function setTicketsData(tickets, data){
         const ticketAmount = paidCount * price;
 
         ticketDataC = ticketDataC.replace("{ticketName}", name);
-        ticketDataC = ticketDataC.replace("{ticketBookedCount}", bookedCount ? `${bookedCount} ${data._.pieces}` : "-");
-        ticketDataC = ticketDataC.replace("{ticketPaidCount}", paidCount ? `${paidCount} ${data._.pieces}` : "-");
+        ticketDataC = ticketDataC.replace("{ticketBookedCount}", bookedCount ? `${bookedCount} ${data._("piece_short")}` : "-");
+        ticketDataC = ticketDataC.replace("{ticketPaidCount}", paidCount ? `${paidCount} ${data._("piece_short")}` : "-");
         ticketDataC = ticketDataC.replace("{ticketPrice}", `${price} ₽`);
         ticketDataC = ticketDataC.replace("{ticketAmount}", ticketAmount ? `${ticketAmount} ₽` : "-");
 
@@ -460,8 +457,8 @@ function setTickets(tickets, ticket, data) {
 
     for (let _ticket of tickets) {
         let ticketC = ticket;
-        ticketC = ticketC.replace("{ticketName}", `${_ticket.name} - ${_ticket.count}${data._.pieces}`);
-        ticketC = ticketC.replace("{ticketPrice}", `${_ticket.price * _ticket.count}${data._.rub}`);
+        ticketC = ticketC.replace("{ticketName}", `${_ticket.name} - ${_ticket.count}${data._("piece_short")}`);
+        ticketC = ticketC.replace("{ticketPrice}", `${_ticket.price * _ticket.count}${data._("piece_short")}`);
         ticketsС += ticketC;
     }
 
@@ -501,7 +498,7 @@ function setTicketsTable(template, text, data){
 
     ticketsblockС = ticketsblockС.replace("{ticketsTable}", ticketsTableС);
     ticketsblockС = ticketsblockС.replace("{additionalsTable}", additionalsTableC);
-    ticketsblockС = ticketsblockС.replace("{price}", `${total}${data._.rub}`);
+    ticketsblockС = ticketsblockС.replace("{price}", `${total}${data._("rub")}`);
 
     template = template.replace("{ticketsBlock}", ticketsblockС);
 
