@@ -67,7 +67,7 @@ function payment(template, text, data) {
     //     }
     // }
 
-    data.eventLocation = data.eventLocation.join("<br>");
+    data.eventLocations = data.eventLocations.join("<br>");
 
     return setData(setTicketsTable(template, text, data), { ...text, ...data });
 }
@@ -96,7 +96,7 @@ function eventRegistration(template, text, data) {
     //     domain:             "https://baikal.events"
     // }
 
-    data.eventLocation = data.eventLocation.join("<br>");
+    data.eventLocations = data.eventLocations.join("<br>");
 
     return setData(template, { ...text, ...data });
 }
@@ -235,7 +235,7 @@ function addToOrganizers(template, text, data) {
     //     domain:             "https://baikal.events"
     // }
 
-    data.eventLocation = data.eventLocation.join("<br>");
+    data.eventLocations = data.eventLocations.join("<br>");
 
     return setData(template, { ...text, ...data });
 }
@@ -294,7 +294,7 @@ function secondEvent(template, text, data){
     //     }
     // }
 
-    data.eventLocation = data.eventLocation.join("<br>");
+    data.eventLocations = data.eventLocations.join("<br>");
 
     return setData(setTicketsTable(template, text, data), { ...text, ...data });
 }
