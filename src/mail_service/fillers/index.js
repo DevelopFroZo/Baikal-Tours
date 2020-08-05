@@ -10,7 +10,8 @@ module.exports = {
     rejectedWithdraw,
     addToOrganizers,
     secondEvent,
-    paidTickets
+    paidTickets,
+    reservationNotifications
 }
 
 function payment(template, text, data) {
@@ -393,6 +394,27 @@ function paidTickets(template, text, data){
 }
 
 function reservationNotifications(template, text, data){
+
+    text = {
+        header:             "Забронированные билеты",
+        greeting:           "Здравствуйте",
+        message:            "На Ваше событие <b>{eventName}</b> проходящее <b>{eventDate}</b> зарегистрировались.",
+        registered:         "Зарегистрировано",
+        goToSite:           "Перейти на сайт",
+        disableLink:        "Если у вас не работает кнопка “Перейти на сайт”, скопируйте данную ссылку и откройте в браузере:",
+        mailingText:        "Вы получаете новостную рассылку, потому что вы подписались на нашу рассылку через:",
+        disabledMailing:    "Отказаться от подписки",
+        ignore:             "Если вы не запрашивали это сообщение, просто проигнорируйте его"
+    }
+
+    data = {
+        registeredCount:    "10",
+        eventName:          "Веревочные соревнования среди взрослых и детей в Вуки-Парк",
+        eventDate:          "с 1 октября - по 30 сентября",
+        domain:             "https://baikal.events"
+    }
+
+    return setData(template, {...text, ...data});
 
 }
 
