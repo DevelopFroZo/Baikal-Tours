@@ -32,14 +32,16 @@ function payment(template, text, data) {
     //     eDate:              "Дата и время",
     //     goToSite:           "Перейти на сайт",
     //     disableLink:        "Если у вас не работает кнопка “Перейти на сайт”, скопируйте данную ссылку и откройте в браузере:",
-    //     total:              "Итого"
+    //     total:              "Итого",
+    //     orderTitle:         "Номер заказа:"
     // }
 
     // data = {
     //     date:               "Понедельник, 20 июля 2020 г. , 8:00",
     //     name:               "Максим Жуков",
     //     userPhone:          "882281488",
-    //     userEmail:          "idinahuy@mail.com",
+    //     userEmail:          "test@mail.com",
+    //     orderId:            "123456",
     //     buyable: [
     //         {
     //             type:       "ticket",
@@ -56,7 +58,7 @@ function payment(template, text, data) {
     //     ],
     //     userName:           "Анастасия Захарова",
     //     eventName:          "Веревочные соревнования среди взрослых и детей в Вуки-Парк",
-    //     eventLocation:      "г.Байкальск, горнолыжный курорт “Гора Соболинная”",
+    //     eventLocation:      ["г.Байкальск, горнолыжный курорт “Гора Соболинная”"],
     //     eventDate:          "с 1 октября - по 30 сентября",
     //     domain:             "https://baikal.events",
     //     _: {
