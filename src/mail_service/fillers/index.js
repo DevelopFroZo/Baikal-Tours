@@ -21,7 +21,7 @@ function payment(template, text, data) {
     //     greeting:           "Здравствуйте, {name}",
     //     message:            "Вы зарегистрировались на событие. Подтверждаем, что Ваша регистрация прошла успешно.",
     //     userData:           "Ваши данные",
-    //     name:               "Имя Фамилия",
+    //     fullName:           "Имя Фамилия",
     //     phone:              "Телефон",
     //     mailingText:        "Вы получаете новостную рассылку, потому что вы подписались на нашу рассылку через:",
     //     disabledMailing:    "Отказаться от подписки",
@@ -390,6 +390,10 @@ function paidTickets(template, text, data){
     template = template.replace("{totalAmount}", `${total} ${data._.rub}`);
 
     return setData(template, {...text, ...data});
+}
+
+function reservationNotifications(template, text, data){
+
 }
 
 function setTicketsData(tickets, data){
