@@ -151,7 +151,7 @@ function removeFromOrganizers(template, text, data) {
     // text = {
     //     header:             "Организация события",
     //     greeting:           "Здравствуйте, {userName}",
-    //     message:            "<b>Вы больше <span class=\"main-block__message_danger\" style=\"color:#ED2D33;\" >не являетесь организатором</span></br> события\"{event}\"",
+    //     message:            "<b>Вы больше <span class=\"main-block__message_danger\" style=\"color:#ED2D33;\" >не являетесь организатором</span></b> события \"{event}\"",
     //     goToSite:           "Перейти на сайт",
     //     disableLink:        "Если у вас не работает кнопка “Перейти на сайт”, скопируйте данную ссылку и откройте в браузере:",
     //     mailingText:        "Вы получаете новостную рассылку, потому что вы подписались на нашу рассылку через:",
@@ -173,7 +173,7 @@ function successWithdraw(template, text, data) {
     //     header:             "Снятие средств",
     //     greeting:           "Здравствуйте, {userName}",
     //     message:            "<b>Ваша заявка на вывод средств <span class=\"main-block__message_success\" style=\"color:#8CC261;\" >одобрена</span></b> на сумму" +
-    //                         "<span class=\"main-block__price\" style=\"font-weight:600;color:#0A92DB;\" >{amount} руб.</span> Проверьте балланс вашего счета в банке",
+    //                         "<span class=\"main-block__price\" style=\"font-weight:600;color:#0A92DB;\" > {amount} руб.</span> Проверьте балланс вашего счета в банке",
     //     goToSite:           "Перейти на сайт",
     //     disableLink:        "Если у вас не работает кнопка “Перейти на сайт”, скопируйте данную ссылку и откройте в браузере:",
     //     mailingText:        "Вы получаете новостную рассылку, потому что вы подписались на нашу рассылку через:",
@@ -395,24 +395,24 @@ function paidTickets(template, text, data){
 
 function reservationNotifications(template, text, data){
 
-    text = {
-        header:             "Забронированные билеты",
-        greeting:           "Здравствуйте",
-        message:            "На Ваше событие <b>{eventName}</b> проходящее <b>{eventDate}</b> зарегистрировались.",
-        registered:         "Зарегистрировано",
-        goToSite:           "Перейти на сайт",
-        disableLink:        "Если у вас не работает кнопка “Перейти на сайт”, скопируйте данную ссылку и откройте в браузере:",
-        mailingText:        "Вы получаете новостную рассылку, потому что вы подписались на нашу рассылку через:",
-        disabledMailing:    "Отказаться от подписки",
-        ignore:             "Если вы не запрашивали это сообщение, просто проигнорируйте его"
-    }
+    // text = {
+    //     header:             "Забронированные билеты",
+    //     greeting:           "Здравствуйте",
+    //     message:            "На Ваше событие <b>{eventName}</b> проходящее <b>{eventDate}</b> зарегистрировались.",
+    //     registered:         "Зарегистрировано",
+    //     goToSite:           "Перейти на сайт",
+    //     disableLink:        "Если у вас не работает кнопка “Перейти на сайт”, скопируйте данную ссылку и откройте в браузере:",
+    //     mailingText:        "Вы получаете новостную рассылку, потому что вы подписались на нашу рассылку через:",
+    //     disabledMailing:    "Отказаться от подписки",
+    //     ignore:             "Если вы не запрашивали это сообщение, просто проигнорируйте его"
+    // }
 
-    data = {
-        registeredCount:    "10",
-        eventName:          "Веревочные соревнования среди взрослых и детей в Вуки-Парк",
-        eventDate:          "с 1 октября - по 30 сентября",
-        domain:             "https://baikal.events"
-    }
+    // data = {
+    //     registeredCount:    "10",
+    //     eventName:          "Веревочные соревнования среди взрослых и детей в Вуки-Парк",
+    //     eventDate:          "с 1 октября - по 30 сентября",
+    //     domain:             "https://baikal.events"
+    // }
 
     return setData(template, {...text, ...data});
 
