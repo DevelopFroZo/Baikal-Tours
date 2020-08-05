@@ -4,17 +4,16 @@ import { toInt } from "/helpers/converters";
 import { edit } from "/database/withdraws";
 import fillers from "/mail_service/fillers/index";
 import { getTemplate, getTemplateTexts } from "/mail_service/index";
+import i18n from "/helpers/i18n/index";
 
 export {
   get
 };
 
 async function get( {
-  session: { locale },
   params: { id },
   database: { pool },
-  mail,
-  _
+  mail
 }, res ){
   const id_ = toInt( id );
 
@@ -26,7 +25,7 @@ async function get( {
   await transaction.query( "begin" );
 
   const { rows: [ row ] } = await transaction.query(
-    `select w.status, sum( wa.amount )::int as amount, u.email
+    `select w.status, sum( wa.amount )::int as amount, u.email, u.locale
     from
     	withdraws as w,
     	withdraw_actions as wa,
@@ -35,7 +34,7 @@ async function get( {
     	w.id = $1 and
     	w.id = wa.withdraw_id and
       w.user_id = u.id
-    group by w.status, u.email`,
+    group by w.status, u.email, u.locale`,
     [ id_ ]
   );
 
@@ -69,7 +68,8 @@ async function get( {
   // #fix проверка
   const template = await getTemplate( templateName );
   // #fix проверка
-  const texts = await getTemplateTexts( pool, [ locale ], templateName );
+  const { [ row.locale ]: texts } = await getTemplateTexts( pool, [ row.locale ], templateName );
+  const subject = i18n( row.locale )( "withdraw.accepted" );
 
   const mail_ = filler( template, texts, {
     amount: row.amount,
@@ -78,7 +78,7 @@ async function get( {
 
   mail.send(
     row.email,
-    _( "withdraw.accepted" ),
+    subject,
     "",
     mail_
   );

@@ -32,10 +32,9 @@ async function get( {
   // #fix проверка
   const template = await getTemplate( templateName );
   // #fix проверка
-  const texts = await getTemplateTexts( pool, [ session.locale ], templateName );
+  const { [ session.locale ]: texts } = await getTemplateTexts( pool, [ session.locale ], templateName );
 
   const mail_ = filler( template, texts, {
-    // #fix добавить userName
     userPassword: result,
     domain: process.env.SELF_URL
   } );

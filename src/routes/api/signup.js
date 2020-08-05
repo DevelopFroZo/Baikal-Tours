@@ -25,7 +25,8 @@ export async function post( req, res ){
       name,
       surname,
       req.body.phone,
-      req.body.email
+      req.body.email,
+      req.session.locale
     );
 
     if( !result.ok ) return res.json( result );
@@ -36,7 +37,7 @@ export async function post( req, res ){
     // #fix проверка
     const template = await getTemplate( templateName );
     // #fix проверка
-    const texts = await getTemplateTexts( req.database.pool, [ req.session.locale ], templateName );
+    const { [ req.session.locale ]: texts } = await getTemplateTexts( req.database.pool, [ req.session.locale ], templateName );
 
     const mail = filler( template, texts, {
       userEmail: req.body.email,
