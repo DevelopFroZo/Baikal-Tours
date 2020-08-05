@@ -21,6 +21,7 @@ export async function post( req, res ){
   req.session.email = result.data.email;
   req.session.userId = result.data.userId;
   req.session.role = result.data.role;
+  req.session.locale = result.data.locale;
 
   res.success( 0, {
     name: result.data.name,

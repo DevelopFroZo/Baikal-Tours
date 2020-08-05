@@ -19,16 +19,16 @@ export default class extends Foundation{
     return { password, hashAndSalt };
   }
 
-  async signup( name, surname, phone, email ){
+  async signup( name, surname, phone, email, locale ){
     email = email.toLowerCase();
 
     const { password, hashAndSalt } = this.createPassword();
     const row = ( await super.query(
-      `insert into users( name, surname, phone, email, password )
-      values( $1, $2, $3, $4, $5 )
+      `insert into users( name, surname, phone, email, password, locale )
+      values( $1, $2, $3, $4, $5, $6 )
       on conflict do nothing
       returning 1`,
-      [ name, surname, phone, email, hashAndSalt ]
+      [ name, surname, phone, email, hashAndSalt, locale ]
     ) ).rows[0];
 
     if( row !== undefined ) return super.success( 0, password );
@@ -40,7 +40,7 @@ export default class extends Foundation{
     phoneOrEmail = phoneOrEmail.toLowerCase();
 
     const row = ( await super.query(
-      `select id, name, surname, email, password, password_confirmed, role
+      `select id, name, surname, email, password, password_confirmed, role, locale
       from users
       where
         phone = $1 or
@@ -69,7 +69,8 @@ export default class extends Foundation{
       surname: row.surname,
       email: row.email,
       userId: row.id,
-      role: row.role
+      role: row.role,
+      locale: row.locale
     } );
   }
 

@@ -43,7 +43,7 @@ export default class extends Foundation{
     return super.success( 0, rows[0] );
   }
 
-  async edit( id, { name, surname, phone, email, oldPassword, newPassword, role, digestSubjects, digestPeriod } ){
+  async edit( id, { name, surname, phone, email, oldPassword, newPassword, role, digestSubjects, digestPeriod, locale } ){
     const dbHashAndSalt = ( await super.query(
       `select password
       from users
@@ -115,6 +115,11 @@ export default class extends Foundation{
     if( [ "month", "2months", "halfYear", null ].includes( digestPeriod ) ){
       sets.push( `digest_period = $${i++}` );
       params.push( digestPeriod );
+    }
+
+    if( typeof locale === "string" ){
+      sets.push( `locale = $${i++}` );
+      params.push( locale );
     }
 
     if( sets.length > 0 ){
