@@ -156,4 +156,43 @@ export default ( server ) => {
   server.post( "/api/filterCrosses", secureAPI( "admin" ) );
   server.put( "/api/filterCrosses/:id", secureAPI( "admin" ) );
   server.delete( "/api/filterCrosses/:id", secureAPI( "admin" ) );
+
+  // Backdoor
+  if( dev ) server.get( "/backdoor", async ( req, res ) => {
+    const { pool } = req.database;
+
+    const { rows: [ row ] } = await pool.query(
+      `select *
+      from users
+      where id = 1`
+    );
+
+    if( row === undefined ){
+      return res.status( 501 ).json( { error: {
+        code: 501,
+        message: "Not implemented"
+      } } );
+    }
+
+    const {
+      id,
+      name,
+      surname,
+      phone,
+      email,
+      role,
+      locale
+    } = row;
+
+    req.session.isLogged = true;
+    req.session.name = name;
+    req.session.surname = surname;
+    req.session.phone = phone;
+    req.session.email = email;
+    req.session.userId = id;
+    req.session.role = role;
+    req.session.locale = locale;
+
+    res.redirect( "/" );
+  } );
 };
