@@ -70,8 +70,8 @@ async function get( {
       const { rows: [ { date, phone, email } ] } = await transaction.query(
         `select date, phone, email
         from action_reservations
-        where action_id = $1`,
-        [ actionId ]
+        where order_id = $1`,
+        [ orderId ]
       );
 
       const { rows: buyable } = await transaction.query(
@@ -83,11 +83,11 @@ async function get( {
           action_buyable_translates as abt
         where
           abt.locale = $1 and
-          ar.action_id = $2 and
+          ar.order_id = $2 and
           ar.id = arb.action_reservation_id and
           arb.action_buyable_id = ab.id and
           ab.id = abt.action_buyable_id`,
-        [ locale, actionId ]
+        [ locale, orderId ]
       );
 
       const { rows: [ { action_name } ] } = await transaction.query(
