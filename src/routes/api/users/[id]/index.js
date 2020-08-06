@@ -56,6 +56,9 @@ export async function put( req, res ){
     if( req.body.surname )
       req.session.surname = req.body.surname;
 
+    if( req.body.phone )
+      req.session.phone = req.body.phone;
+
     if( req.body.email )
       req.session.email = req.body.email;
 

@@ -40,7 +40,7 @@ export default class extends Foundation{
     phoneOrEmail = phoneOrEmail.toLowerCase();
 
     const row = ( await super.query(
-      `select id, name, surname, email, password, password_confirmed, role, locale
+      `select id, name, surname, phone, email, password, password_confirmed, role, locale
       from users
       where
         phone = $1 or
@@ -67,6 +67,7 @@ export default class extends Foundation{
     return super.success( 0, {
       name: row.name,
       surname: row.surname,
+      phone: row.phone,
       email: row.email,
       userId: row.id,
       role: row.role,
