@@ -52,14 +52,14 @@ export async function get( {
   const actionIds = Object.keys( map );
 
   const { rows: locations } = await transaction.query(
-    `select al.action_id, l.name, al.address
+    `select al2.action_id, l2.name, al2.address
     from
-    	actions_locations as al,
-      locations as l
+    	actions_locations2 as al2,
+      locations2 as l2
     where
-    	l.locale = $1 and
-      al.location_id = l.id and
-      al.action_id = any( $2 )`,
+    	l2.locale = $1 and
+      al2.location2_id = l2.id and
+      al2.action_id = any( $2 )`,
     [ locale, actionIds ]
   );
 
