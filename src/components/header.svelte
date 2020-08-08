@@ -556,6 +556,16 @@
   }
 </style>
 
+<svelte:head>
+    {#if $page.query.window}
+        <style>
+            body {
+                overflow: hidden;
+            }
+        </style>
+    {/if}
+</svelte:head>
+
 <header class="form-width line" class:transp>
   <div class="left-side" class:showSearch>
     <a class="header-name" href="./events">

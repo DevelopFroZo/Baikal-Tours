@@ -456,5 +456,11 @@ export default ( {
   finded_intersection:        "Пересечение с таким URL уже существует. Вставить в него текущие данные?",
   redid_intersection_url:     "Задайте пересечению другое имя",
   delete_intersection:        "Вы действительно хотите удалить пересечение?",
-  intersection_saving:        "Сохранение пересечения"
+  intersection_saving:        "Сохранение пересечения",
+
+  yes:                        "Да",
+  header:                     "Заголовок",
+  message:                    "Сообщение",
+  login_or_register:          "Войдите или зарегистрируйтесь",
+  three_events_message:       "Для просмотра более трех событий вам необходимо войти в систему"
 } );

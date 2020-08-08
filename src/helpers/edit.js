@@ -364,11 +364,11 @@ function validateNewtranslateData(newObj, oldObj, key, newData) {
     return newData;
 }
 
-function setTextTranslation(text, locale, actionId) {
+function setTextTranslation(text, locale, actionId, forcibyTranslate) {
     let locales = ["ru", "en", "zh"];
     let data = {
         locale: "ru",
-        autoTranslate: !(Boolean(actionId)),
+        autoTranslate: !(Boolean(actionId)) || forcibyTranslate,
         toLocales: locales.filter(el => el !== locale)
     };
 
@@ -460,7 +460,7 @@ function parseTickets(oldTickets, newTickets, id, locale) {
 
     for (let ticket of newTickets) {
         if (ticket.id === undefined && ticket.name.length !== 0 && ticket.price.length !== 0) {
-            ticket.name = setTextTranslation(ticket.name, locale, id);
+            ticket.name = setTextTranslation(ticket.name, locale, id, true);
             newData.create.push(ticket)
         }
     }
@@ -500,6 +500,8 @@ function parseTickets(oldTickets, newTickets, id, locale) {
     if (newData.create.length === 0) delete newData.create;
     if (newData.edit.length === 0) delete newData.edit;
     if (newData.del.length === 0) delete newData.del;
+
+    console.log(newData)
 
     return newData;
 }

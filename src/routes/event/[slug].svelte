@@ -137,11 +137,13 @@
   import imask from "/helpers/svelte-imask.js";
   import ClickOutside from "/components/clickOutside.svelte";
   import Swiper from "swiper";
+  import LoginNotification from "/components/modalWindow.svelte";
+  import { goto } from "@sapper/app";
 
   export let result_action, actionId, userId, locale, similar_events, mobile;
 
   const fetcher = new Fetcher();
-  const { session } = stores();
+  const { session, page } = stores();
   const _ = i18n(locale);
   const customIcon = {
     iconImageHref: "/img/placeholder-map.svg",
@@ -186,7 +188,9 @@
     priceMin = null,
     priceMax = null,
     reservationId = null,
-    mask;
+    mask,
+    showNotificationWindow = false,
+    visitCounter = 0;
 
   $: {
     total = 0;
@@ -213,6 +217,10 @@
 
   $: ticketsWithCount = tickets.filter(el => el.count);
   $: additionalsWithCount = additionals.filter(el => el.count);
+
+  $: {
+    if(start && !($page.query.window) && !($session.isLogged) && visitCounter >= 3) showNotificationWindow = true;
+  }
   
   function checkUserDate() {
     let splitDate = userDate.split(".");
@@ -311,6 +319,14 @@
         prevEl: '.swiper-button-prev' 
       }
     })
+
+    if(!($session.isLogged)){
+      if(!localStorage.visitCounter)
+        visitCounter = localStorage.visitCounter = 1;
+      else
+        visitCounter = localStorage.visitCounter++;
+    }
+    else localStorage.visitCounter = 0;
 
     start = true;
     if(initEditor)
@@ -538,6 +554,16 @@
       document.location.href = payHref.data;
     else
       alert(_("transaction_error"))
+  }
+
+  function showLoginForm(){
+    goto(`${$page.path}?window=login`)
+    showNotificationWindow = false;
+  }
+
+  function showRegisterForm(){
+    goto(`${$page.path}?window=register`)
+    showNotificationWindow = false;
   }
 </script>
 
@@ -2456,3 +2482,15 @@
     </div>
   </div>
 </div>
+
+<LoginNotification 
+  header={_("login_or_register")}
+  message={_("three_events_message")}
+  firstButtonText={_("enter")}
+  secondButtonText={_("registration")}
+  closable={false}
+  {_}
+  showWindow={showNotificationWindow}
+  on:firstClick={showLoginForm}
+  on:secondClick={showRegisterForm}
+/>
