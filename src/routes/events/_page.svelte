@@ -592,7 +592,13 @@ function showCard() {
   </div>
 
   <h1>
-    {#if $page.query.search}{_('finded')}{:else}{_('event_catalog')}{/if}
+    {#if $page.query.search}
+      {_('finded')}
+    {:else if intersection.data[0]}
+      {intersection.data[0].intro}
+    {:else}
+      {_('event_catalog')}
+    {/if}
   </h1>
 
   <div class="filters">
