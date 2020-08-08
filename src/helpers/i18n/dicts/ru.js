@@ -449,5 +449,12 @@ export default ( {
   payout_rejected:            "Заявка отклонена с сообщением: ",
   payout_required_message:    "Напишите причину отклонения заявки",
 
-  success_digest_edit:        "Дайджест успешно изменен"
+  success_digest_edit:        "Дайджест успешно изменен",
+
+  intersections:              "Пересечения",
+  new_intersection:           "Новое пересечение",
+  finded_intersection:        "Пересечение с таким URL уже существует. Вставить в него текущие данные?",
+  redid_intersection_url:     "Задайте пересечению другое имя",
+  delete_intersection:        "Вы действительно хотите удалить пересечение?",
+  intersection_saving:        "Сохранение пересечения"
 } );

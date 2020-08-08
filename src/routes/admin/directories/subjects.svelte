@@ -36,9 +36,6 @@
   const _ = i18n(locale);
   const {slugify} = tr;
 
-  $: console.log(editData)
-  $: console.log(newData)
-
   $: {
     data = formatStringArrays(directories, directoriesClone, locale);
 

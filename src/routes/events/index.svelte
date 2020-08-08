@@ -14,7 +14,7 @@
 
   export let data;
 
-  console.log(1)
+  
 </script>
 
 <Page {...data}/>

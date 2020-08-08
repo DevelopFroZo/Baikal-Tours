@@ -228,7 +228,7 @@
     }
 
     let date = new Date(reverseDate(userDate, false));
-    date.setMilliseconds(date.getTimezoneOffset() * 60 * 1000 - 60 * 1000);
+    date.setMilliseconds(date.getTimezoneOffset() * 60 * 1000);
 
     if( showDateChange){
 

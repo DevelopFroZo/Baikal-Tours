@@ -617,7 +617,7 @@
     </h3>
     <div class="action-carousel">
       <Carousel
-        data={{ slidesPerView: mobile ? 'auto' : 3, spaceBetween: 30, slidesPerGroup: mobile ? 1 : 3, speed: 750, allowTouchMove: mobile ? true : false }}
+        data={{ slidesPerView: mobile ? 'auto' : 3, spaceBetween: 30, slidesPerGroup: mobile ? 1 : 3, speed: 750, allowTouchMove: mobile ? true : false, navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' } }}
         carouselData={compiliations_result}
         blockHeight={eventsHeight + "px"}>
         {#each actions as action}

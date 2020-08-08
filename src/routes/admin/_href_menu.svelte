@@ -144,6 +144,12 @@
     href="./admin/payouts">
     {_("payouts")}
   </a>
+  <a
+    class="category-href"
+    class:active-page={page === 10}
+    href="./admin/intersections">
+    {_("intersections")}
+  </a>
   <div class="bottom">
     <select
       bind:value={secondLanguage}

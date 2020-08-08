@@ -42,8 +42,6 @@
     if (result.ok) {
       localStorage.removeItem("email");
 
-      console.log($session.email, result)
-
       $session.email = result.data.email;
       $session.name = result.data.name;
       $session.surname = result.data.surname;
@@ -52,7 +50,7 @@
 
       document.location.href = parseUrlByPage(page, ["window"], {});
     } else {
-      alert(result.replace);
+      alert(result.message);
     }
   }
 </script>

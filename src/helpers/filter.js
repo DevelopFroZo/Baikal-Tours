@@ -1,5 +1,4 @@
 import { parseDate } from "./parsers.js";
-import { featurePolicy } from "helmet";
 
 export {
     parseFilterDataForAdmin,
@@ -10,7 +9,8 @@ export {
     parseFilterDataForHotels,
     setNewLocationsData,
     createFilterWithSlug,
-    setFilterBySlug
+    setFilterBySlug,
+    createSlugByFilter
 }
 
 function setFilterData(res) {

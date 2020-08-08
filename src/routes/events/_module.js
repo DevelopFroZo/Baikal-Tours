@@ -47,6 +47,10 @@ async function index(fetcher, page, session) {
     filter.companions = setFilterData(result_filters.data.companions);
     filter.subjects = setFilterData(result_filters.data.subjects);
 
+    let intersection = await fetcher.get(`/api/filterCrosses/${page.params.slug}`, {
+        credentials: "same-origin"
+    });
+
     if(page.params.slug)
         filter = setFilterBySlug(filter, page.params.slug);
 
@@ -176,6 +180,7 @@ async function index(fetcher, page, session) {
         showFilter,
         result_compiliations,
         result_favorites,
-        mobile
+        mobile,
+        intersection
     };
 }

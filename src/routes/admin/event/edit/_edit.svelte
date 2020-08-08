@@ -738,7 +738,7 @@
 
     result = await fetcher.put(`/api/actions/${actionId}`, newData);
 
-    console.log(newData.slug)
+    
 
     if(!url) document.location.href = `/admin/event/${actionData.slug}`;
     else document.location.href = `/admin/event/${url}`;
@@ -1796,7 +1796,7 @@
               allLocations={newLocations}
               changedLocation={location.location_id}
               on:change={({detail}) => {
-                console.log(detail, location)
+                
                 location.location_id = detail.id;
               }}
             />

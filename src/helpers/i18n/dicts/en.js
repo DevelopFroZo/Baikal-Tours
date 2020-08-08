@@ -450,5 +450,12 @@ export default ({
   payout_error:               "An error occurred while changing status",
   payout_accepted:            "Application approved",
   payout_rejected:            "The application is rejected with the message: ",
-  payout_required_message:    "Write the reason of rejection"
+  payout_required_message:    "Write the reason of rejection",
+
+  intersections:              "Intersections",
+  new_intersection:           "New intersection",
+  finded_intersection:        "An intersection with this URL already exists. Insert current data into it?",
+  redid_intersection_url:     "Give the intersection a different name",
+  delete_intersection:        "Do you really want to delete the intersection?",
+  intersection_saving:        "Saving intersections"
 });

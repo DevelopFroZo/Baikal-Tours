@@ -34,7 +34,8 @@ export let result_cards,
   showFilter,
   result_compiliations,
   result_favorites,
-  mobile;
+  mobile,
+  intersection;
 
 const fetcher = new Fetcher();
 const _ = i18n(locale);
@@ -70,7 +71,7 @@ for (let i = 0; i < 5; i++)
   });
 
 $: {
-  console.log(result_cards)
+  
   cards = result_cards.slice(0, visibleCards);
 
   checkActiveFilter();
@@ -566,6 +567,9 @@ function showCard() {
 <svelte:head>
   <title>{_('event_catalog')}</title>
   <!-- <link rel="stylesheet" href="https://unpkg.com/swiper/css/swiper.css" /> -->
+  {#if intersection.data[0]}
+    <meta name="description" content={intersection.data[0].description}>
+  {/if}
 </svelte:head>
 
 <svelte:window bind:scrollY bind:innerHeight />

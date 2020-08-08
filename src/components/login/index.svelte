@@ -31,7 +31,7 @@
       document.location.href =
         page.query.redirect === undefined ? parseUrlByPage(page, ["window"], {}) : page.query.redirect;
     }
-    else alert(result.error);
+    else alert(result.message);
   }
 </script>
 

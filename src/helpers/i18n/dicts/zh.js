@@ -452,5 +452,12 @@ export default ( {
   payout_error:                   "更改状态时发生错误",
   payout_accepted:                "批准申请",
   payout_rejected:                "申请被拒绝的消息: ",
-  payout_required_message:        "写拒绝的原因"
+  payout_required_message:        "写拒绝的原因",
+
+  intersections:                  "交叉路口",
+  new_intersection:               "新交叉口",
+  finded_intersection:            "与此URL的交集已经存在。 将当前数据插入其中？",
+  redid_intersection_url:         "给交叉点一个不同的名字",
+  delete_intersection:            "你真的想删除交叉点?？",
+  intersection_saving:            "保存十字路口"
 } );
