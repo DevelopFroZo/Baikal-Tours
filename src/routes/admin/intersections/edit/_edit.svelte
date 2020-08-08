@@ -55,8 +55,8 @@
         (cur, { id, description, slug, intro }) => {
             return {
                 ...cur,
-                [slug]: { id, description, intro, slug }
-            };
+                [slug]: {id, description, intro}
+            }
         },
         {}
     );
@@ -83,27 +83,23 @@
 
     async function saveIntersection(){
         if(slug.length && description.length && intro.length){
-
-            let find = false;
-
-            for(const [key, value] of Object.entries(allIntersections)){
-                if(key === slug && value.id !== id){
-                    if(confirm(_("finded_intersection"))){
-                        id = value.id;
-                        delete newData.slug;
-                    }
-                    else{
-                        alert(_("redid_intersection_url"))
-                        return;
-                    }
-
-                    break;
+            let find = allIntersections[slug]
+            if(find && find.id !== id){
+                if(confirm(_("finded_intersection"))){
+                    id = find.id;
+                    newData.description = setTextTranslation(description, locale);
+                    newData.intro = setTextTranslation(intro, locale);
+                    delete newData.slug;
+                }
+                else{
+                    alert(_("redid_intersection_url"))
+                    return;
                 }
             }
 
             let result;
             
-            if(id || findedId)
+            if(id)
                 result = await fetcher.put(`/api/filterCrosses/${id}`, newData)
             else
                 result = await fetcher.post(`/api/filterCrosses`, newData)
@@ -112,6 +108,8 @@
                 goto("/admin/intersections")
             else
                 alert(result.message)
+
+            console.log(result)
         }
         else alert(_("required_fields_message"));
     }

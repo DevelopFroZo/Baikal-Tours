@@ -391,7 +391,7 @@
       else
         alert(_("action_register_success"))
     }
-    else alert(reservationResult.error)
+    else alert(reservationResult.message)
   }
 
   function startEditor(){
