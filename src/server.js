@@ -14,6 +14,10 @@ import pgStoreConnect from "connect-pg-simple";
 import "./configs/env";
 import database from "./database";
 
+// Cron
+import { init as initCron } from "./cron";
+import cronDriver from "./cron/drivers/pg";
+
 // Helpers
 import mail from "./helpers/mail";
 import i18n from "./helpers/i18n";
@@ -102,3 +106,6 @@ server
   .listen( PORT, err => {
   	if( err ) console.log( "error", err );
   } );
+
+// Cron
+initCron( cronDriver( database.pool ), process.env.CRON_UPDATE_DELAY, process.env.CRON_UPDATE_LIMIT );
