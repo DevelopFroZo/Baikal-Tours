@@ -943,8 +943,6 @@ export default class extends Foundation{
         await this.modules.actionsTransfers.create( id, transfers.create, transaction );
     }
 
-    await transaction.end();
-
-    return super.success();
+    return transaction;
   }
 }
