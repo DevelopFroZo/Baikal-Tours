@@ -6,6 +6,7 @@ import { toInt } from "/helpers/converters";
 import { createMap, mergeSingle, mergeMultiple } from "/helpers/merger";
 import fillers from "/mail_service/fillers/index";
 import { getTemplate, getTemplateTexts } from "/mail_service/index";
+import { get as getCron } from "/cron/index";
 
 export async function post( req, res ){
   const { userId, actionId, name, surname, phone, email } = req.body;
@@ -92,7 +93,36 @@ export async function post( req, res ){
     buyable = null;
   }
 
-  const result = await create( req.database.pool, userId, actionId, name, surname, phone, email, date, buyable );
+  const result = await create( transaction, userId, actionId, name, surname, phone, email, date, buyable );
+
+  if( buyable ){
+    const taskId = await getCron().add( "notificationAboutUnpaidReservation", {
+      // #fix вынести
+      timestamp: Math.floor( Date.now() / 1000 ) + 4 * 60 * 60,
+      settings: {
+        success: { limit: {
+          value: 1,
+          action: "delete"
+        } },
+        error: {
+          limit: {
+            value: 6,
+            action: "delete"
+          },
+          timeModifierSettings: [ "basic", 10 ]
+        },
+        onExpires: "run"
+      },
+      params: { actionReservationId: result }
+    }, transaction );
+
+    await transaction.query(
+      `update action_reservations
+      set task_id = $1
+      where id = $2`,
+      [ taskId, result ]
+    );
+  }
 
   await transaction.query( "commit" );
   await transaction.release();

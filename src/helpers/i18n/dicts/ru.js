@@ -50,6 +50,7 @@ export default ( {
   "withdraw.rejected": "Заявка на выплату отклонена",
 
   "action.remove_from_organizers": "Вы больше не организатор",
+  "notification_about_unpaid_reservation": "Уведомление о неоплаченных билетах",
 
   event_catalog: "Каталог событий",
   date_from: "Дата с",

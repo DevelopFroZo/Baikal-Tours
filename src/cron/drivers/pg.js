@@ -27,7 +27,8 @@ async function grab( pool, table, timestamp, isFirst = false ){
       [ timestamp ]
     );
 
-    await client.end();
+    await client.query( "commit" );
+    client.release();
 
     for( const task of tasks )
       task.timestamp = parseInt( task.timestamp );
@@ -37,7 +38,6 @@ async function grab( pool, table, timestamp, isFirst = false ){
     return [ tasks, timestamp_ ];
   } catch( error ) {
     await client.query( "rollback" );
-    await client.end();
     client.release();
 
     throw error;

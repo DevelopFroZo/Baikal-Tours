@@ -4,6 +4,7 @@ import fetch from "node-fetch";
 import { getOrderStatus } from "/helpers/sber/acquiring/index";
 import fillers from "/mail_service/fillers/index";
 import { getTemplate, getTemplateTexts } from "/mail_service/index";
+import { get as getCron } from "/cron/index";
 
 export {
   get
@@ -67,8 +68,8 @@ async function get( {
     );
 
     if( OrderStatus === 2 && !paid ){
-      const { rows: [ { date, phone, email } ] } = await transaction.query(
-        `select date, phone, email
+      const { rows: [ { date, phone, email, task_id } ] } = await transaction.query(
+        `select date, phone, email, task_id
         from action_reservations
         where order_id = $1`,
         [ orderId ]
@@ -122,7 +123,8 @@ async function get( {
         `update action_reservations
         set
           paid = true,
-          form_url = null
+          form_url = null,
+          task_id = null
         where order_id = $1`,
         [ orderId ]
       );
@@ -133,6 +135,10 @@ async function get( {
         where id = $2`,
         [ amount, actionId ]
       );
+
+      if( task_id ){
+        await getCron().delete( task_id, transaction );
+      }
 
       const templateName = "payment";
       // #fix проверка

@@ -50,6 +50,7 @@ export default ({
   "withdraw.rejected": "Withdraw request rejected",
 
   "action.remove_from_organizers": "You are no longer an organizer",
+  "notification_about_unpaid_reservation": "Notification about unpaid reservation",
 
   event_catalog: "Event catalog",
   date_from: "Date from",

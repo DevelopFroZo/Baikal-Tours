@@ -51,6 +51,7 @@ export default ( {
   "withdraw.rejected": "付款要求被拒絕",
 
   "action.remove_from_organizers": "您不再是組織者",
+  "notification_about_unpaid_reservation": "關於未付預訂的通知",
 
   event_catalog: "事件目录",
   date_from: "从日期",
