@@ -2,14 +2,16 @@ import {
   writeFile as fsWriteFile,
   unlink as fsUnlink,
   access as fsAccess,
-  mkdir as fsMkdir
+  mkdir as fsMkdir,
+  readFile as fsReadFile
 } from "fs";
 
 export {
   writeFile,
   unlink,
   access,
-  mkdir
+  mkdir,
+  readFile
 };
 
 function writeFile( path, data ){
@@ -46,4 +48,12 @@ function mkdir( path ){
       else res();
     } );
   } );
+}
+
+function readFile( path ){
+  return new Promise( ( res, rej ) => fsReadFile( path, "utf8", ( err, data ) => {
+    if( err ) return rej( err );
+
+    res( data );
+  } ) );
 }

@@ -157,6 +157,10 @@ export default ( server ) => {
   server.put( "/api/filterCrosses/:id", secureAPI( "admin" ) );
   server.delete( "/api/filterCrosses/:id", secureAPI( "admin" ) );
 
+  server.get( "/api/sitemap", secureAPI( "admin" ) );
+  server.put( "/api/sitemap", secureAPI( "admin" ) );
+  server.get( "/api/sitemap/generate", secureAPI( "admin" ) );
+
   // Backdoor
   if( dev ) server.get( "/backdoor", async ( req, res ) => {
     const { pool } = req.database;
