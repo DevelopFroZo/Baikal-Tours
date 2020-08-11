@@ -31,7 +31,7 @@
   .category-block {
     background: $Light_Black;
     width: 120px;
-    height: 610px;
+    height: 710px;
     position: relative;
   }
 
@@ -149,6 +149,12 @@
     class:active-page={page === 10}
     href="./admin/intersections">
     {_("intersections")}
+  </a>
+  <a
+    class="category-href"
+    class:active-page={page === 11}
+    href="./admin/sitemap">
+    sitemap
   </a>
   <div class="bottom">
     <select

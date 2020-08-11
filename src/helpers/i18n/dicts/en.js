@@ -458,5 +458,16 @@ export default ({
   finded_intersection:        "An intersection with this URL already exists. Insert current data into it?",
   redid_intersection_url:     "Give the intersection a different name",
   delete_intersection:        "Do you really want to delete the intersection?",
-  intersection_saving:        "Saving intersections"
+  intersection_saving:        "Saving intersections",
+
+  yes:                        "Yes",
+  header:                     "Title",
+  message:                    "Message",
+  login_or_register:          "Log in or register",
+  three_events_message:       "To view more than three events, you need to log in",
+  generate:                   "Generate",
+  sitemap_generate_success:   "sitemap generated successfully",
+  sitemap_generation:         "Generating sitemap",
+  sitemap_saving:             "Saving sitemap",
+  sitemap_saving_success:     "sitemap saved successfully"
 });

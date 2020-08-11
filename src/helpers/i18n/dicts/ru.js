@@ -463,5 +463,10 @@ export default ( {
   header:                     "Заголовок",
   message:                    "Сообщение",
   login_or_register:          "Войдите или зарегистрируйтесь",
-  three_events_message:       "Для просмотра более трех событий вам необходимо войти в систему"
+  three_events_message:       "Для просмотра более трех событий вам необходимо войти в систему",
+  generate:                   "Сгенерировать",
+  sitemap_generate_success:   "sitemap сгенерирован успешно",
+  sitemap_generation:         "Генерация sitemap",
+  sitemap_saving:             "Сохранение sitemap",
+  sitemap_saving_success:     "sitemap сохранен успешно"
 } );

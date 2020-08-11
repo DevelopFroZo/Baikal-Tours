@@ -460,5 +460,16 @@ export default ( {
   finded_intersection:            "与此URL的交集已经存在。 将当前数据插入其中？",
   redid_intersection_url:         "给交叉点一个不同的名字",
   delete_intersection:            "你真的想删除交叉点?？",
-  intersection_saving:            "保存十字路口"
+  intersection_saving:            "保存十字路口",
+
+  yes:                            "是的",
+  header:                         "标题",
+  message:                        "消息",
+  login_or_register:              "登录或注册",
+  three_events_message:           "要查看三个以上的事件，您需要登录",
+  generate:                       "生成",
+  sitemap_generate_success:       "网站地图生成成功",
+  sitemap_generation:             "生成网站地图",
+  sitemap_saving:                 "保存网站地图",
+  sitemap_saving_success:         "网站地图保存成功"
 } );
