@@ -33,5 +33,5 @@ async function get( { database: { pool } }, res ){
 
   await writeFile( "static/sitemap.txt", text );
 
-  res.success();
+  res.success( 0, text );
 }
