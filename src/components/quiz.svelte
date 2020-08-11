@@ -1,28 +1,33 @@
 <script>
   import { parseDataToIds } from "/helpers/edit.js";
   import { slide } from "svelte/transition";
+  import { goto } from "@sapper/app";
 
   export let _, subjects, fetcher;
 
-  let page = 0,
-    query = {
-      filter: "",
-      companions: null,
-      subjects: null
-    };
+  const subjectsSlug = subjects.reduce((sec, cur) => (sec.push(cur.slug), sec), []);
 
-  $: {
-    query.subjects = query.subjects === null ? [] : query.subjects;
-  }
+  let page            = 0;
+  let companions      = null;
+  let changedSubjects = new Array(6).fill(null);
 
-  $: {
-    query.companions = query.companions === null ? [] : query.companions;
-  }
+  $: companions = companions || [];
 
   function showActions() {
-    let URL = fetcher.makeQuery({ query });
+    const params    = companions.length ? 
+                      fetcher.makeQuery({ query: {filter: "", companions} }) : 
+                      "";
+    const makedSlug = changedSubjects.filter(el => el).join("_");
+    const url       = makedSlug.length ? `/events/${makedSlug}${params}` : `/events${params}`;
 
-    document.location.href = `/events${URL}`;
+    goto(url);
+  }
+
+  function changeSubjects(slug){
+    const slugPosition = subjectsSlug.indexOf(slug);
+
+    if(changedSubjects[slugPosition])   changedSubjects[slugPosition] = null;
+    else                                changedSubjects[slugPosition] = slug;
   }
 </script>
 
@@ -431,28 +436,28 @@
     {#if page === 0}
       <div class="quiz-first-page" transition:slide>
         <button
-          on:click={() => (query.companions = parseDataToIds(query.companions, 2))}
+          on:click={() => (companions = parseDataToIds(companions, 2))}
           class="one"
-          class:change={query.companions.indexOf(2) !== -1}>
-          <div class:change={query.companions.indexOf(2) !== -1}>
+          class:change={companions.indexOf(2) !== -1}>
+          <div class:change={companions.indexOf(2) !== -1}>
             <img src="/img/tick.svg" alt="tick" />
           </div>
           {_('one')}
         </button>
         <button
-          on:click={() => (query.companions = parseDataToIds(query.companions, 3))}
+          on:click={() => (companions = parseDataToIds(companions, 3))}
           class="child"
-          class:change={query.companions.indexOf(3) !== -1}>
-          <div class:change={query.companions.indexOf(3) !== -1}>
+          class:change={companions.indexOf(3) !== -1}>
+          <div class:change={companions.indexOf(3) !== -1}>
             <img src="/img/tick.svg" alt="tick" />
           </div>
           {_('with_child')}
         </button>
         <button
-          on:click={() => (query.companions = parseDataToIds(query.companions, 1))}
+          on:click={() => (companions = parseDataToIds(companions, 1))}
           class="group"
-          class:change={query.companions.indexOf(1) !== -1}>
-          <div class:change={query.companions.indexOf(1) !== -1}>
+          class:change={companions.indexOf(1) !== -1}>
+          <div class:change={companions.indexOf(1) !== -1}>
             <img src="/img/tick.svg" alt="tick" />
           </div>
           {_('group')}
@@ -461,55 +466,55 @@
     {:else if page === 1}
       <div class="quiz-second-page" transition:slide>
         <button
-          on:click={() => (query.subjects = parseDataToIds(query.subjects, 1))}
+          on:click={() => (changeSubjects("sport"))}
           class="gym"
-          class:change={query.subjects.indexOf(1) !== -1}>
-          <div class:change={query.subjects.indexOf(1) !== -1}>
+          class:change={changedSubjects.includes("sport")}>
+          <div class:change={changedSubjects.includes("sport")}>
             <img src="/img/tick.svg" alt="tick" />
           </div>
           {_('sport')}
         </button>
         <button
-          on:click={() => (query.subjects = parseDataToIds(query.subjects, 3))}
+          on:click={() => (changeSubjects("forums"))}
           class="forums"
-          class:change={query.subjects.indexOf(3) !== -1}>
-          <div class:change={query.subjects.indexOf(3) !== -1}>
+          class:change={changedSubjects.includes("forums")}>
+          <div class:change={changedSubjects.includes("forums")}>
             <img src="/img/tick.svg" alt="tick" />
           </div>
           {_('forums')}
         </button>
         <button
-          on:click={() => (query.subjects = parseDataToIds(query.subjects, 5))}
+          on:click={() => (changeSubjects("exhibition"))}
           class="exhibitions"
-          class:change={query.subjects.indexOf(5) !== -1}>
-          <div class:change={query.subjects.indexOf(5) !== -1}>
+          class:change={changedSubjects.includes("exhibition")}>
+          <div class:change={changedSubjects.includes("exhibition")}>
             <img src="/img/tick.svg" alt="tick" />
           </div>
           {_('exhibitions')}
         </button>
         <button
-          on:click={() => (query.subjects = parseDataToIds(query.subjects, 6))}
+          on:click={() => (changeSubjects("gastronomy"))}
           class="gastronomy"
-          class:change={query.subjects.indexOf(6) !== -1}>
-          <div class:change={query.subjects.indexOf(6) !== -1}>
+          class:change={changedSubjects.includes("gastronomy")}>
+          <div class:change={changedSubjects.includes("gastronomy")}>
             <img src="/img/tick.svg" alt="tick" />
           </div>
           {_('gastronomy')}
         </button>
         <button
-          on:click={() => (query.subjects = parseDataToIds(query.subjects, 4))}
+          on:click={() => (changeSubjects("city-life"))}
           class="city-life"
-          class:change={query.subjects.indexOf(4) !== -1}>
-          <div class:change={query.subjects.indexOf(4) !== -1}>
+          class:change={changedSubjects.includes("city-life")}>
+          <div class:change={changedSubjects.includes("city-life")}>
             <img src="/img/tick.svg" alt="tick" />
           </div>
           {_('city_life')}
         </button>
         <button
-          on:click={() => (query.subjects = parseDataToIds(query.subjects, 2))}
+          on:click={() => (changeSubjects("festivals-and-celebrations"))}
           class="festivals"
-          class:change={query.subjects.indexOf(2) !== -1}>
-          <div class:change={query.subjects.indexOf(2) !== -1}>
+          class:change={changedSubjects.includes("festivals-and-celebrations")}>
+          <div class:change={changedSubjects.includes("festivals-and-celebrations")}>
             <img src="/img/tick.svg" alt="tick" />
           </div>
           {_('festivals')}
