@@ -26,6 +26,8 @@ async function get( { database: { pool } }, res ){
   ) ).rows.map( ( { slug } ) => `${SELF_URL}/events/${slug}` );
 
   const text = [
+    `${SELF_URL}`,
+    `${SELF_URL}/events`,
     ...actions,
     ...compiliations,
     ...filterCrosses
