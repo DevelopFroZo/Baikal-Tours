@@ -71,7 +71,22 @@ const ticketData =      "<tr class=\"tickets-table__ticket\">" +
                             "<td class=\"tickets-table__ticket_center\" style=\"text-align:center;font-size:14px;color:#4F4F4F;padding-top:10px;\" >{ticketPaidCount}</td>" +
                             "<td class=\"tickets-table__ticket_center\" style=\"text-align:center;font-size:14px;color:#4F4F4F;padding-top:10px;\" >{ticketPrice}</td>" +
                             "<td class=\"tickets-table__ticket_center\" style=\"text-align:center;font-size:14px;color:#4F4F4F;padding-top:10px;\" >{ticketAmount}</td>" +
-                        "</tr>"
+                        "</tr>";
+
+const totalBlock =      `<span class="main-block__total" style="font-size:16px;font-weight:600;margin-top:20px;display:block;color:#4F4F4F;" >
+                            {paid}: <span class="main-block__amount" style="color:#0A92DB;" >{totalAmount}</span>
+                        </span>`;
+
+const allTicketsTable = `<table class="tickets-table" border="0" cellpadding="0" cellspacing="0" style="width:100%;margin-top:60px;" >
+                            <tr class="tickets-table__header">
+                                <th style="font-size:14px;color:#4F4F4F;text-align:left;" >{name}</th>
+                                <th class="tickets-table__header_center" style="font-size:14px;color:#4F4F4F;text-align:center !important;" >{booked}</th>
+                                <th class="tickets-table__header_center" style="font-size:14px;color:#4F4F4F;text-align:center !important;" >{paid}</th>
+                                <th class="tickets-table__header_center" style="font-size:14px;color:#4F4F4F;text-align:center !important;" >{price}</th>
+                                <th class="tickets-table__header_center" style="font-size:14px;color:#4F4F4F;text-align:center !important;" >{amount}</th>
+                            </tr>
+                            {ticketsBlock}
+                        </table>`
 
 module.exports = {
     ticket,
@@ -79,5 +94,7 @@ module.exports = {
     ticketsBlock,
     mailing,
     ticketsCategory,
-    ticketData
+    ticketData,
+    totalBlock,
+    allTicketsTable
 }
