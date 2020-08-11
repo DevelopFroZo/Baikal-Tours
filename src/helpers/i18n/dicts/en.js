@@ -469,5 +469,8 @@ export default ({
   sitemap_generate_success:   "sitemap generated successfully",
   sitemap_generation:         "Generating sitemap",
   sitemap_saving:             "Saving sitemap",
-  sitemap_saving_success:     "sitemap saved successfully"
+  sitemap_saving_success:     "sitemap saved successfully",
+
+  sitemap_saving_confirm:     "Save changes to sitemap?",
+  sitemap_generate_confirm:   "Generate a new sitemap?"
 });

@@ -468,5 +468,8 @@ export default ( {
   sitemap_generate_success:   "sitemap сгенерирован успешно",
   sitemap_generation:         "Генерация sitemap",
   sitemap_saving:             "Сохранение sitemap",
-  sitemap_saving_success:     "sitemap сохранен успешно"
+  sitemap_saving_success:     "sitemap сохранен успешно",
+
+  sitemap_saving_confirm:     "Сохранить изменения в sitemap?",
+  sitemap_generate_confirm:   "Сгенерировать новый sitemap?"
 } );

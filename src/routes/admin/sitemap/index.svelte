@@ -28,6 +28,8 @@
     let promice;
 
     async function generate(){
+        if(!confirm(_("sitemap_generate_confirm"))) return;
+
         message = _("sitemap_generation");
 
         const generateRespopnse = await fetcher.get(`/api/sitemap/generate`);
@@ -40,6 +42,8 @@
     }
 
     async function save(){
+        if(!confirm(_("sitemap_saving_confirm"))) return;
+
         message = _("sitemap_saving");
 
         const savingResponse = await fetcher.put(`/api/sitemap`, {
@@ -79,6 +83,10 @@
         margin-top: 30px;
     }
 </style>
+
+<svelte:head>
+    <title>sitemap</title>
+</svelte:head>
 
 <AdminPage {_} {locale} {fetcher} page={11}>
     <div class="head">

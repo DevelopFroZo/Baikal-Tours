@@ -119,6 +119,10 @@
     }
 </style>
 
+<svelte:head>
+    <title>{_("intersections")}</title>
+</svelte:head>
+
 <AdminPage {locale} {_} {fetcher} page={10}>
     <div class="head">
         <h1>{_("intersections")}</h1>
