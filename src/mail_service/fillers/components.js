@@ -88,6 +88,38 @@ const allTicketsTable = `<table class="tickets-table" border="0" cellpadding="0"
                             {ticketsBlock}
                         </table>`
 
+const eventCard =       `<td>
+                            <table class="cards" border="0" cellpadding="0" cellspacing="0" style="width:100%;padding-bottom:40px;" >
+                                <tr>
+                                    <td class="card card_first" style="width:50%;padding-top:20px;vertical-align:top;padding-right:10px;" >
+                                        <img src="{imageUrl}" alt="img" class="card__img" style="width:100%;" >
+                                        <span class="card__date" style="margin-top:5px;letter-spacing:0.1em;font-size:14px;display:block;color:#C4C4C4 !important;" >
+                                            {date}
+                                        </span>
+                                        <span class="card__name" style="font-size:18px;line-height:21px;font-weight:600;margin-top:10px;display:block;color:#4F4F4F;" >
+                                            {name}
+                                        </span>
+                                        <span class="card__location" style="margin-top:10px;font-size:14px;display:block;color:#4F4F4F;" >
+                                            {locations}
+                                        </span>
+                                        <span class="card__description" style="margin-top:10px;font-size:12px;display:block;color:#4F4F4F;" >
+                                            {description}
+                                        </span>
+                                        <a href="{eventUrl}" class="card__link" style="padding-top:15px;padding-bottom:15px;padding-right:35px;padding-left:35px;background-color:#0A92DB;background-image:none;background-repeat:repeat;background-position:top left;background-attachment:scroll;border-radius:100px;color:#ffffff;font-size:16px;text-decoration:none;display:block;margin-top:20px;text-align:center;" >{details}</a>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>`;
+
+const subjectTable =    `<table class="section" border="0" cellpadding="0" cellspacing="0">
+                            <tr>
+                                <td class="section__name" style="font-size:18px;font-weight:600;color:#4F4F4F;margin-top:5px;margin-bottom:5px;margin-right:0;margin-left:0;" >
+                                    {subjectName}
+                                </td>
+                            </tr>
+                            {eventCards}
+                        </table>`;
+
 module.exports = {
     ticket,
     ticketsTable,
@@ -96,5 +128,7 @@ module.exports = {
     ticketsCategory,
     ticketData,
     totalBlock,
-    allTicketsTable
+    allTicketsTable,
+    eventCard,
+    subjectTable
 }

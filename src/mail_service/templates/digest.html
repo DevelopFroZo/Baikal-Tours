@@ -14,7 +14,7 @@
                     <tr class="logo">
                         <td class="logo__image-row">
                             <center class="logo__center">
-                                <img src="{domain}/img/logo_all.png" alt="logo" class="logo__image" style="width:200px;margin-bottom:20px;" >
+                                <img src="./images/logo_all.png" alt="logo" class="logo__image" style="width:200px;margin-bottom:20px;" >
                             </center>
                         </td>
                     </tr>
@@ -23,10 +23,15 @@
                             <!--Шапка-->
                             <table class="message" border="0" cellpadding="0" cellspacing="0" style="width:100%;border-radius:10px 10px 0 0;overflow:hidden;" >
                                 <tr class="header">
-                                    <td class="header__column" style="background-color:#0A92DB;color:#ffffff;padding-top:30px;padding-bottom:30px;padding-right:0;padding-left:0;font-size:36px;" >
-                                        <center class="header__text">
-                                            {header}
-                                        </center>
+                                    <td class="header__column" style="background-color:#0A92DB;color:#ffffff;font-size:36px;padding-top:30px;padding-bottom:30px;padding-right:50px;padding-left:50px;" >
+                                        <table class="header__line" border="0" cellpadding="0" cellspacing="0" style="width:100%;" >
+                                            <tr class="header__row">
+                                                <td class="header__text">{header}</td>
+                                                <td class="header__link-column" style="text-align:right;" >
+                                                    <a href="{domain}/events" class="header__link" style="padding-top:10px;padding-bottom:10px;padding-right:10px;padding-left:10px;border-width:1px;border-style:solid;border-color:#ffffff;border-radius:10px;color:white;font-size:14px;-webkit-box-sizing:border-box;box-sizing:border-box;text-decoration:none;display:inline-block;" >{headerLink}</a>
+                                                </td>
+                                            </tr>
+                                        </table>
                                     </td>
                                 </tr>
                             </table>
@@ -36,13 +41,7 @@
                             <table class="main" border="0" cellpadding="0" cellspacing="0" style="background-color:#ffffff;border-radius:0 0px 10px 10px;width:100%;overflow:hidden;padding-top:25px;padding-bottom:25px;padding-right:50px;padding-left:50px;" >
                                 <tr>
                                     <td class="main-block">
-                                        <span class="main-block__greeting" style="font-weight:600;font-size:18px;line-height:20px;color:#4F4F4F;display:block;" >{greeting}</span>
-                                        <span class="main-block__message" style="color:#4F4F4F;font-size:18px;line-height:25px;margin-top:20px;display:block;" >{successRegister}</span>
-                                        <span class="main-block__e-mail" style="color:#4F4F4F;margin-top:40px;left:54px;display:block;" ><b>E-mail: </b>{userEmail}</span>
-                                        <span class="main-block__password" style="color:#4F4F4F;margin-top:15px;display:block;" ><b>{password}: </b>{userPassword}</span>
-                                        <a href="{domain}" class="main-block__link" style="display:inline-block;padding-top:15px;padding-bottom:15px;padding-right:35px;padding-left:35px;background-color:#0A92DB;background-image:none;background-repeat:repeat;background-position:top left;background-attachment:scroll;border-radius:100px;color:#ffffff;font-size:16px;text-decoration:none;margin-top:56px;" >{goToSite}</a>
-                                        <hr class="main-block__line" style="border-style:solid;border-color:#F0F0F0;border-width:1px 0 0 0;width:calc(100% + 50px * 2);margin-left:-50px;margin-top:20px;margin-bottom:20px;" >
-                                        <span class="main-block__help" style="margin-top:20px;color:#4F4F4F;font-size:16px;line-height:19px;" >{disableLink}<span class="main-block__help_link" style="color:#C4C4C4;display:block;margin-top:10px;" >{domain}</span></span>
+                                        {subjects}
                                     </td>
                                 </tr>
                             </table>

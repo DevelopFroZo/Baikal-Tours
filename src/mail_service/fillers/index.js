@@ -1,5 +1,5 @@
 const   { ticket, ticketsTable, ticketsBlock, mailing, ticketsCategory, ticketData,
-        totalBlock, allTicketsTable} = require("./components");
+        totalBlock, allTicketsTable, eventCard, subjectTable} = require("./components");
 
 module.exports = {
     payment,
@@ -10,6 +10,7 @@ module.exports = {
     rejectedWithdraw,
     secondEvent,
     reservationNotification,
+    digest
 }
 
 function payment(template, text, data) {
@@ -349,6 +350,87 @@ function reservationNotification(template, text, data){
     template = template.replace("{totalBlock}", totalBlockC);
     
     return setData(template, {...text, ...data});
+}
+
+function digest(template, text, data){
+
+    // text = {
+    //     header:             "Дайджест событий",
+    //     headerLink:         "Все события",
+    //     mailingText:        "Вы получаете новостную рассылку, потому что вы подписались на нашу рассылку через:",
+    //     disabledMailing:    "Отказаться от подписки",
+    //     details:            "Подробнее"
+    // }
+    // data = {
+    //     domain:             "https://baikal.events",
+    //     subjects: [
+    //         {
+    //             name: "Гастрономия",
+    //             actions: [
+    //                 {
+    //                     imageUrl: "/img/123.png",
+    //                     name: "Международный фестиваль Книгамарт1",
+    //                     date: "С 251 авуста",
+    //                     locations: [
+    //                         "Иркутск1",
+    //                         "Ангарск",
+    //                         "Шелехово"
+    //                     ],
+    //                     description: "Ну крутое событие кароче",
+    //                     slug: "slug"
+    //                 }
+    //             ]
+    //         }
+    //     ]
+    // };
+
+    let allSubjects = "";
+
+    for(const {name: subjectName, actions} of data.subjects){
+
+        let subjectTableC = subjectTable;
+        let allCards = "";
+
+        for(let i = 0; i < actions.length; i+=2){
+
+            let cardsLine = 
+            `
+            <tr>
+                {eventCards}
+            </tr>
+            `;
+
+            let cards = "";
+
+            cards +=                    setCardData(actions[i], eventCard, data.domain);
+            if(actions[i + 1]) cards += setCardData(actions[i + 1], eventCard.replace("padding-right:10px;", "padding-left:10px;"), data.domain);
+
+            cardsLine = cardsLine.replace(`{eventCards}`, cards);
+            allCards += cardsLine;
+        }
+
+        subjectTableC = subjectTableC.replace("{subjectName}", subjectName);
+        subjectTableC = subjectTableC.replace("{eventCards}", allCards);
+
+        allSubjects += subjectTableC;
+    }
+
+    template = template.replace("{subjects}", allSubjects);
+
+    return setData(template, { ...text, ...data });
+}
+
+function setCardData(action, card, domain){
+    action.locations = action.locations.join("<br/>");
+
+    card = card.replace("{imageUrl}", action.imageUrl.startsWith(`http`) ? action.imageUrl : `${domain}${action.imageUrl}`);
+    card = card.replace("{date}", action.date);
+    card = card.replace("{name}", action.name);
+    card = card.replace("{locations}", action.locations);
+    card = card.replace("{description}", action.description);
+    card = card.replace("{eventUrl}", `${domain}/event/${action.slug}`);
+
+    return card;
 }
 
 function setTicketsData(tickets, data){
