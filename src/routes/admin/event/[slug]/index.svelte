@@ -61,7 +61,7 @@
     start = false;
 
   async function changeStatus() {
-    await fetcher.put("/api/actions/" + slug, {
+    await fetcher.put("/api/actions/" + result_action.id, {
       status: result_action.status
     });
   }
