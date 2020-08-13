@@ -342,8 +342,7 @@ function reservationNotification(template, text, data){
         }
 
         allTicketsTableC = allTicketsTableC.replace("{ticketsBlock}", ticketsBlock);
-        //totalBlockC = totalBlockC.replace("{totalAmount}", `${total} ${data._("rub")}`);
-        totalBlockC = totalBlockC.replace("{totalAmount}", 123);
+        totalBlockC = totalBlockC.replace("{totalAmount}", `${total} ${data._("rub")}`);
     }
 
     template = template.replace("{allTicketsTable}", allTicketsTableC);
@@ -445,10 +444,8 @@ function setTicketsData(tickets, data){
         const ticketAmount = paidCount * price;
 
         ticketDataC = ticketDataC.replace("{ticketName}", name);
-        // ticketDataC = ticketDataC.replace("{ticketBookedCount}", bookedCount ? `${bookedCount} ${data._("piece_short")}` : "-");
-        ticketDataC = ticketDataC.replace("{ticketBookedCount}", bookedCount ? 123 : "-");
-        // ticketDataC = ticketDataC.replace("{ticketPaidCount}", paidCount ? `${paidCount} ${data._("piece_short")}` : "-");
-        ticketDataC = ticketDataC.replace("{ticketPaidCount}", paidCount ? 123 : "-");
+        ticketDataC = ticketDataC.replace("{ticketBookedCount}", bookedCount ? `${bookedCount} ${data._("piece_short")}` : "-");
+        ticketDataC = ticketDataC.replace("{ticketPaidCount}", paidCount ? `${paidCount} ${data._("piece_short")}` : "-");
         ticketDataC = ticketDataC.replace("{ticketPrice}", `${price} ₽`);
         ticketDataC = ticketDataC.replace("{ticketAmount}", ticketAmount ? `${ticketAmount} ₽` : "-");
 
