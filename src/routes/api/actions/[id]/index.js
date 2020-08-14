@@ -30,10 +30,9 @@ export async function put( req, res ){
     return res.error( 9 );
 
   const transaction = await req.database.actions.edit( id, req.body );
+  const cron = getCron();
 
   if( req.body.dates ){
-    const cron = getCron();
-
     let { rows: actionDates } = await transaction.query(
       `select *
       from action_dates
@@ -92,7 +91,6 @@ export async function put( req, res ){
       return res;
     }, -1 );
 
-    // Update or create CRON task
     if( task !== undefined ){
       task.timestamp = parseInt( task.timestamp );
 
@@ -107,7 +105,7 @@ export async function put( req, res ){
         cron.updateTimestamp( maxTimestamp );
       }
     } else {
-      await cron.add( "archivateAction", {
+      const taskId = await cron.add( "archivateAction", {
         timestamp: maxTimestamp,
         settings: {
           success: { limit: {
@@ -121,11 +119,46 @@ export async function put( req, res ){
         params: { actionId: id }
       }, transaction );
 
-      const { rows } = await transaction.query(
-        `select *
-        from tasks`
+      await transaction.query(
+        `update actions
+        set task_id = $1
+        where id = $2`,
+        [ taskId, id ]
       );
     }
+  }
+
+  const { rows: [ { status, organizer_ids, task2_id } ] } = await transaction.query(
+    `select status, organizer_ids, task2_id
+    from actions
+    where id = $1`,
+    [ id ]
+  );
+
+  if( task2_id === null && status === "active" && organizer_ids !== null ){
+    // #fix вынести
+    const weekPeriod = 7 * 24 * 60 * 60;
+
+    const taskId = await cron.add( "notificationAboutReservations", {
+      timestamp: Math.floor( Date.now() / 1000 ) + weekPeriod,
+      settings: {
+        success: { timeModifierSettings: [ "basic", weekPeriod ] },
+        // #fix вынести
+        error: { timeModifierSettings: [ "basic", 60 * 60 ] },
+        onExpires: "run"
+      },
+      params: { actionId: id }
+    }, transaction );
+
+    await transaction.query(
+      `update actions
+      set task2_id = $1
+      where id = $2`,
+      [ taskId, id ]
+    );
+  }
+  else if( ( status !== "active" || organizer_ids === null ) && task2_id !== null ){
+    await cron.delete( task2_id, transaction );
   }
 
   await transaction.end();

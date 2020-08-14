@@ -110,7 +110,7 @@ export async function get( {
 
   mergeMultiple( actions, locations, "action_id", "locations", { remove: true, map } );
   mergeMultiple( actions, dates, "action_id", "dates", { remove: true, map } );
-  mergeMultiple( buyable, buyableCount, "action_buyable_id", "count", { remove: true, buyableMap } );
+  mergeMultiple( buyable, buyableCount, "action_buyable_id", "count", { remove: true, map: buyableMap } );
   mergeMultiple( actions, buyable, "action_id", "buyable", { remove: true, map } );
 
   res.success( 0, actions );
