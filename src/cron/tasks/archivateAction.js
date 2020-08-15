@@ -11,7 +11,8 @@ async function index( { actionId }, cron ){
   try{
     console.debug( `[TASK ARCHIVATE ACTION] Start archivate (${actionId})` );
 
-    const pool = new Pool( databaseConfigs[ process.env.NODE_ENV ] );
+    const dev = process.env.NODE_ENV === "development";
+    const pool = new Pool( !dev ? databaseConfigs.production : databaseConfigs.development );
 
     client = await pool.connect();
     await client.query( "begin" );

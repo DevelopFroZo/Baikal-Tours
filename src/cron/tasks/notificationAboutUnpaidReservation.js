@@ -13,7 +13,8 @@ async function index( { actionReservationId } ){
   try{
     console.debug( `[TASK NOTIFICATION ABOUT UNPAID RESERVATION] Start (${actionReservationId})` );
 
-    const pool = new Pool( databaseConfigs[ process.env.NODE_ENV ] );
+    const dev = process.env.NODE_ENV === "development";
+    const pool = new Pool( !dev ? databaseConfigs.production : databaseConfigs.development );
 
     const { rows: [ reservation ] } = await pool.query(
       `select
