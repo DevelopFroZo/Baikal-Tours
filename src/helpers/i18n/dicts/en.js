@@ -472,5 +472,7 @@ export default ({
   sitemap_saving_success:     "sitemap saved successfully",
 
   sitemap_saving_confirm:     "Save changes to sitemap?",
-  sitemap_generate_confirm:   "Generate a new sitemap?"
+  sitemap_generate_confirm:   "Generate a new sitemap?",
+
+  success_digest_edit:        "Digest changed successfully"
 });

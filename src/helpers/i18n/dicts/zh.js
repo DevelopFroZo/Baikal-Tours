@@ -474,5 +474,7 @@ export default ( {
   sitemap_saving_success:         "网站地图保存成功",
 
   sitemap_saving_confirm:         "保存更改地图？",
-  sitemap_generate_confirm:       "生成一个新的网站地图？"
+  sitemap_generate_confirm:       "生成一个新的网站地图？",
+
+  success_digest_edit:            "摘要已成功更改"
 } );

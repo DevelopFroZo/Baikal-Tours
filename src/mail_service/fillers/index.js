@@ -123,7 +123,7 @@ function newPassword(template, text, data) {
 
     // text = {
     //     header:             "Восстановление пароля",
-    //     greeting:           "Здравствуйте, {userName}",
+    //     greeting:           "Здравствуйте",
     //     newPassword:        "Для вашей учетной записи username был запрошен сброс проля. Ваш новый пароль:",
     //     password:           "Пароль",
     //     goToSite:           "Перейти на сайт",
@@ -146,7 +146,7 @@ function successWithdraw(template, text, data) {
 
     // text = {
     //     header:             "Снятие средств",
-    //     greeting:           "Здравствуйте, {userName}",
+    //     greeting:           "Здравствуйте",
     //     message:            "<b>Ваша заявка на вывод средств <span class=\"main-block__message_success\" style=\"color:#8CC261;\" >одобрена</span></b> на сумму" +
     //                         "<span class=\"main-block__price\" style=\"font-weight:600;color:#0A92DB;\" > {amount} руб.</span> Проверьте балланс вашего счета в банке",
     //     goToSite:           "Перейти на сайт",
@@ -168,7 +168,7 @@ function rejectedWithdraw(template, text, data) {
 
     // text = {
     //     header:             "Снятие средств",
-    //     greeting:           "Здравствуйте, {userName}",
+    //     greeting:           "Здравствуйте",
     //     message:            "<b>Ваша заявка на вывод средств</b> на сумму  <span class=\"main-block__price\" style=\"font-weight:600;color:#0A92DB;\" >{amount} руб.</span>" +
     //                         "<span class=\"main-block__message_danger\" style=\"color:#ED2D33;\" >отклонена</span> <b>по причине: </b>{rejectMessage}",
     //     goToSite:           "Перейти на сайт",
@@ -211,7 +211,6 @@ function secondEvent(template, text, data){
 
     // data = {
     //     date:               "Понедельник, 20 июля 2020 г. , 8:00",
-    //     name:               "Максим Жуков",
     //     userPhone:          "882281488",
     //     userEmail:          "idinahuy@mail.com",
     //     buyable: [
@@ -234,10 +233,7 @@ function secondEvent(template, text, data){
     //     eventDate:          "с 1 октября - по 30 сентября",
     //     domain:             "https://baikal.events",
     //     reminderLink:       "sberbank.ru",
-    //     _: {
-    //         rub:            "руб.",
-    //         pieces:         "шт."
-    //     }
+    //     _: function(text){ return text }
     // }
 
     data.eventLocations = data.eventLocations.join("<br>");
@@ -248,9 +244,9 @@ function secondEvent(template, text, data){
 function reservationNotification(template, text, data){
 
     // text = {
-    //     header:             "Забронированы билеты!",
+    //     header:             "Информация о зарегистрированных пользователях",
     //     greeting:           "Здравствуйте",
-    //     message:            "На Ваше событие <b>{eventName}</b> проходящее <b>{eventDate}</b> зарегистрировались.",
+    //     message:            "На Ваше событие <b>{eventName}</b> зарегистрировались.",
     //     goToSite:           "Перейти на сайт",
     //     name:               "Наименование",
     //     booked:             "Забронировано",
@@ -302,10 +298,7 @@ function reservationNotification(template, text, data){
     //             ]
     //         }
     //     ],
-    //     _: {
-    //         rub:            "руб.",
-    //         pieces:         "шт."
-    //     }
+    //     _: function(text){ return text }
     // }
 
     let totalBlockC = "";

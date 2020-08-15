@@ -2052,6 +2052,18 @@
       <div class="contacts-block">
         <div class="contacts">
           <h2>{_('contacts')}</h2>
+
+            <div class="line">
+              <div class="img-block">
+                <img src="/img/pancil.png" alt="phone">
+              </div>
+              <ul> 
+                <li>
+                  {result_action.organizer_name}
+                </li>
+              </ul>
+            </div>
+
             {#if result_action.locations && result_action.locations.length && !coords.length}
               <div class="location-block map-without-coords">
                 <h3>{_('venue')}: 
