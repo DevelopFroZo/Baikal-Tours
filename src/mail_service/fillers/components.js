@@ -94,7 +94,7 @@ const eventCard =       `<td>
                                     <td class="card card_first" style="width:50%;padding-top:20px;vertical-align:top;padding-right:10px;" >
                                         <img src="{imageUrl}" alt="img" class="card__img" style="width:100%;" >
                                         <span class="card__date" style="margin-top:5px;letter-spacing:0.1em;font-size:14px;display:block;color:#C4C4C4 !important;" >
-                                            {date}
+                                            {dates}
                                         </span>
                                         <span class="card__name" style="font-size:18px;line-height:21px;font-weight:600;margin-top:10px;display:block;color:#4F4F4F;" >
                                             {name}

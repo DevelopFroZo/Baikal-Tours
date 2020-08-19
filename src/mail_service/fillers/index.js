@@ -346,35 +346,35 @@ function reservationNotification(template, text, data){
 
 function digest(template, text, data){
 
-    // text = {
-    //     header:             "Дайджест событий",
-    //     headerLink:         "Все события",
-    //     mailingText:        "Вы получаете новостную рассылку, потому что вы подписались на нашу рассылку через:",
-    //     disabledMailing:    "Отказаться от подписки",
-    //     details:            "Подробнее"
-    // }
-    // data = {
-    //     domain:             "https://baikal.events",
-    //     subjects: [
-    //         {
-    //             name: "Гастрономия",
-    //             actions: [
-    //                 {
-    //                     imageUrl: "/img/123.png",
-    //                     name: "Международный фестиваль Книгамарт1",
-    //                     date: "С 251 авуста",
-    //                     locations: [
-    //                         "Иркутск1",
-    //                         "Ангарск",
-    //                         "Шелехово"
-    //                     ],
-    //                     description: "Ну крутое событие кароче",
-    //                     slug: "slug"
-    //                 }
-    //             ]
-    //         }
-    //     ]
-    // };
+    text = {
+        header:             "Дайджест событий",
+        headerLink:         "Все события",
+        mailingText:        "Вы получаете новостную рассылку, потому что вы подписались на нашу рассылку через:",
+        disabledMailing:    "Отказаться от подписки",
+        details:            "Подробнее"
+    }
+    data = {
+        domain:             "https://baikal.events",
+        subjects: [
+            {
+                name: "Гастрономия",
+                actions: [
+                    {
+                        imageUrl: "/img/123.png",
+                        name: "Международный фестиваль Книгамарт1",
+                        dates: ["С 251 авуста"],
+                        locations: [
+                            "Иркутск1",
+                            "Ангарск",
+                            "Шелехово"
+                        ],
+                        description: "Ну крутое событие кароче",
+                        slug: "slug"
+                    }
+                ]
+            }
+        ]
+    };
 
     let allSubjects = "";
 
@@ -393,6 +393,8 @@ function digest(template, text, data){
             `;
 
             let cards = "";
+
+            actions[i].dates = actions[i].dates.join("<br>");
 
             cards +=                    setCardData(actions[i], eventCard, data.domain);
             if(actions[i + 1]) cards += setCardData(actions[i + 1], eventCard.replace("padding-right:10px;", "padding-left:10px;"), data.domain);
@@ -416,7 +418,7 @@ function setCardData(action, card, domain){
     action.locations = action.locations.join("<br/>");
 
     card = card.replace("{imageUrl}", action.imageUrl.startsWith(`http`) ? action.imageUrl : `${domain}${action.imageUrl}`);
-    card = card.replace("{date}", action.date);
+    card = card.replace("{dates}", action.dates);
     card = card.replace("{name}", action.name);
     card = card.replace("{locations}", action.locations);
     card = card.replace("{description}", action.description);
