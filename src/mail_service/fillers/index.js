@@ -1,7 +1,9 @@
-const   { ticket, ticketsTable, ticketsBlock, mailing, ticketsCategory, ticketData,
-        totalBlock, allTicketsTable, eventCard, subjectTable} = require("./components");
+import { ticket, ticketsTable, ticketsBlock, mailing, ticketsCategory, ticketData,
+        totalBlock, allTicketsTable, eventCard, subjectTable} from "./components";
 
-module.exports = {
+import dateToString from "/helpers/dateToString";
+
+export default {
     payment,
     eventRegistration,
     registration,
@@ -346,35 +348,44 @@ function reservationNotification(template, text, data){
 
 function digest(template, text, data){
 
-    text = {
-        header:             "Дайджест событий",
-        headerLink:         "Все события",
-        mailingText:        "Вы получаете новостную рассылку, потому что вы подписались на нашу рассылку через:",
-        disabledMailing:    "Отказаться от подписки",
-        details:            "Подробнее"
-    }
-    data = {
-        domain:             "https://baikal.events",
-        subjects: [
-            {
-                name: "Гастрономия",
-                actions: [
-                    {
-                        imageUrl: "/img/123.png",
-                        name: "Международный фестиваль Книгамарт1",
-                        dates: ["С 251 авуста"],
-                        locations: [
-                            "Иркутск1",
-                            "Ангарск",
-                            "Шелехово"
-                        ],
-                        description: "Ну крутое событие кароче",
-                        slug: "slug"
-                    }
-                ]
-            }
-        ]
-    };
+    // text = {
+    //     header:             "Дайджест событий",
+    //     headerLink:         "Все события",
+    //     mailingText:        "Вы получаете новостную рассылку, потому что вы подписались на нашу рассылку через:",
+    //     disabledMailing:    "Отказаться от подписки",
+    //     details:            "Подробнее"
+    // }
+    // data = {
+    //     domain:             "https://baikal.events",
+    //     subjects: [
+    //         {
+    //             name: "Гастрономия",
+    //             actions: [
+    //                 {
+    //                     imageUrl: "/img/123.png",
+    //                     name: "Международный фестиваль Книгамарт1",
+    //                     dates: [
+    //                         {
+    //                             date_start: new Date().toISOString(),
+    //                             date_end:   null,
+    //                             time_start: null,
+    //                             time_end:   null,
+    //                             days:       [0,3,6]
+    //                         }
+    //                     ],
+    //                     locations: [
+    //                         "Иркутск1",
+    //                         "Ангарск",
+    //                         "Шелехово"
+    //                     ],
+    //                     description: "Ну крутое событие кароче",
+    //                     slug: "slug"
+    //                 }
+    //             ]
+    //         }
+    //     ],
+    //     _: text => { return text }
+    // };
 
     let allSubjects = "";
 
@@ -396,8 +407,8 @@ function digest(template, text, data){
 
             actions[i].dates = actions[i].dates.join("<br>");
 
-            cards +=                    setCardData(actions[i], eventCard, data.domain);
-            if(actions[i + 1]) cards += setCardData(actions[i + 1], eventCard.replace("padding-right:10px;", "padding-left:10px;"), data.domain);
+            cards +=                    setCardData(actions[i], eventCard, data.domain, data._);
+            if(actions[i + 1]) cards += setCardData(actions[i + 1], eventCard.replace("padding-right:10px;", "padding-left:10px;"), data.domain, data._);
 
             cardsLine = cardsLine.replace(`{eventCards}`, cards);
             allCards += cardsLine;
@@ -415,7 +426,8 @@ function digest(template, text, data){
 }
 
 function setCardData(action, card, domain){
-    action.locations = action.locations.join("<br/>");
+    action.dates =      action.dates.map(el => dateToString(el, _)).join("<br/>");
+    action.locations =  action.locations.join("<br/>");
 
     card = card.replace("{imageUrl}", action.imageUrl.startsWith(`http`) ? action.imageUrl : `${domain}${action.imageUrl}`);
     card = card.replace("{dates}", action.dates);

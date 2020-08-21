@@ -120,7 +120,7 @@ const subjectTable =    `<table class="section" border="0" cellpadding="0" cells
                             {eventCards}
                         </table>`;
 
-module.exports = {
+export {
     ticket,
     ticketsTable,
     ticketsBlock,
