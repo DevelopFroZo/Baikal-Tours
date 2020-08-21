@@ -51,6 +51,7 @@ export default ( {
 
   "action.remove_from_organizers": "Вы больше не организатор",
   "notification_about_unpaid_reservation": "Уведомление о неоплаченных билетах",
+  "notification_about_reservations": "Уведомление о зарегистрировавшихся",
 
   event_catalog: "Каталог событий",
   date_from: "Дата с",

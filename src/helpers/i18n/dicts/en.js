@@ -51,6 +51,7 @@ export default ({
 
   "action.remove_from_organizers": "You are no longer an organizer",
   "notification_about_unpaid_reservation": "Notification about unpaid reservation",
+  "notification_about_reservations": "Notification about reservations",
 
   event_catalog: "Event catalog",
   date_from: "Date from",
