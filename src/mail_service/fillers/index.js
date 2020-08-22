@@ -405,8 +405,6 @@ function digest(template, text, data){
 
             let cards = "";
 
-            actions[i].dates = actions[i].dates.join("<br>");
-
             cards +=                    setCardData(actions[i], eventCard, data.domain, data._);
             if(actions[i + 1]) cards += setCardData(actions[i + 1], eventCard.replace("padding-right:10px;", "padding-left:10px;"), data.domain, data._);
 
