@@ -161,6 +161,9 @@ export default ( server ) => {
   server.put( "/api/sitemap", secureAPI( "admin" ) );
   server.get( "/api/sitemap/generate", secureAPI( "admin" ) );
 
+  // #fix убрать, для тестов
+  server.get( "/api/updateDigestTimestamp", secureAPI( "admin" ) );
+
   // Backdoor
   if( dev ) server.get( "/backdoor", async ( req, res ) => {
     const { pool } = req.database;
