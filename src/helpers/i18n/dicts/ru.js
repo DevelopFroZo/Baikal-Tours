@@ -472,5 +472,13 @@ export default ( {
   sitemap_saving_success:     "sitemap сохранен успешно",
 
   sitemap_saving_confirm:     "Сохранить изменения в sitemap?",
-  sitemap_generate_confirm:   "Сгенерировать новый sitemap?"
+  sitemap_generate_confirm:   "Сгенерировать новый sitemap?",
+
+  digest:                     "Дайджест",
+  update_digest_time:         "Обновить время дайджеста",
+  digest_mounth:              "Месяц",
+  digest_two_mounth:          "2 месяца",
+  digest_half_a_year:         "Пол года",
+  confirm_update_digest_time: "Вы действительно хотите обновить время дайджеста?",
+  success_update_digest_time: "Время дайджеста успешно обновлено"
 } );

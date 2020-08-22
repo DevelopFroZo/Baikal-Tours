@@ -156,6 +156,12 @@
     href="./admin/sitemap">
     sitemap
   </a>
+  <a
+    class="category-href"
+    class:active-page={page === 12}
+    href="./admin/digest">
+    {_("digest")}
+  </a>
   <div class="bottom">
     <select
       bind:value={secondLanguage}

@@ -475,5 +475,13 @@ export default ({
   sitemap_saving_confirm:     "Save changes to sitemap?",
   sitemap_generate_confirm:   "Generate a new sitemap?",
 
-  success_digest_edit:        "Digest changed successfully"
+  success_digest_edit:        "Digest changed successfully",
+
+  digest:                     "Digest",
+  update_digest_time:         "Update digest time",
+  digest_mounth:              "Month",
+  digest_two_mounth:          "2 months",
+  digest_half_a_year:         "Half a year",
+  confirm_update_digest_time: "Do you really want to update the digest time?",
+  success_update_digest_time: "Digest time successfully updated"
 });

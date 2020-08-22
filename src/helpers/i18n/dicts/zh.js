@@ -477,5 +477,13 @@ export default ( {
   sitemap_saving_confirm:         "保存更改地图？",
   sitemap_generate_confirm:       "生成一个新的网站地图？",
 
-  success_digest_edit:            "摘要已成功更改"
+  success_digest_edit:            "摘要已成功更改",
+
+  digest:                         "摘要",
+  update_digest_time:             "更新摘要时间",
+  digest_mounth:                  "月",
+  digest_two_mounth:              "2个月",
+  digest_half_a_year:             "半年",
+  confirm_update_digest_time:     "你真的想更新摘要时间?？",
+  success_update_digest_time:     "摘要时间成功更新"
 } );
