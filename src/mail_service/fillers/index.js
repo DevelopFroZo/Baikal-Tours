@@ -423,7 +423,7 @@ function digest(template, text, data){
     return setData(template, { ...text, ...data });
 }
 
-function setCardData(action, card, domain){
+function setCardData(action, card, domain, _){
     action.dates =      action.dates.map(el => dateToString(el, _)).join("<br/>");
     action.locations =  action.locations.join("<br/>");
 
