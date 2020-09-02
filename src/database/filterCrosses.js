@@ -20,12 +20,12 @@ async function createOne( client, slug, translates ){
     );
 
     for( const locale in translates ){
-      const { description, intro } = translates[ locale ];
+      const { description, intro, h1, title } = translates[ locale ];
 
       await client.query(
-        `insert into filter_crosses_translates( filter_cross_id, locale, description, intro )
-        values( $1, $2, $3, $4 )`,
-        [ id, locale, description, intro ]
+        `insert into filter_crosses_translates( filter_cross_id, locale, description, intro, h1, title )
+        values( $1, $2, $3, $4, $5, $6 )`,
+        [ id, locale, description, intro, h1, title ]
       );
     }
 
@@ -104,7 +104,7 @@ async function editOne( client, id, slug, translates ){
   }
 
   for( const locale in translates ){
-    const { description, intro } = translates[ locale ];
+    const { description, intro, h1, title } = translates[ locale ];
     const sets = [];
     const params = [ locale, id ];
     let i = 3;
@@ -117,6 +117,16 @@ async function editOne( client, id, slug, translates ){
     if( intro ){
       sets.push( `intro = $${i++}` );
       params.push( intro );
+    }
+
+    if( h1 ){
+      sets.push( `h1 = $${i++}` );
+      params.push( h1 );
+    }
+
+    if( title ){
+      sets.push( `title = $${i++}` );
+      params.push( title );
     }
 
     if( sets.length > 0 ) await client.query(

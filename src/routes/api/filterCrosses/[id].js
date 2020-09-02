@@ -35,7 +35,7 @@ async function get( {
 
 async function put( {
   params: { id },
-  body: { slug, description, intro },
+  body: { slug, description, intro, h1, title },
   database: { pool }
 }, res ){
   const id_ = toInt( id );
@@ -69,6 +69,20 @@ async function put( {
 
     if( intro.autoTranslate )
       translator.add( "intro", intro.text, intro.locale, intro.toLocales );
+  }
+
+  if( h1 !== null && typeof h1 === "object" && !Array.isArray( h1 ) ){
+    q( h1.locale, "h1", h1.text );
+
+    if( h1.autoTranslate )
+      translator.add( "h1", h1.text, h1.locale, h1.toLocales );
+  }
+
+  if( title !== null && typeof title === "object" && !Array.isArray( title ) ){
+    q( title.locale, "title", title.text );
+
+    if( title.autoTranslate )
+      translator.add( "title", title.text, title.locale, title.toLocales );
   }
 
   await translator.translate();
