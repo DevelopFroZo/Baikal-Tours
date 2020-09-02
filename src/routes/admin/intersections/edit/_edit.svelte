@@ -27,6 +27,8 @@
     export let slug;
     export let intro;
     export let id;
+    export let h1;
+    export let title;
 
     const fetcher = new Fetcher();
     const _ = i18n(locale);
@@ -68,7 +70,7 @@
     $: newData = validateNewData(slug, intersectionData.slug, "slug", newData);
 
     $: newData = validateNewtranslateData(
-        setTextTranslation(description, locale, ),
+        setTextTranslation(description, locale, id),
         intersectionData.description,
         "description",
         newData
@@ -81,14 +83,30 @@
         newData
     )
 
+    $: newData = validateNewtranslateData(
+        setTextTranslation(h1, locale, id),
+        intersectionData.h1,
+        "h1",
+        newData
+    )
+
+    $: newData = validateNewtranslateData(
+        setTextTranslation(title, locale, id),
+        intersectionData.title,
+        "title",
+        newData
+    )
+
     async function saveIntersection(){
-        if(slug.length && description.length && intro.length){
+        if(slug.length && description.length && intro.length && title.length && h1.length){
             let find = allIntersections[slug]
             if(find && find.id !== id){
                 if(confirm(_("finded_intersection"))){
                     id = find.id;
-                    newData.description = setTextTranslation(description, locale);
-                    newData.intro = setTextTranslation(intro, locale);
+                    newData.description = setTextTranslation(description, locale, id);
+                    newData.intro = setTextTranslation(intro, locale, id);
+                    newData.h1 = setTextTranslation(h1, locale, id);
+                    newData.title = setTextTranslation(title, locale, id);
                     delete newData.slug;
                 }
                 else{
@@ -109,7 +127,6 @@
             else
                 alert(result.message)
 
-            console.log(result)
         }
         else alert(_("required_fields_message"));
     }
@@ -183,6 +200,14 @@
         resize: none;
         width: 100%;
         min-height: 200px;
+    }
+
+    input{
+        background: white;
+        margin-top: 10px;
+        width: 100%;
+        padding: 5px;
+        box-sizing: border-box;
     }
 
     .secondLocation{
@@ -262,6 +287,10 @@
         </div>
         <span class="final-slug">{slug}</span>
     </div>
+    <h2>title</h2>
+    <input type="text" name="title" bind:value={title}/>
+    <h2>h1</h2>
+    <input type="text" name="h1" bind:value={h1}/>
     <h2>Description</h2>
     <textarea name="description" bind:value={description}/>
     <h2>Intro</h2>

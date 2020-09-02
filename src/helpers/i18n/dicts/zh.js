@@ -485,5 +485,7 @@ export default ( {
   digest_two_mounth:              "2个月",
   digest_half_a_year:             "半年",
   confirm_update_digest_time:     "你真的想更新摘要时间?？",
-  success_update_digest_time:     "摘要时间成功更新"
+  success_update_digest_time:     "摘要时间成功更新",
+
+  login_to_register_event:        "登錄或註冊系統以註冊活動"
 } );

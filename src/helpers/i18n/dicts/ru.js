@@ -480,5 +480,7 @@ export default ( {
   digest_two_mounth:          "2 месяца",
   digest_half_a_year:         "Пол года",
   confirm_update_digest_time: "Вы действительно хотите обновить время дайджеста?",
-  success_update_digest_time: "Время дайджеста успешно обновлено"
+  success_update_digest_time: "Время дайджеста успешно обновлено",
+
+  login_to_register_event:    "Войдите или зарегистрируйтесь в системе, чтобы зарегистрироваться на событие"
 } );

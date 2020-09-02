@@ -142,6 +142,7 @@ function changeFilter() {
   visibleCards = 0;
 
   window.location.href = `/events${parseFilter}`;
+  // goto(`events${parseFilter}`);
 }
 
 function setPrice() {
@@ -199,6 +200,12 @@ function showCard() {
 
 <style lang="scss">
   @import "./styles/global";
+
+  .intro{
+    margin-top: 25px;
+    color: rgba(52, 53, 63, 0.5);
+    font-size: $Big_Font_Size;
+  }
 
   .secondLocation {
     padding-left: 30px !important;
@@ -565,7 +572,11 @@ function showCard() {
 </style>
 
 <svelte:head>
-  <title>{_('event_catalog')}</title>
+  {#if intersection.data[0]}
+    <title>{intersection.data[0].title}</title>
+  {:else}
+    <title>{_('event_catalog')}</title>
+  {/if}
   <!-- <link rel="stylesheet" href="https://unpkg.com/swiper/css/swiper.css" /> -->
   {#if intersection.data[0]}
     <meta name="description" content={intersection.data[0].description}>
@@ -595,11 +606,17 @@ function showCard() {
     {#if $page.query.search}
       {_('finded')}
     {:else if intersection.data[0]}
-      {intersection.data[0].intro}
+      {intersection.data[0].h1}
     {:else}
       {_('event_catalog')}
     {/if}
   </h1>
+
+  {#if intersection.data[0]}
+    <h2 class="intro">
+      {intersection.data[0].intro}
+    </h2>
+  {/if}
 
   <div class="filters">
     <div class="two-input">

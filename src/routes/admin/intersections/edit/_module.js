@@ -8,7 +8,9 @@ async function index(fetcher, page, session){
         id:             null,
         slug:           "",
         description:    "",
-        intro:          ""
+        intro:          "",
+        h1:             "",
+        title:          ""
     };
     let findedSlug = false;
 
