@@ -1,10 +1,12 @@
 <script>
   import Selection from "/components/selection.svelte";
-  import Swiper from "swiper";
+  import Swiper, { Navigation } from "swiper";
   import { onMount, afterUpdate } from "svelte";
 
   export let data, carouselData, blockHeight = "auto", mainSlide = 0;
   let swiper = null, hideButtons = false, carouselBlock;
+
+  Swiper.use([Navigation]);
 
   afterUpdate(() => {
     changeUpdate();

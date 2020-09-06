@@ -123,14 +123,12 @@
 
   async function addLocation() {
 
-    //#fix autotranslate
-
     const slug = slugify(addingName);
     let data = {
       name: {
         text: addingName,
         locale: locale,
-        autoTranslate: false,
+        autoTranslate: true,
         toLocales: allLocales.filter(el => el !== locale),
       },
       isChild: true,

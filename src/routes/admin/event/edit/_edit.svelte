@@ -2381,7 +2381,6 @@
 <HotelsWindow 
   {showHotels} 
   {allHotels} 
-  {hotelsCount} 
   {fetcher} 
   {hotelsCount} 
   locations={newLocations} 

@@ -366,12 +366,10 @@ function validateNewtranslateData(newObj, oldObj, key, newData) {
 
 function setTextTranslation(text, locale, actionId, forcibyTranslate) {
 
-    //#fix autotranslate
-
     let locales = ["ru", "en", "zh"];
     let data = {
         locale: "ru",
-        // autoTranslate: !(Boolean(actionId)) || forcibyTranslate,
+        autoTranslate: !(Boolean(actionId)) || forcibyTranslate,
         autoTranslate: false,
         toLocales: locales.filter(el => el !== locale)
     };

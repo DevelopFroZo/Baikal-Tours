@@ -46,6 +46,7 @@
     padding: 80px 80px 40px;
     box-sizing: border-box;
     position: relative;
+    z-index: 2;
   }
 
   h3 {

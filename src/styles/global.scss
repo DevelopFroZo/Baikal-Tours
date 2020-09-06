@@ -7,6 +7,10 @@ $form-width: 1200px;
   overflow-x: hidden;
 }
 
+:global(html){
+  overflow-x: hidden;
+}
+
 input[type="date"]{
   -webkit-appearance: none;
 }
