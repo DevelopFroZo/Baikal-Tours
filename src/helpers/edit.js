@@ -370,7 +370,6 @@ function setTextTranslation(text, locale, actionId, forcibyTranslate) {
     let data = {
         locale: "ru",
         autoTranslate: !(Boolean(actionId)) || forcibyTranslate,
-        autoTranslate: false,
         toLocales: locales.filter(el => el !== locale)
     };
 
