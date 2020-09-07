@@ -35,11 +35,16 @@ async function getAll( client, locale ){
   const { rows } = await client.query(
     `select c.id, c.url, c.image_url, ct.name
     from
-      compiliations as c,
-      compiliations_translates as ct
+    	compiliations as c,
+    	compiliations_translates as ct,
+    	compiliations_actions as ca,
+    	actions as a
     where
-      ct.locale = $1 and
-      c.id = ct.compiliation_id`,
+    	ct.locale = $1 and
+    	a.status = 'active' and
+    	c.id = ct.compiliation_id and
+    	c.id = ca.compiliation_id and
+    	ca.action_id = a.id`,
     [ locale ]
   );
 
@@ -80,11 +85,16 @@ async function filter( client, locale, locationIds, subjectIds, dateStart, dateE
       compiliations as c
       left join compiliation_dates as cd
       on c.id = cd.compiliation_id,
-      compiliations_translates as ct
+      compiliations_translates as ct,
+      compiliations_actions as ca,
+    	actions as a
     where
       ct.locale = $1 and
+      a.status = 'active' and
       ${filters}
-      c.id = ct.compiliation_id
+      c.id = ct.compiliation_id and
+    	c.id = ca.compiliation_id and
+    	ca.action_id = a.id
     group by c.id, ct.name`,
     params
   );
@@ -132,6 +142,7 @@ async function getByUrl( client, locale, url ){
     	ca.locale = $1 and
     	at.locale = ca.locale and
     	ca.compiliation_id = $2 and
+      a.status = 'active' and
       ca.action_id = a.id and
     	ca.action_id = at.action_id
     group by a.slug, ca.action_id, ca.description, at.name, at.alt, ai.image_url`,
