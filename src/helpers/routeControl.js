@@ -45,6 +45,14 @@ export default ( server ) => {
     res.sendStatus( 404 );
   } );
 
+  server.get( "/sitemap.txt", async ( req, res ) => {
+    if( await access( `./static/sitemap.txt` ) ){
+      return res.sendFile( "sitemap.txt", { root: "./static" } );
+    }
+
+    res.sendStatus( 404 );
+  } );
+
   server.get( "/admin*", secureStatic( "admin" ) );
 
   // Documentation
@@ -153,7 +161,7 @@ export default ( server ) => {
   server.get( "/api/withdraws/:id/accept", secureAPI( "admin" ) );
   server.post( "/api/withdraws/:id/reject", secureAPI( "admin" ) );
 
-  server.post( "/api/filterCrosses", secureAPI( "admin" ) );
+  // server.post( "/api/filterCrosses", secureAPI( "admin" ) );
   server.put( "/api/filterCrosses/:id", secureAPI( "admin" ) );
   server.delete( "/api/filterCrosses/:id", secureAPI( "admin" ) );
 

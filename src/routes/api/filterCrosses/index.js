@@ -20,7 +20,6 @@ async function post( {
   if(
     typeof slug !== "string" || slug === "" ||
     description === null || typeof description !== "object" || Array.isArray( description ) ||
-    intro === null || typeof intro !== "object" || Array.isArray( intro ) ||
     h1 === null || typeof h1 !== "object" || Array.isArray( h1 ) ||
     title === null || typeof title !== "object" || Array.isArray( title )
   ) return res.error( 13 );
@@ -37,15 +36,19 @@ async function post( {
   };
 
   q( description.locale, "description", description.text );
-  q( intro.locale, "intro", intro.text );
+
+  if( intro !== null && typeof intro === "object" && !Array.isArray( intro ) ){
+    q( intro.locale, "intro", intro.text );
+
+    if( intro.autoTranslate )
+      translator.add( "intro", intro.text, intro.locale, intro.toLocales );
+  }
+
   q( h1.locale, "h1", h1.text );
   q( title.locale, "title", title.text );
 
   if( description.autoTranslate )
     translator.add( "description", description.text, description.locale, description.toLocales );
-
-  if( intro.autoTranslate )
-    translator.add( "intro", intro.text, intro.locale, intro.toLocales );
 
   if( h1.autoTranslate )
     translator.add( "h1", h1.text, h1.locale, h1.toLocales );

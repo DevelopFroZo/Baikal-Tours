@@ -20,7 +20,11 @@ async function createOne( client, slug, translates ){
     );
 
     for( const locale in translates ){
-      const { description, intro, h1, title } = translates[ locale ];
+      let { description, intro, h1, title } = translates[ locale ];
+
+      if( typeof intro !== "string" ){
+        intro = null;
+      }
 
       await client.query(
         `insert into filter_crosses_translates( filter_cross_id, locale, description, intro, h1, title )
