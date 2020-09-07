@@ -44,7 +44,8 @@ async function getAll( client, locale ){
     	a.status = 'active' and
     	c.id = ct.compiliation_id and
     	c.id = ca.compiliation_id and
-    	ca.action_id = a.id`,
+    	ca.action_id = a.id
+    group by c.id, ct.name`,
     [ locale ]
   );
 
