@@ -301,7 +301,10 @@
 
   async function changeAction(e) {
     let action = e.detail.action;
-    action.description = (await fetcher.get(`/api/actions/${action.id}`)).data.short_description;
+    console.log(action)
+    action.description = (await fetcher.get(`/api/actions/${action.slug}`)).data.short_description;
+
+    console.log(action)
 
     actions.push({ ...action });
     actions = actions;

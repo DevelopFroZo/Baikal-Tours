@@ -589,26 +589,29 @@
     <div class="video-block" />
   </div> -->
 
-  <div class="compiliations-block">
-    <h3>
-      {_('events_compiliations')}
-      <br />
-      <span>{_('events_compiliations_blue')}</span>
-    </h3>
-    <div class="selection-carousel">
-      <Carousel
-        data={{ slidesPerView: mobile ? 'auto' : 3, spaceBetween: 15, slidesPerGroup: mobile ? 1 : 3, speed: 750, navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' } }}
-        carouselData={compiliations_result}>
-        {#each compiliations_result as compiliation}
-          <Selection
-            width={mobile ? 210 : 390}
-            height={mobile ? 140 : 200}
-            {...compiliation} />
-        {/each}
-      </Carousel>
+  {#if compiliations_result.length}
+    <div class="compiliations-block">
+      <h3>
+        {_('events_compiliations')}
+        <br />
+        <span>{_('events_compiliations_blue')}</span>
+      </h3>
+      <div class="selection-carousel">
+        <Carousel
+          data={{ slidesPerView: mobile ? 'auto' : 3, spaceBetween: 15, slidesPerGroup: mobile ? 1 : 3, speed: 750, navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' } }}
+          carouselData={compiliations_result}>
+          {#each compiliations_result as compiliation}
+            <Selection
+              width={mobile ? 210 : 390}
+              height={mobile ? 140 : 200}
+              {...compiliation} />
+          {/each}
+        </Carousel>
+      </div>
     </div>
-  </div>
+  {/if}
 
+  {#if actions.length}
   <div class="anticipated-block">
     <h3>
       {_('most_anticipated')}
@@ -626,6 +629,8 @@
       </Carousel>
     </div>
   </div>
+  {/if}
+  
 </div>
 
 <div class="translators-block">

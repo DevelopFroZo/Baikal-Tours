@@ -216,7 +216,7 @@ function showCard() {
   }
 
   .form-width {
-    margin: 15px auto 15px;
+    margin: 235px auto 15px;
     min-height: calc(100vh - 175px - 60px);
   }
 
@@ -292,7 +292,6 @@ function showCard() {
   }
 
   .selections-carousel {
-    margin-top: 235px;
     overflow: hidden;
     position: relative;
   }
@@ -515,7 +514,7 @@ function showCard() {
       grid-template-columns: repeat(1, 100%);
     }
 
-    .selections-carousel {
+    .form-width{
       margin-top: 160px;
     }
 
@@ -589,18 +588,20 @@ function showCard() {
 <!-- <BreadCrumbs path = {[{name: "Каталог событий", url: "./"}]} /> -->
 <div class="form-width" bind:clientHeight>
 
-  <div class="selections-carousel">
-    <Carousel
-      data={{ slidesPerView: 'auto', slidesPerView: mobile ? 'auto' : 3, spaceBetween: mobile ? 10 : 30, slidesPerGroup: mobile ? 1 : 3, speed: 750, navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' }, watchOverflow: false }}
-      carouselData={result_compiliations}>
-      {#each result_compiliations as compiliation}
-        <Selection
-          width={mobile ? 210 : 390}
-          height={mobile ? 140 : 200}
-          {...compiliation} />
-      {/each}
-    </Carousel>
-  </div>
+  {#if result_compiliations.length}
+    <div class="selections-carousel">
+      <Carousel
+        data={{ slidesPerView: 'auto', slidesPerView: mobile ? 'auto' : 3, spaceBetween: mobile ? 10 : 30, slidesPerGroup: mobile ? 1 : 3, speed: 750, navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' }, watchOverflow: false }}
+        carouselData={result_compiliations}>
+        {#each result_compiliations as compiliation}
+          <Selection
+            width={mobile ? 210 : 390}
+            height={mobile ? 140 : 200}
+            {...compiliation} />
+        {/each}
+      </Carousel>
+    </div>
+  {/if}
 
   <h1>
     {#if $page.query.search}
@@ -612,7 +613,7 @@ function showCard() {
     {/if}
   </h1>
 
-  {#if intersection.data[0]}
+  {#if intersection.data[0] && intersection.data[0].intro}
     <h2 class="intro">
       {intersection.data[0].intro}
     </h2>

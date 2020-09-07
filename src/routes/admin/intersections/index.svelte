@@ -136,7 +136,9 @@
                 <h3 class="intersections-item__slug">{slug}</h3>
                 <hr class="intersections-item__line">
                 <span class="intersections-item__description">{description}</span>
-                <span class="intersections-item__intro">{intro}</span>
+                {#if intro}
+                    <span class="intersections-item__intro">{intro}</span>
+                {/if}
                 <a href="/admin/intersections/edit/{slug}" class="intersections-item__link">{_("edit")}</a>
             </li>
         {/each}

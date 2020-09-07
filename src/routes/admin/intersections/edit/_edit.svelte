@@ -98,7 +98,7 @@
     )
 
     async function saveIntersection(){
-        if(slug.length && description.length && intro.length && title.length && h1.length){
+        if(slug.length && description.length && title.length && h1.length){
             let find = allIntersections[slug]
             if(find && find.id !== id){
                 if(confirm(_("finded_intersection"))){
@@ -116,6 +116,8 @@
             }
 
             let result;
+
+            console.log(newData)
             
             if(id)
                 result = await fetcher.put(`/api/filterCrosses/${id}`, newData)
