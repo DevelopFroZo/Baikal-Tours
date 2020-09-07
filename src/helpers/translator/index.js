@@ -1,7 +1,5 @@
 "use strict";
 
-const fetch = require( "node-fetch" );
-
 module.exports = class{
   constructor( engine ){
     this.engine = engine;
@@ -13,8 +11,6 @@ module.exports = class{
   add( key, text, fromLocale, toLocales ){
     if( typeof toLocales === "string" )
       toLocales = [ toLocales ];
-
-    text = encodeURIComponent( text );
 
     toLocales.forEach( toLocale => {
       const directionKey = `${fromLocale}-${toLocale}`;

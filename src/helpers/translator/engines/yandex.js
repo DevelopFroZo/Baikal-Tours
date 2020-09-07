@@ -1,23 +1,34 @@
-module.exports = ( apiKey, fetch, options ) => {
-  let format = "plain";
+"use strict";
 
-  if( typeof options === "object" && !Array.isArray( options ) ){
+module.exports = ( apiKey, fetch, options ) => {
+  let format = "PLAIN_TEXT";
+
+  if( options !== null && typeof options === "object" && !Array.isArray( options ) ){
     const { format: format_ } = options;
 
-    if( [ "plain", "html" ].includes( format_ ) )
-      format = format_;
+    if( format_ === "html" ){
+      format = "HTML";
+    }
   }
 
   return async ( texts, direction ) => {
-    texts = texts.join( "&text=" );
+    const URL = "https://translate.api.cloud.yandex.net/translate/v2/translate";
+    const [ sourceLanguageCode, targetLanguageCode ] = direction.split( "-" );
 
-    const URL =
-      "https://translate.yandex.net/api/v1.5/tr.json/translate" +
-      `?key=${apiKey}` +
-      `&lang=${direction}` +
-      `&format=${format}` +
-      `&text=${texts}`;
+    const body = JSON.stringify( { sourceLanguageCode, targetLanguageCode, format, texts } );
 
-    return ( await fetch( URL ) ).json();
-  }
+    const response = await fetch( URL, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        authorization: `api-key ${apiKey}`
+      },
+      body
+    } );
+
+    const { translations } = await response.json();
+    const texts_ = translations.map( ( { text } ) => text );
+
+    return { text: texts_ };
+  };
 }
