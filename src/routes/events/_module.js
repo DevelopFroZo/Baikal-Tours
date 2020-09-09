@@ -104,8 +104,12 @@ async function index(fetcher, page, session) {
         })).data;
     }
 
-    if (params.subjects !== undefined) {
-        let subjectIds = params.subjects.split(",").map(el => Number(el));
+    const subjectIds = filter.subjects.reduce((sec, cur) => {
+        if(cur.active) sec.push(cur.id);
+        return sec;
+    }, []);
+
+    if (subjectIds.length) {
 
         let data = (await fetcher.get("/api/favorites/", {
             credentials: "same-origin",
