@@ -100,6 +100,7 @@ export default class extends Foundation{
         actions_translates as at
       where
       	at.locale = $1 and
+        a.status = 'active' and
         ${filter}
         f.action_id = a.id and
       	f.action_id = at.action_id
