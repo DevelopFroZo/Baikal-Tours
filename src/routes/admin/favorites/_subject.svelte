@@ -28,10 +28,12 @@
     }
 
     if (bl) {
+      console.log(123)
       let result = await fetcher.post("/api/favorites", {
         subjectId: id,
         actionId: eventInfo.id
       });
+      console.log(result)
       if (result.ok) {
         eventInfo = Object.assign({}, eventInfo);
         eventInfo.action_id = eventInfo.id;
@@ -40,8 +42,8 @@
         events.push(eventInfo);
         events = events;
         showEvents = false;
-      }
-    } else alert(_("already_added_event"));
+      } else alert(_("already_added_event"));
+    } 
   }
 
   async function sortEvents(e) {
@@ -72,7 +74,8 @@
     events = (await fetcher.get("/api/favorites", {
       query: {
         filter: "",
-        subjectIds: id
+        subjectIds: id,
+        allStatuses: ""
       }
     })).data;
 

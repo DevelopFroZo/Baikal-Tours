@@ -37,8 +37,8 @@
         events.push(eventInfo);
         events = events;
         showEvents = false;
-      }
-    } else alert(_("already_added_event"));
+      } else alert(_("already_added_event"));
+    } 
   }
 
   async function sortEvents(e) {
@@ -66,7 +66,11 @@
   onMount(getEvents);
 
   async function getEvents() {
-    events = (await fetcher.get("/api/favorites/main")).data;
+    events = (await fetcher.get("/api/favorites/main", {
+      query: {
+        allStatuses: ""
+      }
+    })).data;
 
     allEvents = (await fetcher.get("/api/actions")).actions;
 
