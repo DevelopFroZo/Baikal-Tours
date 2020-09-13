@@ -75,14 +75,24 @@ export default class extends Foundation{
     return super.success( 0, id );
   }
 
-  async get( locale, subjectIds ){
+  async get( locale, subjectIds, allStatuses ){
     const transaction = await super.transaction();
-    let filter = "";
+    let filters = [];
     const params = [ locale ];
 
     if( subjectIds !== null ){
-      filter = "f.subject_id = any( $2 ) and";
+      filters.push( "f.subject_id = any( $2 )" );
       params.push( subjectIds );
+    }
+
+    if( !allStatuses ){
+      filters.push( `a.status = 'active'` );
+    }
+
+    if( filters.length > 0 ){
+      filters = `${filters.join( " and " )} and`;
+    } else {
+      filters = "";
     }
 
     const { rows: main } = await transaction.query(
@@ -100,8 +110,7 @@ export default class extends Foundation{
         actions_translates as at
       where
       	at.locale = $1 and
-        a.status = 'active' and
-        ${filter}
+        ${filters}
         f.action_id = a.id and
       	f.action_id = at.action_id
       order by f.subject_id, f.number`,

@@ -37,14 +37,16 @@ async function post( {
 }
 
 async function get( {
-  session: { locale },
+  session: { locale, role },
+  query: { allStatuses },
   database: { pool }
 }, res ){
   const client = await pool.connect();
+  const allStatuses_ = role === "admin" && typeof allStatuses === "string" ? true : false;
 
   await client.query( "begin" );
 
-  const result = await getAll( client, locale );
+  const result = await getAll( client, locale, allStatuses_ );
 
   await client.query( "commit" );
   client.release();

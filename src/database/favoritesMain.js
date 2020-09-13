@@ -69,7 +69,9 @@ async function create( client, actionId, before ){
   }
 }
 
-async function getAll( client, locale ){
+async function getAll( client, locale, allStatuses ){
+  allStatuses = !allStatuses ? "a.status = 'active' and" : "";
+
   const { rows: main } = await client.query(
     `select
       f.*, a.slug, at.name, at.alt,
@@ -89,7 +91,7 @@ async function getAll( client, locale ){
       actions_translates as at
     where
       at.locale = $1 and
-      a.status = 'active' and
+      ${allStatuses}
       f.action_id = a.id and
       f.action_id = at.action_id
     group by f.id, a.slug, at.name, at.alt, ai.image_url

@@ -24,12 +24,13 @@ async function post( req, res ){
 }
 
 async function get( {
-  session: { locale },
-  query: { subjectIds },
+  session: { locale, role },
+  query: { subjectIds, allStatuses },
   database: { favorites }
 }, res ){
   const subjectIds_ = toIntArray( subjectIds );
-  const result = await favorites.get( locale, subjectIds_ );
+  const allStatuses_ = role === "admin" && typeof allStatuses === "string" ? true : false;
+  const result = await favorites.get( locale, subjectIds_, allStatuses_ );
 
   res.success( 0, result );
 }
