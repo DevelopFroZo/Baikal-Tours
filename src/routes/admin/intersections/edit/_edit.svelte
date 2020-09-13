@@ -117,7 +117,7 @@
 
             let result;
 
-            console.log(newData)
+             (newData)
             
             if(id)
                 result = await fetcher.put(`/api/filterCrosses/${id}`, newData)

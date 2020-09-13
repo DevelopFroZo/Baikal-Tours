@@ -301,10 +301,10 @@
 
   async function changeAction(e) {
     let action = e.detail.action;
-    console.log(action)
+     (action)
     action.description = (await fetcher.get(`/api/actions/${action.slug}`)).data.short_description;
 
-    console.log(action)
+     (action)
 
     actions.push({ ...action });
     actions = actions;

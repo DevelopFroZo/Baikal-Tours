@@ -12,8 +12,9 @@
     let actionDate = null;
     if(action.date){
       actionDate = new Date(action.date)
-      actionDate.setDate(actionDate.getDate() + 1)
     }
+
+     (actionDate)
       
     if (
       actionDate &&

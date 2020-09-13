@@ -236,13 +236,16 @@
       return false;
     }
 
-    let date = new Date(reverseDate(userDate, false));
-    date.setMilliseconds(date.getTimezoneOffset() * 60 * 1000);
+    let date;
+
+    for(let {date: secondDate, shortDate} of visibleDates){
+      if(shortDate === userDate){
+        date = secondDate;
+        break;
+      }
+    }
 
     if( showDateChange){
-
-      if(dates[0].time_start !== null)
-        date.setMilliseconds(Number((dates[0].time_start.split(":")[0]) + date.getTimezoneOffset()) * 60 * 1000)
       
       if( !dates.some(el => isValidActionDate(el, date))){
         alert(_("date_not_correct"))
@@ -382,8 +385,16 @@
       return;
     }
 
-    const date = new Date(reverseDate(userDate, false))
-    date.setMilliseconds(date.getTimezoneOffset() * 60 * 1000)
+    let date;
+
+    for(let {date: secondDate, shortDate} of visibleDates){
+      if(shortDate === userDate){
+        date = secondDate;
+        break;
+      }
+    }
+
+     (date)
 
     let reservationData = {
       userId: Number(userId),
@@ -392,7 +403,7 @@
       name: userName,
       phone: userPhone,
       email: userMail,
-      date: date.toISOString()
+      date: new Date(date)
     }
 
     let countedTickets = [];
@@ -414,7 +425,8 @@
       else
         alert(_("action_register_success"))
     }
-    else alert(reservationResult.message)
+    else
+      alert(reservationResult.message)
   }
 
   function startEditor(){
@@ -448,10 +460,10 @@
           dateEnd.setMinutes(date.time_end ? date.time_end.split(":")[1] : 59)
           dateEnd.setSeconds(date.time_end ? date.time_end.split(":")[2] : 59)
         }
-                
-        if(dateStart && dateEnd && parseDate(dateStart) === parseDate(dateEnd)){
-          if(visibleDates.indexOf(parseDate(dateStart)) === -1)
-            visibleDates.push(parseDate(dateStart))
+        
+        if(dateStart && dateEnd && dateStart === dateEnd){
+          if(visibleDates.indexOf(dateStart) === -1)
+            visibleDates.push(dateStart)
         }
         else if(dateStart !== dateEnd && dateStart && dateEnd && dateEnd > dateNow){
   
@@ -465,11 +477,13 @@
           while(fullStartDate <= fullEndDate && i <= 100){
             
             if(checkDateByDay(fullStartDate, dates, visibleDates)){
-              visibleDates.push(parseDate(fullStartDate));
+              visibleDates.push({
+                date: fullStartDate.toISOString(),
+                shortDate: reverseDate(parseDate(fullStartDate))
+              });
               i++;
             }
-              
-              
+            
             fullStartDate.setDate(fullStartDate.getDate() + 1);
           }
         }
@@ -481,7 +495,10 @@
           let i = 0;
           while(i <= 100){
             if(checkDateByDay(fullStartDate, dates, visibleDates)){
-              visibleDates.push(parseDate(fullStartDate));
+              visibleDates.push({
+                date: fullStartDate.toISOString(),
+                shortDate: reverseDate(parseDate(fullStartDate))
+              });
               i++;
             }
               
@@ -495,10 +512,13 @@
           while(i <= 100 && dateEnd > secondDate){
   
             if(checkDateByDay(secondDate, dates, visibleDates)){
-              visibleDates.push(parseDate(secondDate));
+              visibleDates.push({
+                date: secondDate.toISOString(),
+                shortDate: reverseDate(parseDate(secondDate))
+              });
               i++;
             }
-              
+            
             secondDate.setDate(secondDate.getDate() + 1);
           }
         }
@@ -508,7 +528,10 @@
   
           while(i <= 100){
             if(checkDateByDay(secondDate, dates, visibleDates)){
-              visibleDates.push(parseDate(secondDate));
+              visibleDates.push({
+                date: secondDate.toISOString(),
+                shortDate: reverseDate(parseDate(secondDate))
+              });
               i++;
             }
               
@@ -518,10 +541,15 @@
       }
     }
 
-    visibleDates = visibleDates.sort();
+    visibleDates = visibleDates.sort((a, b) => {
+      if(a.shortDate < b.shortDate)       return 0;
+      else if(a.shortDate > b.shortDate)  return 1;
+
+      return 0;
+    });
 
     if(visibleDates.length <= 1 || !result_action.buyable.length){
-      userDate = visibleDates.length ? reverseDate(visibleDates[visibleDates.length - 1]) : parseDate( new Date() );
+      userDate = visibleDates.length ? visibleDates[0].shortDate : new Date();
       showDateChange = false;
     }
   }
@@ -538,9 +566,10 @@
           break;
         }
       }
+
     
     if(bl){
-      if(allDates.indexOf(parseDate(date)) === -1)
+      if(allDates.indexOf(date.toISOString()) === -1)
         return true;
     }
     return false;
@@ -2288,15 +2317,15 @@
                     <ClickOutside on:clickoutside={() => showDatePicker = false} exclude={[dateInput]} hideByExclude={false}>
                       {#if showDatePicker}
                         <ul class="date-list" transition:slide>
-                          {#each userDate.length === 10 ? visibleDates : visibleDates.filter(el => userDate.length ? reverseDate(el).indexOf(userDate) === 0 : true) as date}
+                          {#each userDate.length === 10 ? visibleDates : visibleDates.filter(({shortDate}) => userDate.length ? shortDate.startsWith(userDate) : true) as {shortDate}}
                             <li>
                               <button on:click={() => {
-                                userDate = reverseDate(date);
+                                userDate = shortDate;
                                 mask.typedValue = userDate;
                                 mask.updateValue();
                                 showDatePicker = false;
                               }}>
-                                {reverseDate(date)}
+                                {shortDate}
                               </button>
                             </li>
                           {/each}

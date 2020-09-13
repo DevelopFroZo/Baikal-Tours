@@ -502,7 +502,7 @@ function parseTickets(oldTickets, newTickets, id, locale) {
     if (newData.edit.length === 0) delete newData.edit;
     if (newData.del.length === 0) delete newData.del;
 
-    console.log(newData)
+     (newData)
 
     return newData;
 }
