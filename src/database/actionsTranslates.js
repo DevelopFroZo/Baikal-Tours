@@ -8,7 +8,7 @@ export default class extends Foundation{
   async createOrEdit( client, actionId, locale, {
     title, name, short_description,
     full_description, organizer_name, contact_faces,
-    alt
+    alt, instagram_widget_title
   } ){
     let values = [ "$1", "$2" ];
     let sets = [];
@@ -64,11 +64,18 @@ export default class extends Foundation{
     }
     else values.push( "''" );
 
+    if( instagram_widget_title ){
+      values.push( `$${i++}` );
+      sets.push( `instagram_widget_title = excluded.instagram_widget_title` );
+      params.push( instagram_widget_title );
+    }
+    else values.push( "null" );
+
     values = values.join( "," );
     sets = sets.join( "," );
 
     await client.query(
-      `insert into actions_translates( action_id, locale, title, name, short_description, full_description, organizer_name, contact_faces, alt )
+      `insert into actions_translates( action_id, locale, title, name, short_description, full_description, organizer_name, contact_faces, alt, instagram_widget_title )
       values( ${values} )
       on conflict ( action_id, locale ) do update
       set ${sets}`,

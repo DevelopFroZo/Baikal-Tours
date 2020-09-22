@@ -15,8 +15,8 @@ export default class extends Foundation{
 
   async createEmpty(){
     const id = ( await super.query(
-      `insert into actions( site_payment )
-      values( false )
+      `insert into actions( site_payment, instagram_widget_is_show )
+      values( false, false )
       returning id`
     ) ).rows[0].id;
 
@@ -672,10 +672,10 @@ export default class extends Foundation{
     slug, status, organizer_ids,
     site_payment, organizer_payment, emails, phones,
     websites, vk_link, facebook_link, instagram_link,
-    twitter_link, title, name,
+    twitter_link, instagram_widget_is_show, title, name,
     short_description, full_description,
-    organizer_name, contact_faces, alt, dates, companions,
-    locations, subjects, transfers
+    organizer_name, contact_faces, alt, instagram_widget_title,
+    dates, companions, locations, subjects, transfers
   } ){
     let set = [];
     const params = [ id ];
@@ -745,6 +745,11 @@ export default class extends Foundation{
     if( twitter_link === null || twitter_link ){
       set.push( `twitter_link = $${sc++}` );
       params.push( twitter_link );
+    }
+
+    if( typeof instagram_widget_is_show === "boolean" ){
+      set.push( `instagram_widget_is_show = $${sc++}` );
+      params.push( instagram_widget_is_show );
     }
 
     if( set.length > 0 ){
@@ -859,6 +864,18 @@ export default class extends Foundation{
 
       if( alt.autoTranslate === true )
         translator.add( "alt", alt.text, locale, alt.toLocales );
+    }
+
+    if( instagram_widget_title ){
+      const locale = instagram_widget_title.locale;
+
+      if( translated[ locale ] === undefined )
+        translated[ locale ] = {};
+
+      translated[ locale ].instagram_widget_title = instagram_widget_title.text;
+
+      if( instagram_widget_title.autoTranslate === true )
+        translator.add( "instagram_widget_title", instagram_widget_title.text, locale, instagram_widget_title.toLocales );
     }
 
     await translator.translate();
