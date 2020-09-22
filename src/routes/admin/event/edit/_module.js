@@ -43,7 +43,9 @@ async function index(fetcher, page, session) {
             locations2: [],
             slug: "",
             id: null,
-            alt: ""
+            alt: "",
+            instagram_widget_is_show: false,
+            instagram_widget_title: ""
         };
 
     let result_filters = await fetcher.get("/api/dataForFilters", {

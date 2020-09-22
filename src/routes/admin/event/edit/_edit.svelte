@@ -62,7 +62,9 @@
     locations2 = [],
     newLocations,
     slug,
-    alt = "";
+    alt = "",
+    instagram_widget_is_show = false,
+    instagram_widget_title = "";
   
   const fetcher = new Fetcher();
   const _ = i18n(locale);
@@ -446,6 +448,27 @@
       newData
     );
   }
+
+  //Заголовок instagram
+  $: {
+    newData = edit.validateNewtranslateData(
+      edit.setTextTranslation(instagram_widget_title, locale, actionId),
+      actionData.instagram_widget_title,
+      "instagram_widget_title",
+      newData
+    );
+  }
+
+  //Показать блок инстаграма
+  $: {
+    newData = edit.validateNewData(
+      instagram_widget_is_show,
+      actionData.instagram_widget_is_show,
+      "instagram_widget_is_show",
+      newData
+    );
+  }
+
 
   let options = [];
   for (let i = 0; i < 3; i++)
@@ -1581,6 +1604,25 @@
       }
     }
   }
+
+  .instagram-params{
+    padding-left: 20px;
+    display: block !important;
+
+    label{
+      width: auto !important;
+      display: inline !important;
+    }
+
+    > div{
+      display: flex;
+      align-items: center;
+
+      &:not(:first-child){
+        margin-top: 5px;
+      }
+    }
+  }
 </style>
 
 <svelte:head>
@@ -2094,6 +2136,17 @@
         <div>
           <label for="in">{_('instagram')}</label>
           <input type="text" name="in" bind:value={instagram_link} />
+        </div>
+
+        <div class="instagram-params">
+          <div>
+            <label for="in_header">{_("instagram_header")}</label>
+            <input type="text" name="in_header" bind:value={instagram_widget_title} />
+          </div>
+          <div>
+            <label for="in_show">{_("show_instagram_block")}</label>
+            <input type="checkbox" name="in_show" bind:checked={instagram_widget_is_show} />
+          </div>
         </div>
 
         <div>

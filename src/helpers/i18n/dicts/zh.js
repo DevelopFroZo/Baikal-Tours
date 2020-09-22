@@ -487,5 +487,7 @@ export default ( {
   confirm_update_digest_time:     "你真的想更新摘要时间?？",
   success_update_digest_time:     "摘要时间成功更新",
 
-  login_to_register_event:        "登錄或註冊系統以註冊活動"
+  login_to_register_event:        "登錄或註冊系統以註冊活動",
+
+  invalid_date:                   "开始日期{dateStart}不能晚于结束日期{dateEnd}"
 } );

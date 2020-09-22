@@ -139,6 +139,7 @@
   import Swiper from "swiper";
   import LoginNotification from "/components/modalWindow.svelte";
   import { goto } from "@sapper/app";
+  import InstaCards from "/components/instacards.svelte";
 
   export let result_action, actionId, userId, locale, similar_events, mobile;
 
@@ -191,7 +192,8 @@
     mask,
     showNotificationWindow = false,
     showRegisterNotification = false,
-    visitCounter = 0;
+    visitCounter = 0,
+    instagramName = "";
 
   $: {
     total = 0;
@@ -274,6 +276,15 @@
     total = 0;
     showDateChange = true;
     requiredField = false;
+    instagramName = "";
+
+    if(result_action.instagram_link){
+
+      if(!result_action.instagram_link.endsWith("/"))
+        result_action.instagram_link += "/"
+
+      instagramName = result_action.instagram_link.match(/\.com\/(.*)\/$/)[1];
+    }
 
     transfers = [];
     for(let transfer of result_action.transfers)
@@ -607,6 +618,16 @@
 
 <style lang="scss">
   @import "./styles/global";
+
+  .insta-block{
+    margin: 80px auto 0;
+    width: 1060px;
+
+    @media only screen and (max-width: 768px){
+      width: 100%;
+      margin: 60px auto 0;
+    }
+  }
 
   .head-price{
     margin-top: 40px;
@@ -2058,6 +2079,15 @@
     {/if}
 
     <div id="description-block"></div>
+
+    {#if result_action.instagram_widget_is_show && instagramName && $page.query.iwis === "true"}
+      <div class="insta-block">
+        <InstaCards
+          header      ={result_action.instagram_widget_title}
+          userName    ={instagramName}
+        />
+      </div>
+    {/if}
 
     {#if result_action.partners.length > 0}
       <div class="partners-block">

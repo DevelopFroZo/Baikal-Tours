@@ -485,5 +485,7 @@ export default ({
   confirm_update_digest_time: "Do you really want to update the digest time?",
   success_update_digest_time: "Digest time successfully updated",
 
-  login_to_register_event:    "Login or register in the system to register for the event"
+  login_to_register_event:    "Login or register in the system to register for the event",
+
+  invalid_date:               "The start date {dateStart} cannot be later than the end date {dateEnd}"
 });

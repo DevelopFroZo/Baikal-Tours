@@ -482,5 +482,8 @@ export default ( {
   confirm_update_digest_time: "Вы действительно хотите обновить время дайджеста?",
   success_update_digest_time: "Время дайджеста успешно обновлено",
 
-  login_to_register_event:    "Войдите или зарегистрируйтесь в системе, чтобы зарегистрироваться на событие"
+  login_to_register_event:    "Войдите или зарегистрируйтесь в системе, чтобы зарегистрироваться на событие",
+
+  instagram_header:           "Заголовок",
+  show_instagram_block:       "Показать блок instagram"
 } );
