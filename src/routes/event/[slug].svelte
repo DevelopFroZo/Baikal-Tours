@@ -2041,7 +2041,7 @@
           <ul>
             {#each result_action.dates as date}
               <li>
-                <time itemprop="startDate" datetime={parseDate(new Date(date.date_start ? date.date_start : (date.date_end ? date_end : "")))}>{dateToString(date, _)}</time>
+                <time itemprop="startDate" datetime={parseDate(new Date(date.date_start ? date.date_start : (date.date_end ? date.date_end : "")))}>{dateToString(date, _)}</time>
               </li>
             {/each} 
           </ul>
