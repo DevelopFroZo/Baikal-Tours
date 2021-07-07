@@ -369,7 +369,9 @@ function setTextTranslation(text, locale, actionId, forcibyTranslate) {
     let locales = ["ru", "en", "zh"];
     let data = {
         locale: "ru",
-        autoTranslate: Boolean(!(Boolean(actionId)) || forcibyTranslate),
+        // #fix
+        autoTranslate: false,
+        // autoTranslate: Boolean(!(Boolean(actionId)) || forcibyTranslate),
         toLocales: locales.filter(el => el !== locale)
     };
 

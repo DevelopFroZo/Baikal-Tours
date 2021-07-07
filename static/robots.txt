@@ -3,4 +3,4 @@ Disallow: /admin
 Disallow: /api
 Disallow: /payment
 Host: baikal.events
-Sitemap: http://baikal.events/sitemap.txt
+Sitemap: https://baikal.events/sitemap.txt

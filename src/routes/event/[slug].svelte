@@ -2179,7 +2179,7 @@
               </div>
               <ul>
                 <li>
-                  <a href={result_action.websites[0]} target="_blank">
+                  <a href={`${/^https?:\/\//.test( result_action.websites[0] ) ? "" : "http://"}${result_action.websites[0]}`} target="_blank">
                     {result_action.websites[0]}
                   </a>
                 </li>
@@ -2286,138 +2286,140 @@
   </div>
 
   <div class="form-width" bind:this={registerBlock}>
-    <h2 class="register-header">{_('email.subscribe.subject')}</h2>
-    {#if result_action.organizer_payment && result_action.organizer_payment.length}
-      <div class="organizer-payment">
-        <span>{_("organizer_payment_message")}</span>
-        <div class="organizer-site">
-          <div class="image">
-            <img src="/img/internet.svg" alt="organizer site">
+    {#if result_action.organizer_payment && result_action.organizer_payment.length || result_action.site_payment}
+      <h2 class="register-header">{_('email.subscribe.subject')}</h2>
+      {#if result_action.organizer_payment && result_action.organizer_payment.length}
+        <div class="organizer-payment">
+          <span>{_("organizer_payment_message")}</span>
+          <div class="organizer-site">
+            <div class="image">
+              <img src="/img/internet.svg" alt="organizer site">
+            </div>
+            <a href={result_action.organizer_payment}>{result_action.organizer_payment}</a>
           </div>
-          <a href={result_action.organizer_payment}>{result_action.organizer_payment}</a>
         </div>
-      </div>
-    {:else}
-      <div class="register-center">
-        <div class="register-form">
-          <div class="register-info-blocks">
-            <div class="inputs-block" class:only-inputs={result_action.buyable.length === 0}>
-              <div class="input-block" class:requiredField={requiredField && !userName.length}>
-                <input type="text" bind:value={userName} placeholder={_("name")}/>
-                <div class="img-block">
-                  <img src="/img/user-black.svg" alt="user">
-                </div>
-              </div>
-              <div class="input-block" class:requiredField={requiredField && !surname.length}>
-                <input type="text" bind:value={surname} placeholder={_("surname")}/>
-                <div class="img-block">
-                  <img src="/img/user-black.svg" alt="user">
-                </div>
-              </div>
-              <div class="input-block" class:requiredField={requiredField && !userPhone.length}>
-                <input
-                  type="text"
-                  bind:value={userPhone}
-                  on:keydown={validatePhone} 
-                  placeholder={_("phone")}/>
-                <div class="img-block">
-                  <img src="/img/phone-call.svg" alt="phone">
-                </div>
-              </div>
-              <div class="input-block" class:requiredField={requiredField && ( !validateMail(userMail) || !userMail.length)}>
-                <input type="text" bind:value={userMail} placeholder="e-mail"/>
-                <div class="img-block">
-                  <img src="/img/mail.svg" alt="e-mail">
-                </div>
-              </div>
-              {#if showDateChange && (tickets.length || additionals.length)}
-                <div class="input-block date-picker" class:requiredField={requiredField && !userDate.length}>
-                  <input 
-                    use:imask={{mask: "00.00.0000" }} 
-                    bind:value={userDate} 
-                    placeholder="ДД.ММ.ГГГГ" 
-                    bind:this={dateInput}
-                    on:focus={() => showDatePicker = true}
-                    on:init={({detail: mask2}) => mask = mask2}
-                    />
+      {:else if result_action.site_payment}
+        <div class="register-center">
+          <div class="register-form">
+            <div class="register-info-blocks">
+              <div class="inputs-block" class:only-inputs={result_action.buyable.length === 0}>
+                <div class="input-block" class:requiredField={requiredField && !userName.length}>
+                  <input type="text" bind:value={userName} placeholder={_("name")}/>
                   <div class="img-block">
-                    <img src="/img/calendar.png" alt="date">
+                    <img src="/img/user-black.svg" alt="user">
                   </div>
-                  <div class="all-dates">
-                    <ClickOutside on:clickoutside={() => showDatePicker = false} exclude={[dateInput]} hideByExclude={false}>
-                      {#if showDatePicker}
-                        <ul class="date-list" transition:slide>
-                          {#each userDate.length === 10 ? visibleDates : visibleDates.filter(({shortDate}) => userDate.length ? shortDate.startsWith(userDate) : true) as {shortDate}}
-                            <li>
-                              <button on:click={() => {
-                                userDate = shortDate;
-                                mask.typedValue = userDate;
-                                mask.updateValue();
-                                showDatePicker = false;
-                              }}>
-                                {shortDate}
-                              </button>
-                            </li>
-                          {/each}
-                        </ul>
-                      {/if}
-                    </ClickOutside>
+                </div>
+                <div class="input-block" class:requiredField={requiredField && !surname.length}>
+                  <input type="text" bind:value={surname} placeholder={_("surname")}/>
+                  <div class="img-block">
+                    <img src="/img/user-black.svg" alt="user">
+                  </div>
+                </div>
+                <div class="input-block" class:requiredField={requiredField && !userPhone.length}>
+                  <input
+                    type="text"
+                    bind:value={userPhone}
+                    on:keydown={validatePhone} 
+                    placeholder={_("phone")}/>
+                  <div class="img-block">
+                    <img src="/img/phone-call.svg" alt="phone">
+                  </div>
+                </div>
+                <div class="input-block" class:requiredField={requiredField && ( !validateMail(userMail) || !userMail.length)}>
+                  <input type="text" bind:value={userMail} placeholder="e-mail"/>
+                  <div class="img-block">
+                    <img src="/img/mail.svg" alt="e-mail">
+                  </div>
+                </div>
+                {#if showDateChange && (tickets.length || additionals.length)}
+                  <div class="input-block date-picker" class:requiredField={requiredField && !userDate.length}>
+                    <input 
+                      use:imask={{mask: "00.00.0000" }} 
+                      bind:value={userDate} 
+                      placeholder="ДД.ММ.ГГГГ" 
+                      bind:this={dateInput}
+                      on:focus={() => showDatePicker = true}
+                      on:init={({detail: mask2}) => mask = mask2}
+                      />
+                    <div class="img-block">
+                      <img src="/img/calendar.png" alt="date">
+                    </div>
+                    <div class="all-dates">
+                      <ClickOutside on:clickoutside={() => showDatePicker = false} exclude={[dateInput]} hideByExclude={false}>
+                        {#if showDatePicker}
+                          <ul class="date-list" transition:slide>
+                            {#each userDate.length === 10 ? visibleDates : visibleDates.filter(({shortDate}) => userDate.length ? shortDate.startsWith(userDate) : true) as {shortDate}}
+                              <li>
+                                <button on:click={() => {
+                                  userDate = shortDate;
+                                  mask.typedValue = userDate;
+                                  mask.updateValue();
+                                  showDatePicker = false;
+                                }}>
+                                  {shortDate}
+                                </button>
+                              </li>
+                            {/each}
+                          </ul>
+                        {/if}
+                      </ClickOutside>
+                    </div>
+                  </div>
+                {/if}
+              </div>
+              {#if tickets.length > 0}
+                <div class="register-categoty-block">
+                  <h2>{_('ticket_categories')}</h2>
+                  <div class="tickets-block">
+                    {#each tickets as ticket}
+                      <div class="ticket-block">
+                        <div>
+                          <div>{ticket.name}</div>
+                          <div class="ticket-price">{ticket.price} {_('rub')}</div>
+                        </div>
+                        <div class="counter">
+                          <button on:click={() => ticket.count = ticket.count - 1 < 0 ? 0 : ticket.count - 1 }>-</button>
+                          <div class="couter-value">{ticket.count}</div>
+                          <button on:click={() => ticket.count++}>+</button>
+                        </div>
+                      </div>
+                    {/each}
+                  </div>
+                </div>
+              {/if}
+              {#if additionals.length > 0}
+                <div class="register-categoty-block">
+                  <h2>{_('additionally')}</h2>
+                  <div class="tickets-block">
+                    {#each additionals as ticket}
+                      <div class="ticket-block">
+                        <div>
+                          <div>{ticket.name}</div>
+                          <div class="ticket-price">{ticket.price} {_('rub')}</div>
+                        </div>
+                        <div class="counter">
+                          <button on:click={() => ticket.count = ticket.count - 1 < 0 ? 0 : ticket.count - 1}>-</button>
+                          <div class="couter-value">{ticket.count}</div>
+                          <button on:click={() => ticket.count++}>+</button>
+                        </div>
+                      </div>
+                    {/each}
                   </div>
                 </div>
               {/if}
             </div>
-            {#if tickets.length > 0}
-              <div class="register-categoty-block">
-                <h2>{_('ticket_categories')}</h2>
-                <div class="tickets-block">
-                  {#each tickets as ticket}
-                    <div class="ticket-block">
-                      <div>
-                        <div>{ticket.name}</div>
-                        <div class="ticket-price">{ticket.price} {_('rub')}</div>
-                      </div>
-                      <div class="counter">
-                        <button on:click={() => ticket.count = ticket.count - 1 < 0 ? 0 : ticket.count - 1 }>-</button>
-                        <div class="couter-value">{ticket.count}</div>
-                        <button on:click={() => ticket.count++}>+</button>
-                      </div>
-                    </div>
-                  {/each}
-                </div>
-              </div>
-            {/if}
-            {#if additionals.length > 0}
-              <div class="register-categoty-block">
-                <h2>{_('additionally')}</h2>
-                <div class="tickets-block">
-                  {#each additionals as ticket}
-                    <div class="ticket-block">
-                      <div>
-                        <div>{ticket.name}</div>
-                        <div class="ticket-price">{ticket.price} {_('rub')}</div>
-                      </div>
-                      <div class="counter">
-                        <button on:click={() => ticket.count = ticket.count - 1 < 0 ? 0 : ticket.count - 1}>-</button>
-                        <div class="couter-value">{ticket.count}</div>
-                        <button on:click={() => ticket.count++}>+</button>
-                      </div>
-                    </div>
-                  {/each}
-                </div>
-              </div>
-            {/if}
-          </div>
-          <hr />
-          <div class="final-price-block">
-            {#if tickets.length || additionalsWithCount.length}
-              <div class="total-price">{_("total")}<span>{total} {_('rub')}</span></div>
-            {/if}
-            <button class="register-button" on:click={subscribeUser}>
-              {!tickets.length && !additionalsWithCount.length ? _('register') : _("buy_tickets")}
-            </button>
+            <hr />
+            <div class="final-price-block">
+              {#if tickets.length || additionalsWithCount.length}
+                <div class="total-price">{_("total")}<span>{total} {_('rub')}</span></div>
+              {/if}
+              <button class="register-button" on:click={subscribeUser}>
+                {!tickets.length && !additionalsWithCount.length ? _('register') : _("buy_tickets")}
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      {/if}
     {/if}
 
     {#if result_action.excursions.length > 0}

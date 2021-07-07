@@ -133,6 +133,7 @@
   
   if (organizer_payment !== null) participation = "organizer";
   else if (site_payment === true) participation = "site";
+  else participation = "not_need";
 
   if (price_min === 0 && price_max === 0) price = "";
   else if (price_min === 0 && price_max !== 0) price = price_max;
@@ -403,9 +404,13 @@
   $: if (participation === "organizer") {
       setOrganizerPayment( actionData.organizer_payment )
       site_payment = false;
-    } else {
+    }
+    else if (participation === "site") {
       site_payment = true;
       setOrganizerPayment( null )
+    } else {
+      setOrganizerPayment( null );
+      site_payment = false;
   }
 
   //Оплата через организатора
@@ -2230,6 +2235,15 @@
           bind:group={participation}
           value={'site'} />
         <label for="participation">{_('pay_in_site')}</label>
+      </div>
+
+      <div>
+        <input
+          type="radio"
+          name="participation"
+          bind:group={participation}
+          value={'not_need'} />
+        <label for="participation">Без регистрации</label>
       </div>
 
     </div>
