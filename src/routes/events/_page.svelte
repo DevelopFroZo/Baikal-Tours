@@ -103,12 +103,13 @@ function changeFilter() {
     filter.date.dateStart.value !== "" &&
     filter.date.dateEnd.value !== ""
   )
-    filter.date.dateStart.value = filter.date.dateStart.value;
+    filter.date.dateStart.value = filter.date.dateEnd.value;
 
-  filter.date.dateStart.active = filter.date.dateStart.value === "" ? false : true;
-  filter.date.dateEnd.active = filter.date.dateEnd.value === "" ? false : true;
+  filter.date.dateStart.active = Boolean(filter.date.dateStart.value);
+  filter.date.dateEnd.active = Boolean(filter.date.dateEnd.value);
 
   date = parseDateForActiveFilter(filter);
+
 
   if (filter.date.dateStart.active && filter.date.dateEnd.active)
     date = filter.date.dateStart.value + " - " + filter.date.dateEnd.value;
@@ -574,7 +575,7 @@ function showCard() {
   {#if intersection.data[0]}
     <title>{intersection.data[0].title}</title>
   {:else}
-    <title>{_('event_catalog')}</title>
+    <title>{_('event_catalog_title')}</title>
   {/if}
   <!-- <link rel="stylesheet" href="https://unpkg.com/swiper/css/swiper.css" /> -->
   {#if intersection.data[0]}

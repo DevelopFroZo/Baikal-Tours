@@ -54,6 +54,7 @@ export default ({
   "notification_about_reservations": "Notification about reservations",
 
   event_catalog: "Event catalog",
+  event_catalog_title: "Events catalog: a calendar of events on Lake Baikal from the Fan of Lake Baikal. 2021-2022 years",
   date_from: "Date from",
   date_by: "Date by",
   where: "Where",
@@ -67,6 +68,7 @@ export default ({
   authorize: "LogIn",
   logout: "LogOut",
   event_calendar: "Event calendar",
+  event_calendar_title: "Baikal events calendar from the Baikal Fan. 2021-2022 years",
   free: "Free",
   user_agreement: "User agreement",
   contacts: "Contacts",

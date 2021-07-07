@@ -54,6 +54,7 @@ export default ( {
   "notification_about_reservations": "Уведомление о зарегистрировавшихся",
 
   event_catalog: "Каталог событий",
+  event_catalog_title: "Каталог событий: календарь событий на Байкале от Фаната Байкала. 2021-2022 годы",
   date_from: "Дата с",
   date_by: "Дата по",
   where: "Где",
@@ -67,6 +68,7 @@ export default ( {
   authorize: "Вход",
   logout: "Выход",
   event_calendar: "Календарь событий",
+  event_calendar_title: "Календарь событий на Байкале от Фаната Байкала. 2021-2022 годы",
   free: "Бесплатно",
   user_agreement: "Пользовательское соглашение",
   contacts: "Контакты",

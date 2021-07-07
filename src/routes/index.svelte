@@ -38,6 +38,8 @@
 
   export let locale, subjects, actions, compiliations_result, mobile;
 
+  console.log(actions)
+
   for(let action of actions)
     action.id = action.action_id;
   
@@ -575,7 +577,7 @@
 </style>
 
 <svelte:head>
-  <title>{_('event_calendar')}</title>
+  <title>{_('event_calendar_title')}</title>
   <meta name="description" content="{_('quiz_text')} {_('on_two_clicks')}" />
 </svelte:head>
 
