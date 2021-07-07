@@ -637,10 +637,10 @@
       <span>{_('actions')}</span>
     </h3>
     <div class="action-carousel">
+      <!-- blockHeight={eventsHeight + "px"} -->
       <Carousel
         data={{ slidesPerView: mobile ? 'auto' : 3, spaceBetween: 30, slidesPerGroup: mobile ? 1 : 3, speed: 750, allowTouchMove: mobile ? true : false, navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' } }}
-        carouselData={compiliations_result}
-        blockHeight={eventsHeight + "px"}>
+        carouselData={compiliations_result}>
         {#each actions as action}
           <Card {...action} {locale} saveUrl={false} />
         {/each}
