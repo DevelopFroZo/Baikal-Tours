@@ -269,7 +269,7 @@ export default ( {
   user_info:                      "用户信息",
 
   quiz_text:                      "了解贝加尔湖上所有有趣的活动\n",
-  on_four_clicks:                 "在4点击",
+  on_two_clicks:                  "2次點擊",
   then:                           "进一步",
   sport:                          "体育",
   forums:                         "论坛",
@@ -289,6 +289,7 @@ export default ( {
   inter_your_email:               "输入您的电子邮件地址",
   send:                           "发送",
   find_your_adventure:            "找到你的冒险",
+  find_all_events:                "查看所有活動",
   more_events:                    "伟大的事件",
   show_on_card:                   "地图",
   share:                          "分享:",

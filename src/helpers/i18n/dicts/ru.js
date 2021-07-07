@@ -264,7 +264,7 @@ export default ( {
   user_info:                  "Информация о пользователе",
 
   quiz_text:                  "Узнайте о всех интересных\n именно Вам событиях на Байкале\n",
-  on_four_clicks:             "за 4 клика",
+  on_two_clicks:              "за 2 клика",
   then:                       "Далее",
   sport:                      "Спорт",
   forums:                     "Форумы",
@@ -284,6 +284,7 @@ export default ( {
   inter_your_email:           "Введите свой e-mail",
   send:                       "Отправить",
   find_your_adventure:        "Найди свое приключение",
+  find_all_events:            "Посмотреть все события",
   more_events:                "Больше событий",
   show_on_card:               "Показать на карте",
   share:                      "Поделиться:",

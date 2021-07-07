@@ -188,6 +188,24 @@
     }
   }
 
+  .translators-block-a {
+    display: block;
+    width: 380px;
+    padding: 15px;
+    background: #117BCD;
+    border-radius: 100px;
+    margin: 0px auto 20px auto;
+    text-align: center;
+    color: white;
+    font-family: $Gilroy;
+    font-size: $LowBig_Font_Size;
+    transition: 0.3s;
+
+    &:hover{
+      background: #0052B4;
+    }
+  }
+
   .translators-block {
     background: #f5f5f5;
     padding: 100px 0 65px;
@@ -558,7 +576,7 @@
 
 <svelte:head>
   <title>{_('event_calendar')}</title>
-  <meta name="description" content="{_('quiz_text')} {_('on_four_clicks')}" />
+  <meta name="description" content="{_('quiz_text')} {_('on_two_clicks')}" />
 </svelte:head>
 
 <Header {locale} {mobile} />
@@ -566,7 +584,7 @@
   <div class="top-text">
     <h1>
       {_('quiz_text')}
-      <span>{_('on_four_clicks')}</span>
+      <span>{_('on_two_clicks')}</span>
     </h1>
   </div>
   <img src="/img/index-top.png" alt={_('main_text')} />
@@ -633,6 +651,7 @@
   
 </div>
 
+<a href="/events" class="translators-block-a">{_('find_all_events')}</a>
 <div class="translators-block">
   <div class="form-width">
     <button class="ru" on:click={() => setLocale('ru')}>

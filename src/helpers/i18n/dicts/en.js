@@ -267,7 +267,7 @@ export default ({
   user_info:                  "User information",
 
   quiz_text:                  "Find out about all the interesting events on lake Baikal \n",
-  on_four_clicks:             "in 4 clicks",
+  on_two_clicks:              "in 2 clicks",
   then:                       "Further",
   sport:                      "Sport",
   forums:                     "Forums",
@@ -287,6 +287,7 @@ export default ({
   inter_your_email:           "Enter your email address",
   send:                       "Send",
   find_your_adventure:        "Find your adventure",
+  find_all_events:            "See all events",
   more_events:                "Great event",
   show_on_card:               "Map",
   share:                      "Share:",
