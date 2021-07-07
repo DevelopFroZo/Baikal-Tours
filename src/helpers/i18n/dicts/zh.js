@@ -55,6 +55,7 @@ export default ( {
   "notification_about_reservations": "預訂通知",
 
   event_catalog: "事件目录",
+  event_catalog_title: "活動目錄：貝加爾湖扇的貝加爾湖活動日曆。 2021-2022年",
   date_from: "从日期",
   date_by: "日期",
   where: "哪里",
@@ -68,6 +69,7 @@ export default ( {
   authorize: "授权",
   logout: "退出",
   event_calendar: "事件日历",
+  event_calendar_title: "貝加爾湖扇貝加爾湖活動日曆。 2021-2022年",
   free: "免费",
   user_agreement: "用户协议",
   contacts: "联系人",
