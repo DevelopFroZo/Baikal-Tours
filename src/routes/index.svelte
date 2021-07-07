@@ -38,8 +38,6 @@
 
   export let locale, subjects, actions, compiliations_result, mobile;
 
-  console.log(actions)
-
   for(let action of actions)
     action.id = action.action_id;
   

@@ -30,7 +30,6 @@ async function create( client, actionId, location2Id ){
 // #fix add address & coords
 async function edit( client, actionId, oldLocation2Id, newLocation2Id ){
   try{
-    console.log( actionId, oldLocation2Id, newLocation2Id );
     const { rowCount } = await client.query(
       `update actions_locations2
       set location2_id = $1

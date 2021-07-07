@@ -108,12 +108,8 @@ function changePriceByFilter(price){
 function createFilterWithSlug(filter, fetcher, search){
     let params = { filter: "" }
 
-    console.log(filter)
-
     const { dateStart, dateEnd } = changeDateByFilter(filter.date);
     const { priceMax, priceMin } = changePriceByFilter(filter.price);
-
-    console.log(dateStart, dateEnd)
 
     if(dateStart)   params.dateStart = dateStart;
     if(dateEnd)     params.dateEnd = dateEnd;
