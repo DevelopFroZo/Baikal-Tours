@@ -20,10 +20,10 @@
   "homepage": "https://github.com/DevelopFroZo/Baikal-Tours#readme",
   "dependencies": {
     "autoprefixer": "^9.7.4",
-    "body-parser": "^1.19.0",
+    "body-parser": "^1.20.3",
     "compression": "^1.7.1",
     "connect-pg-simple": "^6.1.0",
-    "express": "^4.17.1",
+    "express": "^4.21.2",
     "express-session": "^1.17.0",
     "helmet": "^3.21.2",
     "imask": "^6.0.5",
